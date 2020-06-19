@@ -1,4 +1,4 @@
-package org.apache.skywalking.oap.server.om.protocol.snmp;
+package com.htht;
 
 import com.alibaba.fastjson.JSON;
 import com.piesat.skywalking.om.protocol.snmp.SNMPConstants;

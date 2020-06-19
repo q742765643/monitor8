@@ -215,10 +215,6 @@ limitations under the License. -->
             }
           }
         }
-        if (queryMetricType === QueryTypes.GlobalBrief) {
-          this.chartSource = params.globalBrief;
-          //console.log( this.chartSource)
-        }
       }
     }
 

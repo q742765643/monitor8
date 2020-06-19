@@ -14,13 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const globalBrief = {
-  variable: ['$duration: Duration!'],
-  fragment: `
-  globalBrief: getGlobalBrief(duration: $duration) {
-    numOfService numOfEndpoint numOfDatabase numOfCache numOfMQ
-  }`,
-};
 
 const readMetricsValues = {
   variable: ['$condition: MetricsCondition!, $duration: Duration!'],
@@ -96,5 +89,4 @@ export default {
   sortMetrics,
   readMetricsValue,
   readMetricsValues,
-  globalBrief,
 };

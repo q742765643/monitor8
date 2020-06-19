@@ -9,6 +9,6 @@ import org.springframework.context.annotation.Configuration;
 public class EsConfig {
     @Bean
     public ElasticSearch7Client elasticSearch7Client(){
-        return StorageModuleElasticsearch7Provider.esMap.get("es");
+        return StorageModuleElasticsearch7Provider.ESMAP.get("es");
     }
 }
