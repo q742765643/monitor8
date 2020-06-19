@@ -15,9 +15,21 @@ public class SNMPController {
     @GetMapping("/snmp/get")
     public ResultT<String> snmp() {
       ResultT<String> resultT=new ResultT<>();
-      for(int i=0;i<1;i++){
+      boolean flag=true;
+       while (flag){
+            long startTime=System.currentTimeMillis();
             snmpService.getSystemInfo("10.1.100.96","161","2");
-        }
+            long endTime=System.currentTimeMillis();
+
+           try {
+               if(endTime-startTime<10*1000){
+                   Thread.sleep(10*1000-(endTime-startTime));
+               }
+
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+       }
 
       return resultT;
     }
