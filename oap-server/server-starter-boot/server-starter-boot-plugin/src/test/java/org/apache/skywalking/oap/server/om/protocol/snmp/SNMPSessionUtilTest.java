@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class SNMPSessionUtilTest {
     public static void main(String args[]) throws Exception {
         SNMPSessionUtil snmpSessionUtil=new SNMPSessionUtil("10.1.100.96","161","public", "2");
-        String[] oid = {".1.3.6.1.4.1.2021.11.9"};
+      /*  String[] oid = {".1.3.6.1.4.1.2021.11.9"};
         String[] oids = {SNMPConstants.SSCPUNUM};
         //ArrayList<String> snmpGet = snmpSessionUtil.snmpWalk2( oids);
         String[] sysCpu = {
@@ -22,7 +22,19 @@ public class SNMPSessionUtilTest {
                 SNMPConstants.SSCPURAWSTEAL,
                 ".1.3.6.1.4.1.2021.11.9.1",
         };
-        ArrayList<String> snmpGet = snmpSessionUtil.getSnmpGet(PDU.GET, sysCpu);
+        ArrayList<String> snmpGet = snmpSessionUtil.getSnmpGet(PDU.GET, sysCpu);*/
+        String[] sysm = {
+                SNMPConstants.MEMTOTALSWAP,
+                SNMPConstants.MEMAVAILSWAP,
+                SNMPConstants.MEMTOTALREAL,
+                SNMPConstants.MEMAVAILREAL,
+                SNMPConstants.MEMTOTALFREE,
+                ".1.3.6.1.2.1.25.2.2.0",
+        };
+        ArrayList<String> snmpGet = snmpSessionUtil.getSnmpGet(PDU.GET, sysm);
         System.out.println(JSON.toJSONString(snmpGet));
+
+
+
     }
 }

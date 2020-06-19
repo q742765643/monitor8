@@ -15,7 +15,10 @@ public class SNMPController {
     @GetMapping("/snmp/get")
     public ResultT<String> snmp() {
       ResultT<String> resultT=new ResultT<>();
-        snmpService.getSystemInfo("10.1.100.96","161","2");
+      for(int i=0;i<1;i++){
+            snmpService.getSystemInfo("10.1.100.96","161","2");
+        }
+
       return resultT;
     }
 }

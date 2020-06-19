@@ -25,6 +25,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
@@ -80,7 +82,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
     protected ElasticSearch7Client elasticSearch7Client;
-
+    public static ConcurrentHashMap<String,ElasticSearch7Client> esMap=new ConcurrentHashMap<>();
     public StorageModuleElasticsearch7Provider() {
         super();
         this.config = new StorageModuleElasticsearch7Config();
@@ -191,6 +193,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
             StorageEs7Installer installer = new StorageEs7Installer(elasticSearch7Client, getManager(), config);
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+            esMap.put("es",elasticSearch7Client);
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
