@@ -46,12 +46,17 @@ public class SNMPService {
         elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceMemory);
 
         Map<String,Object> sourceDisk=this.metricbeatMap(hostComputer,port,"filesystem",snmpSessionUtil);
-        this.diskMap(snmpSessionUtil,sourceDisk);
+        this.diskMap(hostComputer,port,snmpSessionUtil,sourceDisk);
 
         Map<String,Object> sourceNetwork=this.metricbeatMap(hostComputer,port,"network",snmpSessionUtil);
         this.networkMap(snmpSessionUtil,sourceNetwork);
 
+        Map<String,Object> sourceLoad=this.metricbeatMap(hostComputer,port,"load",snmpSessionUtil);
+        this.loadMap(snmpSessionUtil,sourceLoad);
+        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceLoad);
 
+        Map<String,Object> sourceDiskio=this.metricbeatMap(hostComputer,port,"diskio",snmpSessionUtil);
+        this.diskioMap(snmpSessionUtil,sourceDiskio);
         return mapList;
     }
     public Map<String,Object> metricbeatMap(String hostComputer,String version,String type,SNMPSessionUtil snmpSessionUtil) throws Exception {
@@ -355,7 +360,7 @@ public class SNMPService {
     }
 
     @SneakyThrows
-    public void diskMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+    public void diskMap(String hostComputer,String port,SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
         String[] sysDisk = {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
                 "1.3.6.1.2.1.25.2.3.1.3",  //descr
                 "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
@@ -363,6 +368,9 @@ public class SNMPService {
                 "1.3.6.1.2.1.25.2.3.1.6"}; //used 使用存储单元数;
         List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysDisk);
         String DISK_OID = "1.3.6.1.2.1.25.2.1.4";
+        long fsstatUse=0;
+        long fsstatTotal=0;
+        long fsstatCount=0;
         for (TableEvent event : tableEvents) {
             VariableBinding[] values = event.getColumns();
             if(values == null ||!DISK_OID.equals(values[0].getVariable().toString()))
@@ -372,7 +380,9 @@ public class SNMPService {
             BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
             BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use
             BigDecimal usePct=usedSize.divide(totalSize,4,RoundingMode.HALF_UP);
-
+            fsstatUse+=usedSize.longValue();
+            fsstatTotal+=totalSize.longValue();
+            fsstatCount+=1;
             Map<String,Object> system=new HashMap<>();
             Map<String,Object> filesystem=new HashMap<>();
             filesystem.put("available",totalSize.longValue());
@@ -393,6 +403,19 @@ public class SNMPService {
             elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
 
         }
+        Map<String,Object> sourceFsstat=this.metricbeatMap(hostComputer,port,"fsstat",snmpSessionUtil);
+        Map<String,Object> system=new HashMap<>();
+        Map<String,Object> fsstat=new HashMap<>();
+        fsstat.put("count",fsstatCount);
+        Map<String,Object> totalSize=new HashMap<>();
+        totalSize.put("free",fsstatTotal-fsstatUse);
+        totalSize.put("used",fsstatUse);
+        totalSize.put("total",fsstatTotal);
+        fsstat.put("total_size",totalSize);
+        system.put("fsstat",fsstat);
+        sourceFsstat.put("system",system);
+        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceFsstat);
+
     }
     @SneakyThrows
     public void networkMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
@@ -560,6 +583,76 @@ public class SNMPService {
         lastCpuPct.putAll(nowCpuPct);
 
 
+    }
+
+    @SneakyThrows
+    public void loadMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+        String[] sysLoad = {
+                ".1.3.6.1.4.1.2021.10.1.3.1",  //load1
+                ".1.3.6.1.4.1.2021.10.1.3.2", //load5
+                ".1.3.6.1.4.1.2021.10.1.3.3" //load15
+        };
+        String[] sscpuNum = {SNMPConstants.SSCPUNUM};
+        ArrayList<String> sscpuNums=snmpSessionUtil.snmpWalk2(sscpuNum);
+        long cores=sscpuNums.size();
+        ArrayList<String> ssLoad=snmpSessionUtil.getSnmpGet(PDU.GET,sysLoad);
+        BigDecimal load1Norm=new BigDecimal(ssLoad.get(0));
+        BigDecimal load5Norm=new BigDecimal(ssLoad.get(1));
+        BigDecimal load15Norm=new BigDecimal(ssLoad.get(2));
+        BigDecimal load1=load1Norm.multiply(new BigDecimal(cores));
+        BigDecimal load5=load5Norm.multiply(new BigDecimal(cores));
+        BigDecimal load15=load15Norm.multiply(new BigDecimal(cores));
+        Map<String,Object> system=new HashMap<>();
+        Map<String,Object> load=new HashMap<>();
+        load.put("cores",cores);
+        load.put("1",load1);
+        load.put("5",load5);
+        load.put("15",load15);
+        Map<String,Object> norm=new HashMap<>();
+        norm.put("1",load1Norm);
+        load.put("5",load5Norm);
+        load.put("15",load15Norm);
+        load.put("norm",norm);
+        system.put("load",load);
+        source.put("system",system);
+
+    }
+    @SneakyThrows
+    public void diskioMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+        String[] sysDiskio = {
+                ".1.3.6.1.4.1.2021.13.15.1.1.2", //name
+                ".1.3.6.1.4.1.2021.13.15.1.1.5",  //read
+                ".1.3.6.1.4.1.2021.13.15.1.1.6",  //write
+                ".1.3.6.1.4.1.2021.13.15.1.1.12",  //readbytes
+                ".1.3.6.1.4.1.2021.13.15.1.1.13"  //writebytes
+        };
+        List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysDiskio);
+        for (TableEvent event : tableEvents) {
+            VariableBinding[] values = event.getColumns();
+            String name = values[0].getVariable().toString();
+            BigDecimal readCount =new BigDecimal(values[1].getVariable().toString());
+            BigDecimal writeCount =new BigDecimal(values[2].getVariable().toString());
+            BigDecimal readBytes =new BigDecimal(values[3].getVariable().toString());
+            BigDecimal writeBytes =new BigDecimal(values[4].getVariable().toString());
+            Map<String,Object> system=new HashMap<>();
+            Map<String,Object> diskio=new HashMap<>();
+            diskio.put("name",name);
+            Map<String,Object> read=new HashMap<>();
+            read.put("count",readCount.longValue());
+            read.put("bytes",readBytes.longValue());
+            read.put("time",999l);
+            diskio.put("read",read);
+            Map<String,Object> write=new HashMap<>();
+            write.put("count",writeCount.longValue());
+            write.put("bytes",writeBytes.longValue());
+            write.put("time",999l);
+            diskio.put("write",write);
+            system.put("diskio",diskio);
+            source.put("system",system);
+            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
+
+
+        }
     }
 
 }
