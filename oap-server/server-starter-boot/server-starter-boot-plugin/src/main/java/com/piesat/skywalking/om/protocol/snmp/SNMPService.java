@@ -22,8 +22,8 @@ public class SNMPService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
     private ArrayList<String> sysCpusPre=new ArrayList<>();
-    private Map<Long,Long> mapProcessCpu=new HashMap<>();
-    private Map<Long,BigDecimal> lastProcessCpu=new HashMap<>();
+    private Map<Long,Long> lastCputime=new HashMap<>();
+    private Map<Long,BigDecimal> lastCpuPct=new HashMap<>();
 
     private Date date;
     @SneakyThrows
@@ -39,13 +39,11 @@ public class SNMPService {
         long totalCpuTime=this.cpuMap(snmpSessionUtil,sourceCpu);
         Map<String,Object> sourceProcess=this.metricbeatMap(hostComputer,port,"process",snmpSessionUtil);
         this.processMap(snmpSessionUtil,sourceProcess,totalCpuTime);
-        XContentBuilder xContentBuilderCpu=this.map2builder(sourceCpu);
-        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),xContentBuilderCpu);
+        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceCpu);
 
         Map<String,Object> sourceMemory=this.metricbeatMap(hostComputer,port,"memory",snmpSessionUtil);
         this.memoryMap(snmpSessionUtil,sourceMemory);
-        XContentBuilder xContentBuilderMemory=this.map2builder(sourceMemory);
-        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),xContentBuilderMemory);
+        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceMemory);
 
         Map<String,Object> sourceDisk=this.metricbeatMap(hostComputer,port,"filesystem",snmpSessionUtil);
         this.diskMap(snmpSessionUtil,sourceDisk);
@@ -68,41 +66,68 @@ public class SNMPService {
         String[] sysName = {SNMPConstants.SYSNAME};
         ArrayList<String> sysNames=snmpSessionUtil.getSnmpGet(PDU.GET,sysName);
         source.put("@timestamp",date);
-        source.put("agent.ephemeral_id","5bc43524-b053-11ea-80ae-"+sysNames.get(0));
-        source.put("agent.hostname",sysNames.get(0));
-        source.put("agent.id","5fedf84c-b053-11ea-8288-"+sysNames.get(0));
-        source.put("agent.name",hostComputer);
-        source.put("agent.type","snmpbeat");
-        source.put("agent.version",version);
-        source.put("cloud.availability_zone","");
-        source.put("cloud.instance.id","");
-        source.put("cloud.instance.name","");
-        source.put("cloud.machine.type","");
-        source.put("cloud.provider","");
-        source.put("ecs.version","1.5.0");
-        source.put("event.dataset","system."+type);
-        source.put("event.duration","0.2");
-        source.put("event.module","system");
-        source.put("host.architecture","");
-        source.put("host.containerized","");
-        source.put("host.hostname",sysNames.get(0));
-        source.put("host.id","");
-        source.put("host.ip",hostComputer);
-        source.put("host.mac","");
-        source.put("host.name",hostComputer);
-        source.put("host.os.codename","");
-        source.put("host.os.family","");
-        source.put("host.os.kernel","");
-        source.put("host.os.name",sysDescs.get(0));
-        source.put("host.os.platform","");
-        source.put("host.os.version","");
-        source.put("metricset.name",type);
+
+        Map<String,Object> agent=new HashMap<>();
+        agent.put("ephemeral_id","5bc43524-b053-11ea-80ae-"+sysNames.get(0));
+        agent.put("hostname",sysNames.get(0));
+        agent.put("id","5fedf84c-b053-11ea-8288-"+sysNames.get(0));
+        agent.put("name",hostComputer);
+        agent.put("type","snmpbeat");
+        agent.put("version",version);
+        source.put("agent",agent);
+
+        Map<String,Object> cloud=new HashMap<>();
+        cloud.put("availability_zone","");
+        Map<String,Object> instance=new HashMap<>();
+        instance.put("id","");
+        instance.put("name","");
+        cloud.put("instance",instance);
+        Map<String,Object> machine=new HashMap<>();
+        machine.put("type","");
+        cloud.put("machine",machine);
+        cloud.put("provider","");
+        source.put("cloud",cloud);
+
+        Map<String,Object> ecs=new HashMap<>();
+        ecs.put("version","1.5.0");
+        source.put("ecs",ecs);
+
+        Map<String,Object> event=new HashMap<>();
+        event.put("dataset","system."+type);
+        event.put("duration","0.2");
+        event.put("module","system");
+        source.put("event",event);
+
+        Map<String,Object> host=new HashMap<>();
+        host.put("architecture","");
+        host.put("containerized","");
+        host.put("hostname",sysNames.get(0));
+        host.put("id","");
+        host.put("ip",hostComputer);
+        host.put("mac","");
+        host.put("name",hostComputer);
+        Map<String,Object> os=new HashMap<>();
+        os.put("codename","");
+        os.put("family","");
+        os.put("kernel","");
+        os.put("name",sysDescs.get(0));
+        os.put("platform","");
+        os.put("version","");
+        host.put("os",os);
+        source.put("host",host);
+
+        Map<String,Object> metricset=new HashMap<>();
+        metricset.put("name",type);
         if(type.equals("filesystem")){
-            source.put("metricset.period",60000l);
+            metricset.put("period",60000l);
         }else{
-            source.put("metricset.period",10000l);
+            metricset.put("period",10000l);
         }
-        source.put("service.type","system");
+        source.put("metricset",metricset);
+
+        Map<String,Object> service=new HashMap<>();
+        service.put("type","system");
+        source.put("service",service);
         return source;
     }
 
@@ -125,7 +150,6 @@ public class SNMPService {
             return 0;
         }
         long cores=sscpuNums.size();
-        source.put("system.cpu.cores",cores);
         BigDecimal idlePre= new BigDecimal(sysCpusPre.get(0));
         BigDecimal idle= new BigDecimal(sysCpus.get(0));
         BigDecimal waitPre= new BigDecimal(sysCpusPre.get(1));
@@ -151,24 +175,75 @@ public class SNMPService {
         float systemp=(system.subtract(systemPre)).divide(totalTime,4, RoundingMode.HALF_UP).floatValue();
         float userp=(user.subtract(userPre)).divide(totalTime,4, RoundingMode.HALF_UP).floatValue();
         float total=1-idlep;
-        source.put("system.cpu.idle.norm.pct",(idlep));
-        source.put("system.cpu.idle.pct",idlep*cores);
-        source.put("system.cpu.iowait.norm.pct",waitp);
-        source.put("system.cpu.iowait.pct",waitp*cores);
-        source.put("system.cpu.irq.norm.pct",0f);
-        source.put("system.cpu.irq.pct",0f);
-        source.put("system.cpu.nice.norm.pct",nicep);
-        source.put("system.cpu.nice.pct",nicep*cores);
-        source.put("system.cpu.softirq.norm.pct",softp);
-        source.put("system.cpu.softirq.pct",softp*cores);
-        source.put("system.cpu.steal.norm.pct",stealp);
-        source.put("system.cpu.steal.pct",stealp*cores);
-        source.put("system.cpu.system.norm.pct",systemp);
-        source.put("system.cpu.system.pct",systemp*cores);
-        source.put("system.cpu.user.norm.pct",userp);
-        source.put("system.cpu.user.pct",userp*cores);
-        source.put("system.cpu.total.norm.pct",total);
-        source.put("system.cpu.total.pct",total*cores);
+        Map<String,Object> systemM=new HashMap<>();
+        Map<String,Object> cpu=new HashMap<>();
+        cpu.put("cores",cores);
+        Map<String,Object> idleEs=new HashMap<>();
+        Map<String,Object> idleNorm=new HashMap<>();
+        idleNorm.put("pct",(idlep));
+        idleEs.put("norm",idleNorm);
+        idleEs.put("pct",idlep*cores);
+        cpu.put("idle",idleEs);
+
+        Map<String,Object> iowaitEs=new HashMap<>();
+        Map<String,Object> iowaitNorm=new HashMap<>();
+        iowaitNorm.put("pct",waitp);
+        iowaitEs.put("norm",iowaitNorm);
+        iowaitEs.put("pct",waitp*cores);
+        cpu.put("iowait",iowaitEs);
+
+        Map<String,Object> irqEs=new HashMap<>();
+        Map<String,Object> irqNorm=new HashMap<>();
+        irqNorm.put("pct",0f);
+        irqEs.put("norm",irqNorm);
+        irqEs.put("pct",0f);
+        cpu.put("irq",irqEs);
+
+        Map<String,Object> niceEs=new HashMap<>();
+        Map<String,Object> niceNorm=new HashMap<>();
+        niceNorm.put("pct",nicep);
+        niceEs.put("norm",niceNorm);
+        niceEs.put("pct",nicep*cores);
+        cpu.put("nice",niceEs);
+
+        Map<String,Object> softirqEs=new HashMap<>();
+        Map<String,Object> softirqNorm=new HashMap<>();
+        softirqNorm.put("pct",softp);
+        softirqEs.put("norm",softirqNorm);
+        softirqEs.put("pct",softp*cores);
+        cpu.put("softirq",softirqEs);
+
+        Map<String,Object> stealEs=new HashMap<>();
+        Map<String,Object> stealNorm=new HashMap<>();
+        stealNorm.put("pct",stealp);
+        stealEs.put("norm",stealNorm);
+        stealEs.put("pct",stealp*cores);
+        cpu.put("steal",stealEs);
+
+        Map<String,Object> systemEs=new HashMap<>();
+        Map<String,Object> systemNorm=new HashMap<>();
+        systemNorm.put("pct",systemp);
+        systemEs.put("norm",systemNorm);
+        systemEs.put("pct",systemp*cores);
+        cpu.put("system",systemEs);
+
+
+        Map<String,Object> userEs=new HashMap<>();
+        Map<String,Object> userNorm=new HashMap<>();
+        userNorm.put("pct",userp);
+        userEs.put("norm",userNorm);
+        userEs.put("pct",userp*cores);
+        cpu.put("user",userEs);
+
+        Map<String,Object> totalEs=new HashMap<>();
+        Map<String,Object> totalNorm=new HashMap<>();
+        totalNorm.put("pct",total);
+        totalEs.put("norm",totalNorm);
+        totalEs.put("pct",total*cores);
+        cpu.put("total",totalEs);
+
+        systemM.put("cpu",cpu);
+        source.put("system",systemM);
         sysCpusPre=sysCpus;
         return totalTime.longValue();
     }
@@ -199,41 +274,83 @@ public class SNMPService {
         BigDecimal actualFree = memAvailReal.add(memBuffer).add(memCached);
         BigDecimal actualUsedBytes = memTotalReal.subtract(actualFree);
         BigDecimal actualUsedPct = actualUsedBytes.divide(memTotalReal,4,RoundingMode.HALF_UP);
-        source.put("system.memory.actual.free",actualFree.longValue());
-        source.put("system.memory.actual.used.bytes",actualUsedBytes.longValue());
-        source.put("system.memory.actual.used.pct",actualUsedPct.floatValue());
-        source.put("system.memory.free",memAvailReal.longValue());
-        source.put("system.memory.hugepages.default_size",0l);
-        source.put("system.memory.hugepages.free",0l);
-        source.put("system.memory.hugepages.reserved",0l);
-        source.put("system.memory.hugepages.surplus",0l);
-        source.put("system.memory.hugepages.swap.out.fallback",0l);
-        source.put("system.memory.hugepages.swap.out.pages",0l);
-        source.put("system.memory.hugepages.total",0l);
-        source.put("system.memory.hugepages.used.bytes",0l);
-        source.put("system.memory.hugepages.used.pct",0l);
-        source.put("system.memory.page_stats.pgfree.pages",0l);
-        source.put("system.memory.page_stats.pgscan_direct.pages",0l);
-        source.put("system.memory.page_stats.pgscan_kswapd.pages",0l);
-        source.put("system.memory.page_stats.pgsteal_direct.pages",0l);
-        source.put("system.memory.page_stats.pgsteal_kswapd.pages",0l);
+        Map<String,Object> system=new HashMap<>();
+        Map<String,Object> memory=new HashMap<>();
+        Map<String,Object> actual=new HashMap<>();
+        actual.put("free",actualFree.longValue());
+        Map<String,Object> actualUsed=new HashMap<>();
+        actualUsed.put("bytes",actualUsedBytes.longValue());
+        actualUsed.put("pct",actualUsedPct.floatValue());
+        actual.put("used",actualUsed);
+        memory.put("actual",actual);
+        memory.put("free",memAvailReal.longValue());
+
+        Map<String,Object> hugepages=new HashMap<>();
+        hugepages.put("default_size",0l);
+        hugepages.put("free",0l);
+        hugepages.put("reserved",0l);
+        hugepages.put("surplus",0l);
+        Map<String,Object> hugepagesSwap=new HashMap<>();
+        Map<String,Object> hugepagesSwapOut=new HashMap<>();
+        hugepagesSwapOut.put("fallback",0l);
+        hugepagesSwapOut.put("pages",0l);
+        hugepagesSwap.put("out",hugepagesSwapOut);
+        hugepages.put("swap",hugepagesSwap);
+        hugepages.put("total",0l);
+        Map<String,Object> hugepagesUsed=new HashMap<>();
+        hugepagesUsed.put("bytes",0l);
+        hugepagesUsed.put("pct",0l);
+        hugepages.put("used",hugepagesUsed);
+        memory.put("hugepages",hugepages);
+
+        Map<String,Object> pageStats=new HashMap<>();
+        Map<String,Object> pgfree=new HashMap<>();
+        pgfree.put("pages",0l);
+        pageStats.put("pgfree",pgfree);
+        Map<String,Object> pgscanDirect=new HashMap<>();
+        pgscanDirect.put("pages",0l);
+        pageStats.put("pgscan_direct",pgscanDirect);
+        Map<String,Object> pgscanKswapd=new HashMap<>();
+        pgscanKswapd.put("pages",0l);
+        pageStats.put("pgscan_kswapd",pgscanKswapd);
+        Map<String,Object> pgstealDirect=new HashMap<>();
+        pgstealDirect.put("pages",0l);
+        pageStats.put("pgsteal_direct",pgstealDirect);
+        Map<String,Object> pgstealKswapd=new HashMap<>();
+        pgstealKswapd.put("pages",0l);
+        pageStats.put("pgsteal_kswapd",pgstealKswapd);
+        memory.put("page_stats",pageStats);
+
         BigDecimal swapUsedBytes=memTotalSwap.subtract(memAvailSwap);
         BigDecimal swapUsedPct=new BigDecimal(0);
         if(memTotalSwap.longValue()>0){
             swapUsedPct=swapUsedBytes.divide(memTotalSwap,4,RoundingMode.HALF_UP);
         }
-        source.put("system.memory.swap.free",memAvailSwap.longValue());
-        source.put("system.memory.swap.in.pages",0l);
-        source.put("system.memory.swap.out.pages",0l);
-        source.put("system.memory.swap.readahead.cached",0l);
-        source.put("system.memory.swap.readahead.pages",0l);
-        source.put("system.memory.swap.total",memTotalSwap.longValue());
-
-        source.put("system.memory.swap.used.bytes",swapUsedBytes.longValue());
-        source.put("system.memory.swap.used.pct",swapUsedPct.floatValue());
-        source.put("system.memory.total",memTotalReal.longValue());
-        source.put("system.memory.used.bytes",memTotalReal.subtract(memAvailReal).longValue());
-        source.put("system.memory.used.pct",(memTotalReal.subtract(memAvailReal)).divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
+        Map<String,Object> swap=new HashMap<>();
+        swap.put("free",memAvailSwap.longValue());
+        Map<String,Object> swapIn=new HashMap<>();
+        swapIn.put("pages",0l);
+        swap.put("in",swapIn);
+        Map<String,Object> swapOut=new HashMap<>();
+        swapOut.put("pages",0l);
+        swap.put("out",swapOut);
+        Map<String,Object> readahead=new HashMap<>();
+        readahead.put("cached",0l);
+        readahead.put("pages",0l);
+        swap.put("readahead",readahead);
+        swap.put("total",memTotalSwap.longValue());
+        Map<String,Object> swapUsed=new HashMap<>();
+        swapUsed.put("bytes",swapUsedBytes.longValue());
+        swapUsed.put("pct",swapUsedPct.floatValue());
+        swap.put("used",swapUsed);
+        memory.put("swap",swap);
+        memory.put("total",memTotalReal.longValue());
+        Map<String,Object> totalUsed=new HashMap<>();
+        totalUsed.put("bytes",memTotalReal.subtract(memAvailReal).longValue());
+        totalUsed.put("pct",(memTotalReal.subtract(memAvailReal)).divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
+        memory.put("used",totalUsed);
+        system.put("memory",memory);
+        source.put("system",system);
 
     }
 
@@ -255,18 +372,25 @@ public class SNMPService {
             BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
             BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use
             BigDecimal usePct=usedSize.divide(totalSize,4,RoundingMode.HALF_UP);
-            source.put("system.filesystem.available",totalSize.longValue());
-            source.put("system.filesystem.device_name",diskName);
-            source.put("system.filesystem.files",999l);
-            source.put("system.filesystem.free",totalSize.subtract(usedSize).longValue());
-            source.put("system.filesystem.free_files",999l);
-            source.put("system.filesystem.mount_point",diskName);
-            source.put("system.filesystem.total",totalSize.longValue());
-            source.put("system.filesystem.type","xfs");
-            source.put("system.filesystem.used.bytes",usedSize.longValue());
-            source.put("system.filesystem.used.pct",usePct.floatValue());
-            XContentBuilder xContentBuilderDisk=this.map2builder(source);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),xContentBuilderDisk);
+
+            Map<String,Object> system=new HashMap<>();
+            Map<String,Object> filesystem=new HashMap<>();
+            filesystem.put("available",totalSize.longValue());
+            filesystem.put("device_name",diskName);
+            filesystem.put("files",999l);
+            filesystem.put("free",totalSize.subtract(usedSize).longValue());
+            filesystem.put("free_files",999l);
+            filesystem.put("mount_point",diskName);
+            filesystem.put("total",totalSize.longValue());
+            filesystem.put("type","xfs");
+            Map<String,Object> used=new HashMap<>();
+            used.put("bytes",usedSize.longValue());
+            used.put("pct",usePct.floatValue());
+            filesystem.put("used",used);
+            system.put("filesystem",filesystem);
+            source.put("system",system);
+            //XContentBuilder xContentBuilderDisk=this.map2builder(source);
+            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
 
         }
     }
@@ -295,29 +419,37 @@ public class SNMPService {
             BigDecimal outDiscard=new BigDecimal(values[6].getVariable().toString());
             BigDecimal inUcastPkts=new BigDecimal(values[7].getVariable().toString());
             BigDecimal outUcastPkts=new BigDecimal(values[8].getVariable().toString());
-            source.put("system.network.in.bytes",inOctets.longValue());
-            source.put("system.network.in.dropped",inDiscard.longValue());
-            source.put("system.network.in.errors",inError.longValue());
-            source.put("system.network.in.packets",inUcastPkts.longValue());
-            source.put("system.network.name",descr);
-            source.put("system.network.out.bytes",outOctets.longValue());
-            source.put("system.network.out.dropped",outDiscard.longValue());
-            source.put("system.network.out.errors",outError.longValue());
-            source.put("system.network.out.packets",outUcastPkts.longValue());
-            XContentBuilder xContentBuilderNetwork=this.map2builder(source);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),xContentBuilderNetwork);
+            Map<String,Object> system=new HashMap<>();
+            Map<String,Object> network=new HashMap<>();
+            Map<String,Object> in=new HashMap<>();
+            in.put("bytes",inOctets.longValue());
+            in.put("dropped",inDiscard.longValue());
+            in.put("errors",inError.longValue());
+            in.put("packets",inUcastPkts.longValue());
+            network.put("in",in);
+
+            network.put("name",descr);
+            Map<String,Object> out=new HashMap<>();
+            out.put("bytes",outOctets.longValue());
+            out.put("dropped",outDiscard.longValue());
+            out.put("errors",outError.longValue());
+            out.put("packets",outUcastPkts.longValue());
+            network.put("out",out);
+            system.put("network",network);
+            source.put("system",system);
+            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
         }
     }
     @SneakyThrows
     public void processMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source,long totalCpuTime) {
-        Map<Long,Long> map=new HashMap<>();
-        Map<Long,BigDecimal> processCpuPct=new HashMap<>();
+        Map<Long,Long> nowCpuTime=new HashMap<>();
+        Map<Long,BigDecimal> nowCpuPct=new HashMap<>();
 
         /*String[] sysProcess1 = {
                 "1.3.6.1.2.1.25.4.2.1.4",  //run path
                 "1.3.6.1.2.1.25.5.1.1.1" //cpu
         };*/
-        String[] sysProcess2 = {
+        String[] sysProcess = {
                 "1.3.6.1.2.1.25.4.2.1.1",  //index
                 "1.3.6.1.2.1.25.4.2.1.2",  //name
                 "1.3.6.1.2.1.25.4.2.1.4",  //run path
@@ -327,30 +459,30 @@ public class SNMPService {
                 "1.3.6.1.2.1.25.5.1.1.2" //memory
 
         };
-        List<TableEvent> tableEvents2 = snmpSessionUtil.snmpWalk(sysProcess2);
+        List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysProcess);
         long totalNowCpuTime=0;
-        if(mapProcessCpu.size()==0){
+        if(lastCputime.size()==0){
             long pretotalCpuTime=0;
-            for (TableEvent event : tableEvents2) {
+            for (TableEvent event : tableEvents) {
                 VariableBinding[] values = event.getColumns();
                 long  id = new BigDecimal(values[0].getVariable().toString()).longValue();
                 String cpu = values[5].getVariable().toString();
                 pretotalCpuTime+=new BigDecimal(cpu).longValue();
-                mapProcessCpu.put(id,new BigDecimal(cpu).longValue());
+                lastCputime.put(id,new BigDecimal(cpu).longValue());
             }
-            mapProcessCpu.put(-1l,pretotalCpuTime);
+            lastCputime.put(-1l,pretotalCpuTime);
             return;
         }else{
-            for (TableEvent event : tableEvents2) {
+            for (TableEvent event : tableEvents) {
                 VariableBinding[] values = event.getColumns();
                 long  id = new BigDecimal(values[0].getVariable().toString()).longValue();
                 String cpu = values[5].getVariable().toString();
                 totalNowCpuTime+=new BigDecimal(cpu).longValue();
-                map.put(id,new BigDecimal(cpu).longValue());
+                nowCpuTime.put(id,new BigDecimal(cpu).longValue());
             }
-            map.put(-1l,totalNowCpuTime);
+            nowCpuTime.put(-1l,totalNowCpuTime);
         }
-        long cpuTime=totalNowCpuTime-mapProcessCpu.get(-1l);
+        long cpuTime=totalNowCpuTime-lastCputime.get(-1l);
         String[] sscpuNum = {SNMPConstants.SSCPUNUM};
         ArrayList<String> sscpuNums=snmpSessionUtil.snmpWalk2(sscpuNum);
         String[] sysMemory = {
@@ -362,21 +494,21 @@ public class SNMPService {
             totalCpuTime=cpuTime;
         }
         long cores=sscpuNums.size();
-        for (TableEvent event : tableEvents2) {
+        for (TableEvent event : tableEvents) {
             VariableBinding[] values = event.getColumns();
             String cpu = values[5].getVariable().toString();
             String runPath = values[2].getVariable().toString();
             String parameters=values[3].getVariable().toString();
             String name=values[1].getVariable().toString();
             long  id = new BigDecimal(values[0].getVariable().toString()).longValue();
-            map.put(id,new BigDecimal(cpu).longValue());
-            if(null==map.get(id)||null==mapProcessCpu.get(id)){
+            nowCpuTime.put(id,new BigDecimal(cpu).longValue());
+            if(null==nowCpuTime.get(id)||null==lastCputime.get(id)){
                 continue;
             }
             if(runPath.length()<2){
                 continue;
             }
-            long cha=(new BigDecimal(cpu).longValue()-mapProcessCpu.get(id))/cores;
+            long cha=(new BigDecimal(cpu).longValue()-lastCputime.get(id))/cores;
             if(cha>0){
                 System.out.println(name);
             }
@@ -385,47 +517,49 @@ public class SNMPService {
             }
             String[] args={runPath,parameters};
             BigDecimal mem = new BigDecimal(values[6].getVariable().toString()).multiply(new BigDecimal(1024));
-            source.put("process.pid",id);
-            source.put("process.args",parameters);
-            source.put("process.name",name);
-            source.put("process.working_directory",args);
-            source.put("system.process.cmdline",args);
+            Map<String,Object> processSource=new HashMap<>();
+            processSource.put("pid",id);
+            processSource.put("args",parameters);
+            processSource.put("name",name);
+            processSource.put("working_directory",args);
+            source.put("process",processSource);
+            Map<String,Object> system=new HashMap<>();
+            Map<String,Object> process=new HashMap<>();
+            process.put("cmdline",args);
             BigDecimal normPct=new BigDecimal(0);
-            if(cpuTime==0&&null!=lastProcessCpu.get(id)){
-                normPct=lastProcessCpu.get(id);
+            if(cpuTime==0&&null!=lastCpuPct.get(id)){
+                normPct=lastCpuPct.get(id);
             }
             if(cpuTime!=0){
                 normPct=new BigDecimal(cha).divide(new BigDecimal(totalCpuTime),4,RoundingMode.HALF_UP);
             }
-            processCpuPct.put(id,normPct);
-            source.put("system.process.cpu.total.norm.pct",normPct.floatValue());
-            source.put("system.process.cpu.total.pct",normPct.multiply(new BigDecimal(cores)).floatValue());
-            source.put("system.process.cpu.total.value",new BigDecimal(cpu).longValue());
-            source.put("system.process.memory.rss.bytes",mem.longValue());
-            source.put("system.process.memory.rss.pct",mem.divide(memoryTotal,4,RoundingMode.HALF_UP).floatValue());
-            XContentBuilder xContentBuilderNetwork=this.map2builder(source);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),xContentBuilderNetwork);
+            nowCpuPct.put(id,normPct);
+            Map<String,Object> cpuEs=new HashMap<>();
+            Map<String,Object> cpuEsTotal=new HashMap<>();
+            Map<String,Object> cpuEsTotalNorm=new HashMap<>();
+            cpuEsTotalNorm.put("pct",normPct.floatValue());
+            cpuEsTotal.put("norm",cpuEsTotalNorm);
+            cpuEsTotal.put("pct",normPct.multiply(new BigDecimal(cores)).floatValue());
+            cpuEsTotal.put("value",new BigDecimal(cpu).longValue());
+            cpuEs.put("total",cpuEsTotal);
+            process.put("cpu",cpuEs);
+            Map<String,Object> memory=new HashMap<>();
+            Map<String,Object> rss=new HashMap<>();
+            rss.put("bytes",mem.longValue());
+            rss.put("pct",mem.divide(memoryTotal,4,RoundingMode.HALF_UP).floatValue());
+            memory.put("rss",rss);
+            process.put("memory",memory);
+            system.put("process",process);
+            source.put("system",system);
+            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
 
         }
-        mapProcessCpu.clear();
-        mapProcessCpu.putAll(map);
-        lastProcessCpu.clear();
-        lastProcessCpu.putAll(processCpuPct);
+        lastCputime.clear();
+        lastCputime.putAll(nowCpuTime);
+        lastCpuPct.clear();
+        lastCpuPct.putAll(nowCpuPct);
 
 
     }
-    protected XContentBuilder map2builder(Map<String, Object> objectMap) throws IOException {
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
-        for (String key : objectMap.keySet()) {
-            Object value = objectMap.get(key);
-            if (value instanceof StorageDataComplexObject) {
-                builder.field(key, ((StorageDataComplexObject) value).toStorageData());
-            } else {
-                builder.field(key, value);
-            }
-        }
-        builder.endObject();
 
-        return builder;
-    }
 }

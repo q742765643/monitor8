@@ -206,6 +206,12 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         client.index(request, RequestOptions.DEFAULT);
     }
+    public void forceInsert(String indexName, String id, Map<String,Object> source) throws IOException {
+        indexName = formatIndexName(indexName);
+       IndexRequest request = new ElasticSearch7InsertRequest(indexName, id).source(source);
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        client.index(request, RequestOptions.DEFAULT);
+    }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source, long seqNo,
                             long primaryTerm) throws IOException {
