@@ -148,6 +148,7 @@ const m = {
   descendOrder: '递减顺序',
   increaseOrder: '递增顺序',
   chartType: '图表类型',
+  autoDiscovery: '自动发现',
 };
 
 export default m;

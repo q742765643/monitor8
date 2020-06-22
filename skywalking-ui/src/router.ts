@@ -24,7 +24,7 @@ import Trace from './views/containers/trace.vue';
 import Topology from './views/containers/topology/topology.vue';
 import Alarm from './views/containers/alarm.vue';
 import Profile from './views/containers/profile.vue';
-
+import AutoDiscovery from  './views/config/autoDiscovery.vue';
 Vue.use(Router);
 window.axiosCancel = [];
 
@@ -61,6 +61,10 @@ const router = new Router({
         {
           path: 'profile',
           component: Profile,
+        },
+        {
+          path: 'autoDiscovery',
+          component: AutoDiscovery,
         },
       ],
     },
