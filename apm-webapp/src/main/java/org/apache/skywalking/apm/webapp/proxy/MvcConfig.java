@@ -36,5 +36,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/public/js/");
         registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/public/favicon.ico");
         registry.addResourceHandler("/logo.png").addResourceLocations("classpath:/public/logo.png");
+        registry.addResourceHandler("/fonts/**").addResourceLocations("classpath:/public/fonts/");
+
     }
 }

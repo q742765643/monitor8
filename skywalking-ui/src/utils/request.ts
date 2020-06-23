@@ -11,7 +11,7 @@ export interface AjaxResponse {
 }
 
 // baseURL根据实际进行定义
-const baseURL =process.env.SW_PROXY_TARGET;
+const baseURL ="http://127.0.0.1:12800";
 
 // 创建axios实例
 const service = axios.default.create({
@@ -21,6 +21,8 @@ const service = axios.default.create({
 })
 
 service.interceptors.request.use((config: AxiosRequestConfig) => {
+    console.log(config)
+
     return config
 }, (err: any) => {
     Message({

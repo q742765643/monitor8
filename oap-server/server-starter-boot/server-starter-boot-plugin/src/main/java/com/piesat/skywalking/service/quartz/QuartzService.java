@@ -1,5 +1,6 @@
 package com.piesat.skywalking.service.quartz;
 
+import com.piesat.skywalking.model.QuartzModel;
 import com.piesat.skywalking.service.quartz.bean.HthtJob;
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.HashSet;
  **/
 
 @Service
-public class QuartzService {
+public abstract class QuartzService {
     private static final Logger logger = LoggerFactory.getLogger(QuartzService.class);
 
     @Autowired
@@ -33,30 +34,28 @@ public class QuartzService {
 
     // addJob 新增
     @SuppressWarnings("unchecked")
-    public  boolean addJob(String jobName, String jobGroup, String cronExpression) throws SchedulerException {
+    public  boolean addJob(QuartzModel quartz) throws SchedulerException {
         // TriggerKey : name + group
-        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
-        JobKey jobKey = new JobKey(jobName, jobGroup);
+        TriggerKey triggerKey = TriggerKey.triggerKey(quartz.getJobName(), quartz.getJobGroup());
+        JobKey jobKey = new JobKey(quartz.getJobName(), quartz.getJobGroup());
 
         // TriggerKey valid if_exists
-        if (checkExists(jobName, jobGroup)) {
-            logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", jobGroup, jobName);
+        if (checkExists(quartz.getJobName(), quartz.getJobGroup())) {
+            logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", quartz.getJobGroup(), quartz.getJobGroup());
             return false;
         }
 
         // CronTrigger : TriggerKey + cronExpression	// withMisfireHandlingInstructionDoNothing 忽略掉调度终止过程中忽略的调度
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression).withMisfireHandlingInstructionDoNothing();
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(quartz.getCronExpression()).withMisfireHandlingInstructionDoNothing();
         CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder).build();
 
-        // JobDetail : jobClass
-        Class<? extends Job> jobClass_ = HthtJob.class;   // Class.forName(jobInfo.getJobClass());
 
-        JobDetail jobDetail = JobBuilder.newJob(jobClass_).withIdentity(jobKey).build();
-        /*if (jobInfo.getJobData()!=null) {
+        JobDetail jobDetail = JobBuilder.newJob(quartz.getJobClass()).withIdentity(jobKey).build();
+        if (quartz.getJobDataMap()!=null) {
         	JobDataMap jobDataMap = jobDetail.getJobDataMap();
-        	jobDataMap.putAll(JacksonUtil.readValue(jobInfo.getJobData(), Map.class));
+        	jobDataMap.putAll(quartz.getJobDataMap());
         	// JobExecutionContext context.getMergedJobDataMap().get("mailGuid");
-		}*/
+		}
 
         // schedule : jobDetail + cronTrigger
         Date date = scheduler.scheduleJob(jobDetail, cronTrigger);
@@ -66,36 +65,36 @@ public class QuartzService {
     }
 
     // reschedule
-    public  boolean rescheduleJob(String jobGroup, String jobName, String cronExpression) throws SchedulerException {
+    public  boolean rescheduleJob(QuartzModel quartz) throws SchedulerException {
 
         // TriggerKey valid if_exists
-        if (!checkExists(jobName, jobGroup)) {
-            logger.info(">>>>>>>>>>> rescheduleJob fail, job not exists, JobGroup:{}, JobName:{}", jobGroup, jobName);
+        if (!checkExists(quartz.getJobName(), quartz.getJobGroup())) {
+            logger.info(">>>>>>>>>>> rescheduleJob fail, job not exists, JobGroup:{}, JobName:{}", quartz.getJobGroup(), quartz.getJobName());
             return false;
         }
 
         // TriggerKey : name + group
-        TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
-        JobKey jobKey = new JobKey(jobName, jobGroup);
+        TriggerKey triggerKey = TriggerKey.triggerKey(quartz.getJobName(), quartz.getJobGroup());
+        JobKey jobKey = new JobKey(quartz.getJobName(), quartz.getJobGroup());
 
         // CronTrigger : TriggerKey + cronExpression
-        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression).withMisfireHandlingInstructionDoNothing();
+        CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(quartz.getCronExpression()).withMisfireHandlingInstructionDoNothing();
         CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder).build();
 
         //scheduler.rescheduleJob(triggerKey, cronTrigger);
 
         // JobDetail-JobDataMap fresh
         JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-    	/*JobDataMap jobDataMap = jobDetail.getJobDataMap();
+    	JobDataMap jobDataMap = jobDetail.getJobDataMap();
     	jobDataMap.clear();
-    	jobDataMap.putAll(JacksonUtil.readValue(jobInfo.getJobData(), Map.class));*/
+    	jobDataMap.putAll(quartz.getJobDataMap());
 
         // Trigger fresh
         HashSet<Trigger> triggerSet = new HashSet<Trigger>();
         triggerSet.add(cronTrigger);
 
         scheduler.scheduleJob(jobDetail, triggerSet, true);
-        logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", jobGroup, jobName);
+        logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", quartz.getJobGroup(), quartz.getJobName());
         return true;
     }
 
@@ -160,6 +159,8 @@ public class QuartzService {
     }
 
 
+
+    public abstract void addJobByType(Object o) throws SchedulerException;
 }
 
 
