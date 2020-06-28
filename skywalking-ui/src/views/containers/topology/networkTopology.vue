@@ -23,59 +23,30 @@ limitations under the License. -->
       :links="stateTopo.calls"
     />
     <TopoAside />
-    <TopoGroup />
-    <rk-sidebox :show="dialog.length" @update:show="dialog = ''" :fixed="true" width="80%">
-      <window-endpoint
-        v-if="dialog === 'endpoint'"
-        :current="this.current"
-        :endpointComps="stateTopo.topoEndpoints"
-        @changeEndpointComps="changeEndpointComps"
-        :updateObjects="updateObjects"
-      />
-      <window-instance
-        v-if="dialog === 'instance'"
-        :current="this.current"
-        :instanceComps="stateTopo.topoInstances"
-        @changeInstanceComps="changeInstanceComps"
-        :updateObjects="updateObjects"
-      />
-      <window-trace v-if="dialog === 'trace'" :current="this.current" />
-      <window-alarm v-if="dialog === 'alarm'" :current="this.current" />
-    </rk-sidebox>
+
   </div>
 </template>
 <script lang="ts">
   import { Vue, Component } from 'vue-property-decorator';
   import { State, Action, Getter, Mutation } from 'vuex-class';
-  import { AxiosResponse } from 'axios';
-  import { State as topoState } from '@/store/modules/topology';
+  import { State as topoState } from '@/store/modules/network';
   import { TopologyType } from '../../constant';
-  import WindowEndpoint from '@/views/containers/topology/endpoint/index.vue';
-  import WindowInstance from '@/views/containers/topology/instance/index.vue';
-  import WindowTrace from '@/views/containers/topology/trace/index.vue';
-  import WindowAlarm from '@/views/containers/topology/alarm/index.vue';
-  import Topo from '../../components/topology/chart/topo.vue';
-  import TopoAside from '../../components/topology/topo-aside.vue';
-  import TopoGroup from '../../components/topology/topo-group/index.vue';
+  import Topo from './network/topo.vue';
+  import TopoAside from './network/topo-aside.vue';
 
   @Component({
     components: {
       Topo,
-      TopoAside,
-      TopoGroup,
-      WindowEndpoint,
-      WindowInstance,
-      WindowTrace,
-      WindowAlarm,
+      TopoAside
     },
   })
   export default class networkTopology extends Vue {
-    @State('rocketTopo') private stateTopo!: topoState;
-    @Action('rocketTopo/CLEAR_TOPO') private CLEAR_TOPO: any;
-    @Action('rocketTopo/CLEAR_TOPO_INFO') private CLEAR_TOPO_INFO: any;
+    @State('rocketTopoNetwork') private stateTopo!: topoState;
+    @Action('rocketTopoNetwork/CLEAR_TOPO') private CLEAR_TOPO: any;
+    @Action('rocketTopoNetwork/CLEAR_TOPO_INFO') private CLEAR_TOPO_INFO: any;
     @Action('GET_ALL_TEMPLATES') private GET_ALL_TEMPLATES: any;
-    @Mutation('rocketTopo/SET_TOPO_ENDPOINT') private SET_TOPO_ENDPOINT: any;
-    @Mutation('rocketTopo/SET_TOPO_INSTANCE') private SET_TOPO_INSTANCE: any;
+    @Mutation('rocketTopoNetwork/SET_TOPO_ENDPOINT') private SET_TOPO_ENDPOINT: any;
+    @Mutation('rocketTopoNetwork/SET_TOPO_INSTANCE') private SET_TOPO_INSTANCE: any;
     @Mutation('SET_CURRENT_SERVICE') private SET_CURRENT_SERVICE: any;
     @Getter('durationTime') private durationTime: any;
 
