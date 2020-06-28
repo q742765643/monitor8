@@ -7,6 +7,7 @@ import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.dao.AutoDiscoveryDao;
 import com.piesat.skywalking.entity.AutoDiscoveryEntity;
+import com.piesat.skywalking.service.quartz.timing.AutoDiscoveryQuartzService;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import jdk.internal.dynalink.support.AutoDiscovery;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +23,8 @@ import java.util.List;
 public class AutoDiscoveryService extends BaseService<AutoDiscoveryEntity> {
     @Autowired
     private AutoDiscoveryDao autoDiscoveryDao;
+    @Autowired
+    private AutoDiscoveryQuartzService autoDiscoveryQuartzService;
     @Override
     public BaseDao<AutoDiscoveryEntity> getBaseDao() {
         return autoDiscoveryDao;
@@ -45,5 +49,33 @@ public class AutoDiscoveryService extends BaseService<AutoDiscoveryEntity> {
         PageBean pageBean = this.getPage(specification, pageForm, sort);
         return pageBean;
 
+    }
+
+    public List<AutoDiscoveryEntity> selectBySpecification(AutoDiscoveryEntity autoDiscoveryDto){
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(autoDiscoveryDto.getIpRange())) {
+            specificationBuilder.addOr("ipRange", SpecificationOperator.Operator.likeAll.name(), autoDiscoveryDto.getIpRange());
+        }
+        if (StringUtils.isNotNullString(autoDiscoveryDto.getDisName())) {
+            specificationBuilder.addOr("disName", SpecificationOperator.Operator.likeAll.name(), autoDiscoveryDto.getDisName());
+        }
+        if (StringUtils.isNotNullString((String) autoDiscoveryDto.getParamt().get("beginTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) autoDiscoveryDto.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) autoDiscoveryDto.getParamt().get("endTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) autoDiscoveryDto.getParamt().get("endTime"));
+        }
+        if (StringUtils.isNotNullString(autoDiscoveryDto.getStatus())){
+            specificationBuilder.add("status", SpecificationOperator.Operator.eq.name(), autoDiscoveryDto.getStatus());
+        }
+        Specification specification = specificationBuilder.generateSpecification();
+        List<AutoDiscoveryEntity> discoveryEntities=this.getAll(specification);
+        return discoveryEntities;
+    }
+    @Transactional
+    public AutoDiscoveryEntity save(AutoDiscoveryEntity autoDiscoveryDto){
+        AutoDiscoveryEntity autoDiscoveryEntity=super.save(autoDiscoveryDto);
+        autoDiscoveryQuartzService.addJobByType(autoDiscoveryEntity);
+        return autoDiscoveryDto;
     }
 }

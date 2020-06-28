@@ -1,5 +1,6 @@
 package com.piesat.skywalking.service.quartz;
 
+import com.piesat.common.jpa.entity.BaseEntity;
 import com.piesat.skywalking.model.QuartzModel;
 import com.piesat.skywalking.service.quartz.bean.HthtJob;
 import org.quartz.*;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 
 /**
@@ -161,6 +163,11 @@ public abstract class QuartzService {
 
 
     public abstract void addJobByType(Object o) throws SchedulerException;
+
+
+
+    public abstract void initJob();
+
 }
 
 

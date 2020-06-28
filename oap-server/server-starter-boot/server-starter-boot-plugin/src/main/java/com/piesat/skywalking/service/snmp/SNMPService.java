@@ -1,82 +1,115 @@
-package com.piesat.skywalking.om.protocol.snmp;
+package com.piesat.skywalking.service.snmp;
 
 import com.piesat.common.utils.IdUtils;
+import com.piesat.skywalking.om.protocol.snmp.SNMPConstants;
+import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.snmp4j.PDU;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.util.TableEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.management.resources.agent;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 
 @Service
 public class SNMPService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
-    private ArrayList<String> sysCpusPre=new ArrayList<>();
-    private Map<Long,Long> lastCputime=new HashMap<>();
-    private Map<Long,BigDecimal> lastCpuPct=new HashMap<>();
+    private ConcurrentHashMap<String,ArrayList<String>> lastCpu=new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String,List<TableEvent>> lastProcess=new ConcurrentHashMap<>();
 
-    private Date date;
     @SneakyThrows
-    public List<Map<String,Object>> getSystemInfo(String hostComputer, String port, String version){
-        date=new Date();
-        hostComputer="10.1.100.8";
-        port="161";
-        version="2";
-        List<Map<String,Object>> mapList=new ArrayList<>();
-        SNMPSessionUtil snmpSessionUtil=new SNMPSessionUtil(hostComputer,port,"public", version);
-
-        Map<String,Object> sourceCpu=this.metricbeatMap(hostComputer,port,"cpu",snmpSessionUtil);
-        long totalCpuTime=this.cpuMap(snmpSessionUtil,sourceCpu);
-        Map<String,Object> sourceProcess=this.metricbeatMap(hostComputer,port,"process",snmpSessionUtil);
-        this.processMap(snmpSessionUtil,sourceProcess,totalCpuTime);
-        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceCpu);
-
-        Map<String,Object> sourceMemory=this.metricbeatMap(hostComputer,port,"memory",snmpSessionUtil);
-        this.memoryMap(snmpSessionUtil,sourceMemory);
-        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceMemory);
-
-        Map<String,Object> sourceDisk=this.metricbeatMap(hostComputer,port,"filesystem",snmpSessionUtil);
-        this.diskMap(hostComputer,port,snmpSessionUtil,sourceDisk);
-
-        Map<String,Object> sourceNetwork=this.metricbeatMap(hostComputer,port,"network",snmpSessionUtil);
-        this.networkMap(snmpSessionUtil,sourceNetwork);
-
-        Map<String,Object> sourceLoad=this.metricbeatMap(hostComputer,port,"load",snmpSessionUtil);
-        this.loadMap(snmpSessionUtil,sourceLoad);
-        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceLoad);
-
-        Map<String,Object> sourceDiskio=this.metricbeatMap(hostComputer,port,"diskio",snmpSessionUtil);
-        this.diskioMap(snmpSessionUtil,sourceDiskio);
-        return mapList;
+    public void getSystemInfo(String hostComputer, String port, String version, Date date){
+        BulkRequest request = new BulkRequest();
+        SNMPSessionUtil snmp=new SNMPSessionUtil(hostComputer,port,"public", version);
+        Map<String,Object> basicInfo=this.getBasicInfo(snmp);
+        basicInfo.put("ip",hostComputer);
+        basicInfo.put("port",port);
+        basicInfo.put("version",version);
+        basicInfo.put("@timestamp",date);
+        List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
+        final CountDownLatch latch = new CountDownLatch(7);
+        new Thread(()->{
+            this.cpuMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.memoryMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.networkMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.diskMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.processMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.loadMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.diskioMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        latch.await();
+        for(Map<String,Object> source:esList){
+            IndexRequest indexRequest = new ElasticSearch7InsertRequest("metricbeat-7.7.0-2020.06.24-000001",IdUtils.fastUUID()).source(source);
+            request.add(indexRequest);
+            //elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.24-000001",IdUtils.fastUUID(),source);
+        }
+        elasticSearch7Client.synchronousBulk(request);
     }
-    public Map<String,Object> metricbeatMap(String hostComputer,String version,String type,SNMPSessionUtil snmpSessionUtil) throws Exception {
-        Map<String,Object> source=new HashMap<>();
 
+    @SneakyThrows
+    public  Map<String,Object>  getBasicInfo(SNMPSessionUtil snmp){
+        Map<String,Object> basicInfo=new HashMap<>();
         String[] sysDesc = {SNMPConstants.SYSDESC};
-        ArrayList<String> sysDescs=snmpSessionUtil.getSnmpGet(PDU.GET,sysDesc);
-
-        String[] sysUptime = {SNMPConstants.SYSUPTIME};
-        ArrayList<String> sysUptimes=snmpSessionUtil.getSnmpGet(PDU.GET,sysUptime);
-
+        ArrayList<String> sysDescs=snmp.getSnmpGet(PDU.GET,sysDesc);
         String[] sysName = {SNMPConstants.SYSNAME};
-        ArrayList<String> sysNames=snmpSessionUtil.getSnmpGet(PDU.GET,sysName);
-        source.put("@timestamp",date);
+        ArrayList<String> sysNames=snmp.getSnmpGet(PDU.GET,sysName);
+        String[] sscpuNum = {SNMPConstants.SSCPUNUM};
+        ArrayList<String> sscpuNums=snmp.snmpWalk2(sscpuNum);
+        String[] sysMemory = {SNMPConstants.MEMTOTALREAL};
+        ArrayList<String> sysMemorys = snmp.getSnmpGet(PDU.GET,sysMemory);
+        BigDecimal memoryTotal=new BigDecimal(sysMemorys.get(0)).multiply(new BigDecimal(1024));
+        basicInfo.put("desc",sysDescs.get(0));
+        basicInfo.put("hostname",sysNames.get(0));
+        long cores=sscpuNums.size();
+        basicInfo.put("cores",cores);
+        basicInfo.put("memoryTotal",memoryTotal);
 
+        return basicInfo;
+    }
+
+    public Map<String,Object> metricbeatMap(String type,Map<String,Object> basicInfo) throws Exception {
+        Map<String,Object> source=new HashMap<>();
+        String hostname= (String) basicInfo.get("hostname");
+        String ip= (String) basicInfo.get("ip");
+        String desc= (String) basicInfo.get("desc");
+        String version= (String) basicInfo.get("version");
         Map<String,Object> agent=new HashMap<>();
-        agent.put("ephemeral_id","5bc43524-b053-11ea-80ae-"+sysNames.get(0));
-        agent.put("hostname",sysNames.get(0));
-        agent.put("id","5fedf84c-b053-11ea-8288-"+sysNames.get(0));
-        agent.put("name",hostComputer);
+        source.put("@timestamp",basicInfo.get("@timestamp"));
+        agent.put("ephemeral_id","5bc43524-b053-11ea-80ae-"+hostname);
+        agent.put("hostname",hostname);
+        agent.put("id","5fedf84c-b053-11ea-8288-"+hostname);
+        agent.put("name",ip);
         agent.put("type","snmpbeat");
         agent.put("version",version);
         source.put("agent",agent);
@@ -106,16 +139,16 @@ public class SNMPService {
         Map<String,Object> host=new HashMap<>();
         host.put("architecture","");
         host.put("containerized","");
-        host.put("hostname",sysNames.get(0));
+        host.put("hostname",hostname);
         host.put("id","");
-        host.put("ip",hostComputer);
+        host.put("ip",ip);
         host.put("mac","");
-        host.put("name",hostComputer);
+        host.put("name",ip);
         Map<String,Object> os=new HashMap<>();
         os.put("codename","");
         os.put("family","");
         os.put("kernel","");
-        os.put("name",sysDescs.get(0));
+        os.put("name",desc);
         os.put("platform","");
         os.put("version","");
         host.put("os",os);
@@ -137,9 +170,8 @@ public class SNMPService {
     }
 
     @SneakyThrows
-    public long cpuMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
-        String[] sscpuNum = {SNMPConstants.SSCPUNUM};
-        ArrayList<String> sscpuNums=snmpSessionUtil.snmpWalk2(sscpuNum);
+    public void cpuMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
+        Map<String,Object> source=this.metricbeatMap("cpu",basicInfo);
         String[] sysCpu = {
                 SNMPConstants.SSCPURAWIDLE,
                 SNMPConstants.SSCPURAWWAIT,
@@ -149,12 +181,18 @@ public class SNMPService {
                 SNMPConstants.SSCPURAWSYSTEM,
                 SNMPConstants.SSCPURAWUSER,
         };
-        ArrayList<String> sysCpus=snmpSessionUtil.getSnmpGet(PDU.GET,sysCpu);
-        if(sysCpusPre.size()==0){
-            sysCpusPre=sysCpus;
-            return 0;
+        ArrayList<String> sysCpusPre=null;
+        String ip= (String) basicInfo.get("ip");
+        if(null==lastCpu.get(ip)){
+            sysCpusPre=snmp.getSnmpGet(PDU.GET,sysCpu);
+            lastCpu.put(ip,sysCpusPre);
+            return;
+        }else {
+            sysCpusPre=lastCpu.get(ip);
         }
-        long cores=sscpuNums.size();
+        ArrayList<String> sysCpus=snmp.getSnmpGet(PDU.GET,sysCpu);
+        lastCpu.put(ip,sysCpus);
+        long cores= (long) basicInfo.get("cores");
         BigDecimal idlePre= new BigDecimal(sysCpusPre.get(0));
         BigDecimal idle= new BigDecimal(sysCpus.get(0));
         BigDecimal waitPre= new BigDecimal(sysCpusPre.get(1));
@@ -249,12 +287,12 @@ public class SNMPService {
 
         systemM.put("cpu",cpu);
         source.put("system",systemM);
-        sysCpusPre=sysCpus;
-        return totalTime.longValue();
+        esList.add(source);
     }
 
     @SneakyThrows
-    public void memoryMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+    public void memoryMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
+        Map<String,Object> source=this.metricbeatMap("memory",basicInfo);
         String[] sysMemory = {
                 SNMPConstants.MEMTOTALSWAP,
                 SNMPConstants.MEMAVAILSWAP,
@@ -266,12 +304,12 @@ public class SNMPService {
                 SNMPConstants.MEMBUFFER,
                 SNMPConstants.MEMCACHED
         };
-        ArrayList<String> sysMemorys = snmpSessionUtil.getSnmpGet(PDU.GET,sysMemory);
+        ArrayList<String> sysMemorys = snmp.getSnmpGet(PDU.GET,sysMemory);
         BigDecimal memTotalSwap = new BigDecimal(sysMemorys.get(0)).multiply(new BigDecimal(1024));
         BigDecimal memAvailSwap = new BigDecimal(sysMemorys.get(1)).multiply(new BigDecimal(1024));
         BigDecimal memTotalReal = new BigDecimal(sysMemorys.get(2)).multiply(new BigDecimal(1024));
         BigDecimal memAvailReal = new BigDecimal(sysMemorys.get(3)).multiply(new BigDecimal(1024));
-       // BigDecimal memTotalFree = new BigDecimal(sysMemorys.get(4)).multiply(new BigDecimal(1024));
+        // BigDecimal memTotalFree = new BigDecimal(sysMemorys.get(4)).multiply(new BigDecimal(1024));
         //BigDecimal hrMemorySize = new BigDecimal(sysMemorys.get(5)).multiply(new BigDecimal(1024));
         BigDecimal memShared = new BigDecimal(sysMemorys.get(6)).multiply(new BigDecimal(1024));
         BigDecimal memBuffer = new BigDecimal(sysMemorys.get(7)).multiply(new BigDecimal(1024));
@@ -356,22 +394,24 @@ public class SNMPService {
         memory.put("used",totalUsed);
         system.put("memory",memory);
         source.put("system",system);
+        esList.add(source);
 
     }
 
     @SneakyThrows
-    public void diskMap(String hostComputer,String port,SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+    public void diskMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         String[] sysDisk = {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
                 "1.3.6.1.2.1.25.2.3.1.3",  //descr
                 "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
                 "1.3.6.1.2.1.25.2.3.1.5",  //size 总存储单元数
                 "1.3.6.1.2.1.25.2.3.1.6"}; //used 使用存储单元数;
-        List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysDisk);
+        List<TableEvent> tableEvents = snmp.snmpWalk(sysDisk);
         String DISK_OID = "1.3.6.1.2.1.25.2.1.4";
         long fsstatUse=0;
         long fsstatTotal=0;
         long fsstatCount=0;
         for (TableEvent event : tableEvents) {
+            Map<String,Object> source=this.metricbeatMap("filesystem",basicInfo);
             VariableBinding[] values = event.getColumns();
             if(values == null ||!DISK_OID.equals(values[0].getVariable().toString()))
                 continue;
@@ -399,11 +439,9 @@ public class SNMPService {
             filesystem.put("used",used);
             system.put("filesystem",filesystem);
             source.put("system",system);
-            //XContentBuilder xContentBuilderDisk=this.map2builder(source);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
-
+            esList.add(source);
         }
-        Map<String,Object> sourceFsstat=this.metricbeatMap(hostComputer,port,"fsstat",snmpSessionUtil);
+        Map<String,Object> sourceFsstat=this.metricbeatMap("fsstat",basicInfo);
         Map<String,Object> system=new HashMap<>();
         Map<String,Object> fsstat=new HashMap<>();
         fsstat.put("count",fsstatCount);
@@ -414,11 +452,11 @@ public class SNMPService {
         fsstat.put("total_size",totalSize);
         system.put("fsstat",fsstat);
         sourceFsstat.put("system",system);
-        elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),sourceFsstat);
-
+        esList.add(sourceFsstat);
     }
+
     @SneakyThrows
-    public void networkMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+    public void networkMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         String[] sysNetwork = {
                 "1.3.6.1.2.1.2.2.1.2",  //descr
                 "1.3.6.1.2.1.2.2.1.10", //inOctets
@@ -429,9 +467,10 @@ public class SNMPService {
                 "1.3.6.1.2.1.2.2.1.19", //outDiscard
                 "1.3.6.1.2.1.2.2.1.11", //inUcastPkts
                 "1.3.6.1.2.1.2.2.1.17" //outUcastPkts
-               };
-        List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysNetwork);
+        };
+        List<TableEvent> tableEvents = snmp.snmpWalk(sysNetwork);
         for (TableEvent event : tableEvents) {
+            Map<String,Object> source=this.metricbeatMap("network",basicInfo);
             VariableBinding[] values = event.getColumns();
             String descr = values[0].getVariable().toString();
             BigDecimal inOctets=new BigDecimal(values[1].getVariable().toString());
@@ -450,7 +489,6 @@ public class SNMPService {
             in.put("errors",inError.longValue());
             in.put("packets",inUcastPkts.longValue());
             network.put("in",in);
-
             network.put("name",descr);
             Map<String,Object> out=new HashMap<>();
             out.put("bytes",outOctets.longValue());
@@ -460,18 +498,12 @@ public class SNMPService {
             network.put("out",out);
             system.put("network",network);
             source.put("system",system);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
+            esList.add(source);
         }
     }
-    @SneakyThrows
-    public void processMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source,long totalCpuTime) {
-        Map<Long,Long> nowCpuTime=new HashMap<>();
-        Map<Long,BigDecimal> nowCpuPct=new HashMap<>();
 
-        /*String[] sysProcess1 = {
-                "1.3.6.1.2.1.25.4.2.1.4",  //run path
-                "1.3.6.1.2.1.25.5.1.1.1" //cpu
-        };*/
+    @SneakyThrows
+    public void processMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         String[] sysProcess = {
                 "1.3.6.1.2.1.25.4.2.1.1",  //index
                 "1.3.6.1.2.1.25.4.2.1.2",  //name
@@ -482,66 +514,62 @@ public class SNMPService {
                 "1.3.6.1.2.1.25.5.1.1.2" //memory
 
         };
-        List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysProcess);
-        long totalNowCpuTime=0;
-        if(lastCputime.size()==0){
-            long pretotalCpuTime=0;
-            for (TableEvent event : tableEvents) {
-                VariableBinding[] values = event.getColumns();
-                long  id = new BigDecimal(values[0].getVariable().toString()).longValue();
-                String cpu = values[5].getVariable().toString();
-                pretotalCpuTime+=new BigDecimal(cpu).longValue();
-                lastCputime.put(id,new BigDecimal(cpu).longValue());
-            }
-            lastCputime.put(-1l,pretotalCpuTime);
+        String ip= (String) basicInfo.get("ip");
+        List<TableEvent> tableEventsPre=new ArrayList<>();
+        if(null==lastProcess.get(ip)){
+            tableEventsPre = snmp.snmpWalk(sysProcess);
+            lastProcess.put(ip,tableEventsPre);
             return;
-        }else{
-            for (TableEvent event : tableEvents) {
-                VariableBinding[] values = event.getColumns();
-                long  id = new BigDecimal(values[0].getVariable().toString()).longValue();
-                String cpu = values[5].getVariable().toString();
-                totalNowCpuTime+=new BigDecimal(cpu).longValue();
-                nowCpuTime.put(id,new BigDecimal(cpu).longValue());
-            }
-            nowCpuTime.put(-1l,totalNowCpuTime);
+        }else {
+            tableEventsPre=lastProcess.get(ip);
         }
-        long cpuTime=totalNowCpuTime-lastCputime.get(-1l);
-        String[] sscpuNum = {SNMPConstants.SSCPUNUM};
-        ArrayList<String> sscpuNums=snmpSessionUtil.snmpWalk2(sscpuNum);
-        String[] sysMemory = {
-                SNMPConstants.MEMTOTALREAL
-        };
-        ArrayList<String> sysMemorys = snmpSessionUtil.getSnmpGet(PDU.GET,sysMemory);
-        BigDecimal memoryTotal=new BigDecimal(sysMemorys.get(0)).multiply(new BigDecimal(1024));
-        if(cpuTime>totalCpuTime){
-            totalCpuTime=cpuTime;
+
+        Map<String,Long> differenceMap=new HashMap<>();
+        Map<String,Long> tableEventsPreMap=new HashMap<>();
+        long cores= (long) basicInfo.get("cores");
+        BigDecimal memoryTotal= (BigDecimal) basicInfo.get("memoryTotal");
+        for(TableEvent event :tableEventsPre){
+            VariableBinding[] values = event.getColumns();
+            long cpu = new BigDecimal(values[5].getVariable().toString()).longValue();
+            String  id = values[0].getVariable().toString();
+            tableEventsPreMap.put(id,cpu);
         }
-        long cores=sscpuNums.size();
+        List<TableEvent> tableEvents = snmp.snmpWalk(sysProcess);
+        lastProcess.put(ip,tableEvents);
+        long totalCpuTime=0;
         for (TableEvent event : tableEvents) {
+            VariableBinding[] values = event.getColumns();
+            String  id = values[0].getVariable().toString();
+            long oldCpu=0;
+            if(null!=tableEventsPreMap.get(id)){
+                oldCpu=tableEventsPreMap.get(id);
+            }
+            long cpu = new BigDecimal(values[5].getVariable().toString()).longValue();
+            long difference=cpu-oldCpu;
+            differenceMap.put(id,difference);
+            totalCpuTime+=difference;
+        }
+        for (TableEvent event : tableEvents) {
+            Map<String,Object> source=this.metricbeatMap("process",basicInfo);
             VariableBinding[] values = event.getColumns();
             String cpu = values[5].getVariable().toString();
             String runPath = values[2].getVariable().toString();
             String parameters=values[3].getVariable().toString();
             String name=values[1].getVariable().toString();
-            long  id = new BigDecimal(values[0].getVariable().toString()).longValue();
-            nowCpuTime.put(id,new BigDecimal(cpu).longValue());
-            if(null==nowCpuTime.get(id)||null==lastCputime.get(id)){
+            String  id = values[0].getVariable().toString();
+            if(runPath==null|| runPath.length()<2){
                 continue;
             }
-            if(runPath.length()<2){
-                continue;
-            }
-            long cha=(new BigDecimal(cpu).longValue()-lastCputime.get(id))/cores;
-            if(cha>0){
-                System.out.println(name);
-            }
-            if(runPath==null){
-                continue;
+            if(parameters==null){
+                parameters="";
             }
             String[] args={runPath,parameters};
             BigDecimal mem = new BigDecimal(values[6].getVariable().toString()).multiply(new BigDecimal(1024));
+            if(mem.longValue()==0&&differenceMap.get(id)==0){
+               continue;
+            }
             Map<String,Object> processSource=new HashMap<>();
-            processSource.put("pid",id);
+            processSource.put("pid",new BigDecimal(id).longValue());
             processSource.put("args",parameters);
             processSource.put("name",name);
             processSource.put("working_directory",args);
@@ -550,19 +578,15 @@ public class SNMPService {
             Map<String,Object> process=new HashMap<>();
             process.put("cmdline",args);
             BigDecimal normPct=new BigDecimal(0);
-            if(cpuTime==0&&null!=lastCpuPct.get(id)){
-                normPct=lastCpuPct.get(id);
+            if(totalCpuTime!=0){
+               normPct=new BigDecimal(differenceMap.get(id)).divide(new BigDecimal(totalCpuTime),4,RoundingMode.HALF_UP);
             }
-            if(cpuTime!=0){
-                normPct=new BigDecimal(cha).divide(new BigDecimal(totalCpuTime),4,RoundingMode.HALF_UP);
-            }
-            nowCpuPct.put(id,normPct);
             Map<String,Object> cpuEs=new HashMap<>();
             Map<String,Object> cpuEsTotal=new HashMap<>();
             Map<String,Object> cpuEsTotalNorm=new HashMap<>();
             cpuEsTotalNorm.put("pct",normPct.floatValue());
             cpuEsTotal.put("norm",cpuEsTotalNorm);
-            cpuEsTotal.put("pct",normPct.multiply(new BigDecimal(cores)).floatValue());
+            cpuEsTotal.put("pct",normPct.floatValue()*cores);
             cpuEsTotal.put("value",new BigDecimal(cpu).longValue());
             cpuEs.put("total",cpuEsTotal);
             process.put("cpu",cpuEs);
@@ -574,28 +598,26 @@ public class SNMPService {
             process.put("memory",memory);
             system.put("process",process);
             source.put("system",system);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
+            esList.add(source);
 
         }
-        lastCputime.clear();
-        lastCputime.putAll(nowCpuTime);
-        lastCpuPct.clear();
-        lastCpuPct.putAll(nowCpuPct);
+
 
 
     }
 
     @SneakyThrows
-    public void loadMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+    public void loadMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
+        Map<String,Object> source=this.metricbeatMap("load",basicInfo);
         String[] sysLoad = {
                 ".1.3.6.1.4.1.2021.10.1.3.1",  //load1
                 ".1.3.6.1.4.1.2021.10.1.3.2", //load5
                 ".1.3.6.1.4.1.2021.10.1.3.3" //load15
         };
         String[] sscpuNum = {SNMPConstants.SSCPUNUM};
-        ArrayList<String> sscpuNums=snmpSessionUtil.snmpWalk2(sscpuNum);
+        ArrayList<String> sscpuNums=snmp.snmpWalk2(sscpuNum);
         long cores=sscpuNums.size();
-        ArrayList<String> ssLoad=snmpSessionUtil.getSnmpGet(PDU.GET,sysLoad);
+        ArrayList<String> ssLoad=snmp.getSnmpGet(PDU.GET,sysLoad);
         BigDecimal load1Norm=new BigDecimal(ssLoad.get(0));
         BigDecimal load5Norm=new BigDecimal(ssLoad.get(1));
         BigDecimal load15Norm=new BigDecimal(ssLoad.get(2));
@@ -615,10 +637,11 @@ public class SNMPService {
         load.put("norm",norm);
         system.put("load",load);
         source.put("system",system);
+        esList.add(source);
 
     }
     @SneakyThrows
-    public void diskioMap(SNMPSessionUtil snmpSessionUtil,Map<String,Object> source) {
+    public void diskioMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         String[] sysDiskio = {
                 ".1.3.6.1.4.1.2021.13.15.1.1.2", //name
                 ".1.3.6.1.4.1.2021.13.15.1.1.5",  //read
@@ -626,8 +649,9 @@ public class SNMPService {
                 ".1.3.6.1.4.1.2021.13.15.1.1.12",  //readbytes
                 ".1.3.6.1.4.1.2021.13.15.1.1.13"  //writebytes
         };
-        List<TableEvent> tableEvents = snmpSessionUtil.snmpWalk(sysDiskio);
+        List<TableEvent> tableEvents = snmp.snmpWalk(sysDiskio);
         for (TableEvent event : tableEvents) {
+            Map<String,Object> source=this.metricbeatMap("diskio",basicInfo);
             VariableBinding[] values = event.getColumns();
             String name = values[0].getVariable().toString();
             BigDecimal readCount =new BigDecimal(values[1].getVariable().toString());
@@ -649,10 +673,9 @@ public class SNMPService {
             diskio.put("write",write);
             system.put("diskio",diskio);
             source.put("system",system);
-            elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.19-000001",IdUtils.fastUUID(),source);
+            esList.add(source);
 
 
         }
     }
-
 }

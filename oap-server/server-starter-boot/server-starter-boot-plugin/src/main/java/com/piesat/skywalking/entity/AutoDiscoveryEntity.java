@@ -30,5 +30,5 @@ public class AutoDiscoveryEntity extends BaseEntity {
 
     @Excel(name = "状态")
     @Column(name="status", length=10)
-    private int status;
+    private String status;
 }
