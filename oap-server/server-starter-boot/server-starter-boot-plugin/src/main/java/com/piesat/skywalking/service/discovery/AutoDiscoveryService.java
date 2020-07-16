@@ -74,7 +74,7 @@ public class AutoDiscoveryService extends BaseService<AutoDiscoveryEntity> {
     }
     @Transactional
     public AutoDiscoveryEntity save(AutoDiscoveryEntity autoDiscoveryDto){
-        AutoDiscoveryEntity autoDiscoveryEntity=super.save(autoDiscoveryDto);
+        AutoDiscoveryEntity autoDiscoveryEntity=super.saveNotNull(autoDiscoveryDto);
         autoDiscoveryQuartzService.addJobByType(autoDiscoveryEntity);
         return autoDiscoveryDto;
     }

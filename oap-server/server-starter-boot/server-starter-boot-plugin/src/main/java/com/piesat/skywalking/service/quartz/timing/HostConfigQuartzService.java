@@ -31,6 +31,7 @@ public class HostConfigQuartzService  extends QuartzService {
         quartzModel.setJobClass(HostConfigJob.class);
         Map<String,Object> map=new HashMap<>();
         map.put("ip",hostConfig.getIp());
+        map.put("os",hostConfig.getOs());
         quartzModel.setJobDataMap(map);
         quartzModel.setCronExpression(hostConfig.getCron());
         this.addJob(quartzModel);

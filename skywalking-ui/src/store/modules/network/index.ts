@@ -19,6 +19,7 @@ import { Commit, ActionTree, Dispatch } from 'vuex';
 import graph from '@/graph';
 import * as types from '../../mutation-types';
 import { AxiosResponse } from 'axios';
+import request from '@/utils/request';
 
 interface Option {
   key: string;
@@ -361,26 +362,16 @@ const actions: ActionTree<State, any> = {
       });
   },
   GET_TOPO(context: { commit: Commit; state: State }, params: any) {
-    let query = 'queryTopo';
-    if (params.serviceId) {
-      query = 'queryServiceTopo';
-    }
-    if (params.serviceIds) {
-      query = 'queryServicesTopo';
-    }
-    return graph
-      .query(query)
-      .params(params)
-      .then((res: AxiosResponse) => {
-        if (res.data.errors) {
-          context.commit(types.SET_TOPO, { calls: [], nodes: [] });
-          return;
-        }
-        const calls = res.data.data.topo.calls;
-        const nodes = res.data.data.topo.nodes;
-        context.commit(types.SET_TOPO, { calls, nodes });
+    return request({
+            url: '/networkTopy/getTopy',
+            method: 'get',
+           }).then(
+              response => {
+              const calls = response.data.calls;
+              const nodes = response.data.nodes;
+              context.commit(types.SET_TOPO, { calls, nodes });
 
-      });
+            });
   },
   async GET_TOPO_INSTANCE_DEPENDENCY(
     context: { commit: Commit; state: State },

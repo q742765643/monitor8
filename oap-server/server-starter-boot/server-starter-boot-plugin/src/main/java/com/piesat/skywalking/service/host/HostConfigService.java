@@ -51,8 +51,10 @@ public class HostConfigService extends BaseService<HostConfigEntity> {
     }
     @Transactional
     public HostConfigEntity save(HostConfigEntity hostConfigDto){
-        HostConfigEntity hostConfig = super.save(hostConfigDto);
-        hostConfigQuartzService.addJobByType(hostConfig);
+        HostConfigEntity hostConfig = super.saveNotNull(hostConfigDto);
+        if("1".equals(hostConfig.getIsSnmp())){
+            hostConfigQuartzService.addJobByType(hostConfig);
+        }
         return hostConfig;
     }
 }

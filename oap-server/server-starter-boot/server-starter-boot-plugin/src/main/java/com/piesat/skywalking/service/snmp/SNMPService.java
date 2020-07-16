@@ -17,6 +17,7 @@ import sun.management.resources.agent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,6 +35,9 @@ public class SNMPService {
         BulkRequest request = new BulkRequest();
         SNMPSessionUtil snmp=new SNMPSessionUtil(hostComputer,port,"public", version);
         Map<String,Object> basicInfo=this.getBasicInfo(snmp);
+        if(basicInfo==null){
+            return;
+        }
         basicInfo.put("ip",hostComputer);
         basicInfo.put("port",port);
         basicInfo.put("version",version);
@@ -69,8 +73,10 @@ public class SNMPService {
             latch.countDown();
         }).start();
         latch.await();
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
+        String indexName="metricbeat-7.7.0-"+format.format(date)+"-000001";
         for(Map<String,Object> source:esList){
-            IndexRequest indexRequest = new ElasticSearch7InsertRequest("metricbeat-7.7.0-2020.06.24-000001",IdUtils.fastUUID()).source(source);
+            IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName,IdUtils.fastUUID()).source(source);
             request.add(indexRequest);
             //elasticSearch7Client.forceInsert("metricbeat-7.7.0-2020.06.24-000001",IdUtils.fastUUID(),source);
         }
@@ -88,6 +94,9 @@ public class SNMPService {
         ArrayList<String> sscpuNums=snmp.snmpWalk2(sscpuNum);
         String[] sysMemory = {SNMPConstants.MEMTOTALREAL};
         ArrayList<String> sysMemorys = snmp.getSnmpGet(PDU.GET,sysMemory);
+        if(sysMemorys.size()==0||"noSuchObject".equals(sysMemorys.get(0))){
+            return null;
+        }
         BigDecimal memoryTotal=new BigDecimal(sysMemorys.get(0)).multiply(new BigDecimal(1024));
         basicInfo.put("desc",sysDescs.get(0));
         basicInfo.put("hostname",sysNames.get(0));
@@ -416,6 +425,9 @@ public class SNMPService {
             if(values == null ||!DISK_OID.equals(values[0].getVariable().toString()))
                 continue;
             String diskName=values[1].getVariable().toString();
+            if(diskName.indexOf("kubernetes")!=-1||diskName.indexOf("docker")!=-1){
+                continue;
+            }
             BigDecimal unit = new BigDecimal(values[2].getVariable().toString());//unit 存储单元大小
             BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
             BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use
@@ -557,6 +569,10 @@ public class SNMPService {
             String parameters=values[3].getVariable().toString();
             String name=values[1].getVariable().toString();
             String  id = values[0].getVariable().toString();
+            String type=values[4].getVariable().toString();
+            if(!"4".equals(type)){
+                continue;
+            }
             if(runPath==null|| runPath.length()<2){
                 continue;
             }
@@ -581,6 +597,7 @@ public class SNMPService {
             if(totalCpuTime!=0){
                normPct=new BigDecimal(differenceMap.get(id)).divide(new BigDecimal(totalCpuTime),4,RoundingMode.HALF_UP);
             }
+
             Map<String,Object> cpuEs=new HashMap<>();
             Map<String,Object> cpuEsTotal=new HashMap<>();
             Map<String,Object> cpuEsTotalNorm=new HashMap<>();

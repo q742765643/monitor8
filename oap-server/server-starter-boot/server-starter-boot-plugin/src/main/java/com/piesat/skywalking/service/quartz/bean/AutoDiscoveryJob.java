@@ -63,7 +63,11 @@ public class AutoDiscoveryJob extends QuartzJobBean {
                     hostConfigService.save(hostConfig);
 
                 }else {
-
+                    hostConfig.setCron("0/10 * * * * ?");
+                    hostConfig.setId(ip);
+                    hostConfig.setStatus("0");
+                    hostConfig.setType("unknownDevice");
+                    hostConfigService.save(hostConfig);
                 }
             }
         } catch (Exception e) {

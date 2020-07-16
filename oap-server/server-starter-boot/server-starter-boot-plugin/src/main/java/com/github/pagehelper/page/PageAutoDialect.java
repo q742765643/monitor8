@@ -221,7 +221,7 @@ public class PageAutoDialect {
         registerDialectAlias("derby", SqlServer2012Dialect.class);
         registerDialectAlias("dm", OracleDialect.class);
         registerDialectAlias("edb", OracleDialect.class);
-        registerDialectAlias("es", EsSqlDialect.class);
+        //registerDialectAlias("es", EsSqlDialect.class);
 
     }
 }
