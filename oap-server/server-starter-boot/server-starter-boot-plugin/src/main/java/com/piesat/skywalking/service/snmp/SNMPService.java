@@ -561,6 +561,7 @@ public class SNMPService {
             differenceMap.put(id,difference);
             totalCpuTime+=difference;
         }
+        Map<String,String> exits=new HashMap<>();
         for (TableEvent event : tableEvents) {
             Map<String,Object> source=this.metricbeatMap("process",basicInfo);
             VariableBinding[] values = event.getColumns();

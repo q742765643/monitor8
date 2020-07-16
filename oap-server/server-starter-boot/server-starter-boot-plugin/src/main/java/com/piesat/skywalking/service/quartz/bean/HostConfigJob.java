@@ -37,7 +37,7 @@ public class HostConfigJob extends QuartzJobBean {
                 snmpCiscoService.getSystemInfo(ip,"161","2",date);
             }else if(os.indexOf("Ruijie")!=-1){
                 snmpRuijieService.getSystemInfo(ip,"161","2",date);
-            }else if(os.indexOf("H3C")!=-1){
+            }else if(os.indexOf("H3C S5130")!=-1){
                 snmph3cService.getSystemInfo(ip,"161","2",date);
             }else {
                 snmpServerService.getSystemInfo(ip,"161","2",date);
