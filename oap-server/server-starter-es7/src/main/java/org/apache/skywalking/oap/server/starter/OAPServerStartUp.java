@@ -19,10 +19,11 @@
 package org.apache.skywalking.oap.server.starter;
 
 import com.piesat.common.jpa.dao.GenericDaoImpl;
+import com.piesat.starter.LocalClassLoader;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -41,7 +42,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @MapperScan({"com.piesat.*.mapper" , "com.piesat.sod.*.mapper"})
 public class OAPServerStartUp extends SpringBootServletInitializer {
     public static void main(String[] args) {
-        new SpringApplicationBuilder(OAPServerStartUp.class)
-                .properties("spring.config.location=classpath:/app.yml").run(args);
+        LocalClassLoader.load(args);
+        SpringApplication.run(OAPServerStartUp.class, args);
+        /*new SpringApplicationBuilder(OAPServerStartUp.class)
+                .properties("spring.config.location=classpath:/app.yml").run(args);*/
     }
 }

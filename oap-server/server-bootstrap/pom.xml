@@ -228,6 +228,8 @@
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>oap-server.yml</exclude>
+                        <exclude>quartz.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>

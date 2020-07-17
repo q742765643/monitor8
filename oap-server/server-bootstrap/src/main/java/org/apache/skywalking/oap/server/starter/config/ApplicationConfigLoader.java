@@ -56,13 +56,13 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     @SuppressWarnings("unchecked")
     private void loadConfig(ApplicationConfiguration configuration) throws ConfigFileNotFoundException {
         try {
-            Reader applicationReader = ResourceUtils.read("application.yml");
+            Reader applicationReader = ResourceUtils.read("oap-server.yml");
             Map<String, Map<String, Object>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
             if (CollectionUtils.isNotEmpty(moduleConfig)) {
                 selectConfig(moduleConfig);
                 moduleConfig.forEach((moduleName, providerConfig) -> {
                     if (providerConfig.size() > 0) {
-                        log.info("Get a module define from application.yml, module name: {}", moduleName);
+                        log.info("Get a module define from oap-server.yml, module name: {}", moduleName);
                         ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(
                             moduleName);
                         providerConfig.forEach((providerName, config) -> {

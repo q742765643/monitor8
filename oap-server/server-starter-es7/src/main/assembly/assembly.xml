@@ -28,6 +28,9 @@
         <dependencySet>
             <outputDirectory>/libs</outputDirectory>
             <scope>runtime</scope>
+            <excludes>
+                <exclude>**/server-starter-es7*.jar</exclude>
+            </excludes>
         </dependencySet>
     </dependencySets>
 </assembly>
