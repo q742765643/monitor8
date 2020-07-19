@@ -33,9 +33,9 @@ spring:
       max-request-size: 1000000000
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://10.1.6.42:5432/soddb?currentSchema=usr_sod
-    username: soder
-    password: soder123
+    url: jdbc:postgresql://10.1.100.8:5432/kddb
+    username: zzj
+    password: zzj
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 1
     minIdle: 3
