@@ -191,7 +191,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <skipTests>true</skipTests>
         <!-- core lib dependency -->
-        <grpc.version>1.26.0</grpc.version>
+        <grpc.version>1.27.1</grpc.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <com.google.protobuf.protoc.version>3.3.0</com.google.protobuf.protoc.version>
@@ -588,7 +588,9 @@
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java,
 						org/springframework/**/*.java,
-                        com/**/*.java
+                        com/**/*.java,
+                        net/**/*.java,
+                        com/github/pagehelper/page/*.java
                     </excludes>
                     <propertyExpansion>
                         import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml

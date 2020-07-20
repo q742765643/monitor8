@@ -27,6 +27,8 @@ import io.netty.handler.ssl.SslProvider;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +55,7 @@ public class GRPCServer implements Server {
     private File privateKeyFile;
     private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 4;
     private int threadPoolQueueSize = 10000;
+    public static List<BindableService> GRPCSERVICES = new ArrayList<>();
 
     public GRPCServer(String host, int port) {
         this.host = host;
@@ -137,6 +140,7 @@ public class GRPCServer implements Server {
     public void addHandler(BindableService handler) {
         logger.info("Bind handler {} into gRPC server {}:{}", handler.getClass().getSimpleName(), host, port);
         nettyServerBuilder.addService(handler);
+        GRPCSERVICES.add(handler);
     }
 
     public void addHandler(ServerServiceDefinition definition) {

@@ -110,24 +110,6 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         ObjectMapper objectMapper=new ObjectMapper();
         return new MyFormHttpMessageConverter(objectMapper);
     }*/
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-      //注册自定义拦截器，添加拦截路径和排除拦截路径
-      HthtInterceptor hthtInterceptor=null;
-      try {
-          Class clazz = Class.forName("com.piesat.sso.client.interceptor.SsoHthtInterceptor");
-          hthtInterceptor= (HthtInterceptor) clazz.newInstance();
-
-      } catch (Exception e) {
-          hthtInterceptor=new HthtInterceptor();
-         // e.printStackTrace();
-      }
-     /* registry.addInterceptor(hthtInterceptor).addPathPatterns("*//**")
-              //.excludePathPatterns("/loginPage","/login")
-              .excludePathPatterns("/error")
-              .excludePathPatterns("/swagger-resources*//**", "/webjars*//**", "/v2*//**", "/doc.html");*/
-
-  }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.piesat.ucenter.mapper.system.PortalAuzMapper">
+  <resultMap id="baseResultMap" type="com.piesat.ucenter.entity.system.PortalAuzEntity">
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="ACCOUNT" jdbcType="VARCHAR" property="account" />
+    <result column="POST" jdbcType="VARCHAR" property="post" />
+    <result column="USERNAME" jdbcType="VARCHAR" property="username" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <!-- 条件查询 -->
+  <select id="selectList" parameterType="com.piesat.ucenter.entity.system.PortalAuzEntity" resultMap="baseResultMap">
+		select
+			id,account,post,username,status,update_time,create_time
+		from
+			t_sod_portal_auz
+		where
+			1=1
+		<if test="username != null and username != ''">
+			and username like #{username}
+		</if>
+		<if test="status != null and status != ''">
+			and status = #{status}
+		</if>
+		<if test="account != null and account != ''">
+			and account = #{account}
+		</if>
+  </select>
+</mapper>

@@ -16,6 +16,14 @@
 server:
   port: 12800
 
+grpc:
+  server:
+    port: 11800
+  client:
+    schedule-client-server:
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
 spring:
   application:
     name: schedule-server
@@ -31,11 +39,15 @@ spring:
     multipart:
       max-file-size: 1000000000
       max-request-size: 1000000000
+  redis:
+    host: 10.1.100.8
+    port: 6379
+    timeout: 50000
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://10.1.100.8:5432/kddb
-    username: zzj
-    password: zzj
+    url: jdbc:postgresql://10.1.6.42:5432/soddb?currentSchema=usr_sod
+    username: soder
+    password: soder123
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 1
     minIdle: 3
@@ -56,6 +68,10 @@ spring:
         format_sql: true
     show-sql: true
     open-in-view: false
+
+session:
+  timeout: 1800
+
 mybatis:
   type-aliases-package: com.piesat.*.entity
   mapper-locations: classpath*:mapper/*.xml
@@ -67,3 +83,13 @@ pagehelper:
   reasonable: true
   support-methods-arguments: true
   params: count=countSql
+fileUpload:
+  savaPath: /root/sod/java/sod/file/upload
+  httpPath: /upload
+serverfile:
+  dbfile: /root/sod/java/sod/file/upload/dbfile
+  filePath: /root/sod/java/sod/file/upload/filePath
+  dfcheck: /root/sod/java/sod/file/upload/dfcheck
+  special: /root/sod/java/sod/file/upload/special
+  cloud: /root/sod/java/sod/file/upload/cloud
+  user: /root/sod/java/sod/file/upload/user

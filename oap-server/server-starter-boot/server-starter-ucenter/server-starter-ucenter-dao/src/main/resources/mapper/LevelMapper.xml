@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.piesat.ucenter.mapper.dictionary.LevelMapper">
+
+    <resultMap id="BaseResultMap" type="com.piesat.ucenter.entity.dictionary.LevelEntity">
+        <id column="ID" jdbcType="VARCHAR" property="id"/>
+        <result column="CREATE_BY" jdbcType="VARCHAR" property="createBy"/>
+        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag"/>
+        <result column="UPDATE_BY" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="VERSION" jdbcType="INTEGER" property="version"/>
+        <result column="GRIB_VERSION" jdbcType="INTEGER" property="gribVersion"/>
+        <result column="LEVEL_CODE" jdbcType="VARCHAR" property="levelCode"/>
+        <result column="LEVEL_NAME" jdbcType="VARCHAR" property="levelName"/>
+        <result column="LEVEL_PROPERITY" jdbcType="VARCHAR" property="levelProperity"/>
+        <result column="LEVEL_TYPE" jdbcType="INTEGER" property="levelType"/>
+        <result column="SCALE_DIVISOR" jdbcType="VARCHAR" property="scaleDivisor"/>
+        <result column="UNIT" jdbcType="VARCHAR" property="unit"/>
+    </resultMap>
+    <sql id="selectLevelVo">
+        select
+            d.ID, d.CREATE_BY, d.CREATE_TIME, d.DEL_FLAG, d.UPDATE_BY, d.UPDATE_TIME, d.VERSION, d.GRIB_VERSION, d.LEVEL_TYPE, d.LEVEL_CODE, d.SCALE_DIVISOR, d.LEVEL_PROPERITY, d.LEVEL_NAME, d.UNIT
+        from T_SOD_GRID_LAYER_LEVEL d
+    </sql>
+    <select id="selectLevelList" parameterType="com.piesat.ucenter.entity.dictionary.LevelEntity"
+            resultMap="BaseResultMap">
+        <include refid="selectLevelVo"/>
+        where 1=1
+        <if test="gribVersion != null">
+            AND d.grib_version = #{gribVersion}
+        </if>
+        <if test="levelType != null">
+            AND d.level_type = #{levelType}
+        </if>
+    </select>
+
+    <select id="getAllLevel" resultMap="BaseResultMap">
+        select
+            distinct LEVEL_TYPE
+            from
+            T_SOD_GRID_LAYER_LEVEL
+            order by LEVEL_TYPE
+    </select>
+
+</mapper>

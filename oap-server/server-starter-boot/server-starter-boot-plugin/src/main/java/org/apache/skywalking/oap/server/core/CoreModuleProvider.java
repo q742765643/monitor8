@@ -87,7 +87,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -309,12 +308,12 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
-        try {
+        /**try {
             grpcServer.start();
             //jettyServer.start();
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
-        }
+        }**/
 
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 

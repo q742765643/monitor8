@@ -31,4 +31,8 @@ public class AutoDiscoveryEntity extends BaseEntity {
     @Excel(name = "状态")
     @Column(name="status", length=10)
     private String status;
+
+    @Excel(name = "备注")
+    @Column(name="remark", length=255)
+    private String remark;
 }

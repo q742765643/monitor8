@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.starter;
 
+import com.piesat.common.grpc.annotation.GrpcServiceScan;
 import com.piesat.common.jpa.dao.GenericDaoImpl;
 import com.piesat.starter.LocalClassLoader;
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -36,10 +38,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.piesat.*"})
-@EnableJpaRepositories(basePackages = {"com.piesat"} , repositoryBaseClass = GenericDaoImpl.class)
+@GrpcServiceScan(packages = {"com.piesat"})
+@EnableJpaRepositories(basePackages = { "com.piesat" } , repositoryBaseClass = GenericDaoImpl.class)
 @EnableJpaAuditing
-@EntityScan(basePackages = {"com.piesat"})
-@MapperScan({"com.piesat.*.mapper" , "com.piesat.sod.*.mapper"})
+@EntityScan(basePackages = { "com.piesat" })
+@MapperScan("com.piesat.*.mapper")
+@Slf4j
 public class OAPServerStartUp extends SpringBootServletInitializer {
     public static void main(String[] args) {
         LocalClassLoader.load(args);
