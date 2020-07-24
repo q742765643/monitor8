@@ -15,7 +15,9 @@ import java.util.Date;
 @Service("hostConfigHandler")
 public class HostConfigHandler implements BaseHandler {
     @Autowired
-    private SNMPCommonService snmpCommonService;
+    private SNMPWindowsService snmpWindowsService;
+    @Autowired
+    private SNMPLinuxService snmpLinuxService;
     @Autowired
     private SNMPCiscoService snmpCiscoService;
     @Autowired
@@ -36,8 +38,10 @@ public class HostConfigHandler implements BaseHandler {
                 snmpRuijieService.getSystemInfo(ip,"161","2",date);
             }else if(os.indexOf("H3C S5130")!=-1){
                 snmph3cService.getSystemInfo(ip,"161","2",date);
+            }else if(os.indexOf("Windows")!=-1){
+                snmpWindowsService.getSystemInfo(ip,"161","2",date);
             }else {
-                snmpCommonService.getSystemInfo(ip,"161","2",date);
+                snmpLinuxService.getSystemInfo(ip,"161","2",date);
             }
             long endTime=System.currentTimeMillis();
             log.info("{}snmp采集结束,耗时{}s",ip,(endTime-startTime)/1000);

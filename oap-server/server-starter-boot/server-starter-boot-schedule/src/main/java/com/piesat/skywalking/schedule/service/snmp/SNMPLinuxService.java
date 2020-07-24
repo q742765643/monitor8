@@ -18,12 +18,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 @Service
-public class SNMPCommonService extends SNMPService{
+public class SNMPLinuxService extends SNMPService{
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
     @SneakyThrows
@@ -60,10 +59,10 @@ public class SNMPCommonService extends SNMPService{
             this.processMap(snmp,basicInfo,esList);
             latch.countDown();
         }).start();
-      /*  new Thread(()->{
+        new Thread(()->{
             this.loadMap(snmp,basicInfo,esList);
             latch.countDown();
-        }).start();*/
+        }).start();
         new Thread(()->{
             this.diskioMap(snmp,basicInfo,esList);
             latch.countDown();
@@ -98,15 +97,11 @@ public class SNMPCommonService extends SNMPService{
     public void cpuMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         Map<String,Object> source=this.metricbeatMap("cpu",basicInfo);
         String[] sysCpu = {
-               "1.3.6.1.2.1.25.3.3.1.2"
+                SNMPConstants.SSCPUIDLE
         };
-        List<TableEvent> list=snmp.snmpWalk(sysCpu);
-        int percentage = 0;
-        for (TableEvent event : list) {
-            VariableBinding[] values = event.getColumns();
-            percentage += Integer.parseInt(values[0].getVariable().toString());
-        }
-        float total=new BigDecimal(percentage).divide(new BigDecimal(100)).divide(new BigDecimal(list.size()),4,RoundingMode.HALF_UP).floatValue();
+        ArrayList<String> sysCpus=snmp.getSnmpGet(PDU.GET,sysCpu);
+        float idle=new BigDecimal(sysCpus.get(0)).divide(new BigDecimal(100)).floatValue();
+        float total=1-idle;
 
         long cores= (long) basicInfo.get("cores");
 
@@ -184,46 +179,40 @@ public class SNMPCommonService extends SNMPService{
     @SneakyThrows
     public void memoryMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         Map<String,Object> source=this.metricbeatMap("memory",basicInfo);
-        String[] sysMemory =  {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
-                "1.3.6.1.2.1.25.2.3.1.3",  //descr
-                "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
-                "1.3.6.1.2.1.25.2.3.1.5",  //size 总存储单元数
-                "1.3.6.1.2.1.25.2.3.1.6"}; //used 使用存储单元数;
-        String PHYSICAL_MEMORY_OID = "1.3.6.1.2.1.25.2.1.2";//物理存储
-        String VIRTUAL_MEMORY_OID = "1.3.6.1.2.1.25.2.1.3"; //虚拟存储
-
-        List<TableEvent> list=snmp.snmpWalk(sysMemory);
-        BigDecimal memTotalSwap=new BigDecimal(0);
-        //BigDecimal memAvailSwap=new BigDecimal(0);
-        BigDecimal memUseSwap=new BigDecimal(0);
-        BigDecimal memTotalReal=new BigDecimal(0);
-        //BigDecimal memAvailReal=new BigDecimal(0);
-        BigDecimal memUseReal=new BigDecimal(0);
-        for(TableEvent event : list){
-            VariableBinding[] values = event.getColumns();
-            if(values == null) continue;
-            int unit = Integer.parseInt(values[2].getVariable().toString());//unit 存储单元大小
-            int totalSize = Integer.parseInt(values[3].getVariable().toString());//size 总存储单元数
-            int usedSize = Integer.parseInt(values[4].getVariable().toString());//used  使用存储单元数
-            String oid = values[0].getVariable().toString();
-            if (PHYSICAL_MEMORY_OID.equals(oid)){
-                memTotalReal=new BigDecimal(totalSize).multiply(new BigDecimal(unit));
-                memUseReal=new BigDecimal(usedSize).multiply(new BigDecimal(unit));
-            }else if (VIRTUAL_MEMORY_OID.equals(oid)&&unit!=0&&totalSize!=0) {
-                memTotalSwap=new BigDecimal(totalSize).multiply(new BigDecimal(unit));
-                memUseSwap=new BigDecimal(usedSize).multiply(new BigDecimal(unit));
-            }
-        }
+        String[] sysMemory = {
+                SNMPConstants.MEMTOTALSWAP,
+                SNMPConstants.MEMAVAILSWAP,
+                SNMPConstants.MEMTOTALREAL,
+                SNMPConstants.MEMAVAILREAL,
+                SNMPConstants.MEMTOTALFREE,
+                SNMPConstants.HRMEMORYSIZE,
+                SNMPConstants.MEMSHARED,
+                SNMPConstants.MEMBUFFER,
+                SNMPConstants.MEMCACHED
+        };
+        ArrayList<String> sysMemorys = snmp.getSnmpGet(PDU.GET,sysMemory);
+        BigDecimal memTotalSwap = new BigDecimal(sysMemorys.get(0)).multiply(new BigDecimal(1024));
+        BigDecimal memAvailSwap = new BigDecimal(sysMemorys.get(1)).multiply(new BigDecimal(1024));
+        BigDecimal memTotalReal = new BigDecimal(sysMemorys.get(2)).multiply(new BigDecimal(1024));
+        BigDecimal memAvailReal = new BigDecimal(sysMemorys.get(3)).multiply(new BigDecimal(1024));
+        // BigDecimal memTotalFree = new BigDecimal(sysMemorys.get(4)).multiply(new BigDecimal(1024));
+        //BigDecimal hrMemorySize = new BigDecimal(sysMemorys.get(5)).multiply(new BigDecimal(1024));
+        BigDecimal memShared = new BigDecimal(sysMemorys.get(6)).multiply(new BigDecimal(1024));
+        BigDecimal memBuffer = new BigDecimal(sysMemorys.get(7)).multiply(new BigDecimal(1024));
+        BigDecimal memCached = new BigDecimal(sysMemorys.get(8)).multiply(new BigDecimal(1024));
+        //BigDecimal actualFree = memAvailReal.add(memBuffer).add(memCached);
+        //BigDecimal actualUsedBytes = memTotalReal.subtract(actualFree);
+        //BigDecimal actualUsedPct = actualUsedBytes.divide(memTotalReal,4,RoundingMode.HALF_UP);
         Map<String,Object> system=new HashMap<>();
         Map<String,Object> memory=new HashMap<>();
         Map<String,Object> actual=new HashMap<>();
-        actual.put("free",memTotalReal.subtract(memUseReal).longValue());
+        actual.put("free",memAvailReal.longValue());
         Map<String,Object> actualUsed=new HashMap<>();
-        actualUsed.put("bytes",memUseReal.longValue());
-        actualUsed.put("pct",memUseReal.divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
+        actualUsed.put("bytes",memTotalReal.subtract(memAvailReal).longValue());
+        actualUsed.put("pct",(memTotalReal.subtract(memAvailReal)).divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
         actual.put("used",actualUsed);
         memory.put("actual",actual);
-        memory.put("free",memTotalReal.subtract(memUseReal).longValue());
+        memory.put("free",memAvailReal.longValue());
 
         Map<String,Object> hugepages=new HashMap<>();
         hugepages.put("default_size",0l);
@@ -261,12 +250,13 @@ public class SNMPCommonService extends SNMPService{
         pageStats.put("pgsteal_kswapd",pgstealKswapd);
         memory.put("page_stats",pageStats);
 
+        BigDecimal swapUsedBytes=memTotalSwap.subtract(memAvailSwap);
         BigDecimal swapUsedPct=new BigDecimal(0);
         if(memTotalSwap.longValue()>0){
-            swapUsedPct=memUseSwap.divide(memTotalSwap,4,RoundingMode.HALF_UP);
+            swapUsedPct=swapUsedBytes.divide(memTotalSwap,4,RoundingMode.HALF_UP);
         }
         Map<String,Object> swap=new HashMap<>();
-        swap.put("free",memTotalSwap.subtract(memUseSwap).longValue());
+        swap.put("free",memAvailSwap.longValue());
         Map<String,Object> swapIn=new HashMap<>();
         swapIn.put("pages",0l);
         swap.put("in",swapIn);
@@ -279,14 +269,14 @@ public class SNMPCommonService extends SNMPService{
         swap.put("readahead",readahead);
         swap.put("total",memTotalSwap.longValue());
         Map<String,Object> swapUsed=new HashMap<>();
-        swapUsed.put("bytes",memUseSwap.longValue());
+        swapUsed.put("bytes",swapUsedBytes.longValue());
         swapUsed.put("pct",swapUsedPct.floatValue());
         swap.put("used",swapUsed);
         memory.put("swap",swap);
         memory.put("total",memTotalReal.longValue());
         Map<String,Object> totalUsed=new HashMap<>();
-        totalUsed.put("bytes",memUseReal.longValue());
-        totalUsed.put("pct",memUseReal.divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
+        totalUsed.put("bytes",memTotalReal.subtract(memAvailReal).longValue());
+        totalUsed.put("pct",(memTotalReal.subtract(memAvailReal)).divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
         memory.put("used",totalUsed);
         system.put("memory",memory);
         source.put("system",system);

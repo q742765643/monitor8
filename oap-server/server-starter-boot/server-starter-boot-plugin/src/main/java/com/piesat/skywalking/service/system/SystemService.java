@@ -312,7 +312,7 @@ public class SystemService {
         dateHis.dateHistogramInterval(DateHistogramInterval.seconds(10));
 
         AvgAggregationBuilder avgMemory = AggregationBuilders.avg("usage");
-        avgMemory.field("system.memory.actual.used.pct");
+        avgMemory.field("system.memory.used.pct");
         avgMemory.format("0.0000");
 
         Script selectMemory = new Script("params.usage>0");
