@@ -39,7 +39,7 @@ public class SNMPWindowsService extends SNMPService{
         basicInfo.put("version",version);
         basicInfo.put("@timestamp",date);
         List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
-        final CountDownLatch latch = new CountDownLatch(6);
+        final CountDownLatch latch = new CountDownLatch(5);
         new Thread(()->{
             this.cpuMap(snmp,basicInfo,esList);
             latch.countDown();
@@ -64,10 +64,10 @@ public class SNMPWindowsService extends SNMPService{
             this.loadMap(snmp,basicInfo,esList);
             latch.countDown();
         }).start();*/
-        new Thread(()->{
+      /*  new Thread(()->{
             this.diskioMap(snmp,basicInfo,esList);
             latch.countDown();
-        }).start();
+        }).start();*/
         latch.await();
         SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
         String indexName="metricbeat-7.7.0-"+format.format(date)+"-000001";
