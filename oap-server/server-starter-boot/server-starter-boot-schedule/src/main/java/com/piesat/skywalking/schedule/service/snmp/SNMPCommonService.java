@@ -9,6 +9,8 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.Ela
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.snmp4j.PDU;
+import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.util.TableEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +18,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 @Service
-public class SNMPCiscoService extends SNMPService{
+public class SNMPCommonService extends SNMPService{
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
     @SneakyThrows
@@ -36,13 +39,33 @@ public class SNMPCiscoService extends SNMPService{
         basicInfo.put("version",version);
         basicInfo.put("@timestamp",date);
         List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
-        final CountDownLatch latch = new CountDownLatch(2);
+        final CountDownLatch latch = new CountDownLatch(6);
         new Thread(()->{
             this.cpuMap(snmp,basicInfo,esList);
             latch.countDown();
         }).start();
         new Thread(()->{
             this.memoryMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.networkMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.diskMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+        new Thread(()->{
+            this.processMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();
+      /*  new Thread(()->{
+            this.loadMap(snmp,basicInfo,esList);
+            latch.countDown();
+        }).start();*/
+        new Thread(()->{
+            this.diskioMap(snmp,basicInfo,esList);
             latch.countDown();
         }).start();
         latch.await();
@@ -55,37 +78,37 @@ public class SNMPCiscoService extends SNMPService{
         }
         elasticSearch7Client.synchronousBulk(request);
     }
+
     @SneakyThrows
-    public Map<String,Object> getBasicInfo(SNMPSessionUtil snmp){
+    public  Map<String,Object>  getBasicInfo(SNMPSessionUtil snmp){
         Map<String,Object> basicInfo=new HashMap<>();
         String[] sysDesc = {SNMPConstants.SYSDESC};
         ArrayList<String> sysDescs=snmp.getSnmpGet(PDU.GET,sysDesc);
         String[] sysName = {SNMPConstants.SYSNAME};
         ArrayList<String> sysNames=snmp.getSnmpGet(PDU.GET,sysName);
+        String[] sscpuNum = {SNMPConstants.SSCPUNUM};
+        ArrayList<String> sscpuNums=snmp.snmpWalk2(sscpuNum);
         basicInfo.put("desc",sysDescs.get(0));
         basicInfo.put("hostname",sysNames.get(0));
+        long cores=sscpuNums.size();
+        basicInfo.put("cores",cores);
         return basicInfo;
     }
-
     @SneakyThrows
-    public void cpuMap(SNMPSessionUtil snmp, Map<String,Object> basicInfo, List<Map<String,Object>> esList) {
+    public void cpuMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         Map<String,Object> source=this.metricbeatMap("cpu",basicInfo);
         String[] sysCpu = {
-                ".1.3.6.1.4.1.9.2.1.58"
+               "1.3.6.1.2.1.25.3.3.1.2"
         };
-        Integer cp = 0;
-        ArrayList<String> cpuList = snmp.snmpWalk2(sysCpu); //五分钟平均利用率
-        List<Integer> c = new ArrayList<>();
-        for (String s : cpuList) {
-            c.add(Integer.valueOf(s.substring(s.lastIndexOf("=")).replace("=", "").trim()));
+        List<TableEvent> list=snmp.snmpWalk(sysCpu);
+        int percentage = 0;
+        for (TableEvent event : list) {
+            VariableBinding[] values = event.getColumns();
+            percentage += Integer.parseInt(values[0].getVariable().toString());
         }
-        for (Integer integer : c) {
-            cp += integer;
-        }
-        float total=0f;
-        if(c.size()>0){
-            total=new BigDecimal(cp).divide(new BigDecimal(100)).divide(new BigDecimal(c.size()),4,RoundingMode.HALF_UP).floatValue();
-        }
+        float total=new BigDecimal(percentage).divide(new BigDecimal(100)).divide(new BigDecimal(list.size()),4,RoundingMode.HALF_UP).floatValue();
+
+        long cores= (long) basicInfo.get("cores");
 
         Map<String,Object> systemM=new HashMap<>();
         Map<String,Object> cpu=new HashMap<>();
@@ -151,35 +174,56 @@ public class SNMPCiscoService extends SNMPService{
         Map<String,Object> totalNorm=new HashMap<>();
         totalNorm.put("pct",total);
         totalEs.put("norm",totalNorm);
-        totalEs.put("pct",total);
+        totalEs.put("pct",total*cores);
         cpu.put("total",totalEs);
 
         systemM.put("cpu",cpu);
         source.put("system",systemM);
         esList.add(source);
     }
-
     @SneakyThrows
     public void memoryMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
         Map<String,Object> source=this.metricbeatMap("memory",basicInfo);
-        String[] ciscoMem = {"1.3.6.1.4.1.9.9.48.1.1.1.6.1"};//未使用
-        String[] ciscoUsed = {"1.3.6.1.4.1.9.9.48.1.1.1.5.1"};//已使用
-        ArrayList<String> memfree = snmp.getSnmpGet(PDU.GET, ciscoMem);
-        ArrayList<String> memused = snmp.getSnmpGet(PDU.GET, ciscoUsed);
-        BigDecimal free =new BigDecimal(memfree.get(0)); //MB/1024/1024
-        BigDecimal used = new BigDecimal(memused.get(0));//MB/1024/1024
-        BigDecimal total=free.add(used);
-        BigDecimal usedRate=used.divide(total,4,RoundingMode.HALF_UP);
+        String[] sysMemory =  {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
+                "1.3.6.1.2.1.25.2.3.1.3",  //descr
+                "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
+                "1.3.6.1.2.1.25.2.3.1.5",  //size 总存储单元数
+                "1.3.6.1.2.1.25.2.3.1.6"}; //used 使用存储单元数;
+        String PHYSICAL_MEMORY_OID = "1.3.6.1.2.1.25.2.1.2";//物理存储
+        String VIRTUAL_MEMORY_OID = "1.3.6.1.2.1.25.2.1.3"; //虚拟存储
+
+        List<TableEvent> list=snmp.snmpWalk(sysMemory);
+        BigDecimal memTotalSwap=new BigDecimal(0);
+        //BigDecimal memAvailSwap=new BigDecimal(0);
+        BigDecimal memUseSwap=new BigDecimal(0);
+        BigDecimal memTotalReal=new BigDecimal(0);
+        //BigDecimal memAvailReal=new BigDecimal(0);
+        BigDecimal memUseReal=new BigDecimal(0);
+        for(TableEvent event : list){
+            VariableBinding[] values = event.getColumns();
+            if(values == null) continue;
+            int unit = Integer.parseInt(values[2].getVariable().toString());//unit 存储单元大小
+            int totalSize = Integer.parseInt(values[3].getVariable().toString());//size 总存储单元数
+            int usedSize = Integer.parseInt(values[4].getVariable().toString());//used  使用存储单元数
+            String oid = values[0].getVariable().toString();
+            if (PHYSICAL_MEMORY_OID.equals(oid)){
+                memTotalReal=new BigDecimal(totalSize).multiply(new BigDecimal(unit));
+                memUseReal=new BigDecimal(usedSize).multiply(new BigDecimal(unit));
+            }else if (VIRTUAL_MEMORY_OID.equals(oid)&&unit!=0&&totalSize!=0) {
+                memTotalSwap=new BigDecimal(totalSize).multiply(new BigDecimal(unit));
+                memUseSwap=new BigDecimal(usedSize).multiply(new BigDecimal(unit));
+            }
+        }
         Map<String,Object> system=new HashMap<>();
         Map<String,Object> memory=new HashMap<>();
         Map<String,Object> actual=new HashMap<>();
-        actual.put("free",free.longValue());
+        actual.put("free",memTotalReal.subtract(memUseReal).longValue());
         Map<String,Object> actualUsed=new HashMap<>();
-        actualUsed.put("bytes",used.longValue());
-        actualUsed.put("pct",usedRate.floatValue());
+        actualUsed.put("bytes",memUseReal.longValue());
+        actualUsed.put("pct",memUseReal.divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
         actual.put("used",actualUsed);
         memory.put("actual",actual);
-        memory.put("free",free.longValue());
+        memory.put("free",memTotalReal.subtract(memUseReal).longValue());
 
         Map<String,Object> hugepages=new HashMap<>();
         hugepages.put("default_size",0l);
@@ -217,8 +261,12 @@ public class SNMPCiscoService extends SNMPService{
         pageStats.put("pgsteal_kswapd",pgstealKswapd);
         memory.put("page_stats",pageStats);
 
+        BigDecimal swapUsedPct=new BigDecimal(0);
+        if(memTotalSwap.longValue()>0){
+            swapUsedPct=memUseSwap.divide(memTotalSwap,4,RoundingMode.HALF_UP);
+        }
         Map<String,Object> swap=new HashMap<>();
-        swap.put("free",0l);
+        swap.put("free",memTotalSwap.subtract(memUseSwap).longValue());
         Map<String,Object> swapIn=new HashMap<>();
         swapIn.put("pages",0l);
         swap.put("in",swapIn);
@@ -229,21 +277,96 @@ public class SNMPCiscoService extends SNMPService{
         readahead.put("cached",0l);
         readahead.put("pages",0l);
         swap.put("readahead",readahead);
-        swap.put("total",0l);
+        swap.put("total",memTotalSwap.longValue());
         Map<String,Object> swapUsed=new HashMap<>();
-        swapUsed.put("bytes",0l);
-        swapUsed.put("pct",0l);
+        swapUsed.put("bytes",memUseSwap.longValue());
+        swapUsed.put("pct",swapUsedPct.floatValue());
         swap.put("used",swapUsed);
         memory.put("swap",swap);
-        memory.put("total",total.longValue());
+        memory.put("total",memTotalReal.longValue());
         Map<String,Object> totalUsed=new HashMap<>();
-        totalUsed.put("bytes",used.longValue());
-        totalUsed.put("pct",usedRate.floatValue());
+        totalUsed.put("bytes",memUseReal.longValue());
+        totalUsed.put("pct",memUseReal.divide(memTotalReal,4,RoundingMode.HALF_UP).floatValue());
         memory.put("used",totalUsed);
         system.put("memory",memory);
         source.put("system",system);
         esList.add(source);
 
     }
+    @SneakyThrows
+    public void processMap(SNMPSessionUtil snmp,Map<String,Object> basicInfo,List<Map<String,Object>> esList) {
+        String[] sysProcess = {
+                "1.3.6.1.2.1.25.4.2.1.1",  //index
+                "1.3.6.1.2.1.25.4.2.1.2",  //name
+                "1.3.6.1.2.1.25.4.2.1.4",  //run path
+                "1.3.6.1.2.1.25.4.2.1.5",  //parameters
+                "1.3.6.1.2.1.25.4.2.1.6",  //type
+                "1.3.6.1.2.1.25.5.1.1.1",  //cpu
+                "1.3.6.1.2.1.25.5.1.1.2" //memory
 
+        };
+        List<TableEvent> tableEvents = snmp.snmpWalk(sysProcess);
+
+        for (TableEvent event : tableEvents) {
+            Map<String,Object> source=this.metricbeatMap("process",basicInfo);
+            VariableBinding[] values = event.getColumns();
+            String  id = values[0].getVariable().toString();
+            if(id==null){
+                continue;
+            }
+            String runPath = values[2].getVariable().toString();
+            String parameters=values[3].getVariable().toString();
+            String type=values[4].getVariable().toString();
+            if(!"4".equals(type)){
+                continue;
+            }
+            if(runPath==null|| runPath.length()<2){
+                continue;
+            }
+            if(parameters==null){
+                parameters="";
+            }
+            String cpu = values[5].getVariable().toString();
+
+            String name=values[1].getVariable().toString();
+
+
+
+            String[] args={runPath,parameters};
+            BigDecimal mem = new BigDecimal(values[6].getVariable().toString()).multiply(new BigDecimal(1024));
+            Map<String,Object> processSource=new HashMap<>();
+            processSource.put("pid",new BigDecimal(id).longValue());
+            processSource.put("args",parameters);
+            processSource.put("name",name);
+            processSource.put("working_directory",args);
+            source.put("process",processSource);
+            Map<String,Object> system=new HashMap<>();
+            Map<String,Object> process=new HashMap<>();
+            process.put("cmdline",args);
+            BigDecimal normPct=new BigDecimal(0);
+
+            Map<String,Object> cpuEs=new HashMap<>();
+            Map<String,Object> cpuEsTotal=new HashMap<>();
+            Map<String,Object> cpuEsTotalNorm=new HashMap<>();
+            cpuEsTotalNorm.put("pct",normPct.floatValue());
+            cpuEsTotal.put("norm",cpuEsTotalNorm);
+            cpuEsTotal.put("pct",0f);
+            cpuEsTotal.put("value",new BigDecimal(cpu).longValue());
+            cpuEs.put("total",cpuEsTotal);
+            process.put("cpu",cpuEs);
+            Map<String,Object> memory=new HashMap<>();
+            Map<String,Object> rss=new HashMap<>();
+            rss.put("bytes",mem.longValue());
+            rss.put("pct",0f);
+            memory.put("rss",rss);
+            process.put("memory",memory);
+            system.put("process",process);
+            source.put("system",system);
+            esList.add(source);
+
+        }
+
+
+
+    }
 }

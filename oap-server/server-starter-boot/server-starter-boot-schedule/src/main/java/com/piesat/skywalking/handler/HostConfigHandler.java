@@ -3,10 +3,7 @@ package com.piesat.skywalking.handler;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.base.BaseHandler;
-import com.piesat.skywalking.schedule.service.snmp.SNMPCiscoService;
-import com.piesat.skywalking.schedule.service.snmp.SNMPH3cService;
-import com.piesat.skywalking.schedule.service.snmp.SNMPRuijieService;
-import com.piesat.skywalking.schedule.service.snmp.SNMPServerService;
+import com.piesat.skywalking.schedule.service.snmp.*;
 import com.piesat.util.ResultT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,7 @@ import java.util.Date;
 @Service("hostConfigHandler")
 public class HostConfigHandler implements BaseHandler {
     @Autowired
-    private SNMPServerService snmpServerService;
+    private SNMPCommonService snmpCommonService;
     @Autowired
     private SNMPCiscoService snmpCiscoService;
     @Autowired
@@ -40,7 +37,7 @@ public class HostConfigHandler implements BaseHandler {
             }else if(os.indexOf("H3C S5130")!=-1){
                 snmph3cService.getSystemInfo(ip,"161","2",date);
             }else {
-                snmpServerService.getSystemInfo(ip,"161","2",date);
+                snmpCommonService.getSystemInfo(ip,"161","2",date);
             }
             long endTime=System.currentTimeMillis();
             log.info("{}snmp采集结束,耗时{}s",ip,(endTime-startTime)/1000);
