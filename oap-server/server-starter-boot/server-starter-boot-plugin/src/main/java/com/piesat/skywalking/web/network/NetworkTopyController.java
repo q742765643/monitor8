@@ -1,12 +1,11 @@
 package com.piesat.skywalking.web.network;
 
-import com.piesat.skywalking.entity.AutoDiscoveryEntity;
+import com.piesat.skywalking.api.host.HostConfigService;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
-import com.piesat.skywalking.service.discovery.AutoDiscoveryService;
-import com.piesat.skywalking.service.host.HostConfigService;
+import com.piesat.skywalking.service.host.HostConfigServiceImpl;
 import com.piesat.util.ResultT;
-import com.piesat.util.page.PageBean;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.snmp4j.PDU;
@@ -36,11 +35,11 @@ public class NetworkTopyController {
         List<Map<String, Object>> nodeList = new ArrayList<>();
         List<Map<String, Object>> callList = new ArrayList<>();
         Sort sort = Sort.by("ip");
-        List<HostConfigEntity> list = hostConfigService.getAll(sort);
+        List<HostConfigDto> list = hostConfigService.selectAll();
         List<String> ipList = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
-            HostConfigEntity hostConfig = list.get(i);
+            HostConfigDto hostConfig = list.get(i);
             Map<String, Object> node = new HashMap<>();
             node.put("id", hostConfig.getId());
             node.put("name", hostConfig.getIp());
@@ -51,7 +50,7 @@ public class NetworkTopyController {
         }
         String[] arpIp = {"1.3.6.1.2.1.4.22.1.3"};
         for (int i = 0; i < list.size(); i++) {
-            HostConfigEntity hostConfig = list.get(i);
+            HostConfigDto hostConfig = list.get(i);
             if (null != hostConfig.getType() && hostConfig.getType().indexOf("Switch") != -1) {
                 try {
                     SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");

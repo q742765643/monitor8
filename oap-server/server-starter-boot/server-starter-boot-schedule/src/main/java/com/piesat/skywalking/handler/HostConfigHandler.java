@@ -1,22 +1,22 @@
-package com.piesat.skywalking.service.quartz.bean;
+package com.piesat.skywalking.handler;
 
-import com.piesat.skywalking.service.snmp.*;
+import com.piesat.skywalking.dto.HostConfigDto;
+import com.piesat.skywalking.dto.model.JobContext;
+import com.piesat.skywalking.handler.base.BaseHandler;
+import com.piesat.skywalking.schedule.service.snmp.SNMPCiscoService;
+import com.piesat.skywalking.schedule.service.snmp.SNMPH3cService;
+import com.piesat.skywalking.schedule.service.snmp.SNMPRuijieService;
+import com.piesat.skywalking.schedule.service.snmp.SNMPServerService;
+import com.piesat.util.ResultT;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-@PersistJobDataAfterExecution
-@DisallowConcurrentExecution
-@Component
 @Slf4j
-public class HostConfigJob extends QuartzJobBean {
+@Service("hostConfigHandler")
+public class HostConfigHandler implements BaseHandler {
     @Autowired
     private SNMPServerService snmpServerService;
     @Autowired
@@ -26,13 +26,13 @@ public class HostConfigJob extends QuartzJobBean {
     @Autowired
     private SNMPH3cService snmph3cService;
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobContext jobContext, ResultT<String> resultT) {
         try {
             long startTime=System.currentTimeMillis();
-            String ip= (String) context.getMergedJobDataMap().get("ip");
-            String os= (String) context.getMergedJobDataMap().get("os");
-            log.info("{}触发执行snmp采集",ip);
-            Date date=context.getScheduledFireTime();
+            HostConfigDto hostConfigDto= (HostConfigDto) jobContext.getHtJobInfoDto();
+            String ip= hostConfigDto.getIp();
+            String os= hostConfigDto.getOs();
+            Date date=new Date(System.currentTimeMillis());
             if(os.indexOf("Cisco")!=-1){
                 snmpCiscoService.getSystemInfo(ip,"161","2",date);
             }else if(os.indexOf("Ruijie")!=-1){

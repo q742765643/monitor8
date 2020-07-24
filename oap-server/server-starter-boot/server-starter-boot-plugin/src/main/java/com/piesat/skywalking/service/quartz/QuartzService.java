@@ -1,3 +1,4 @@
+/*
 package com.piesat.skywalking.service.quartz;
 
 import com.piesat.common.jpa.entity.BaseEntity;
@@ -14,12 +15,14 @@ import java.util.HashSet;
 import java.util.List;
 
 
+*/
 /**
  * @program: sod
  * @description:
  * @author: zzj
  * @create: 2019-12-19 11:49
- **/
+ **//*
+
 
 @Service
 public abstract class QuartzService {
@@ -171,3 +174,4 @@ public abstract class QuartzService {
 }
 
 
+*/

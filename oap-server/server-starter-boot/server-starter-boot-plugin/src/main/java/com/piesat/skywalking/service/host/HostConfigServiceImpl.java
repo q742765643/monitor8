@@ -5,11 +5,15 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
+import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dao.HostConfigDao;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.entity.HostConfigEntity;
+import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,18 +21,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class HostConfigService extends BaseService<HostConfigEntity> {
+public class HostConfigServiceImpl extends BaseService<HostConfigEntity> implements HostConfigService  {
     @Autowired
     private HostConfigDao hostConfigDao;
     @Autowired
     private HostConfigQuartzService hostConfigQuartzService;
+    @Autowired
+    private HostConfigMapstruct hostConfigMapstruct;
     @Override
     public BaseDao<HostConfigEntity> getBaseDao() {
         return hostConfigDao;
     }
 
 
-    public List<HostConfigEntity> selectBySpecification(HostConfigEntity hostConfig){
+    public List<HostConfigDto> selectBySpecification(HostConfigDto hostConfigdto){
+        HostConfigEntity hostConfig=hostConfigMapstruct.toEntity(hostConfigdto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(hostConfig.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(),hostConfig.getIp());
@@ -42,19 +49,30 @@ public class HostConfigService extends BaseService<HostConfigEntity> {
         if (StringUtils.isNotNullString(hostConfig.getIsSnmp())){
             specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), hostConfig.getIsSnmp());
         }
-        if (StringUtils.isNotNullString(hostConfig.getStatus())){
-            specificationBuilder.add("status", SpecificationOperator.Operator.eq.name(), hostConfig.getStatus());
+        if (null!=hostConfig.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
         List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
-        return hostConfigEntities;
+        return hostConfigMapstruct.toDto(hostConfigEntities);
     }
     @Transactional
-    public HostConfigEntity save(HostConfigEntity hostConfigDto){
-        HostConfigEntity hostConfig = super.saveNotNull(hostConfigDto);
-        if("1".equals(hostConfig.getIsSnmp())){
-            hostConfigQuartzService.addJobByType(hostConfig);
+    public HostConfigDto save(HostConfigDto hostConfigDto){
+        if(hostConfigDto.getTriggerType()==null){
+            hostConfigDto.setTriggerType(0);
         }
-        return hostConfig;
+        if(hostConfigDto.getTriggerStatus()==null){
+            hostConfigDto.setTriggerStatus(1);
+        }
+        hostConfigDto.setJobHandler("hostConfigHandler");
+        HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
+        hostConfig=super.saveNotNull(hostConfig);
+        hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        return hostConfigMapstruct.toDto(hostConfig);
+    }
+    public List<HostConfigDto> selectAll(){
+        Sort sort = Sort.by("ip");
+        List<HostConfigEntity> list = super.getAll(sort);
+        return hostConfigMapstruct.toDto(list);
     }
 }

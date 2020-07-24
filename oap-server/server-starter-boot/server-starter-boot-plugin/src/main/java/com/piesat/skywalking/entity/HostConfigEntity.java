@@ -2,16 +2,19 @@ package com.piesat.skywalking.entity;
 
 import com.piesat.common.annotation.Excel;
 import com.piesat.common.jpa.entity.BaseEntity;
+import com.piesat.skywalking.model.HtJobInfo;
 import lombok.Data;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
 @Data
 @Table(name="T_MT_HOST_CONFIG")
-public class HostConfigEntity extends BaseEntity {
+@DiscriminatorValue("HOSTCONFIG")
+public class HostConfigEntity extends HtJobInfo {
     @Excel(name = "主机ip")
     @Column(name="ip", length=50)
     private String ip;
@@ -38,7 +41,7 @@ public class HostConfigEntity extends BaseEntity {
 
     @Excel(name = "操作系统类型")
     @Column(name="os", length=255)
-    private String Os;
+    private String os;
 
     @Excel(name = "ssh端口")
     @Column(name="ssh_port", length=50)
@@ -52,11 +55,4 @@ public class HostConfigEntity extends BaseEntity {
     @Column(name="ssh_password", length=50)
     private String sshPassWord;
 
-    @Excel(name = "cron表达式")
-    @Column(name="cron", length=100)
-    private String cron;
-
-    @Excel(name = "状态")
-    @Column(name="status", length=10)
-    private String status;
 }

@@ -1,41 +1,45 @@
-package com.piesat.skywalking.service.quartz.bean;
+package com.piesat.skywalking.handler;
 
-import com.piesat.common.utils.ip.Ping;
-import com.piesat.skywalking.entity.HostConfigEntity;
+import com.piesat.common.grpc.annotation.GrpcHthtClient;
+import com.piesat.skywalking.api.host.HostConfigService;
+import com.piesat.skywalking.dto.AutoDiscoveryDto;
+import com.piesat.skywalking.dto.HostConfigDto;
+import com.piesat.skywalking.dto.model.HtJobInfoDto;
+import com.piesat.skywalking.dto.model.JobContext;
+import com.piesat.skywalking.handler.base.BaseHandler;
+import com.piesat.skywalking.handler.base.BaseShardHandler;
 import com.piesat.skywalking.om.protocol.snmp.SNMPConstants;
 import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
-import com.piesat.skywalking.service.host.HostConfigService;
+import com.piesat.skywalking.util.GetRangeIpUtil;
+import com.piesat.skywalking.util.Ping;
+import com.piesat.util.BaseDto;
+import com.piesat.util.ResultT;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.PersistJobDataAfterExecution;
 import org.snmp4j.PDU;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@PersistJobDataAfterExecution
-@DisallowConcurrentExecution
-@Component
 @Slf4j
-public class AutoDiscoveryJob extends QuartzJobBean {
-    @Autowired
+@Service("autoDiscoveryHandler")
+public class AutoDiscoveryHandler implements BaseShardHandler {
+    @GrpcHthtClient
     private HostConfigService hostConfigService;
+
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        String ipRange= (String) context.getMergedJobDataMap().get("ipRange");
-        log.info("{}触发执行自动发现",ipRange);
+    public void execute(JobContext jobContext, ResultT<String> resultT) {
+
         String[] host = {".1.3.6.1.2.1.25.1.2.0"};
         String[] sw = {".1.3.6.1.2.1.17.4.3"};
         String[] router = {".1.3.6.1.2.1.4.1.0"};
         try {
-            List<String> ips = Ping.GetPingSuccess(ipRange);
+            List<String> allIp = (List<String>) jobContext.getLists();
+            List<String> ips = Ping.GetPingSuccess(allIp);
+
             for(String ip:ips){
-                HostConfigEntity hostConfig=new HostConfigEntity();
+                HostConfigDto hostConfig=new HostConfigDto();
                 hostConfig.setIp(ip);
                 SNMPSessionUtil dv = new SNMPSessionUtil(ip,"161", "public", "2");
                 if (!"-1".equals(dv.getIsSnmpGet(PDU.GET,".1.3.6.1.2.1.1.5").get(0))) {
@@ -57,15 +61,15 @@ public class AutoDiscoveryJob extends QuartzJobBean {
                     hostConfig.setHostName(sysNames.get(0));
                     hostConfig.setOs(sysDescs.get(0));
                     hostConfig.setIsSnmp("1");
-                    hostConfig.setCron("0/10 * * * * ?");
+                    hostConfig.setJobCron("0/10 * * * * ?");
                     hostConfig.setId(ip);
-                    hostConfig.setStatus("1");
+                    hostConfig.setTriggerStatus(1);
                     hostConfigService.save(hostConfig);
 
                 }else {
-                    hostConfig.setCron("0/10 * * * * ?");
+                    hostConfig.setJobCron("0/10 * * * * ?");
                     hostConfig.setId(ip);
-                    hostConfig.setStatus("0");
+                    hostConfig.setTriggerStatus(0);
                     hostConfig.setType("unknownDevice");
                     hostConfigService.save(hostConfig);
                 }
@@ -73,8 +77,21 @@ public class AutoDiscoveryJob extends QuartzJobBean {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-
-
+    @Override
+    public List<?> sharding(JobContext jobContext, ResultT<String> resultT) {
+        AutoDiscoveryDto autoDiscoveryDto= (AutoDiscoveryDto) jobContext.getHtJobInfoDto();
+        List<String> ips = null;
+        try {
+            if(autoDiscoveryDto.getIpRange().indexOf("-")!=-1){
+                ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange());
+            }else{
+                ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange(), 24);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ips;
     }
 }

@@ -30,9 +30,9 @@ public class TimingConfig implements ApplicationRunner {
     @Autowired
     private GrpcProperties grpcProperties;
 
-    private ExecutorService  executorService= new ThreadPoolExecutor(5, 5,
-                                           0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("heart-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
+    /**private ExecutorService  executorService= new ThreadPoolExecutor(5, 5,
+     0L, TimeUnit.MILLISECONDS,
+     new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("heart-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());*/
 
 
     private static ScheduledExecutorService timingPool;
@@ -117,7 +117,8 @@ public class TimingConfig implements ApplicationRunner {
                         }finally {
                             if(!status.equals("SERVING")){
                                 channelUtil.getChannel().get(k).remove(a);
-                                executorService.execute(
+                                redisUtil.hdel("GRPC.SERVER:"+name,k);
+                           /*     executorService.execute(
                                         ()->{
                                             boolean flag=false;
                                             int i=0;
@@ -142,7 +143,7 @@ public class TimingConfig implements ApplicationRunner {
                                                 redisUtil.hdel("GRPC.SERVER:"+name,k);
                                             }
                                         }
-                                );
+                                );*/
                             }
                         }
 

@@ -1,3 +1,4 @@
+/*
 package com.piesat.common.config;
 
 import org.quartz.Scheduler;
@@ -12,12 +13,14 @@ import org.springframework.scheduling.quartz.AdaptableJobFactory;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 
+*/
 /**
  * @program: sod
  * @description:
  * @author: zzj
  * @create: 2019-12-19 11:44
- **/
+ **//*
+
 
 @Configuration
 public class QuartzConfiguration {
@@ -27,12 +30,14 @@ public class QuartzConfiguration {
     @Autowired
     private AutowireCapableBeanFactory capableBeanFactory;
 
-    /**
+    */
+/**
      * 当触发器触发时，与之关联的任务被Scheduler中配置的JobFactory实例化，也就是每触发一次，就会创建一个任务的实例化对象
      * (如果缺省)则调用Job类的newInstance方法生成一个实例
      * (这里选择自定义)并将创建的Job实例化交给IoC管理
      * @return
-     */
+     *//*
+
 
     @Bean
     public JobFactory jobFactory() {
@@ -62,3 +67,4 @@ public class QuartzConfiguration {
     }
 }
 
+*/

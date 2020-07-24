@@ -11,23 +11,16 @@ import java.util.List;
 
 public class SNMPSessionUtilTest {
     public static void main(String args[]) throws Exception {
-        SNMPSessionUtil dv = new SNMPSessionUtil("10.1.254.202", "161", "public", "2");
+        SNMPSessionUtil dv = new SNMPSessionUtil("10.1.6.88", "161", "public", "2");
       /*  String[] oid = {".1.3.6.1.4.1.2021.11.9"};
         String[] oids = {SNMPConstants.SSCPUNUM};
-        //ArrayList<String> snmpGet = snmpSessionUtil.snmpWalk2( oids);
+        //ArrayList<String> snmpGet = snmpSessionUtil.snmpWalk2( oids);*/
         String[] sysCpu = {
-                SNMPConstants.SSCPURAWIDLE,
-                SNMPConstants.SSCPURAWNICE,
-                SNMPConstants.SSCPURAWSOFTIRQ,
-                SNMPConstants.SSCPURAWSYSTEM,
-                SNMPConstants.SSCPURAWWAIT,
-                SNMPConstants.SSCPURAWSTEAL,
-                ".1.3.6.1.4.1.2021.11.9.1",
+                ".1.3.6.1.2.1.25.3.3.1.2",
         };
-        ArrayList<String> snmpGet = snmpSessionUtil.getSnmpGet(PDU.GET, sysCpu);*/
-        String[] ruijieCpu = {".1.3.6.1.4.1"};
-        ArrayList<String> cpuList = dv.snmpWalk2(ruijieCpu);
-        System.out.println();
+        ArrayList<String> snmpGet = dv.getSnmpGet(PDU.GET, sysCpu);
+
+        System.out.println(JSON.toJSONString(snmpGet));
 
     }
 }
