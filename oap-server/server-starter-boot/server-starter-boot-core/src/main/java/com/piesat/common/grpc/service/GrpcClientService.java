@@ -29,7 +29,7 @@ public class GrpcClientService {
             log.error("通道为null{},{}",grpcRequest.getClazz(),grpcRequest.getMethod());
         }
         ChannelUtil channelUtil=ChannelUtil.getInstance();
-        log.info("grpc调用{}.{}",grpcRequest.getClazz(),grpcRequest.getMethod());
+        //log.info("grpc调用{}.{}",grpcRequest.getClazz(),grpcRequest.getMethod());
         CommonServiceGrpc.CommonServiceBlockingStub blockingStub=CommonServiceGrpc.newBlockingStub(channelUtil.selectChannel(serverName));
         SerializeService serializeService = SerializeUtils.getSerializeService(serializeType, this.defaultSerializeService);
         ByteString bytes = serializeService.serialize(grpcRequest);

@@ -4,6 +4,7 @@ import com.piesat.common.grpc.annotation.GrpcHthtService;
 import com.piesat.rpc.CommonServiceGrpc;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
+import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChannelUtil {
     private ConcurrentHashMap<String,Object> grpcServices=new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, String> grpcServerName=new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String,ConcurrentHashMap<String,Channel>>  channel=new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String,ConcurrentHashMap<String, ManagedChannel>>  channel=new ConcurrentHashMap<>();
     private volatile static  ChannelUtil instance=null;
 
     public synchronized ConcurrentHashMap<String, Object> getGrpcServices() {
@@ -36,7 +37,7 @@ public class ChannelUtil {
         return grpcServerName;
     }
 
-    public  ConcurrentHashMap<String, ConcurrentHashMap<String,Channel>> getChannel() {
+    public  ConcurrentHashMap<String, ConcurrentHashMap<String,ManagedChannel>> getChannel() {
         return channel;
     }
 
@@ -116,7 +117,7 @@ public class ChannelUtil {
     }
 
     public Channel selectChannel(String name){
-        Map<String,Channel> map=channel.get(name);
+        Map<String,ManagedChannel> map=channel.get(name);
         //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題
         Map<String,Integer> serverMap  = new HashMap<String,Integer>();
         map.forEach((k,v)->{

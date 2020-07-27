@@ -1,26 +1,24 @@
-package com.piesat.skywalking.config;
+package com.piesat.common.config;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.piesat.common.grpc.config.ChannelUtil;
-import com.piesat.skywalking.util.RedisUtil;
+import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.util.NetUtils;
-import io.grpc.Channel;
+import com.piesat.util.StringUtil;
+import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.health.v1.HealthCheckRequest;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.health.v1.HealthGrpc;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
-
 
 @Slf4j
 @Component
@@ -33,8 +31,8 @@ public class TimingConfig implements ApplicationRunner {
     private GrpcProperties grpcProperties;
 
     /**private ExecutorService  executorService= new ThreadPoolExecutor(5, 5,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("heart-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());*/
+     0L, TimeUnit.MILLISECONDS,
+     new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("heart-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());*/
 
 
     private static ScheduledExecutorService timingPool;
@@ -58,10 +56,10 @@ public class TimingConfig implements ApplicationRunner {
                     Map<Object,Object> addresss=redisUtil.hmget("GRPC.SERVER:"+key);
                     addresss.forEach((a,b)->{
                         String address=String.valueOf(a);
-                        ConcurrentHashMap<String, Channel>  channelMap=channelUtil.getChannel().get(key);
+                        ConcurrentHashMap<String, ManagedChannel>  channelMap=channelUtil.getChannel().get(key);
                         if(channelMap==null){
-                            Channel channel = ManagedChannelBuilder.forTarget("static://"+address).usePlaintext().build();
-                            ConcurrentHashMap<String, Channel> newchanelMap=new ConcurrentHashMap<>();
+                            ManagedChannel channel = ManagedChannelBuilder.forTarget("static://"+address).usePlaintext().build();
+                            ConcurrentHashMap<String, ManagedChannel> newchanelMap=new ConcurrentHashMap<>();
                             newchanelMap.put(address,channel);
                             String status="";
                             try {
@@ -78,7 +76,7 @@ public class TimingConfig implements ApplicationRunner {
                             }
                         }
                         if(channelMap!=null&&channelMap.get(address)==null){
-                            Channel channel = ManagedChannelBuilder.forTarget("static://"+address).usePlaintext().build();
+                            ManagedChannel channel = ManagedChannelBuilder.forTarget("static://"+address).usePlaintext().build();
                             String status="";
                             try {
                                 HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
@@ -105,7 +103,7 @@ public class TimingConfig implements ApplicationRunner {
         }, 0, 30, TimeUnit.SECONDS);
         timingPool.scheduleWithFixedDelay(()->{
             try {
-                ConcurrentHashMap<String, ConcurrentHashMap<String,Channel>>  channelMap=channelUtil.getChannel();
+                ConcurrentHashMap<String, ConcurrentHashMap<String,ManagedChannel>>  channelMap=channelUtil.getChannel();
                 channelMap.forEach((k,v)->{
                     v.forEach((a,b)->{
                         String status="";
@@ -118,6 +116,9 @@ public class TimingConfig implements ApplicationRunner {
                             log.info("grpc {} 心跳检测失败",a);
                         }finally {
                             if(!status.equals("SERVING")){
+                                if(null!=channelUtil.getChannel().get(k)){
+                                    channelUtil.getChannel().get(k).get(a).shutdown();
+                                }
                                 channelUtil.getChannel().get(k).remove(a);
                                 redisUtil.hdel("GRPC.SERVER:"+name,k);
                            /*     executorService.execute(

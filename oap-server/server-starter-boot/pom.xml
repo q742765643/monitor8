@@ -21,8 +21,6 @@
     </properties>
     <modules>
         <module>server-starter-boot-core</module>
-        <module>server-starter-boot-schedule-api</module>
-
         <module>server-starter-boot-plugin</module>
         <module>server-starter-ucenter</module>
         <module>server-starter-boot-web</module>
