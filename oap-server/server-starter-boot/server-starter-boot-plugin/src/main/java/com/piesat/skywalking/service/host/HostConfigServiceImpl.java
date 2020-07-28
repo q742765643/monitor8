@@ -7,11 +7,15 @@ import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dao.HostConfigDao;
+import com.piesat.skywalking.dto.AutoDiscoveryDto;
+import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
+import com.piesat.util.page.PageBean;
+import com.piesat.util.page.PageForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,6 +37,27 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         return hostConfigDao;
     }
 
+    public PageBean selectPageList(PageForm<HostConfigDto> pageForm) {
+        HostConfigEntity host=hostConfigMapstruct.toEntity(pageForm.getT());
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(host.getIp())) {
+            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), host.getIp());
+        }
+        if (StringUtils.isNotNullString(host.getTaskName())) {
+            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), host.getTaskName());
+        }
+        if (StringUtils.isNotNullString((String) host.getParamt().get("beginTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) host.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) host.getParamt().get("endTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) host.getParamt().get("endTime"));
+        }
+        Specification specification = specificationBuilder.generateSpecification();
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        PageBean pageBean = this.getPage(specification, pageForm, sort);
+        return pageBean;
+
+    }
 
     public List<HostConfigDto> selectBySpecification(HostConfigDto hostConfigdto){
         HostConfigEntity hostConfig=hostConfigMapstruct.toEntity(hostConfigdto);
@@ -74,5 +99,15 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         Sort sort = Sort.by("ip");
         List<HostConfigEntity> list = super.getAll(sort);
         return hostConfigMapstruct.toDto(list);
+    }
+
+    @Override
+    public HostConfigDto findById(String id) {
+        return hostConfigMapstruct.toDto(super.getById(id));
+    }
+
+    @Override
+    public void deleteByIds(List<String> ids) {
+        super.deleteByIds(ids);
     }
 }

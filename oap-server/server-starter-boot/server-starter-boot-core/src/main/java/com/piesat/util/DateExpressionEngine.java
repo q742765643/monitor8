@@ -8,6 +8,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -20,6 +22,11 @@ import java.util.regex.Pattern;
  * @create: 2019-12-24 10:16
  **/
 public class DateExpressionEngine {
+
+    public static String formatDateExpression(String needProcessString, long dateValue){
+        SimpleDateFormat format=new SimpleDateFormat("yyyyMMddHHmm");
+        return formatDateExpression(needProcessString,format.format(dateValue));
+    }
     /**
      * <pre>
      * @param needProcessString 需要处理的字符串
