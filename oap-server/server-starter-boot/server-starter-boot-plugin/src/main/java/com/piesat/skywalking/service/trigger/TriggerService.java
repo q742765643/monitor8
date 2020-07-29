@@ -30,10 +30,18 @@ public class TriggerService {
         executorService.execute(()->{
             ResultT<String> resultT=new ResultT<>();
             JobContext jobContext=new JobContext();
+            long triggerLastTime=jobInfoDto.getTriggerLastTime();
+            if(triggerLastTime==0){
+                triggerLastTime=jobInfoDto.getTriggerNextTime();
+            }
+            jobInfoDto.setTriggerLastTime(triggerLastTime-jobInfoDto.getDelayTime());
             jobContext.setHandler(jobInfoDto.getJobHandler());
             jobContext.setHtJobInfoDto(jobInfoDto);
             if(1==jobInfoDto.getTriggerType()){
                 List<?> list=remoteService.sharding(jobContext,resultT);
+                if(list.size()==0){
+                    return;
+                }
                 double batch = new BigDecimal(list.size()).divide(new BigDecimal(3),2, RoundingMode.HALF_UP).doubleValue();
                 int  slice= (int) Math.ceil(batch);
                 int start=0;

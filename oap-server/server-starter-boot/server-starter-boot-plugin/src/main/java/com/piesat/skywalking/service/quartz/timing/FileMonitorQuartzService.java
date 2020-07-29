@@ -6,9 +6,10 @@ import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.service.timing.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class FileMonitorQuartzService extends ScheduleService {
     @Autowired
     private FileMonitorService fileMonitorService;

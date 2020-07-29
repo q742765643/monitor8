@@ -22,4 +22,6 @@ public interface HostConfigService {
     public HostConfigDto findById(String id);
 
     public void deleteByIds(List<String> ids);
+
+    public List<String> selectNosnmp();
 }

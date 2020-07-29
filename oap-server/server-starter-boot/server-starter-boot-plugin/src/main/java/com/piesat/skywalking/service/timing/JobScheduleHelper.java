@@ -61,7 +61,8 @@ public class JobScheduleHelper {
                             for (DefaultTypedTuple typedTuple : scheduleList) {
                                     String jobId=(String) typedTuple.getValue();
                                     HtJobInfoDto jobInfo = (HtJobInfoDto) redisUtil.hget(QUARTZ_HTHT_JOBDETAIL,jobId);
-                                    jobInfo.setTriggerNextTime(typedTuple.getScore().longValue());
+                                    long nextTime=typedTuple.getScore().longValue();
+                                    jobInfo.setTriggerNextTime(nextTime);
                                 // time-ring jump
                                 if (nowTime > jobInfo.getTriggerNextTime() + PRE_READ_MS) {
                                     // 2.1、trigger-expire > 5s：pass && make next-trigger-time
@@ -213,10 +214,10 @@ public class JobScheduleHelper {
     }
 
     private void refreshNextValidTime(HtJobInfoDto jobInfo, Date fromTime) throws ParseException {
-        Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(fromTime);
+        Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(new Date(fromTime.getTime()-jobInfo.getDelayTime()));
         if (nextValidTime != null) {
             jobInfo.setTriggerLastTime(jobInfo.getTriggerNextTime());
-            jobInfo.setTriggerNextTime(nextValidTime.getTime());
+            jobInfo.setTriggerNextTime(nextValidTime.getTime()+jobInfo.getDelayTime());
         } else {
             jobInfo.setTriggerStatus(0);
             jobInfo.setTriggerLastTime(0);

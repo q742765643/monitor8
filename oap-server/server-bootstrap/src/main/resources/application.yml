@@ -66,6 +66,8 @@ spring:
           auto: update
         dialect: com.piesat.common.jpa.dialect.PostgreDialect
         format_sql: true
+        temp:
+          use_jdbc_metadata_defaults: false
     show-sql: true
     open-in-view: false
 

@@ -13,4 +13,7 @@ public class HtJobInfoDto extends BaseDto {
     private String jobDesc;
     private String JobHandler;
     private Integer triggerType; //0 普通 1分片
+    private Integer isUt;
+    private long delayTime;
+    private long triggerTime;
 }

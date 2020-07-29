@@ -15,7 +15,7 @@ import javax.persistence.Table;
 public class FileMonitorEntity extends HtJobInfo {
 
     @Column(name="folder_regular", length=255)
-    private String floderRegular;
+    private String folderRegular;
 
     @Column(name="filename_regular", length=255)
     private String filenameRegular;

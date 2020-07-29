@@ -88,6 +88,8 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
         if(autoDiscoveryDto.getTriggerStatus()==null){
             autoDiscoveryDto.setTriggerStatus(0);
         }
+        autoDiscoveryDto.setIsUt(0);
+        autoDiscoveryDto.setDelayTime(0);
         autoDiscoveryDto.setJobHandler("autoDiscoveryHandler");
         AutoDiscoveryEntity autoDiscoveryEntity=autoDiscoveryMapstruct.toEntity(autoDiscoveryDto);
         autoDiscoveryEntity=super.saveNotNull(autoDiscoveryEntity);

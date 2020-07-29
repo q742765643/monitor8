@@ -27,4 +27,9 @@ public class HtJobInfo extends BaseEntity {
     private String JobHandler;
     @Column(name="trigger_type", length=10)
     private Integer triggerType;
+    @Column(name="is_ut", length=10)
+    private Integer isUt;
+    @Column(name="delay_time", length=50)
+    private long delayTime;
+
 }

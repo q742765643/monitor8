@@ -10,10 +10,12 @@ import com.piesat.skywalking.dao.HostConfigDao;
 import com.piesat.skywalking.dto.AutoDiscoveryDto;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.HostConfigDto;
+import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
+import com.piesat.skywalking.vo.NetworkVo;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -89,6 +92,8 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if(hostConfigDto.getTriggerStatus()==null){
             hostConfigDto.setTriggerStatus(1);
         }
+        hostConfigDto.setIsUt(0);
+        hostConfigDto.setDelayTime(0);
         hostConfigDto.setJobHandler("hostConfigHandler");
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
         hostConfig=super.saveNotNull(hostConfig);
@@ -110,4 +115,19 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
     }
+
+    public List<String> selectNosnmp(){
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), "1");
+        specificationBuilder.addOr("isAgent", SpecificationOperator.Operator.eq.name(), "1");
+        Specification specification = specificationBuilder.generateSpecification();
+        List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
+        List<String> ips=new ArrayList<>();
+        for(int i=0;i<hostConfigEntities.size();i++){
+            ips.add(hostConfigEntities.get(i).getIp());
+        }
+        return ips;
+
+    }
+
 }

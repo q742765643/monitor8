@@ -2,7 +2,9 @@ package com.htht;
 
 import com.piesat.skywalking.ScheduleApplication;
 import com.piesat.skywalking.dto.FileMonitorDto;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.model.JobContext;
+import com.piesat.skywalking.handler.AutoDiscoveryHandler;
 import com.piesat.skywalking.handler.FileMonitorHandler;
 import com.piesat.util.ResultT;
 import org.junit.Test;
@@ -19,6 +21,8 @@ import java.util.Date;
 public class FileMonitorHandlerTest {
     @Autowired
     private FileMonitorHandler fileMonitorHandler;
+    @Autowired
+    private AutoDiscoveryHandler autoDiscoveryHandler;
     @Test
     public void test() throws Exception {
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
@@ -29,5 +33,11 @@ public class FileMonitorHandlerTest {
         JobContext jobContext=new JobContext();
         jobContext.setHtJobInfoDto(fileMonitorDto);
         fileMonitorHandler.execute(jobContext,new ResultT<>());
+    }
+    @Test
+    public void test1() throws Exception {
+        HostConfigDto hostConfigDto=new HostConfigDto();
+        hostConfigDto.setIp("10.1.100.75");
+        autoDiscoveryHandler.getHost(hostConfigDto);
     }
 }

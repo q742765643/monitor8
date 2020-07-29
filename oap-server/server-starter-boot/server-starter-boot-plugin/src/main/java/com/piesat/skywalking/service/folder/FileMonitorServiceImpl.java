@@ -92,6 +92,14 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         if(fileMonitorDto.getTriggerStatus()==null){
             fileMonitorDto.setTriggerStatus(0);
         }
+        if(fileMonitorDto.getIsUt()==null){
+            fileMonitorDto.setIsUt(0);
+        }
+        if(fileMonitorDto.getIsUt()==1){
+            fileMonitorDto.setDelayTime(8*60*60*1000);
+        }else {
+            fileMonitorDto.setDelayTime(0);
+        }
         fileMonitorDto.setJobHandler("fileMonitorHandler");
         FileMonitorEntity fileMonitorEntity=fileMonitorMapstruct.toEntity(fileMonitorDto);
         fileMonitorEntity=super.saveNotNull(fileMonitorEntity);
