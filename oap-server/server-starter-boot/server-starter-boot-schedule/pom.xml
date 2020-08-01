@@ -100,7 +100,7 @@
            </dependency>-->
     </dependencies>
     <build>
-        <finalName>skywalking_client</finalName>
+        <finalName>skywalking-client</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

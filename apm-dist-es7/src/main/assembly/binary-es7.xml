@@ -107,4 +107,16 @@
             <fileMode>0644</fileMode>
         </file>
     </files>
+    <files>
+        <file>
+            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-schedule/target/skywalking-client.jar</source>
+            <outputDirectory>/client</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-schedule/src/main/resources/application.yml</source>
+            <outputDirectory>/client</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+    </files>
 </assembly>
