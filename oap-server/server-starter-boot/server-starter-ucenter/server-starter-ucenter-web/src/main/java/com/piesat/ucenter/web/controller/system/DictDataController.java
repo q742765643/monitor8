@@ -27,11 +27,12 @@ import java.util.List;
  * @创建时间 2019/12/3 18:17
  */
 @RestController
-@Api(value="字段数据操作接口",tags={"字段数据操作接口"})
+@Api(value="字典数据操作接口",tags={"字典数据操作接口"})
 @RequestMapping("/system/dict/data")
 public class DictDataController {
     @Autowired
     private DictDataService dictDataService;
+    @ApiOperation(value = "分页查询字典数据", notes = "分页查询字典数据")
     @RequiresPermissions("system:dict:list")
     @GetMapping("/list")
     public ResultT<PageBean> list(DictDataDto dictData,
@@ -47,6 +48,7 @@ public class DictDataController {
     /**
      * 查询字典数据详细
      */
+    @ApiOperation(value = "查询字典数据详细", notes = "查询字典数据详细")
     @RequiresPermissions("system:dict:query")
     @GetMapping(value = "/{dictCode}")
     public ResultT<DictDataDto> getInfo(@PathVariable String dictCode)
@@ -59,6 +61,7 @@ public class DictDataController {
     /**
      * 根据字典类型查询字典数据信息
      */
+    @ApiOperation(value = "根据字典类型查询字典数据信息", notes = "根据字典类型查询字典数据信息")
     @GetMapping(value = "/dictType/{dictType}")
     @RequiresPermissions("system:dict:dictType")
     public ResultT<List<DictDataDto>> dictType(@PathVariable String dictType)
@@ -71,6 +74,7 @@ public class DictDataController {
     /**
      * 新增字典类型
      */
+    @ApiOperation(value = "新增字典数据", notes = "新增字典数据")
     @RequiresPermissions("system:dict:add")
     @Log(title = "字典数据", businessType = BusinessType.INSERT)
     @PostMapping
@@ -85,7 +89,7 @@ public class DictDataController {
     /**
      * 修改保存字典类型
      */
-
+    @ApiOperation(value = "修改保存字典数据", notes = "修改保存字典数据")
     @RequiresPermissions("system:dict:edit")
     @Log(title = "字典数据", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -100,6 +104,7 @@ public class DictDataController {
     /**
      * 删除字典类型
      */
+    @ApiOperation(value = "修删除字典数据", notes = "修删除字典数据")
     @RequiresPermissions("system:dict:remove")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictCodes}")

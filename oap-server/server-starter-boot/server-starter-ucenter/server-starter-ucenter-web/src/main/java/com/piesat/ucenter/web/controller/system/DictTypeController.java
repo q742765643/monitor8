@@ -27,11 +27,12 @@ import java.util.List;
  * @创建时间 2019/12/3 16:10
  */
 @RestController
-@Api(value="字段类型操作接口",tags={"字段类型操作接口"})
+@Api(value="字典类型操作接口",tags={"字典类型操作接口"})
 @RequestMapping("/system/dict/type")
 public class DictTypeController {
     @Autowired
     private DictTypeService dictTypeService;
+    @ApiOperation(value = "分页查询字典类型", notes = "分页查询字典类型")
     @RequiresPermissions("system:dict:list")
     @GetMapping("/list")
     public ResultT<PageBean> list(DictTypeDto dictType ,
@@ -50,6 +51,7 @@ public class DictTypeController {
     /**
      * 查询字典类型详细
      */
+    @ApiOperation(value = "查询字典类型详细", notes = "查询字典类型详细")
     @RequiresPermissions("system:dict:query")
     @GetMapping(value = "/{dictId}")
     public ResultT<DictTypeDto> getInfo(@PathVariable String dictId)
@@ -62,6 +64,7 @@ public class DictTypeController {
     /**
      * 新增字典类型
      */
+    @ApiOperation(value = "新增字典类型", notes = "新增字典类型")
     @RequiresPermissions("system:dict:add")
     @Log(title = "字典类型", businessType = BusinessType.INSERT)
     @PostMapping
@@ -80,6 +83,7 @@ public class DictTypeController {
     /**
      * 修改字典类型
      */
+    @ApiOperation(value = "修改字典类型", notes = "修改字典类型")
     @RequiresPermissions("system:dict:edit")
     @Log(title = "字典类型", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -99,6 +103,7 @@ public class DictTypeController {
     /**
      * 删除字典类型
      */
+    @ApiOperation(value = "删除字典类型", notes = "删除字典类型")
     @RequiresPermissions("system:dict:remove")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictIds}")

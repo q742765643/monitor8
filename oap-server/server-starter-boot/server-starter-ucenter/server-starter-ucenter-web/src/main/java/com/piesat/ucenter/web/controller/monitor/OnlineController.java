@@ -8,6 +8,7 @@ import com.piesat.util.ResultT;
 import com.piesat.util.constant.GrpcConstant;
 import com.piesat.util.page.PageBean;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ public class OnlineController {
     @Autowired
     private OnlineService onlineService;
 
+    @ApiOperation(value = "分页查询在线用户", notes = "分页查询在线用户")
     @RequiresPermissions("monitor:online:list")
     @GetMapping("/list")
     public ResultT<PageBean> list(String ipaddr, String userName,
@@ -40,6 +42,7 @@ public class OnlineController {
     /**
      * 强退用户
      */
+    @ApiOperation(value = "强退用户", notes = "强退用户")
     @RequiresPermissions("monitor:online:forceLogout")
     @Log(title = "在线用户", businessType = BusinessType.DELETE)
     @DeleteMapping("/{tokenId}")

@@ -29,6 +29,7 @@ import java.util.List;
 public class MenuController {
     @Autowired
     private MenuService menuService;
+    @ApiOperation(value = "查询所有菜单", notes = "查询所有菜单")
     @RequiresPermissions("system:menu:list")
     @GetMapping("/list")
     public ResultT<List<MenuDto>> list(MenuDto menu)
@@ -38,6 +39,7 @@ public class MenuController {
         resultT.setData(menuDtos);
         return resultT;
     }
+    @ApiOperation(value = "查询菜单树", notes = "查询菜单树")
     @GetMapping("/treeselect")
     public ResultT<List<TreeSelect>> treeselect(MenuDto menu)
     {
@@ -49,6 +51,7 @@ public class MenuController {
     /**
      * 新增菜单
      */
+    @ApiOperation(value = "新增菜单", notes = "新增菜单")
     @RequiresPermissions("system:menu:add")
     @Log(title = "菜单管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -62,6 +65,7 @@ public class MenuController {
     /**
      * 修改菜单
      */
+    @ApiOperation(value = "修改菜单", notes = "修改菜单")
     @RequiresPermissions("system:menu:edit")
     @Log(title = "菜单管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -74,6 +78,7 @@ public class MenuController {
     /**
      * 根据菜单编号获取详细信息
      */
+    @ApiOperation(value = "根据菜单编号获取详细信息", notes = "根据菜单编号获取详细信息")
     @RequiresPermissions("system:menu:query")
     @GetMapping(value = "/{menuId}")
     public ResultT<MenuDto> getInfo(@PathVariable String menuId)
@@ -87,6 +92,7 @@ public class MenuController {
     /**
      * 删除菜单
      */
+    @ApiOperation(value = "删除菜单", notes = "删除菜单")
     @RequiresPermissions("system:menu:remove")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{menuId}")
@@ -107,6 +113,7 @@ public class MenuController {
     /**
      * 加载对应角色菜单列表树
      */
+    @ApiOperation(value = "加载对应角色菜单列表树", notes = "加载对应角色菜单列表树")
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
     public ResultT<List<String>> roleMenuTreeselect(@PathVariable("roleId") String roleId)
     {

@@ -10,6 +10,7 @@ import com.piesat.ucenter.rpc.dto.system.DeptDto;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.util.ResultT;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.mgt.RealmSecurityManager;
@@ -41,6 +42,7 @@ public class SysProfileController {
     @Autowired
     private DeptService deptService;
 
+    @ApiOperation(value = "获取用户基本信息", notes = "获取用户基本信息")
     @GetMapping
     public ResultT profile()
     {
@@ -60,6 +62,7 @@ public class SysProfileController {
     /**
      * 头像上传
      */
+    @ApiOperation(value = "用户头像", notes = "用户头像")
     @Log(title = "用户头像", businessType = BusinessType.UPDATE)
     @PostMapping("/avatar")
     public ResultT<String> avatar(@RequestParam("avatarfile") MultipartFile file) throws IOException
@@ -88,6 +91,7 @@ public class SysProfileController {
     /**
      * 修改用户
      */
+    @ApiOperation(value = "修改用户", notes = "修改用户")
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public ResultT<String> updateProfile(@RequestBody UserDto user)
@@ -104,6 +108,7 @@ public class SysProfileController {
     /**
      * 重置密码
      */
+    @ApiOperation(value = "重置密码", notes = "重置密码")
     @Log(title = "个人信息", businessType = BusinessType.UPDATE)
     @PutMapping("/updatePwd")
     public ResultT<String> updatePwd(String oldPassword, String newPassword)

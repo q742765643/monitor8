@@ -32,6 +32,7 @@ import java.util.List;
 public class RoleController {
     @Autowired
     private RoleService roleService;
+    @ApiOperation(value = "分页查询角色信息", notes = "分页查询角色信息")
     @RequiresPermissions("system:role:list")
     @GetMapping("/list")
     public ResultT<PageBean> list(RoleDto role, int pageNum, int pageSize)
@@ -46,6 +47,7 @@ public class RoleController {
     /**
      * 根据角色编号获取详细信息
      */
+    @ApiOperation(value = "根据角色编号获取详细信息", notes = "根据角色编号获取详细信息")
     @RequiresPermissions("system:role:query")
     @GetMapping(value = "/{roleId}")
     public ResultT<RoleDto> getInfo(@PathVariable String roleId)
@@ -58,6 +60,7 @@ public class RoleController {
     /**
      * 新增角色
      */
+    @ApiOperation(value = "新增角色", notes = "新增角色")
     @RequiresPermissions("system:role:add")
     @Log(title = "角色管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -81,6 +84,7 @@ public class RoleController {
     /**
      * 修改保存角色
      */
+    @ApiOperation(value = "修改保存角色", notes = "修改保存角色")
     @RequiresPermissions("system:role:edit")
     @Log(title = "角色管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -103,6 +107,7 @@ public class RoleController {
     /**
      * 删除角色
      */
+    @ApiOperation(value = "删除角色", notes = "删除角色")
     @RequiresPermissions("system:role:remove")
     @Log(title = "角色管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{roleIds}")
@@ -119,6 +124,7 @@ public class RoleController {
     /**
      * 状态修改
      */
+    @ApiOperation(value = "状态修改", notes = "状态修改")
     @RequiresPermissions("system:role:edit")
     @Log(title = "角色管理", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
@@ -133,6 +139,7 @@ public class RoleController {
     /**
      * 获取角色选择框列表
      */
+    @ApiOperation(value = "获取角色选择框列表", notes = "获取角色选择框列表")
     @GetMapping("/optionselect")
     @RequiresPermissions("system:role:optionselect")
     public ResultT<List<RoleDto>> optionselect()

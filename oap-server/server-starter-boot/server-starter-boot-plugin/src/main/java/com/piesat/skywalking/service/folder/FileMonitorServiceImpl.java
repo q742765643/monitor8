@@ -41,6 +41,9 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     public PageBean selectPageList(PageForm<FileMonitorDto> pageForm){
        FileMonitorEntity file=fileMonitorMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(file.getFolderRegular())) {
+            specificationBuilder.addOr("folderRegular", SpecificationOperator.Operator.likeAll.name(), file.getFolderRegular());
+        }
         if (StringUtils.isNotNullString(file.getFilenameRegular())) {
             specificationBuilder.addOr("filenameRegular", SpecificationOperator.Operator.likeAll.name(), file.getFilenameRegular());
         }
@@ -53,6 +56,9 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         if (StringUtils.isNotNullString((String) file.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) file.getParamt().get("endTime"));
         }
+        if (null!=file.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), file.getTriggerStatus());
+        }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
@@ -63,6 +69,9 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     public List<FileMonitorDto> selectBySpecification(FileMonitorDto fileMonitorDto){
         FileMonitorEntity file=fileMonitorMapstruct.toEntity(fileMonitorDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(file.getFolderRegular())) {
+            specificationBuilder.addOr("folderRegular", SpecificationOperator.Operator.likeAll.name(), file.getFolderRegular());
+        }
         if (StringUtils.isNotNullString(file.getFilenameRegular())) {
             specificationBuilder.addOr("filenameRegular", SpecificationOperator.Operator.likeAll.name(), file.getFilenameRegular());
         }

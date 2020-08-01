@@ -57,6 +57,9 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         if (StringUtils.isNotNullString(process.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
         }
+        if (StringUtils.isNotNullString(process.getProcessName())) {
+            specificationBuilder.addOr("processName", SpecificationOperator.Operator.likeAll.name(), process.getProcessName());
+        }
         if (StringUtils.isNotNullString((String) process.getParamt().get("beginTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) process.getParamt().get("beginTime"));
         }
@@ -75,6 +78,9 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(process.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
+        }
+        if (StringUtils.isNotNullString(process.getProcessName())) {
+            specificationBuilder.addOr("processName", SpecificationOperator.Operator.likeAll.name(), process.getProcessName());
         }
         if (StringUtils.isNotNullString((String) process.getParamt().get("beginTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) process.getParamt().get("beginTime"));

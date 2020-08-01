@@ -30,6 +30,7 @@ public class OperLogController {
     @Autowired
     private OperLogService operLogService;
 
+    @ApiOperation(value = "分页查询操作日志", notes = "分页查询操作日志")
     @RequiresPermissions("monitor:operlog:list")
     @GetMapping("/list")
     public ResultT<PageBean> list(OperLogDto operLog, @HtParam(value="pageNum",defaultValue="1") int pageNum,
@@ -41,6 +42,8 @@ public class OperLogController {
         resultT.setData(pageBean);
         return resultT;
     }
+
+    @ApiOperation(value = "删除操作日志", notes = "删除操作日志")
     @RequiresPermissions("monitor:operlog:remove")
     @Log(title = "操作日志", businessType = BusinessType.CLEAN)
     @DeleteMapping("/{operIds}")
@@ -51,6 +54,7 @@ public class OperLogController {
         return resultT;
     }
 
+    @ApiOperation(value = "清除操作日志", notes = "清除操作日志")
     @Log(title = "操作日志", businessType = BusinessType.CLEAN)
     @RequiresPermissions("monitor:operlog:remove")
     @DeleteMapping("/clean")

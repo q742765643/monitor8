@@ -57,6 +57,8 @@ public class UserController {
     private String outFilePath;
     @Value("${fileUpload.httpPath}")
     private String httpPath;
+
+    @ApiOperation(value = "分页查询用户", notes = "分页查询用户")
     @RequiresPermissions("system:user:list")
     @GetMapping("/list")
     public ResultT<PageBean> list(UserDto user, int pageNum, int pageSize) {
@@ -70,6 +72,7 @@ public class UserController {
     /**
      * 根据用户编号获取详细信息
      */
+    @ApiOperation(value = "根据用户编号获取详细信息", notes = "根据用户编号获取详细信息")
     @RequiresPermissions("system:user:query")
     @GetMapping(value = "/{userId}")
     public ResultT<UserDto> getInfo(@PathVariable String userId) {
@@ -82,6 +85,7 @@ public class UserController {
     /**
      * 新增用户
      */
+    @ApiOperation(value = "新增用户", notes = "新增用户")
     @RequiresPermissions("system:user:add")
     @Log(title = "用户管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -114,6 +118,7 @@ public class UserController {
     /**
      * 修改用户
      */
+    @ApiOperation(value = "修改用户", notes = "修改用户")
     @RequiresPermissions("system:user:edit")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -139,6 +144,7 @@ public class UserController {
     /**
      * 删除用户
      */
+    @ApiOperation(value = "删除用户", notes = "删除用户")
     @RequiresPermissions("system:user:remove")
     @Log(title = "用户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
@@ -155,6 +161,7 @@ public class UserController {
     /**
      * 状态修改
      */
+    @ApiOperation(value = "状态修改", notes = "状态修改")
     @PutMapping("/changeStatus")
     public ResultT<String> changeStatus(@RequestBody UserDto user) {
        /* userService.checkUserAllowed(user);

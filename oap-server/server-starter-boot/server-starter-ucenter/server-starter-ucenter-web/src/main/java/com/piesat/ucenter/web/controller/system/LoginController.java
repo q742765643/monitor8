@@ -183,6 +183,7 @@ public class LoginController {
     /**
      * 校验token
      */
+    @ApiOperation(value = "校验token", notes = "校验token")
     @GetMapping(value = "checkToken/{token}")
     public ResultT<Map<String,Object>> checkToken(@PathVariable String token)
     {
@@ -192,6 +193,7 @@ public class LoginController {
         resultT.setData(map);
         return resultT;
     }
+    @ApiOperation(value = "获取用户基本信息和权限", notes = "获取用户基本信息和权限")
     @GetMapping("getInfo")
     public ResultT<Map<String,Object>> getInfo()
     {
@@ -214,6 +216,7 @@ public class LoginController {
         resultT.setData(map);
         return resultT;
     }
+    @ApiOperation(value = "获取vue路由列表", notes = "获取vue路由列表")
     @GetMapping("getRouters")
     public ResultT<List<RouterVo>>  getRouters()
     {
@@ -276,6 +279,7 @@ public class LoginController {
             stream.close();
         }
     }
+    @ApiOperation(value = "登出", notes = "登出")
     @PostMapping("/logout")
     public ResultT<String> logout(HttpServletResponse response){
         ResultT<String> resultT=new ResultT<>();

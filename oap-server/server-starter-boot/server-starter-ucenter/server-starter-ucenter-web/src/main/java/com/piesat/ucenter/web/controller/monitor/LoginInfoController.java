@@ -28,6 +28,7 @@ public class LoginInfoController {
     @Autowired
     private LoginInfoService loginInfoService;
 
+    @ApiOperation(value = "分页查询登录日志接口", notes = "分页查询登录日志接口")
     @RequiresPermissions("monitor:logininfor:list")
     @GetMapping("/list")
     public  ResultT<PageBean> list(LoginInfoDto logininfor, @HtParam(value="pageNum",defaultValue="1") int pageNum,
@@ -41,6 +42,7 @@ public class LoginInfoController {
     }
 
 
+    @ApiOperation(value = "删除登录日志", notes = "删除登录日志")
     @RequiresPermissions("monitor:logininfor:remove")
     @Log(title = "登陆日志", businessType = BusinessType.DELETE)
     @DeleteMapping("/{infoIds}")
@@ -51,6 +53,7 @@ public class LoginInfoController {
         return resultT;
     }
 
+    @ApiOperation(value = "清除登录日志", notes = "清除登录日志")
     @RequiresPermissions("monitor:logininfor:remove")
     @Log(title = "登陆日志", businessType = BusinessType.CLEAN)
     @DeleteMapping("/clean")
@@ -60,6 +63,7 @@ public class LoginInfoController {
         loginInfoService.cleanLogininfor();
         return resultT;
     }
+
 
     @ApiOperation(value = "登录日志导出", notes = "登录日志导出")
     @RequiresPermissions("monitor:logininfor:export")

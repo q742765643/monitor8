@@ -7,6 +7,7 @@ import com.piesat.ucenter.rpc.dto.system.DeptDto;
 import com.piesat.ucenter.rpc.util.TreeSelect;
 import com.piesat.util.ResultT;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,7 @@ public class DeptController {
     /**
      * 获取部门列表
      */
+    @ApiOperation(value = "获取部门列表", notes = "获取部门列表")
     @RequiresPermissions("system:dept:list")
     @GetMapping("/list")
     public ResultT<List<DeptDto>> list(DeptDto dept)
@@ -41,6 +43,7 @@ public class DeptController {
     /**
      * 获取部门下拉树列表
      */
+    @ApiOperation(value = "获取部门下拉树列表", notes = "获取部门下拉树列表")
     @GetMapping("/treeselect")
     public ResultT<List<TreeSelect>> treeselect(DeptDto dept)
     {
@@ -52,6 +55,7 @@ public class DeptController {
     /**
      * 根据部门编号获取详细信息
      */
+    @ApiOperation(value = "根据部门编号获取详细信息", notes = "根据部门编号获取详细信息")
     @RequiresPermissions("system:dept:query")
     @GetMapping(value = "/{deptId}")
     public ResultT<DeptDto> getInfo(@PathVariable String deptId)
@@ -65,6 +69,7 @@ public class DeptController {
     /**
      * 新增部门
      */
+    @ApiOperation(value = "新增部门", notes = "新增部门")
     @RequiresPermissions("system:dept:add")
     @Log(title = "部门管理", businessType = BusinessType.INSERT)
     @PostMapping
@@ -83,6 +88,7 @@ public class DeptController {
     /**
      * 修改部门
      */
+    @ApiOperation(value = "修改部门", notes = "修改部门")
     @RequiresPermissions("system:dept:edit")
     @Log(title = "部门管理", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -105,6 +111,7 @@ public class DeptController {
     /**
      * 删除部门
      */
+    @ApiOperation(value = "删除部门", notes = "删除部门")
     @RequiresPermissions("system:dept:remove")
     @Log(title = "部门管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{deptId}")

@@ -1,5 +1,7 @@
 package com.piesat.skywalking.web.alarm;
 
+import com.piesat.enums.MonitorConditionEnum;
+import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.api.alarm.AlarmConfigService;
 import com.piesat.skywalking.api.discover.AutoDiscoveryService;
 import com.piesat.skywalking.dto.AlarmConfigDto;
@@ -56,6 +58,24 @@ public class AlarmCofigController {
     {
         ResultT<String> resultT=new ResultT<>();
         alarmConfigService.deleteByIds(Arrays.asList(ids));
+        return resultT;
+    }
+    @ApiOperation(value = "获取告警监测类型", notes = "获取告警监测类型")
+    @GetMapping("/monitorType")
+    public ResultT<MonitorTypeEnum[]> monitorType()
+    {
+        ResultT<MonitorTypeEnum[]> resultT=new ResultT<>();
+        MonitorTypeEnum[] option=MonitorTypeEnum.values();
+        resultT.setData(option);
+        return resultT;
+    }
+    @ApiOperation(value = "获取告警符合类型", notes = "获取告警符合类型")
+    @GetMapping("/monitorCondition")
+    public ResultT<MonitorConditionEnum[]> monitorCondition()
+    {
+        ResultT<MonitorConditionEnum[]> resultT=new ResultT<>();
+        MonitorConditionEnum[] option=MonitorConditionEnum.values();
+        resultT.setData(option);
         return resultT;
     }
 }

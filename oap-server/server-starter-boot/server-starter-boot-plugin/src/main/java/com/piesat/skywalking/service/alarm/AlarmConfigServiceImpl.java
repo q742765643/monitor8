@@ -42,6 +42,9 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     public PageBean selectPageList(PageForm<AlarmConfigDto> pageForm) {
         AlarmConfigEntity alarmConfig=alarmConfigMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (!StringUtils.isEmpty(alarmConfig.getMonitorType())) {
+            specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
+        }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
             specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), alarmConfig.getTaskName());
         }
@@ -50,6 +53,9 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         }
         if (StringUtils.isNotNullString((String) alarmConfig.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) alarmConfig.getParamt().get("endTime"));
+        }
+        if (null!=alarmConfig.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), alarmConfig.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
@@ -61,6 +67,9 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     public List<AlarmConfigDto> selectBySpecification(AlarmConfigDto alarmConfigDto){
         AlarmConfigEntity alarmConfig=alarmConfigMapstruct.toEntity(alarmConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (!StringUtils.isEmpty(alarmConfig.getMonitorType())) {
+            specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
+        }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
             specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), alarmConfig.getTaskName());
         }

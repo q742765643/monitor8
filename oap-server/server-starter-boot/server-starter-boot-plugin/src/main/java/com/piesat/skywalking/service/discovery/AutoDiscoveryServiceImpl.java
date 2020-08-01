@@ -49,6 +49,9 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
         if (StringUtils.isNotNullString((String) discovery.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) discovery.getParamt().get("endTime"));
         }
+        if (null!=discovery.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), discovery.getTriggerStatus());
+        }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);

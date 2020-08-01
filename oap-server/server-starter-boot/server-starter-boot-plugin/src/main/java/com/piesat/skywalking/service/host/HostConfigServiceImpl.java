@@ -55,6 +55,21 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString((String) host.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) host.getParamt().get("endTime"));
         }
+        if (StringUtils.isNotNullString(host.getIsSnmp())){
+            specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), host.getIsSnmp());
+        }
+        if (StringUtils.isNotNullString(host.getIsAgent())){
+            specificationBuilder.add("isAgent", SpecificationOperator.Operator.eq.name(), host.getIsAgent());
+        }
+        if (null!=host.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), host.getTriggerStatus());
+        }
+        if (StringUtils.isNotNullString(host.getOs())){
+            specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), host.getOs());
+        }
+        if (StringUtils.isNotNullString(host.getType())){
+            specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), host.getType());
+        }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
@@ -68,6 +83,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(hostConfig.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(),hostConfig.getIp());
         }
+        if (StringUtils.isNotNullString(hostConfig.getTaskName())) {
+            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), hostConfig.getTaskName());
+        }
         if (StringUtils.isNotNullString((String) hostConfig.getParamt().get("beginTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) hostConfig.getParamt().get("beginTime"));
         }
@@ -77,8 +95,17 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(hostConfig.getIsSnmp())){
             specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), hostConfig.getIsSnmp());
         }
+        if (StringUtils.isNotNullString(hostConfig.getIsAgent())){
+            specificationBuilder.add("isAgent", SpecificationOperator.Operator.eq.name(), hostConfig.getIsAgent());
+        }
         if (null!=hostConfig.getTriggerStatus()){
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getTriggerStatus());
+        }
+        if (StringUtils.isNotNullString(hostConfig.getOs())){
+            specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), hostConfig.getOs());
+        }
+        if (StringUtils.isNotNullString(hostConfig.getType())){
+            specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), hostConfig.getType());
         }
         Specification specification = specificationBuilder.generateSpecification();
         List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
