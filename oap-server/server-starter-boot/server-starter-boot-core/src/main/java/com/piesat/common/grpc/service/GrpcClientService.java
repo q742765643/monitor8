@@ -6,6 +6,9 @@ import com.piesat.common.grpc.constant.SerializeType;
 import com.piesat.common.grpc.util.SerializeUtils;
 import com.piesat.rpc.CommonServiceGrpc;
 import com.piesat.rpc.GrpcGeneral;
+import com.piesat.skywalking.dto.model.HtJobInfoDto;
+import com.piesat.skywalking.dto.model.JobContext;
+import com.piesat.util.StringUtil;
 import io.grpc.Channel;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -29,8 +32,26 @@ public class GrpcClientService {
             log.error("通道为null{},{}",grpcRequest.getClazz(),grpcRequest.getMethod());
         }
         ChannelUtil channelUtil=ChannelUtil.getInstance();
-        //log.info("grpc调用{}.{}",grpcRequest.getClazz(),grpcRequest.getMethod());
-        CommonServiceGrpc.CommonServiceBlockingStub blockingStub=CommonServiceGrpc.newBlockingStub(channelUtil.selectChannel(serverName));
+        Object[] args=grpcRequest.getArgs();
+        HtJobInfoDto htJobInfoDto=null;
+        if(args.length>0&&args[0] instanceof JobContext){
+            JobContext jobContext= (JobContext) args[0];
+            htJobInfoDto= (HtJobInfoDto) jobContext.getHtJobInfoDto();
+        }
+        Channel channel=null;
+        if(null!=htJobInfoDto&&!StringUtil.isEmpty(htJobInfoDto.getAddress())){
+            channel=channelUtil.selectChannel(serverName,htJobInfoDto.getAddress());
+        }else {
+            channel=channelUtil.selectChannel(serverName);
+        }
+        if(channel==null){
+            log.error("通道为null{},{}",grpcRequest.getClazz(),grpcRequest.getMethod());
+            GrpcResponse response=new GrpcResponse();
+            response.setStatus(-1);
+            response.setMessage("获取通道错误!");
+            return response;
+        }
+        CommonServiceGrpc.CommonServiceBlockingStub blockingStub=CommonServiceGrpc.newBlockingStub(channel);
         SerializeService serializeService = SerializeUtils.getSerializeService(serializeType, this.defaultSerializeService);
         ByteString bytes = serializeService.serialize(grpcRequest);
         int value = (serializeType == null ? -1 : serializeType.getValue());
@@ -39,10 +60,13 @@ public class GrpcClientService {
         try{
             response = blockingStub.handle(request);
         }catch (Exception exception){
-            log.warn("rpc exception: {}", exception.getMessage());
-            if ("UNAVAILABLE: io exception".equals(exception.getMessage().trim())){
-                response = blockingStub.handle(request);
-            }
+            log.error("rpc exception: {}", exception.getMessage());
+            GrpcResponse response1=new GrpcResponse();
+            response1.setStatus(-1);
+            String message = exception.getCause().getClass().getName() + ": " + exception.getCause().getMessage();
+            response1.error(message, exception.getCause(), exception.getCause().getStackTrace());
+            return response1;
+
         }
         return serializeService.deserialize(response);
     }

@@ -39,7 +39,7 @@ spring:
       max-file-size: 1000000000
       max-request-size: 1000000000
   redis:
-    host: 10.1.100.8
+    host: 10.1.100.75
     port: 6379
     timeout: 50000
 storage:

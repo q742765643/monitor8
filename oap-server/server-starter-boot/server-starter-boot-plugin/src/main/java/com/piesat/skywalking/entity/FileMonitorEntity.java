@@ -29,4 +29,6 @@ public class FileMonitorEntity extends HtJobInfo {
     @Column(name="file_size", length=255)
     private long fileSize;
 
+
+
 }

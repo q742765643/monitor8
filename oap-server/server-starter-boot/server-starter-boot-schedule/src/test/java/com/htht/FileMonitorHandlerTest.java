@@ -1,9 +1,10 @@
 package com.htht;
 
+import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.ScheduleApplication;
-import com.piesat.skywalking.dto.FileMonitorDto;
-import com.piesat.skywalking.dto.HostConfigDto;
+import com.piesat.skywalking.dto.*;
 import com.piesat.skywalking.dto.model.JobContext;
+import com.piesat.skywalking.handler.AlarmHandler;
 import com.piesat.skywalking.handler.AutoDiscoveryHandler;
 import com.piesat.skywalking.handler.FileMonitorHandler;
 import com.piesat.util.ResultT;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 //启动Spring
@@ -23,6 +26,8 @@ public class FileMonitorHandlerTest {
     private FileMonitorHandler fileMonitorHandler;
     @Autowired
     private AutoDiscoveryHandler autoDiscoveryHandler;
+    @Autowired
+    private AlarmHandler alarmHandler;
     @Test
     public void test() throws Exception {
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
@@ -39,5 +44,40 @@ public class FileMonitorHandlerTest {
         HostConfigDto hostConfigDto=new HostConfigDto();
         hostConfigDto.setIp("10.1.100.75");
         autoDiscoveryHandler.getHost(hostConfigDto);
+    }
+    @Test
+    public void test2() throws Exception {
+        List<ConditionDto> conditionDtos=new ArrayList<>();
+        ConditionDto conditionDto=new ConditionDto();
+        conditionDto.setParamname("gte");
+        conditionDto.setParamvalue("50");
+        ConditionDto conditionDto1=new ConditionDto();
+        conditionDto1.setParamname("lte");
+        conditionDto1.setOperate("and");
+        conditionDto1.setParamvalue("60");
+        conditionDtos.add(conditionDto);
+        conditionDtos.add(conditionDto1);
+        JobContext jobContext=new JobContext();
+        List<HostConfigDto> ips=new ArrayList<>();
+        HostConfigDto hostConfigDto=new HostConfigDto();
+        hostConfigDto.setIp("10.1.100.96");
+        hostConfigDto.setType("server");
+        ips.add(hostConfigDto);
+        AlarmConfigDto alarmConfigDto=new AlarmConfigDto();
+        alarmConfigDto.setGenerals(conditionDtos);
+        alarmConfigDto.setDangers(conditionDtos);
+        alarmConfigDto.setSeveritys(conditionDtos);
+        alarmConfigDto.setMonitorType(MonitorTypeEnum.CPU_USAGE.name());
+        jobContext.setHtJobInfoDto(alarmConfigDto);
+        jobContext.setLists(ips);
+        alarmHandler.execute(jobContext,new ResultT<>());
+    }
+    @Test
+    public void test3() throws Exception {
+        ProcessConfigDto processConfigDto=new ProcessConfigDto();
+        processConfigDto.setIp("10.1.100.75");
+        processConfigDto.setProcessName("elasticsearch");
+        alarmHandler.selectProcess(processConfigDto);
+
     }
 }

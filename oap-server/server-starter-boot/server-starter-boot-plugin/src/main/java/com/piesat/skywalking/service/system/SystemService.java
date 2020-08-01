@@ -1,5 +1,6 @@
 package com.piesat.skywalking.service.system;
 
+import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.vo.*;
 import lombok.SneakyThrows;
@@ -62,7 +63,7 @@ public class SystemService {
 
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("@timestamp");
-        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(10));
+        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(30));
         AvgAggregationBuilder sumInBytes = AggregationBuilders.avg("sumInBytes");
         sumInBytes.field("system.network.in.bytes");
         DerivativePipelineAggregationBuilder derivativeInBytes = PipelineAggregatorBuilders.derivative("derivativeInBytes", "sumInBytes");
@@ -103,7 +104,7 @@ public class SystemService {
         searchSourceBuilder.size(0);
         List<NetworkVo> networkVos = new ArrayList<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
 
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -158,7 +159,7 @@ public class SystemService {
 
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("@timestamp");
-        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(10));
+        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(30));
         AvgAggregationBuilder sumRead = AggregationBuilders.avg("sumRead");
         sumRead.field("system.diskio.read.bytes");
         DerivativePipelineAggregationBuilder derivativeRead = PipelineAggregatorBuilders.derivative("derivativeRead", "sumRead");
@@ -200,7 +201,7 @@ public class SystemService {
         searchSourceBuilder.size(0);
         List<DiskioVo> diskioVos = new ArrayList<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
 
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -248,7 +249,7 @@ public class SystemService {
 
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("@timestamp");
-        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(10));
+        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(30));
 
         AvgAggregationBuilder avgCpu = AggregationBuilders.avg("usage");
         avgCpu.field("system.cpu.total.norm.pct");
@@ -264,7 +265,7 @@ public class SystemService {
         searchSourceBuilder.aggregation(dateHis);
         searchSourceBuilder.size(0);
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
 
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -309,7 +310,7 @@ public class SystemService {
 
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("@timestamp");
-        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(10));
+        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(30));
 
         AvgAggregationBuilder avgMemory = AggregationBuilders.avg("usage");
         avgMemory.field("system.memory.used.pct");
@@ -325,7 +326,7 @@ public class SystemService {
         searchSourceBuilder.aggregation(dateHis);
         searchSourceBuilder.size(0);
 
-        SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
 
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -369,7 +370,7 @@ public class SystemService {
         maxTime.field("@timestamp");
         searchSourceBuilder.aggregation(maxTime);
 
-        SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedMax parsedMax = aggregations.get("@timestamp");
         if (parsedMax != null) {
@@ -388,7 +389,7 @@ public class SystemService {
             String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct"};
             fileSearch.fetchSource(fields, null);
             fileSearch.size(1000);
-            SearchResponse response = elasticSearch7Client.search("metricbeat-*", fileSearch);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", fileSearch);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {
@@ -430,7 +431,7 @@ public class SystemService {
         maxTime.field("@timestamp");
         searchSourceBuilder.aggregation(maxTime);
 
-        SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedMax parsedMax = aggregations.get("@timestamp");
         if (parsedMax != null) {
@@ -445,7 +446,7 @@ public class SystemService {
             String[] fields = new String[]{"process.name", "system.process.cmdline"};
             prcessSearch.fetchSource(fields, null);
             prcessSearch.size(1000);
-            SearchResponse response = elasticSearch7Client.search("metricbeat-*", prcessSearch);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", prcessSearch);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {

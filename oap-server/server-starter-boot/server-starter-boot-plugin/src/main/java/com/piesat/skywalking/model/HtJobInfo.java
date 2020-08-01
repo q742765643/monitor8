@@ -31,5 +31,9 @@ public class HtJobInfo extends BaseEntity {
     private Integer isUt;
     @Column(name="delay_time", length=50)
     private long delayTime;
+    @Column(name="is_alarm", length=50)
+    private Integer isAlarm;
 
+    @Column(name="address", length=255)
+    private String address;
 }

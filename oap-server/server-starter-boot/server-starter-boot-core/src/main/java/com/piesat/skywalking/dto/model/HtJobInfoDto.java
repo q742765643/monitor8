@@ -16,4 +16,6 @@ public class HtJobInfoDto extends BaseDto {
     private Integer isUt;
     private long delayTime;
     private long triggerTime;
+    private Integer isAlarm;
+    private String address;
 }

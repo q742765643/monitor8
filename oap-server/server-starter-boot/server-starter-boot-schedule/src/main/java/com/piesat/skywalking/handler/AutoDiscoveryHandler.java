@@ -1,6 +1,7 @@
 package com.piesat.skywalking.handler;
 
 import com.piesat.common.grpc.annotation.GrpcHthtClient;
+import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dto.AutoDiscoveryDto;
 import com.piesat.skywalking.dto.HostConfigDto;
@@ -107,7 +108,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        List<String>  exists=hostConfigService.selectNosnmp();
+        List<String>  exists=hostConfigService.selectOnine();
         ips.removeAll(exists);
         return ips;
     }
@@ -124,7 +125,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         searchSourceBuilder.query(boolBuilder);
         searchSourceBuilder.size(1);
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search("metricbeat-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
             SearchHits hits = searchResponse.getHits();
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {

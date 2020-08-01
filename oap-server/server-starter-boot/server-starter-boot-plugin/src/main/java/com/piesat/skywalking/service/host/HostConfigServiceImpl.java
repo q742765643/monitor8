@@ -92,6 +92,12 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if(hostConfigDto.getTriggerStatus()==null){
             hostConfigDto.setTriggerStatus(1);
         }
+        if(!"1".equals(hostConfigDto.getIsSnmp())){
+            hostConfigDto.setTriggerStatus(0);
+        }
+        if("1".equals(hostConfigDto.getIsAgent())){
+            hostConfigDto.setTriggerStatus(0);
+        }
         hostConfigDto.setIsUt(0);
         hostConfigDto.setDelayTime(0);
         hostConfigDto.setJobHandler("hostConfigHandler");
@@ -116,7 +122,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         super.deleteByIds(ids);
     }
 
-    public List<String> selectNosnmp(){
+    public List<String> selectOnine(){
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), "1");
         specificationBuilder.addOr("isAgent", SpecificationOperator.Operator.eq.name(), "1");
@@ -129,5 +135,14 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         return ips;
 
     }
+    public List<HostConfigDto> selectOnineAll(){
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), "1");
+        specificationBuilder.addOr("isAgent", SpecificationOperator.Operator.eq.name(), "1");
+        Specification specification = specificationBuilder.generateSpecification();
+        List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
+        return hostConfigMapstruct.toDto(hostConfigEntities);
+    }
+
 
 }

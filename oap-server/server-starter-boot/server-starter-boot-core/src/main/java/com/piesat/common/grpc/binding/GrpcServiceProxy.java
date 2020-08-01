@@ -68,25 +68,12 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
             Throwable throwable = response.getException();
             GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());
-            try {
-                StackTraceElement[] exceptionStackTrace = exception.getStackTrace();
-                StackTraceElement[] responseStackTrace = response.getStackTrace();
-                StackTraceElement[] allStackTrace = Arrays.copyOf(exceptionStackTrace, exceptionStackTrace.length + responseStackTrace.length);
-                System.arraycopy(responseStackTrace, 0, allStackTrace, exceptionStackTrace.length, responseStackTrace.length);
-                exception.setStackTrace(allStackTrace);
-            } catch (Exception e) {
-                //e.printStackTrace();
-            }
-            try {
-                response = grpcClientService.handle(serializeType, request, serverName);
-            } catch (Exception e) {
-                response=new GrpcResponse();
-                response.setException(e);
-                response.setStatus(-1);
-            }
-            if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()){
-                throw exception;
-            }
+            StackTraceElement[] exceptionStackTrace = exception.getStackTrace();
+            StackTraceElement[] responseStackTrace = response.getStackTrace();
+            StackTraceElement[] allStackTrace = Arrays.copyOf(exceptionStackTrace, exceptionStackTrace.length + responseStackTrace.length);
+            System.arraycopy(responseStackTrace, 0, allStackTrace, exceptionStackTrace.length, responseStackTrace.length);
+            exception.setStackTrace(allStackTrace);
+            throw exception;
         }
         return response.getResult();
     }

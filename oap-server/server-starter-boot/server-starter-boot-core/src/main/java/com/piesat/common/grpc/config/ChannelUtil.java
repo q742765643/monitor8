@@ -115,7 +115,37 @@ public class ChannelUtil {
         }
         return null;
     }
+    public Channel selectChannel(String name,String addresss){
+        List<String> addressList=new ArrayList<>();
+        addressList.addAll(Arrays.asList(addresss.split(";")));
+        Map<String,ManagedChannel> map=channel.get(name);
+        //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題
+        Map<String,Integer> serverMap  = new HashMap<String,Integer>();
+        map.forEach((k,v)->{
+            if(addressList.contains(k)){
+                serverMap.put(k,1);
+            }
 
+        });
+        //獲取ip列表list
+        Set<String> keySet = serverMap.keySet();
+        Iterator<String> it = keySet.iterator();
+
+        List<String> serverList = new ArrayList<String>();
+
+        while (it.hasNext()) {
+            String server = it.next();
+            Integer weight = serverMap.get(server);
+            for (int i = 0; i < weight; i++) {
+                serverList.add(server);
+            }
+        }
+        Random random = new Random();
+        int randomPos = random.nextInt(serverList.size());
+
+        String server = serverList.get(randomPos);
+        return map.get(server);
+    }
     public Channel selectChannel(String name){
         Map<String,ManagedChannel> map=channel.get(name);
         //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題

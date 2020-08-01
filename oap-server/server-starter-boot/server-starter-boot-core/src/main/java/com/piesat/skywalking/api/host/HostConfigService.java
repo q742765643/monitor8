@@ -23,5 +23,7 @@ public interface HostConfigService {
 
     public void deleteByIds(List<String> ids);
 
-    public List<String> selectNosnmp();
+    public List<String> selectOnine();
+
+    public List<HostConfigDto> selectOnineAll();
 }

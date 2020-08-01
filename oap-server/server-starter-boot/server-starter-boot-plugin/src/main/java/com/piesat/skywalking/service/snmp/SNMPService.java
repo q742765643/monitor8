@@ -1,8 +1,10 @@
 package com.piesat.skywalking.service.snmp;
 
 import com.piesat.common.utils.IdUtils;
+import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.om.protocol.snmp.SNMPConstants;
 import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
+import com.piesat.util.IndexNameUtil;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
@@ -73,8 +75,7 @@ public class SNMPService {
             latch.countDown();
         }).start();
         latch.await();
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
-        String indexName="metricbeat-7.7.0-"+format.format(date)+"-000001";
+        String indexName= IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT,date);
         for(Map<String,Object> source:esList){
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName,IdUtils.fastUUID()).source(source);
             request.add(indexRequest);

@@ -31,11 +31,11 @@ public class AutoDiscoveryController {
         return resultT;
     }
     @ApiOperation(value = "根据ID查询发现任务", notes = "根据ID查询发现任务")
-    @GetMapping(value = "/{discoveryId}")
-    public ResultT<AutoDiscoveryDto> getInfo(@PathVariable String discoveryId)
+    @GetMapping(value = "/{id}")
+    public ResultT<AutoDiscoveryDto> getInfo(@PathVariable String id)
     {
         ResultT<AutoDiscoveryDto> resultT=new ResultT<>();
-        AutoDiscoveryDto discoveryDto= autoDiscoveryService.findById(discoveryId);
+        AutoDiscoveryDto discoveryDto= autoDiscoveryService.findById(id);
         resultT.setData(discoveryDto);
         return resultT;
     }
@@ -49,11 +49,11 @@ public class AutoDiscoveryController {
     }
 
     @ApiOperation(value = "删除发现任务", notes = "删除发现任务")
-    @DeleteMapping("/{discoveryIds}")
-    public  ResultT<String> remove(@PathVariable String[] discoveryIds)
+    @DeleteMapping("/{ids}")
+    public  ResultT<String> remove(@PathVariable String[] ids)
     {
         ResultT<String> resultT=new ResultT<>();
-        autoDiscoveryService.deleteByIds(Arrays.asList(discoveryIds));
+        autoDiscoveryService.deleteByIds(Arrays.asList(ids));
         return resultT;
     }
 }

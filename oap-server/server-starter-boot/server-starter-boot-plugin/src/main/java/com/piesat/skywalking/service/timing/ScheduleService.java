@@ -12,9 +12,9 @@ import java.util.Date;
 @Service
 public class ScheduleService {
     @Autowired
-    private RedisUtil redisUtil;
-    private static final String QUARTZ_HTHT_JOB = "QUARTZ.HTHT.JOB";
-    private static final String QUARTZ_HTHT_JOBDETAIL= "QUARTZ.HTHT.JOBDETAIL";
+    protected RedisUtil redisUtil;
+    protected static final String QUARTZ_HTHT_JOB = "QUARTZ.HTHT.JOB";
+    protected static final String QUARTZ_HTHT_JOBDETAIL= "QUARTZ.HTHT.JOBDETAIL";
     public void handleJob(HtJobInfoDto jobInfo){
         if(jobInfo.getTriggerStatus()==1){
                redisUtil.hset(QUARTZ_HTHT_JOBDETAIL,jobInfo.getId(),jobInfo);
@@ -29,7 +29,7 @@ public class ScheduleService {
                 double x=score- nextValidTime.getTime();
                 redisUtil.zsetAdd(QUARTZ_HTHT_JOB,jobInfo.getId(),nextValidTime.getTime()+jobInfo.getDelayTime());
 
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }else{

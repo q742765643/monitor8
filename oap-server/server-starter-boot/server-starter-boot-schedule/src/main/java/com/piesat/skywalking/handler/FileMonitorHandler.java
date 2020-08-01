@@ -2,15 +2,19 @@ package com.piesat.skywalking.handler;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import com.piesat.common.grpc.annotation.GrpcHthtClient;
+import com.piesat.constant.IndexNameConstant;
+import com.piesat.enums.MonitorTypeEnum;
+import com.piesat.skywalking.api.alarm.AlarmConfigService;
+import com.piesat.skywalking.dto.AlarmConfigDto;
+import com.piesat.skywalking.dto.AlarmLogDto;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.base.BaseHandler;
+import com.piesat.skywalking.schedule.service.alarm.AlarmLogService;
 import com.piesat.skywalking.util.HtFileUtil;
 import com.piesat.skywalking.util.IdUtils;
-import com.piesat.util.CronUtil;
-import com.piesat.util.DateExpressionEngine;
-import com.piesat.util.ResultT;
-import com.piesat.util.StringUtil;
+import com.piesat.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -22,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -35,6 +41,10 @@ public class FileMonitorHandler implements BaseHandler {
 
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @Autowired
+    private AlarmLogService alarmLogService;
+    @GrpcHthtClient
+    private AlarmConfigService alarmConfigService;
 
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
@@ -115,11 +125,11 @@ public class FileMonitorHandler implements BaseHandler {
 
     public void  insertEs(List<File> files,FileMonitorDto monitor,String expression){
 
-        SimpleDateFormat formatEs=new SimpleDateFormat("yyyy-MM-dd");
-        String indexName="file-monitor-"+formatEs.format(monitor.getTriggerLastTime());
+        String indexName=IndexNameUtil.getIndexName(IndexNameConstant.T_MT_FILE_MONITOR);
         BulkRequest request = new BulkRequest();
         long fileNum=0;
         long fileSize=0;
+        String ip= NetUtils.getLocalHost();
         for(File file:files){
             String fullpath=file.getPath().replaceAll("\\\\","/");
             Map<String,Object> source=new HashMap<>();
@@ -133,6 +143,7 @@ public class FileMonitorHandler implements BaseHandler {
             source.put("full_path",fullpath);
             source.put("parent_path",file.getParentFile().getPath().replaceAll("\\\\","/"));
             source.put("file_name",file.getName());
+            source.put("ip",ip);
             if(file.isDirectory()){
                 source.put("is_directory",1);
             }else {
@@ -148,7 +159,13 @@ public class FileMonitorHandler implements BaseHandler {
         if(request.requests().size()>0){
             elasticSearch7Client.synchronousBulk(request);
         }
+        if(monitor.getFileNum()>0){
+            float reach=new BigDecimal(fileNum).divide(new BigDecimal(monitor.getFileNum()),4, RoundingMode.HALF_UP).floatValue();
+            if(reach<1){
+                this.toAlarm(monitor,ip,reach);
+            }
 
+        }
         log.info("filenum为{}",fileNum);
         log.info("filesize为{}",fileSize);
     }
@@ -170,6 +187,20 @@ public class FileMonitorHandler implements BaseHandler {
         String reg = new String(datePattern);
         reg = reg.replaceAll("[ymdhsYMDHS]", "\\\\d");
         return reg;
+    }
+
+    public void toAlarm(FileMonitorDto monitor,String ip,float reach){
+        AlarmLogDto alarmLogDto=new AlarmLogDto();
+        String message="文件到达率达达阈值条件当前为"+reach*100+"%";
+        alarmLogDto.setMessage(message);
+        alarmLogDto.setIp(ip);
+        alarmLogDto.setDeviceName(monitor.getFolderRegular()+"文件到达率");
+        alarmLogDto.setDeviceType("3");
+        alarmLogDto.setType(MonitorTypeEnum.FILE_REACH.name());
+        AlarmConfigDto alarmConfigDto=alarmConfigService.findById(MonitorTypeEnum.FILE_REACH.name());
+        if(alarmConfigDto!=null){
+            alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,reach);
+        }
     }
 
 }
