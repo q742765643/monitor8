@@ -11,7 +11,7 @@ export interface AjaxResponse {
 }
 
 // baseURL根据实际进行定义
-const baseURL ="http://127.0.0.1:12800";
+const baseURL ="/monitor";
 
 // 创建axios实例
 const service = axios.default.create({

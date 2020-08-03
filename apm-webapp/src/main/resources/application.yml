@@ -26,19 +26,22 @@ zuul:
     login:
       path: /login/account
       serviceId: collector
+    monitor:
+      path: /monitor/**
+      serviceId: collector
 
 collector:
   path: /graphql
   ribbon:
     # Point to all backend's restHost:restPort, split by ,
-    listOfServers: 127.0.0.1:12800
+    listOfServers: 10.1.100.96:12800
 
 spring:
   resources:
     add-mappings: false
   mvc:
     throw-exception-if-no-handler-found: true
-      
+
 management:
   # Customizing the management endpoint paths
   context-path: /manage
