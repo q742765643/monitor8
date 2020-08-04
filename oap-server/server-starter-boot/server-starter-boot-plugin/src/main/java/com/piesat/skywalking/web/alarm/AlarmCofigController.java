@@ -14,7 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.*;
 
 @RestController
 @Api(value="告警配置接口",tags = {"告警配置接口"})
@@ -62,20 +62,36 @@ public class AlarmCofigController {
     }
     @ApiOperation(value = "获取告警监测类型", notes = "获取告警监测类型")
     @GetMapping("/monitorType")
-    public ResultT<MonitorTypeEnum[]> monitorType()
+    public ResultT<List<Map<String,String>>> monitorType()
     {
-        ResultT<MonitorTypeEnum[]> resultT=new ResultT<>();
+        ResultT<List<Map<String,String>>> resultT=new ResultT<>();
         MonitorTypeEnum[] option=MonitorTypeEnum.values();
-        resultT.setData(option);
+        List<Map<String,String>> list=new ArrayList<>();
+        for(int i=0;i<option.length;i++){
+            MonitorTypeEnum menum=option[i];
+            Map<String,String> map=new HashMap<>();
+            map.put("key",menum.name());
+            map.put("value",menum.getTitle());
+            list.add(map);
+        }
+        resultT.setData(list);
         return resultT;
     }
-    @ApiOperation(value = "获取告警符合类型", notes = "获取告警符合类型")
+    @ApiOperation(value = "获取告警符号类型", notes = "获取告警符号类型")
     @GetMapping("/monitorCondition")
-    public ResultT<MonitorConditionEnum[]> monitorCondition()
+    public ResultT< List<Map<String,String>>> monitorCondition()
     {
-        ResultT<MonitorConditionEnum[]> resultT=new ResultT<>();
+        ResultT< List<Map<String,String>>> resultT=new ResultT<>();
         MonitorConditionEnum[] option=MonitorConditionEnum.values();
-        resultT.setData(option);
+        List<Map<String,String>> list=new ArrayList<>();
+        for(int i=0;i<option.length;i++){
+            MonitorConditionEnum menum=option[i];
+            Map<String,String> map=new HashMap<>();
+            map.put("key",menum.name());
+            map.put("value",menum.getTitle());
+            list.add(map);
+        }
+        resultT.setData(list);
         return resultT;
     }
 }

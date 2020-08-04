@@ -65,7 +65,8 @@ public class RewritePathFilter extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        if("/graphql".equals(ctx.getRequest().getRequestURI())){
+
+        if ("/graphql".equals(ctx.getRequest().getRequestURI())) {
             ctx.set(REQUEST_URI, path);
         }
         return null;
