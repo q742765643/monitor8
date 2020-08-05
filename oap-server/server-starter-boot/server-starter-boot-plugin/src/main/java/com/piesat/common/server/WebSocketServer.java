@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@ServerEndpoint("/webSocket/{userId}")
 @Component
+@ServerEndpoint("/webSocket/{userId}")
 public class WebSocketServer {
     //记录在线人数
     private static AtomicInteger onlineNum = new AtomicInteger();
@@ -28,6 +28,15 @@ public class WebSocketServer {
 
     }
     public void sendMessage(String content) throws IOException{
+        sessionPools.forEach((k,v)->{
+            try {
+                k.getBasicRemote().sendObject(content);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (EncodeException e) {
+                e.printStackTrace();
+            }
+        });
 
     }
     @OnMessage

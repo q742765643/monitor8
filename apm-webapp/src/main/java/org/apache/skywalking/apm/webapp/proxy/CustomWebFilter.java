@@ -13,22 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *//*
+ *
+ */
 
+package org.apache.skywalking.apm.webapp.proxy;
 
-package org.apache.skywalking.apm.webapp;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-@SpringBootTest
-@RunWith(SpringRunner.class)
-public class ApplicationContextTest {
-
-    @Test
-    public void contextShouldLoad() {
+@Component
+public class CustomWebFilter implements WebFilter {
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        if (exchange.getRequest().getURI().getPath().equals("/")) {
+            return chain.filter(exchange.mutate().request(exchange.getRequest().mutate().path("/index.html").build()).build());
+        }
+        return chain.filter(exchange);
     }
-
-}*/
+}

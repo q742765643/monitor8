@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
+ *//*
+
 
 package org.apache.skywalking.apm.webapp.proxy;
 
@@ -25,9 +26,11 @@ import org.springframework.stereotype.Component;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
 
+*/
 /**
  * Rewrite url to rewritePath
- */
+ *//*
+
 @Component
 @ConfigurationProperties(prefix = "collector")
 public class RewritePathFilter extends ZuulFilter {
@@ -72,3 +75,4 @@ public class RewritePathFilter extends ZuulFilter {
         return null;
     }
 }
+*/

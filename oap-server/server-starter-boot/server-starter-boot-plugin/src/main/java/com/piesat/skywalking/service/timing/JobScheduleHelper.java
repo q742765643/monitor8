@@ -49,7 +49,7 @@ public class JobScheduleHelper {
                 }
                 int preReadCount = 300;
 
-                while (!scheduleThreadToStop) {
+                while (scheduleThreadToStop) {
                     long start = System.currentTimeMillis();
                     boolean preReadSuc = true;
                     try {

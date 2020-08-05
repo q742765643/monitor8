@@ -13,7 +13,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package org.apache.skywalking.apm.webapp.proxy;
 
@@ -29,9 +30,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+*/
 /**
  * NotFoundHandler handles the single page application url routing.
- */
+ *//*
+
 @ControllerAdvice
 public class NotFoundHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
@@ -47,3 +50,4 @@ public class NotFoundHandler {
         }
     }
 }
+*/

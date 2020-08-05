@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
+ *//*
+
 
 package org.apache.skywalking.apm.webapp.proxy;
 
@@ -22,9 +23,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+*/
 /**
  * Additional MVC Configuration.
- */
+ *//*
+
 @Configuration
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
@@ -40,3 +43,4 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     }
 }
+*/
