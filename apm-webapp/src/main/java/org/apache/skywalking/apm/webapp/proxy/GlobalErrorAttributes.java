@@ -44,10 +44,10 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
         Throwable error = getError(request);
         if (error instanceof ResponseStatusException) {
             errorAttributes.put("code", "404");
-            errorAttributes.put("data", error.getMessage());
+            errorAttributes.put("msg", error.getMessage());
         } else {
             errorAttributes.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
-            errorAttributes.put("data", "INTERNAL SERVER ERROR");
+            errorAttributes.put("msg", "INTERNAL SERVER ERROR");
         }
         return errorAttributes;
     }
