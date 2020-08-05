@@ -1,10 +1,12 @@
 package com.piesat.skywalking.schedule.service.alarm;
 
+import com.alibaba.fastjson.JSON;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.dto.AlarmConfigDto;
 import com.piesat.skywalking.dto.AlarmLogDto;
 import com.piesat.skywalking.dto.ConditionDto;
 import com.piesat.skywalking.util.IdUtils;
+import com.piesat.sso.client.util.mq.MsgPublisher;
 import com.piesat.util.CompareUtil;
 import com.piesat.util.IndexNameUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -22,6 +24,8 @@ import java.util.Map;
 public class AlarmLogService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @Autowired
+    private MsgPublisher msgPublisher;
 
     public AlarmLogDto isAlarm(AlarmConfigDto alarmConfigDto,AlarmLogDto alarmLogDto, float usage) {
         alarmLogDto.setStatus("0");
@@ -81,6 +85,8 @@ public class AlarmLogService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            msgPublisher.sendMsg(JSON.toJSONString(alarmConfigDto));
+
         }
     }
 }
