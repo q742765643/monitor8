@@ -117,10 +117,14 @@ public class TimingConfig implements ApplicationRunner {
                         }finally {
                             if(!status.equals("SERVING")){
                                 if(null!=channelUtil.getChannel().get(k)){
-                                    channelUtil.getChannel().get(k).get(a).shutdown();
+                                    try {
+                                        channelUtil.getChannel().get(k).get(a).shutdown();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 channelUtil.getChannel().get(k).remove(a);
-                                redisUtil.hdel("GRPC.SERVER:"+name,k);
+                                redisUtil.hdel("GRPC.SERVER:"+k,a);
                            /*     executorService.execute(
                                         ()->{
                                             boolean flag=false;
