@@ -1,12 +1,9 @@
 package com.piesat.skywalking.service.timing;
 
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
-import com.piesat.skywalking.model.HtJobInfo;
 import com.piesat.skywalking.service.trigger.TriggerService;
 import com.piesat.sso.client.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.stereotype.Service;
@@ -50,41 +47,57 @@ public class JobScheduleHelper {
                 int preReadCount = 300;
 
                 while (!scheduleThreadToStop) {
+                    boolean flag = redisUtil.lock("HTHT.SCHEDULE.LOCK", 5000);
                     long start = System.currentTimeMillis();
                     boolean preReadSuc = true;
-                    try {
+                    if (flag) {
+                        try {
 
-                        long nowTime = System.currentTimeMillis();
-                        Set<DefaultTypedTuple> scheduleList = redisUtil.rangeByScoreWithScores(QUARTZ_HTHT_JOB, nowTime + PRE_READ_MS, preReadCount);
-                        if (scheduleList!=null && scheduleList.size()>0) {
-                            List<HtJobInfoDto> jobInfos = new ArrayList<>();
-                            for (DefaultTypedTuple typedTuple : scheduleList) {
-                                    String jobId=(String) typedTuple.getValue();
-                                    HtJobInfoDto jobInfo = (HtJobInfoDto) redisUtil.hget(QUARTZ_HTHT_JOBDETAIL,jobId);
-                                    long nextTime=typedTuple.getScore().longValue();
+                            long nowTime = System.currentTimeMillis();
+                            Set<DefaultTypedTuple> scheduleList = redisUtil.rangeByScoreWithScores(QUARTZ_HTHT_JOB, nowTime + PRE_READ_MS, preReadCount);
+                            if (scheduleList != null && scheduleList.size() > 0) {
+                                List<HtJobInfoDto> jobInfos = new ArrayList<>();
+                                for (DefaultTypedTuple typedTuple : scheduleList) {
+                                    String jobId = (String) typedTuple.getValue();
+                                    HtJobInfoDto jobInfo = (HtJobInfoDto) redisUtil.hget(QUARTZ_HTHT_JOBDETAIL, jobId);
+                                    long nextTime = typedTuple.getScore().longValue();
                                     jobInfo.setTriggerNextTime(nextTime);
-                                // time-ring jump
-                                if (nowTime > jobInfo.getTriggerNextTime() + PRE_READ_MS) {
-                                    // 2.1、trigger-expire > 5s：pass && make next-trigger-time
-                                    log.warn("schedule misfire, jobId = " + jobInfo.getId());
+                                    // time-ring jump
+                                    if (nowTime > jobInfo.getTriggerNextTime() + PRE_READ_MS) {
+                                        // 2.1、trigger-expire > 5s：pass && make next-trigger-time
+                                        log.warn("schedule misfire, jobId = " + jobInfo.getId());
 
-                                    // fresh next
-                                    refreshNextValidTime(jobInfo, new Date());
+                                        // fresh next
+                                        refreshNextValidTime(jobInfo, new Date());
 
-                                } else if (nowTime > jobInfo.getTriggerNextTime()) {
-                                    // 2.2、trigger-expire < 5s：direct-trigger && make next-trigger-time
+                                    } else if (nowTime > jobInfo.getTriggerNextTime()) {
+                                        // 2.2、trigger-expire < 5s：direct-trigger && make next-trigger-time
 
-                                    // 1、trigger
-                                    triggerService.trigger(jobInfo);
+                                        // 1、trigger
+                                        triggerService.trigger(jobInfo);
 
-                                    // 2、fresh next
-                                    refreshNextValidTime(jobInfo, new Date());
+                                        // 2、fresh next
+                                        refreshNextValidTime(jobInfo, new Date());
 
-                                    // next-trigger-time in 5s, pre-read again
-                                    if (jobInfo.getTriggerStatus()==1 && nowTime + PRE_READ_MS > jobInfo.getTriggerNextTime()) {
+                                        // next-trigger-time in 5s, pre-read again
+                                        if (jobInfo.getTriggerStatus() == 1 && nowTime + PRE_READ_MS > jobInfo.getTriggerNextTime()) {
+
+                                            // 1、make ring second
+                                            int ringSecond = (int) ((jobInfo.getTriggerNextTime() / 1000) % 60);
+
+                                            // 2、push time ring
+                                            pushTimeRing(ringSecond, jobInfo);
+
+                                            // 3、fresh next
+                                            refreshNextValidTime(jobInfo, new Date(jobInfo.getTriggerNextTime()));
+
+                                        }
+
+                                    } else {
+                                        // 2.3、trigger-pre-read：time-ring trigger && make next-trigger-time
 
                                         // 1、make ring second
-                                        int ringSecond = (int)((jobInfo.getTriggerNextTime()/1000)%60);
+                                        int ringSecond = (int) ((jobInfo.getTriggerNextTime() / 1000) % 60);
 
                                         // 2、push time ring
                                         pushTimeRing(ringSecond, jobInfo);
@@ -93,43 +106,30 @@ public class JobScheduleHelper {
                                         refreshNextValidTime(jobInfo, new Date(jobInfo.getTriggerNextTime()));
 
                                     }
-
-                                } else {
-                                    // 2.3、trigger-pre-read：time-ring trigger && make next-trigger-time
-
-                                    // 1、make ring second
-                                    int ringSecond = (int)((jobInfo.getTriggerNextTime()/1000)%60);
-
-                                    // 2、push time ring
-                                    pushTimeRing(ringSecond, jobInfo);
-
-                                    // 3、fresh next
-                                    refreshNextValidTime(jobInfo, new Date(jobInfo.getTriggerNextTime()));
-
+                                    jobInfos.add(jobInfo);
                                 }
-                                jobInfos.add(jobInfo);
+
+                                // 3、update trigger info
+                                for (HtJobInfoDto jobInfo : jobInfos) {
+                                    redisUtil.zsetAdd(QUARTZ_HTHT_JOB, jobInfo.getId(), jobInfo.getTriggerNextTime());
+                                }
+
+                            } else {
+                                preReadSuc = false;
                             }
 
-                            // 3、update trigger info
-                            for (HtJobInfoDto jobInfo : jobInfos) {
-                                redisUtil.zsetAdd(QUARTZ_HTHT_JOB, jobInfo.getId(), jobInfo.getTriggerNextTime());
+                            // tx stop
+
+
+                        } catch (Exception e) {
+                            if (!scheduleThreadToStop) {
+                                log.error("JobScheduleHelper#scheduleThread error:{}", e);
                             }
-
-                        } else {
-                            preReadSuc = false;
+                        } finally {
+                            redisUtil.del("HTHT.SCHEDULE.LOCK");
                         }
-
-                        // tx stop
-
-
-                    } catch (Exception e) {
-                        if (!scheduleThreadToStop) {
-                            log.error("JobScheduleHelper#scheduleThread error:{}", e);
-                        }
-                    } finally {
-
-
                     }
+
                     long cost = System.currentTimeMillis()-start;
 
 

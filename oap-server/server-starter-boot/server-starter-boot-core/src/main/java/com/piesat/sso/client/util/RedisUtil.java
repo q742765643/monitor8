@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -609,6 +610,28 @@ public class RedisUtil {
             }
         });
         return dbSize;
+    }
+
+    public boolean lock(String lockKey, long lockExpireMils) {
+        return (Boolean) redisTemplate.execute((RedisCallback) connection -> {
+            long nowTime = System.currentTimeMillis();
+            Boolean acquire = connection.setNX(lockKey.getBytes(), String.valueOf(nowTime + lockExpireMils + 1).getBytes());
+            if (acquire) {
+                return Boolean.TRUE;
+            } else {
+                byte[] value = connection.get(lockKey.getBytes());
+                if (Objects.nonNull(value) && value.length > 0) {
+                    long oldTime = Long.parseLong(new String(value));
+                    if (oldTime < nowTime) {
+                        //connection.getSet：返回这个key的旧值并设置新值。
+                        byte[] oldValue = connection.getSet(lockKey.getBytes(), String.valueOf(nowTime + lockExpireMils + 1).getBytes());
+                        //当key不存时会返回空，表示key不存在或者已在管道中使用
+                        return oldValue == null ? false : Long.parseLong(new String(oldValue)) < nowTime;
+                    }
+                }
+            }
+            return Boolean.FALSE;
+        });
     }
     public static void main(String[] args) {
 		/*JedisPool jedisPool = new JedisPool(null,"localhost",6379,100,"123456");
