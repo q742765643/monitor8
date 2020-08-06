@@ -60,13 +60,13 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
 
         final Map<String, Object> errorPropertiesMap = getErrorAttributes(request, false);
         try {
-            if("404".equals(errorPropertiesMap.get("code"))){
+            if ("404".equals(errorPropertiesMap.get("code"))) {
                 String body = StreamUtils.copyToString(new ClassPathResource("/public/index.html").getInputStream(), Charset
                         .defaultCharset());
                 return ServerResponse.status(HttpStatus.OK)
                         .contentType(MediaType.TEXT_HTML)
                         .body(BodyInserters.fromObject(body));
-            }else {
+            } else {
                 return ServerResponse.status(HttpStatus.BAD_REQUEST)
                         .contentType(MediaType.TEXT_HTML)
                         .body(BodyInserters.fromObject(errorPropertiesMap));

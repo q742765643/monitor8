@@ -98,13 +98,23 @@ spring:
             - Path=/monitor/**
           filters:
             - StripPrefix=1
+            - name: Hystrix
+              args:
+                name: fallback
+                fallbackUri: forward:/fallback
         - id: alarm
           uri: lb:ws://collector
           predicates:
             - Path=/ws/**
           filters:
             - StripPrefix=1
-
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000
 
 collector:
   ribbon:
