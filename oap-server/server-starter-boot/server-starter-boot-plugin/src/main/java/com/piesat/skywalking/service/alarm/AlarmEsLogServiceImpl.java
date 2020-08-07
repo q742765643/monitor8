@@ -51,6 +51,10 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             WildcardQueryBuilder ip = QueryBuilders.wildcardQuery("ip", "*" + alarmLogDto.getIp() + "*");
             boolBuilder.must(ip);
         }
+        if (!StringUtil.isEmpty(alarmLogDto.getStatus())) {
+            MatchQueryBuilder status = QueryBuilders.matchQuery("status", alarmLogDto.getStatus());
+            boolBuilder.must(status);
+        }
         Map<String, Object> paramt = new HashMap<>();
         if (!StringUtil.isEmpty(alarmLogDto.getParams())) {
             paramt = JSON.parseObject(alarmLogDto.getParams(), Map.class);

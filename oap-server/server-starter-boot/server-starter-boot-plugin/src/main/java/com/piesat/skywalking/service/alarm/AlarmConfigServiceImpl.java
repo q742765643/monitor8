@@ -123,6 +123,9 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     @Override
     public AlarmConfigDto findById(String id) {
         AlarmConfigEntity alarmConfig=super.getById(id);
+        if(alarmConfig==null){
+            return null;
+        }
         AlarmConfigDto alarmConfigDto=alarmConfigMapstruct.toDto(alarmConfig);
         alarmConfigDto.setGenerals(JSON.parseArray(alarmConfig.getGeneral(), ConditionDto.class));
         alarmConfigDto.setDangers(JSON.parseArray(alarmConfig.getDanger(), ConditionDto.class));
