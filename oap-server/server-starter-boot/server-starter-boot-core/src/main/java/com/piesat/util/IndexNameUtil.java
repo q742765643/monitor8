@@ -2,6 +2,7 @@ package com.piesat.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 public class IndexNameUtil {
     public static String getIndexName(String name, Date date){
@@ -14,4 +15,6 @@ public class IndexNameUtil {
         String indexName=name+"-"+format.format(new Date());
         return indexName;
     }
+
+
 }

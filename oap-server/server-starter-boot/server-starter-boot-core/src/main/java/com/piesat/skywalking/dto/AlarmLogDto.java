@@ -12,14 +12,17 @@ public class AlarmLogDto extends BaseDto {
     @ApiModelProperty(value = "设备名称")
     private String deviceName;
 
-    @ApiModelProperty(value = "设备类型 0 服务器 1网络设备 3文件")
-    private String deviceType;
+    @ApiModelProperty(value = "主机id")
+    private String hostId;
 
-    @ApiModelProperty(value = "告警级别 0 一般 1危险 3故障")
-    private String level;
+    @ApiModelProperty(value = "设备类型 0 服务器 1网络设备 2进程 3文件")
+    private Integer deviceType =-1;
+
+    @ApiModelProperty(value = "告警级别 0 一般 1危险 2故障 3 正常")
+    private Integer level =-1;
 
     @ApiModelProperty(value = "处理状态 0 未处理 1已处理")
-    private String status;
+    private Integer status =-1;
 
     @ApiModelProperty(value = "告警时间")
     private Date timestamp;
@@ -37,4 +40,7 @@ public class AlarmLogDto extends BaseDto {
     private String type;
 
     private boolean isAlarm=false;
+
+    @ApiModelProperty(value = "process_id")
+    private String processId;
 }

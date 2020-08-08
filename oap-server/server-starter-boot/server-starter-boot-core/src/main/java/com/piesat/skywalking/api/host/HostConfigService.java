@@ -26,4 +26,6 @@ public interface HostConfigService {
     public List<String> selectOnine();
 
     public List<HostConfigDto> selectOnineAll();
+
+    public long selectCount(HostConfigDto hostConfigdto);
 }

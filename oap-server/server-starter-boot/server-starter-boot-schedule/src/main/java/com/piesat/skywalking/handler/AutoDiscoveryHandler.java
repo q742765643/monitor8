@@ -60,14 +60,19 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                 if (!"-1".equals(dv.getIsSnmpGet(PDU.GET,".1.3.6.1.2.1.1.5").get(0))) {
                     if (!"noSuchObject".equals(dv.getSnmpGet(PDU.GET,host).get(0))){//服务器
                         hostConfig.setType("server");
+                        hostConfig.setDeviceType(0);
                     }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && dv.snmpWalk2(sw).isEmpty()){//路由器
                         hostConfig.setType("router");
+                        hostConfig.setDeviceType(1);
                     }else if ("2".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()) {//二层交换机
                         hostConfig.setType("linkSwitch");
+                        hostConfig.setDeviceType(1);
                     }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()){//三层交换机
                         hostConfig.setType("networkSwitch");
+                        hostConfig.setDeviceType(1);
                     }else {//未知设备
                         hostConfig.setType("unknownDevice");
+                        hostConfig.setDeviceType(5);
                     }
                     String[] sysDesc = {SNMPConstants.SYSDESC};
                     ArrayList<String> sysDescs=dv.getSnmpGet(PDU.GET,sysDesc);

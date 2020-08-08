@@ -15,6 +15,7 @@ import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.entity.ProcessConfigEntity;
 import com.piesat.skywalking.mapstruct.ProcessConfigMapstruct;
 import com.piesat.util.JsonParseUtil;
+import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -66,6 +67,12 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         if (StringUtils.isNotNullString((String) process.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) process.getParamt().get("endTime"));
         }
+        if (StringUtil.isNotEmpty(process.getHostId())) {
+            specificationBuilder.add("hostId", SpecificationOperator.Operator.eq.name(), process.getHostId());
+        }
+        if (null!=process.getCurrentStatus()&&process.getCurrentStatus()>-1) {
+            specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), process.getCurrentStatus());
+        }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
@@ -87,6 +94,12 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         }
         if (StringUtils.isNotNullString((String) process.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) process.getParamt().get("endTime"));
+        }
+        if (StringUtil.isNotEmpty(process.getHostId())) {
+            specificationBuilder.add("hostId", SpecificationOperator.Operator.eq.name(), process.getHostId());
+        }
+        if (null!=process.getCurrentStatus()&&process.getCurrentStatus()>-1) {
+            specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), process.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
         List<ProcessConfigEntity> processConfigEntities=this.getAll(specification);
@@ -171,5 +184,28 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
 
     }
 
-
+    public long selectCount(ProcessConfigDto processConfigDto){
+        ProcessConfigEntity process=processConfigMapstruct.toEntity(processConfigDto);
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(process.getIp())) {
+            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
+        }
+        if (StringUtils.isNotNullString(process.getProcessName())) {
+            specificationBuilder.addOr("processName", SpecificationOperator.Operator.likeAll.name(), process.getProcessName());
+        }
+        if (StringUtils.isNotNullString((String) process.getParamt().get("beginTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) process.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) process.getParamt().get("endTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) process.getParamt().get("endTime"));
+        }
+        if (StringUtil.isNotEmpty(process.getHostId())) {
+            specificationBuilder.add("hostId", SpecificationOperator.Operator.eq.name(), process.getHostId());
+        }
+        if (null!=process.getCurrentStatus()&&process.getCurrentStatus()>-1) {
+            specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), process.getCurrentStatus());
+        }
+        Specification specification = specificationBuilder.generateSpecification();
+        return super.count(specification);
+    }
 }

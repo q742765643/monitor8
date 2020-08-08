@@ -16,4 +16,9 @@ public class ProcessConfigEntity extends BaseEntity {
     private String ip;
     @Column(name="process_name", length=255)
     private String processName;
+    @Column(name="host_id", length=255)
+    private String hostId;
+    @Column(name="current_status", length=10)
+    private Integer currentStatus=-1;
+
 }

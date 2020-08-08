@@ -17,4 +17,6 @@ public interface FileMonitorService {
 
     public void deleteByIds(List<String> ids);
 
+    public long selectCount(FileMonitorDto fileMonitorDto);
+
 }

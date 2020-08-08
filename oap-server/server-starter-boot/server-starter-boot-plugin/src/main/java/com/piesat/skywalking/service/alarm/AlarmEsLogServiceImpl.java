@@ -1,6 +1,7 @@
 package com.piesat.skywalking.service.alarm;
 
 import com.alibaba.fastjson.JSON;
+import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.alarm.AlarmEsLogService;
@@ -43,7 +44,7 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             MatchQueryBuilder type = QueryBuilders.matchQuery("type", alarmLogDto.getType());
             boolBuilder.must(type);
         }
-        if (!StringUtil.isEmpty(alarmLogDto.getDeviceType())) {
+        if (null!=alarmLogDto.getDeviceType()&&alarmLogDto.getDeviceType()>-1) {
             MatchQueryBuilder deviceType = QueryBuilders.matchQuery("device_type", alarmLogDto.getDeviceType());
             boolBuilder.must(deviceType);
         }
@@ -51,9 +52,17 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             WildcardQueryBuilder ip = QueryBuilders.wildcardQuery("ip", "*" + alarmLogDto.getIp() + "*");
             boolBuilder.must(ip);
         }
-        if (!StringUtil.isEmpty(alarmLogDto.getStatus())) {
+        if (null!=alarmLogDto.getStatus()&&alarmLogDto.getStatus()>-1) {
             MatchQueryBuilder status = QueryBuilders.matchQuery("status", alarmLogDto.getStatus());
             boolBuilder.must(status);
+        }
+        if (null!=alarmLogDto.getLevel()&&alarmLogDto.getLevel()>-1) {
+            MatchQueryBuilder level = QueryBuilders.matchQuery("level", alarmLogDto.getLevel());
+            boolBuilder.must(level);
+        }
+        if (StringUtil.isNotEmpty(alarmLogDto.getHostId())) {
+            MatchQueryBuilder hostId = QueryBuilders.matchQuery("host_id", alarmLogDto.getHostId());
+            boolBuilder.must(hostId);
         }
         Map<String, Object> paramt = new HashMap<>();
         if (!StringUtil.isEmpty(alarmLogDto.getParams())) {
@@ -66,6 +75,7 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         if (StringUtils.isNotNullString((String) paramt.get("endTime"))) {
             rangeQueryBuilder.lte((String) paramt.get("endTime"));
         }
+
         rangeQueryBuilder.timeZone("+08:00");
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
         boolBuilder.filter(rangeQueryBuilder);
@@ -85,12 +95,12 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
                 AlarmLogDto alarmLog=new AlarmLogDto();
                 Map<String, Object> map = hit.getSourceAsMap();
                 alarmLog.setId(hit.getId());
-                alarmLog.setDeviceType(String.valueOf(map.get("device_type")));
+                alarmLog.setDeviceType((Integer) map.get("device_type"));
                 alarmLog.setDeviceName(String.valueOf(map.get("device_name")));
                 alarmLog.setIp(String.valueOf(map.get("ip")));
                 alarmLog.setMessage(String.valueOf(map.get("message")));
-                alarmLog.setStatus(String.valueOf(map.get("status")));
-                alarmLog.setLevel(String.valueOf(map.get("level")));
+                alarmLog.setStatus((Integer) map.get("status"));
+                alarmLog.setLevel((Integer) map.get("level"));
                 alarmLog.setUsage(new BigDecimal(String.valueOf(map.get("usage"))).floatValue());
                 alarmLog.setTimestamp(JsonParseUtil.formateToDate(String.valueOf(map.get("@timestamp"))));
                 alarmLogDtoLis.add(alarmLog);

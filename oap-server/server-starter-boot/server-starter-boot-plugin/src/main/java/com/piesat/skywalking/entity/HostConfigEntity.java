@@ -3,12 +3,11 @@ package com.piesat.skywalking.entity;
 import com.piesat.common.annotation.Excel;
 import com.piesat.common.jpa.entity.BaseEntity;
 import com.piesat.skywalking.model.HtJobInfo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Data
@@ -26,6 +25,9 @@ public class HostConfigEntity extends HtJobInfo {
     @Excel(name = "主机类型")
     @Column(name="type", length=225)
     private String type;
+
+    @Column(name="device_type", length=225)
+    private Integer deviceType =-1;
 
     @Excel(name = "是否开启snmp")
     @Column(name="is_snmp", length=10)
@@ -54,5 +56,11 @@ public class HostConfigEntity extends HtJobInfo {
     @Excel(name = "ssh密码")
     @Column(name="ssh_password", length=50)
     private String sshPassWord;
+
+    @Column(name="current_status", length=10)
+    private Integer currentStatus=-1;
+
+    @Transient
+    private List<String> types;
 
 }

@@ -69,9 +69,12 @@ public class AlarmHandler  implements BaseShardHandler {
         AlarmConfigDto alarmConfigDto= (AlarmConfigDto) jobContext.getHtJobInfoDto();
         if(MonitorTypeEnum.PRCESS==MonitorTypeEnum.match(alarmConfigDto.getMonitorType())){
             List<ProcessConfigDto> list=jobContext.getLists();
-            AlarmLogDto alarmLogDto=new AlarmLogDto();
+
             for(int i=0;i<list.size();i++){
+                AlarmLogDto alarmLogDto=new AlarmLogDto();
                 ProcessConfigDto processConfigDto=list.get(i);
+                alarmLogDto.setHostId(processConfigDto.getHostId());
+                alarmLogDto.setProcessId(processConfigDto.getId());
                 float usage=this.selectProcess(processConfigDto);
                 String message="";
                 if(usage==-1){
@@ -81,7 +84,7 @@ public class AlarmHandler  implements BaseShardHandler {
                 }
                 alarmLogDto.setMessage(message);
                 alarmLogDto.setIp(processConfigDto.getIp());
-                alarmLogDto.setDeviceType("1");
+                alarmLogDto.setDeviceType(2);
                 alarmLogDto.setDeviceName("进程cpu变化次数");
                 alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
                 alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,usage);
@@ -102,12 +105,13 @@ public class AlarmHandler  implements BaseShardHandler {
     }
     public void selectSystem(AlarmConfigDto alarmConfigDto,HostConfigDto hostConfigDto){
         String ip=hostConfigDto.getIp();
-        String deviceType="0";
+        Integer deviceType=0;
         if(!"server".equals(hostConfigDto.getType())){
-            deviceType="1";
+            deviceType=1;
         }
         MonitorTypeEnum typeEnum=MonitorTypeEnum.match(alarmConfigDto.getMonitorType());
         AlarmLogDto alarmLogDto=new AlarmLogDto();
+        alarmLogDto.setHostId(hostConfigDto.getId());
         if(MonitorTypeEnum.CPU_USAGE==typeEnum){
             float usage=this.selectCpu(ip);
             String message="";

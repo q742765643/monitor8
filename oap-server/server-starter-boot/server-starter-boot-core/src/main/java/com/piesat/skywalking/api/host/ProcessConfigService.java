@@ -23,4 +23,6 @@ public interface ProcessConfigService {
     public void deleteByIds(List<String> ids);
 
     public ProcessDetailsDto getDetail(ProcessConfigDto processConfigDto);
+
+    public long selectCount(ProcessConfigDto processConfigDto);
 }

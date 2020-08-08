@@ -16,6 +16,7 @@ import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
 import com.piesat.skywalking.vo.NetworkVo;
+import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(host.getType())){
             specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), host.getType());
         }
+        if (null!=host.getCurrentStatus()&&host.getCurrentStatus()>-1) {
+            specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), host.getCurrentStatus());
+        }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
@@ -106,6 +110,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         }
         if (StringUtils.isNotNullString(hostConfig.getType())){
             specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), hostConfig.getType());
+        }
+        if (null!=hostConfig.getCurrentStatus()&&hostConfig.getCurrentStatus()>-1) {
+            specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
         List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
@@ -169,6 +176,46 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         Specification specification = specificationBuilder.generateSpecification();
         List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
         return hostConfigMapstruct.toDto(hostConfigEntities);
+    }
+
+    public long selectCount(HostConfigDto hostConfigdto){
+        HostConfigEntity hostConfig=hostConfigMapstruct.toEntity(hostConfigdto);
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(hostConfig.getIp())) {
+            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(),hostConfig.getIp());
+        }
+        if (StringUtils.isNotNullString(hostConfig.getTaskName())) {
+            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), hostConfig.getTaskName());
+        }
+        if (StringUtils.isNotNullString((String) hostConfig.getParamt().get("beginTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) hostConfig.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) hostConfig.getParamt().get("endTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) hostConfig.getParamt().get("endTime"));
+        }
+        if (StringUtils.isNotNullString(hostConfig.getIsSnmp())){
+            specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), hostConfig.getIsSnmp());
+        }
+        if (StringUtils.isNotNullString(hostConfig.getIsAgent())){
+            specificationBuilder.add("isAgent", SpecificationOperator.Operator.eq.name(), hostConfig.getIsAgent());
+        }
+        if (null!=hostConfig.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getTriggerStatus());
+        }
+        if (StringUtils.isNotNullString(hostConfig.getOs())){
+            specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), hostConfig.getOs());
+        }
+        if (StringUtils.isNotNullString(hostConfig.getType())){
+            specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), hostConfig.getType());
+        }
+        if (hostConfig.getTypes()!=null&&hostConfig.getTypes().size()>0){
+            specificationBuilder.add("type", SpecificationOperator.Operator.in.name(), hostConfig.getTypes());
+        }
+        if (null!=hostConfig.getCurrentStatus()&&hostConfig.getCurrentStatus()>-1) {
+            specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
+        }
+        Specification specification = specificationBuilder.generateSpecification();
+        return super.count(specification);
     }
 
 

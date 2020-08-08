@@ -125,4 +125,29 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
     }
+
+    public long selectCount(FileMonitorDto fileMonitorDto){
+        FileMonitorEntity file=fileMonitorMapstruct.toEntity(fileMonitorDto);
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (StringUtils.isNotNullString(file.getFolderRegular())) {
+            specificationBuilder.addOr("folderRegular", SpecificationOperator.Operator.likeAll.name(), file.getFolderRegular());
+        }
+        if (StringUtils.isNotNullString(file.getFilenameRegular())) {
+            specificationBuilder.addOr("filenameRegular", SpecificationOperator.Operator.likeAll.name(), file.getFilenameRegular());
+        }
+        if (StringUtils.isNotNullString(file.getTaskName())) {
+            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), file.getTaskName());
+        }
+        if (StringUtils.isNotNullString((String) file.getParamt().get("beginTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) file.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) file.getParamt().get("endTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) file.getParamt().get("endTime"));
+        }
+        if (null!=file.getTriggerStatus()){
+            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), file.getTriggerStatus());
+        }
+        Specification specification = specificationBuilder.generateSpecification();
+        return super.count(specification);
+    }
 }
