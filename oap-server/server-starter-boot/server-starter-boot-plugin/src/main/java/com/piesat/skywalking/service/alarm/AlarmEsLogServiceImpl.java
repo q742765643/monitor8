@@ -95,12 +95,12 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
                 AlarmLogDto alarmLog=new AlarmLogDto();
                 Map<String, Object> map = hit.getSourceAsMap();
                 alarmLog.setId(hit.getId());
-                alarmLog.setDeviceType((Integer) map.get("device_type"));
+                alarmLog.setDeviceType(Integer.parseInt(String.valueOf(map.get("device_type"))));
                 alarmLog.setDeviceName(String.valueOf(map.get("device_name")));
                 alarmLog.setIp(String.valueOf(map.get("ip")));
                 alarmLog.setMessage(String.valueOf(map.get("message")));
-                alarmLog.setStatus((Integer) map.get("status"));
-                alarmLog.setLevel((Integer) map.get("level"));
+                alarmLog.setStatus(Integer.parseInt(String.valueOf(map.get("status"))));
+                alarmLog.setLevel(Integer.parseInt(String.valueOf(map.get("level"))));
                 alarmLog.setUsage(new BigDecimal(String.valueOf(map.get("usage"))).floatValue());
                 alarmLog.setTimestamp(JsonParseUtil.formateToDate(String.valueOf(map.get("@timestamp"))));
                 alarmLogDtoLis.add(alarmLog);

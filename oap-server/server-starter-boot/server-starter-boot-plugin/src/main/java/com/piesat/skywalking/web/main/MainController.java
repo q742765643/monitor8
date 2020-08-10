@@ -1,6 +1,8 @@
 package com.piesat.skywalking.web.main;
 
+import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.dto.AlarmLogDto;
+import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.service.main.MainService;
@@ -45,11 +47,15 @@ public class MainController {
 
     @ApiOperation(value = "查询未处理告警", notes = "查询未处理告警")
     @GetMapping("/getAlarm")
-    public ResultT<PageBean> getAlarm(AlarmLogDto alarmLogDto, int pageNum, int pageSize){
-        ResultT< PageBean> resultT=new ResultT<>();
-        PageForm<AlarmLogDto> pageForm=new PageForm<AlarmLogDto>(pageNum,pageSize,alarmLogDto);
+    public ResultT<List<AlarmLogDto>> getAlarm(){
+        ResultT<List<AlarmLogDto>> resultT=new ResultT<>();
+        AlarmLogDto alarmLogDto=new AlarmLogDto();
+        alarmLogDto.setDeviceType(null);
+        alarmLogDto.setStatus(0);
+        alarmLogDto.setLevel(null);
+        PageForm<AlarmLogDto> pageForm=new PageForm<AlarmLogDto>(1,100,alarmLogDto);
         PageBean pageBean=mainService.getAlarm(pageForm);
-        resultT.setData(pageBean);
+        resultT.setData(pageBean.getPageData());
         return resultT;
     }
 
@@ -63,4 +69,27 @@ public class MainController {
         return resultT;
     }
 
+    @ApiOperation(value = "查询数据状态", notes = "查询数据状态")
+    @GetMapping("/getFileStatus")
+    public ResultT<List<FileStatisticsDto>> getFileStatus(){
+        ResultT<List<FileStatisticsDto>> resultT=new ResultT<>();
+        List<FileStatisticsDto> list=mainService.getFileStatus();
+        resultT.setData(list);
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询进程热力图", notes = "查询进程热力图")
+    @GetMapping("/getProcess")
+    public ResultT<List<AlarmLogDto>> getProcess(){
+        ResultT<List<AlarmLogDto>> resultT=new ResultT<>();
+        AlarmLogDto alarmLogDto=new AlarmLogDto();
+        alarmLogDto.setDeviceType(null);
+        alarmLogDto.setStatus(null);
+        alarmLogDto.setLevel(null);
+        alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
+        PageForm<AlarmLogDto> pageForm=new PageForm<AlarmLogDto>(1,100,alarmLogDto);
+        PageBean pageBean=mainService.getAlarm(pageForm);
+        resultT.setData(pageBean.getPageData());
+        return resultT;
+    }
 }

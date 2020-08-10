@@ -16,6 +16,9 @@ public class ScheduleService {
     protected static final String QUARTZ_HTHT_JOB = "QUARTZ.HTHT.JOB";
     protected static final String QUARTZ_HTHT_JOBDETAIL= "QUARTZ.HTHT.JOBDETAIL";
     public void handleJob(HtJobInfoDto jobInfo){
+        if(jobInfo.getTriggerStatus()==null){
+            return;
+        }
         if(jobInfo.getTriggerStatus()==1){
                redisUtil.hset(QUARTZ_HTHT_JOBDETAIL,jobInfo.getId(),jobInfo);
             try {

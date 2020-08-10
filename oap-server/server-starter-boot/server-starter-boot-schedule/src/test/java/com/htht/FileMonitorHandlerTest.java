@@ -80,4 +80,31 @@ public class FileMonitorHandlerTest {
         alarmHandler.selectProcess(processConfigDto);
 
     }
+    @Test
+    public void test4() throws Exception {
+        List<ConditionDto> conditionDtos = new ArrayList<>();
+        ConditionDto conditionDto = new ConditionDto();
+        conditionDto.setParamname("gte");
+        conditionDto.setParamvalue("50");
+        ConditionDto conditionDto1 = new ConditionDto();
+        conditionDto1.setParamname("lte");
+        conditionDto1.setOperate("and");
+        conditionDto1.setParamvalue("60");
+        conditionDtos.add(conditionDto);
+        conditionDtos.add(conditionDto1);
+        JobContext jobContext = new JobContext();
+        List<ProcessConfigDto> ips = new ArrayList<>();
+        ProcessConfigDto processConfigDto=new ProcessConfigDto();
+        processConfigDto.setProcessName("java");
+        processConfigDto.setIp("10.1.100.96");
+        ips.add(processConfigDto);
+        AlarmConfigDto alarmConfigDto=new AlarmConfigDto();
+        alarmConfigDto.setGenerals(conditionDtos);
+        alarmConfigDto.setDangers(conditionDtos);
+        alarmConfigDto.setSeveritys(conditionDtos);
+        alarmConfigDto.setMonitorType(MonitorTypeEnum.PRCESS.name());
+        jobContext.setHtJobInfoDto(alarmConfigDto);
+        jobContext.setLists(ips);
+        alarmHandler.execute(jobContext,new ResultT<>());
+    }
 }

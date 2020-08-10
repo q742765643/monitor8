@@ -37,6 +37,9 @@ public class TriggerService {
             jobInfoDto.setTriggerLastTime(triggerLastTime-jobInfoDto.getDelayTime());
             jobContext.setHandler(jobInfoDto.getJobHandler());
             jobContext.setHtJobInfoDto(jobInfoDto);
+            if(jobInfoDto.getTriggerType()==null){
+                jobInfoDto.setTriggerType(0);
+            }
             if(1==jobInfoDto.getTriggerType()){
                 List<?> list=remoteService.sharding(jobContext,resultT);
                 if(list.size()==0){
@@ -47,12 +50,10 @@ public class TriggerService {
                 int start=0;
                 int end=0;
                 for(int i=0;i<3;i++){
-                    if(i>0){
-                        start=slice*i-1;
-                    }
-                    end=slice*(i+1)-1;
+                    start=slice*i;
+                    end=slice*(i+1);
                     if(end>list.size()){
-                        end=list.size()-1;
+                        end=list.size();
                     }
                     jobContext.setLists(list.subList(start,end));
                     remoteService.execute(jobContext,resultT);

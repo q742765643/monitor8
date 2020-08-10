@@ -85,7 +85,7 @@ public class AlarmHandler  implements BaseShardHandler {
                 alarmLogDto.setMessage(message);
                 alarmLogDto.setIp(processConfigDto.getIp());
                 alarmLogDto.setDeviceType(2);
-                alarmLogDto.setDeviceName("进程cpu变化次数");
+                alarmLogDto.setDeviceName(processConfigDto.getProcessName());
                 alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
                 alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,usage);
             }

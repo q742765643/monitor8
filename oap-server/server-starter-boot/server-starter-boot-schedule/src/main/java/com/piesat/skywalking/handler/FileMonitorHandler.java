@@ -20,12 +20,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
@@ -159,13 +161,32 @@ public class FileMonitorHandler implements BaseHandler {
         if(request.requests().size()>0){
             elasticSearch7Client.synchronousBulk(request);
         }
+        Integer currentStatus=3;
         if(monitor.getFileNum()>0){
             float reach=new BigDecimal(fileNum).divide(new BigDecimal(monitor.getFileNum()),4, RoundingMode.HALF_UP).floatValue();
             if(reach<1){
-                this.toAlarm(monitor,ip,reach);
+                currentStatus=this.toAlarm(monitor,ip,reach);
             }
 
         }
+        String statisticsIndexName= IndexNameUtil.getIndexName(IndexNameConstant.T_MT_FILE_STATISTICS,new Date(monitor.getTriggerLastTime()));
+        try {
+            GetResponse getResponse=elasticSearch7Client.get(statisticsIndexName,monitor.getId()+"_"+monitor.getTriggerLastTime());
+            Map<String,Object> source=getResponse.getSourceAsMap();
+            if(null!=source&&source.size()>0){
+                source.put("real_file_num",fileNum);
+                source.put("real_file_size",fileSize);
+                source.put("per_file_num",new BigDecimal((float)fileNum/monitor.getFileNum()).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                source.put("per_file_size",new BigDecimal((float)fileSize/monitor.getFileSize()).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                source.put("status",currentStatus);
+                source.put("start_time_a",new Date());
+                source.put("end_time_a",new Date());
+                elasticSearch7Client.forceInsert(statisticsIndexName,monitor.getId()+"_"+monitor.getTriggerLastTime(),source);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         log.info("filenum为{}",fileNum);
         log.info("filesize为{}",fileSize);
     }
@@ -189,7 +210,7 @@ public class FileMonitorHandler implements BaseHandler {
         return reg;
     }
 
-    public void toAlarm(FileMonitorDto monitor,String ip,float reach){
+    public Integer toAlarm(FileMonitorDto monitor,String ip,float reach){
         AlarmLogDto alarmLogDto=new AlarmLogDto();
         String message="文件到达率达达阈值条件当前为"+reach*100+"%";
         alarmLogDto.setMessage(message);
@@ -199,8 +220,9 @@ public class FileMonitorHandler implements BaseHandler {
         alarmLogDto.setType(MonitorTypeEnum.FILE_REACH.name());
         AlarmConfigDto alarmConfigDto=alarmConfigService.findById(MonitorTypeEnum.FILE_REACH.name());
         if(alarmConfigDto!=null){
-            alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,reach);
+           return alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,reach);
         }
+        return 3;
     }
 
 }

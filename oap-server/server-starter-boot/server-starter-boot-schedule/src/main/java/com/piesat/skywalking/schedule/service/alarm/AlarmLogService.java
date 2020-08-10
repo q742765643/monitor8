@@ -78,7 +78,7 @@ public class AlarmLogService {
     }
 
 
-    public void checkAndInsert(AlarmConfigDto alarmConfigDto, AlarmLogDto alarmLogDto, float usage){
+    public Integer checkAndInsert(AlarmConfigDto alarmConfigDto, AlarmLogDto alarmLogDto, float usage){
         this.isAlarm(alarmConfigDto, alarmLogDto,usage);
         Integer currentStatus=3;
         if(alarmLogDto.isAlarm()){
@@ -112,7 +112,9 @@ public class AlarmLogService {
                 redisUtil.set(PREFIX+":"+alarmLogDto.getIp(),currentStatus,60*5);
             }else {
                 Integer other= (Integer) redisUtil.get(PREFIX+":"+alarmLogDto.getIp());
-                currentStatus=other;
+                if(other!=null){
+                    currentStatus=other;
+                }
             }
             hostConfigService.save(hostConfigDto);
         }
@@ -122,6 +124,7 @@ public class AlarmLogService {
             processConfigDto.setCurrentStatus(currentStatus);
             processConfigService.save(processConfigDto);
         }
+        return currentStatus;
 
     }
 }
