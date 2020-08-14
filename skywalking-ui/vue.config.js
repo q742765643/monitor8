@@ -20,14 +20,14 @@ module.exports = {
   devServer: {
     proxy: {
       '/graphql': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12800'}`,
+        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.96:12800'}`,
         changeOrigin: true,
       },
-      '/htht-api': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12800'}`,
+      '/monitor': {
+        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.96:12800'}`,
         changeOrigin: true,
         pathRewrite: {
-        ["^htht-api"]: ""
+        ["^/monitor"]: ""
       }
       },
     },
