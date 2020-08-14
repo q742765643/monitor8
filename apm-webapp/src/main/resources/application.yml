@@ -121,4 +121,6 @@ collector:
     # Point to all backend's restHost:restPort, split by ,
     listOfServers: 127.0.0.1:12800
 
-
+log:
+  path: ../src/sod_server/logs
+  level: INFO

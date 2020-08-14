@@ -577,6 +577,9 @@
                         **/*.yaml,
                         **/*.xml
                     </resourceIncludes>
+                    <resourceExcludes>
+                        **/logback-spring.xml
+                    </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
@@ -590,7 +593,7 @@
 						org/springframework/**/*.java,
                         com/**/*.java,
                         net/**/*.java,
-                        com/github/pagehelper/page/*.java
+                        com/github/pagehelper/page/*.java,
                     </excludes>
                     <propertyExpansion>
                         import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml

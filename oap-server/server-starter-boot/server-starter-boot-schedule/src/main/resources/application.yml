@@ -14,10 +14,10 @@
 # limitations under the License.
 
 server:
-  port: 12801
+  port: 12700
 grpc:
   server:
-    port: 11801
+    port: 11700
   client:
     schedule-server:
       enableKeepAlive: true
@@ -39,15 +39,19 @@ spring:
       max-file-size: 1000000000
       max-request-size: 1000000000
   redis:
-    host: 10.1.100.75
+    host: 10.1.100.9
     port: 6379
     timeout: 50000
+    password: 111111
 storage:
   elasticsearch:
     nameSpace:
-    clusterNodes: 10.1.100.75:9200
+    clusterNodes: 10.1.100.9:9200
     protocol: http
     trustStorePath:
     trustStorePass:
     user:
     password:
+log:
+  path: ../src/sod_server/logs
+  level: INFO
