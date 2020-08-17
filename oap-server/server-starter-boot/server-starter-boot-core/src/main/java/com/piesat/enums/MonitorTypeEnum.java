@@ -6,7 +6,7 @@ public enum MonitorTypeEnum {
     DISK_USAGE("磁盘使用率 %"),
     FILE_REACH("文件到达 %"),
     PRCESS("进程cpu时间变化次数"),
-    PING("ping耗时时间");
+    PING("ping丢包率");
     private String title;
     private MonitorTypeEnum(String title) {
         this.title = title;

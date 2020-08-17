@@ -3,7 +3,9 @@ package com.piesat.skywalking.schedule.service.alarm;
 import com.alibaba.fastjson.JSON;
 import com.piesat.common.grpc.annotation.GrpcHthtClient;
 import com.piesat.constant.IndexNameConstant;
+import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.api.host.HostConfigService;
+import com.piesat.skywalking.api.host.PacketLossLogService;
 import com.piesat.skywalking.api.host.ProcessConfigService;
 import com.piesat.skywalking.dto.*;
 import com.piesat.skywalking.schedule.service.es.CreateIndexNameService;
@@ -18,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AlarmLogService {
@@ -33,6 +32,8 @@ public class AlarmLogService {
     private HostConfigService hostConfigService;
     @GrpcHthtClient
     private ProcessConfigService processConfigService;
+    @GrpcHthtClient
+    private PacketLossLogService packetLossLogService;
     @Autowired
     private CreateIndexNameService createIndexNameService;
     @Autowired
@@ -104,16 +105,23 @@ public class AlarmLogService {
             msgPublisher.sendMsg(JSON.toJSONString(alarmConfigDto));
 
         }
+        /***======currentStatus=3 状态为正常========***/
         if(0==alarmLogDto.getDeviceType()||1==alarmLogDto.getDeviceType()){
             HostConfigDto hostConfigDto=new HostConfigDto();
             hostConfigDto.setId(alarmLogDto.getHostId());
             hostConfigDto.setCurrentStatus(currentStatus);
+            if(alarmLogDto.getType().equals(MonitorTypeEnum.PING.name())){
+                hostConfigDto.setPacketLoss(alarmLogDto.getUsage());
+            }
             if(currentStatus!=3){
-                redisUtil.set(PREFIX+":"+alarmLogDto.getIp(),currentStatus,60*5);
+                redisUtil.hset(PREFIX+":"+alarmLogDto.getIp(),alarmLogDto.getType(),currentStatus,60*5);
             }else {
-                Integer other= (Integer) redisUtil.get(PREFIX+":"+alarmLogDto.getIp());
-                if(other!=null){
-                    currentStatus=other;
+                Map<Object, Object> map=redisUtil.hmget(PREFIX+":"+alarmLogDto.getIp());
+                if(map!=null&&map.size()>0){
+                    Collection<Object> c = map.values();
+                    Object[] obj = c.toArray();
+                    Arrays.sort(obj);
+                    currentStatus= (Integer) obj[map.size()-1];
                 }
             }
             hostConfigService.save(hostConfigDto);
@@ -123,6 +131,13 @@ public class AlarmLogService {
             processConfigDto.setId(alarmLogDto.getProcessId());
             processConfigDto.setCurrentStatus(currentStatus);
             processConfigService.save(processConfigDto);
+        }
+        if(alarmLogDto.getType().equals(MonitorTypeEnum.PING.name())){
+            PacketLossLogDto packetLossLogDto=new PacketLossLogDto();
+            packetLossLogDto.setIp(alarmLogDto.getIp());
+            packetLossLogDto.setHostId(alarmLogDto.getHostId());
+            packetLossLogDto.setPacketLoss(alarmLogDto.getUsage());
+            packetLossLogService.save(packetLossLogDto);
         }
         return currentStatus;
 

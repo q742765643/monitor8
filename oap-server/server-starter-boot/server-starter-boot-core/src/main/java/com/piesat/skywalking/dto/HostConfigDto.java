@@ -30,6 +30,7 @@ public class HostConfigDto extends HtJobInfoDto {
     private String sshPassWord;
     @ApiModelProperty(value = "设备当前状态 0 一般 1 危险 2故障 3正常")
     private Integer currentStatus=-1;
-
+    @ApiModelProperty(value = "丢包率")
+    private float packetLoss;
     private List<String> types;
 }

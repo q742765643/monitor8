@@ -12,6 +12,7 @@ import com.piesat.skywalking.schedule.service.alarm.AlarmLogService;
 import com.piesat.skywalking.util.Ping;
 import com.piesat.skywalking.vo.FileSystemVo;
 import com.piesat.util.CompareUtil;
+import com.piesat.util.PingUtil;
 import com.piesat.util.ResultT;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service("alarmHandler")
@@ -400,13 +403,15 @@ public class AlarmHandler  implements BaseShardHandler {
     public float selectPing(String ip){
         float usage=-1;
         try {
-            long startTime=System.currentTimeMillis();
-            boolean flag = Ping.ping(ip);
-            if(flag==false){
-                return usage;
-            }
-            long endTime=System.currentTimeMillis();
-            return endTime-startTime;
+           ResultT<String> resultT= PingUtil.ping(ip);
+           if(!resultT.isSuccess()){
+               return usage;
+           }
+           Pattern pattern = Pattern.compile("[\\w\\W]*丢失 = ([0-9]\\d*)[\\w\\W]*");
+           Matcher matcher = pattern.matcher(resultT.getData());
+           while (matcher.find()) {
+             usage=Float.parseFloat(matcher.group(1));
+           }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -60,6 +60,9 @@ public class HostConfigEntity extends HtJobInfo {
     @Column(name="current_status", length=10)
     private Integer currentStatus=-1;
 
+    @Column(name="packet_loss", length=10)
+    private float packetLoss;
+
     @Transient
     private List<String> types;
 
