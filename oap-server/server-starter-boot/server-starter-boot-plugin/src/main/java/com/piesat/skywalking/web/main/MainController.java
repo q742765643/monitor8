@@ -86,7 +86,7 @@ public class MainController {
         alarmLogDto.setDeviceType(null);
         alarmLogDto.setStatus(null);
         alarmLogDto.setLevel(null);
-        alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
+        alarmLogDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
         PageForm<AlarmLogDto> pageForm=new PageForm<AlarmLogDto>(1,100,alarmLogDto);
         PageBean pageBean=mainService.getAlarm(pageForm);
         resultT.setData(pageBean.getPageData());

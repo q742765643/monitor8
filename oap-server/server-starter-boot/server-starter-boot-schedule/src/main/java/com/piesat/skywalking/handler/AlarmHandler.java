@@ -89,7 +89,7 @@ public class AlarmHandler  implements BaseShardHandler {
                 alarmLogDto.setIp(processConfigDto.getIp());
                 alarmLogDto.setDeviceType(2);
                 alarmLogDto.setDeviceName(processConfigDto.getProcessName());
-                alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
+                alarmLogDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
                 alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,usage);
             }
 
@@ -108,13 +108,10 @@ public class AlarmHandler  implements BaseShardHandler {
     }
     public void selectSystem(AlarmConfigDto alarmConfigDto,HostConfigDto hostConfigDto){
         String ip=hostConfigDto.getIp();
-        Integer deviceType=0;
-        if(!"server".equals(hostConfigDto.getType())){
-            deviceType=1;
-        }
         MonitorTypeEnum typeEnum=MonitorTypeEnum.match(alarmConfigDto.getMonitorType());
         AlarmLogDto alarmLogDto=new AlarmLogDto();
         alarmLogDto.setHostId(hostConfigDto.getId());
+        alarmLogDto.setMediaType(hostConfigDto.getMediaType());
         if(MonitorTypeEnum.CPU_USAGE==typeEnum){
             float usage=this.selectCpu(ip);
             String message="";
@@ -126,8 +123,8 @@ public class AlarmHandler  implements BaseShardHandler {
             alarmLogDto.setMessage(message);
             alarmLogDto.setIp(ip);
             alarmLogDto.setDeviceName("cpu使用率");
-            alarmLogDto.setDeviceType(deviceType);
-            alarmLogDto.setType(MonitorTypeEnum.CPU_USAGE.name());
+            alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
+            alarmLogDto.setMonitorType(MonitorTypeEnum.CPU_USAGE.getValue());
             alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,usage);
         }
         if(MonitorTypeEnum.MEMORY_USAGE==typeEnum){
@@ -141,8 +138,8 @@ public class AlarmHandler  implements BaseShardHandler {
             alarmLogDto.setMessage(message);
             alarmLogDto.setIp(ip);
             alarmLogDto.setDeviceName("内存使用率");
-            alarmLogDto.setDeviceType(deviceType);
-            alarmLogDto.setType(MonitorTypeEnum.MEMORY_USAGE.name());
+            alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
+            alarmLogDto.setMonitorType(MonitorTypeEnum.MEMORY_USAGE.getValue());
             alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,usage);
         }
         if(MonitorTypeEnum.PING==typeEnum){
@@ -151,16 +148,16 @@ public class AlarmHandler  implements BaseShardHandler {
             if(usage==-1){
                 message="PING 不可达";
             }else {
-                message="Ping 耗时"+usage+"毫秒";
+                message="Ping 丢包率达到"+usage+"%";
             }
             alarmLogDto.setMessage(message);
             alarmLogDto.setIp(ip);
             alarmLogDto.setDeviceName("PING");
-            alarmLogDto.setDeviceType(deviceType);
-            alarmLogDto.setType(MonitorTypeEnum.PING.name());
+            alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
+            alarmLogDto.setMonitorType(MonitorTypeEnum.PING.getValue());
             alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,usage);
         }
-        if(MonitorTypeEnum.DISK_USAGE==typeEnum&&"0".equals(deviceType)){
+        if(MonitorTypeEnum.DISK_USAGE==typeEnum&&(hostConfigDto.getDeviceType()==0||hostConfigDto.getDeviceType()==1)){
             List<FileSystemVo> fileSystemVos=this.getFileSystem(ip);
             String message="";
             if(fileSystemVos==null||fileSystemVos.size()==0){
@@ -168,8 +165,8 @@ public class AlarmHandler  implements BaseShardHandler {
                 alarmLogDto.setMessage(message);
                 alarmLogDto.setIp(ip);
                 alarmLogDto.setDeviceName("磁盘使用率");
-                alarmLogDto.setDeviceType(deviceType);
-                alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
+                alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
+                alarmLogDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
                 alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,-1);
                 return;
             }
@@ -178,8 +175,8 @@ public class AlarmHandler  implements BaseShardHandler {
                 alarmLogDto.setMessage(message);
                 alarmLogDto.setIp(ip);
                 alarmLogDto.setDeviceName(fileSystemVo.getDiskName());
-                alarmLogDto.setDeviceType(deviceType);
-                alarmLogDto.setType(MonitorTypeEnum.PRCESS.name());
+                alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
+                alarmLogDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
                 alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto, (float) fileSystemVo.getUsage());
             }
 

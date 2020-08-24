@@ -57,7 +57,7 @@ public class TriggerService {
                     }
                     jobContext.setLists(list.subList(start,end));
                     remoteService.execute(jobContext,resultT);
-                    if(slice<=1){
+                    if(end==list.size()){
                         break;
                     }
 

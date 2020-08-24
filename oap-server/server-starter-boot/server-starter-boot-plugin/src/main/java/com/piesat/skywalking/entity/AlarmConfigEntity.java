@@ -15,7 +15,7 @@ import java.util.List;
 public class AlarmConfigEntity extends HtJobInfo {
 
     @Column(name="monitor_type", length=100)
-    private String monitorType;
+    private Integer monitorType;
 
     @Transient
     private List<ConditionDto> generals;

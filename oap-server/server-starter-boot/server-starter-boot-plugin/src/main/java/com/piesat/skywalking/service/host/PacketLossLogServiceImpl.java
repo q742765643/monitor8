@@ -60,7 +60,7 @@ public class PacketLossLogServiceImpl extends BaseService<PacketLossLogEntity> i
     @Transactional
     public PacketLossLogDto save(PacketLossLogDto packetLossLogDto){
         PacketLossLogEntity packetLossLogEntity=packetLossLogMapstruct.toEntity(packetLossLogDto);
-        packetLossLogEntity=super.save(packetLossLogEntity);
+        packetLossLogEntity=super.saveNotNull(packetLossLogEntity);
         return packetLossLogMapstruct.toDto(packetLossLogEntity);
     }
     public List<PacketLossLogDto> selectAll(){

@@ -15,8 +15,11 @@ public class AlarmLogDto extends BaseDto {
     @ApiModelProperty(value = "主机id")
     private String hostId;
 
-    @ApiModelProperty(value = "设备类型 0 服务器 1网络设备 2进程 3文件")
+    @ApiModelProperty(value = "设备类型 11 未知 0 服务器 1网络设备 2进程 3文件")
     private Integer deviceType =-1;
+
+    @ApiModelProperty(value = "详细设备类型 11 未知 0 windows 1 linux 2 二层交换机 3 三层交换机 4 路由")
+    private Integer mediaType =-1;
 
     @ApiModelProperty(value = "告警级别 0 一般 1危险 2故障 3 正常")
     private Integer level =-1;
@@ -37,7 +40,7 @@ public class AlarmLogDto extends BaseDto {
     private String ip;
 
     @ApiModelProperty(value = "告警监测类型")
-    private String type;
+    private Integer monitorType=-1;
 
     private boolean isAlarm=false;
 

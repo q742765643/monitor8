@@ -62,16 +62,15 @@ public class AlarmCofigController {
     }
     @ApiOperation(value = "获取告警监测类型", notes = "获取告警监测类型")
     @GetMapping("/monitorType")
-    public ResultT<List<Map<String,String>>> monitorType()
+    public ResultT<List<Map<Integer,String>>> monitorType()
     {
-        ResultT<List<Map<String,String>>> resultT=new ResultT<>();
+        ResultT<List<Map<Integer,String>>> resultT=new ResultT<>();
         MonitorTypeEnum[] option=MonitorTypeEnum.values();
-        List<Map<String,String>> list=new ArrayList<>();
+        List<Map<Integer,String>> list=new ArrayList<>();
         for(int i=0;i<option.length;i++){
             MonitorTypeEnum menum=option[i];
-            Map<String,String> map=new HashMap<>();
-            map.put("key",menum.name());
-            map.put("value",menum.getTitle());
+            Map<Integer,String> map=new HashMap<>();
+            map.put(menum.getValue(),menum.getTitle());
             list.add(map);
         }
         resultT.setData(list);

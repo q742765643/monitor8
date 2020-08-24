@@ -68,8 +68,8 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(host.getOs())){
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), host.getOs());
         }
-        if (StringUtils.isNotNullString(host.getType())){
-            specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), host.getType());
+        if (null!=host.getMediaType()&&host.getMediaType()>-1){
+            specificationBuilder.add("media_type", SpecificationOperator.Operator.eq.name(), host.getMediaType());
         }
         if (null!=host.getCurrentStatus()&&host.getCurrentStatus()>-1) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), host.getCurrentStatus());
@@ -108,8 +108,8 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(hostConfig.getOs())){
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), hostConfig.getOs());
         }
-        if (StringUtils.isNotNullString(hostConfig.getType())){
-            specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), hostConfig.getType());
+        if (null!=hostConfig.getMediaType()&&hostConfig.getMediaType()>-1){
+            specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), hostConfig.getMediaType());
         }
         if (null!=hostConfig.getCurrentStatus()&&hostConfig.getCurrentStatus()>-1) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
@@ -161,7 +161,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), "1");
         specificationBuilder.addOr("isAgent", SpecificationOperator.Operator.eq.name(), "1");
         Specification specification = specificationBuilder.generateSpecification();
-        List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
+        List<HostConfigEntity> hostConfigEntities=this.getAll();
         List<String> ips=new ArrayList<>();
         for(int i=0;i<hostConfigEntities.size();i++){
             ips.add(hostConfigEntities.get(i).getIp());
@@ -205,11 +205,11 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(hostConfig.getOs())){
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), hostConfig.getOs());
         }
-        if (StringUtils.isNotNullString(hostConfig.getType())){
-            specificationBuilder.add("type", SpecificationOperator.Operator.eq.name(), hostConfig.getType());
+        if (null!=hostConfig.getMediaType()&&hostConfig.getMediaType()>-1){
+            specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), hostConfig.getMediaType());
         }
-        if (hostConfig.getTypes()!=null&&hostConfig.getTypes().size()>0){
-            specificationBuilder.add("type", SpecificationOperator.Operator.in.name(), hostConfig.getTypes());
+        if (hostConfig.getMediaTypes()!=null&&hostConfig.getMediaTypes().size()>0){
+            specificationBuilder.add("mediaType", SpecificationOperator.Operator.inn.name(), hostConfig.getMediaTypes());
         }
         if (null!=hostConfig.getCurrentStatus()&&hostConfig.getCurrentStatus()>-1) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());

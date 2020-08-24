@@ -217,7 +217,7 @@ public class FileMonitorHandler implements BaseHandler {
         alarmLogDto.setIp(ip);
         alarmLogDto.setDeviceName(monitor.getFolderRegular()+"文件到达率");
         alarmLogDto.setDeviceType(3);
-        alarmLogDto.setType(MonitorTypeEnum.FILE_REACH.name());
+        alarmLogDto.setMonitorType(MonitorTypeEnum.FILE_REACH.getValue());
         AlarmConfigDto alarmConfigDto=alarmConfigService.findById(MonitorTypeEnum.FILE_REACH.name());
         if(alarmConfigDto!=null){
            return alarmLogService.checkAndInsert(alarmConfigDto,alarmLogDto,reach);

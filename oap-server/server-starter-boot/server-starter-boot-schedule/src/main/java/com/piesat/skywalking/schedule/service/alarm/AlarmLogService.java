@@ -89,7 +89,8 @@ public class AlarmLogService {
             source.put("device_type",alarmLogDto.getDeviceType());
             source.put("level",alarmLogDto.getLevel());
             source.put("ip",alarmLogDto.getIp());
-            source.put("type",alarmLogDto.getType());
+            source.put("monitor_type",alarmLogDto.getMonitorType());
+            source.put("media_type",alarmLogDto.getMediaType());
             source.put("usage",alarmLogDto.getUsage());
             source.put("message",alarmLogDto.getMessage());
             source.put("status",alarmLogDto.getStatus());
@@ -110,12 +111,13 @@ public class AlarmLogService {
             HostConfigDto hostConfigDto=new HostConfigDto();
             hostConfigDto.setId(alarmLogDto.getHostId());
             hostConfigDto.setCurrentStatus(currentStatus);
-            if(alarmLogDto.getType().equals(MonitorTypeEnum.PING.name())){
+            if(alarmLogDto.getMediaType()==MonitorTypeEnum.PING.getValue()){
                 hostConfigDto.setPacketLoss(alarmLogDto.getUsage());
             }
             if(currentStatus!=3){
-                redisUtil.hset(PREFIX+":"+alarmLogDto.getIp(),alarmLogDto.getType(),currentStatus,60*5);
+                redisUtil.hset(PREFIX+":"+alarmLogDto.getIp(),String.valueOf(alarmLogDto.getMonitorType()),currentStatus,60);
             }else {
+                redisUtil.hdel(PREFIX+":"+alarmLogDto.getIp(),String.valueOf(alarmLogDto.getMonitorType()));
                 Map<Object, Object> map=redisUtil.hmget(PREFIX+":"+alarmLogDto.getIp());
                 if(map!=null&&map.size()>0){
                     Collection<Object> c = map.values();
@@ -132,7 +134,7 @@ public class AlarmLogService {
             processConfigDto.setCurrentStatus(currentStatus);
             processConfigService.save(processConfigDto);
         }
-        if(alarmLogDto.getType().equals(MonitorTypeEnum.PING.name())){
+        if(alarmLogDto.getMediaType()==MonitorTypeEnum.PING.getValue()){
             PacketLossLogDto packetLossLogDto=new PacketLossLogDto();
             packetLossLogDto.setIp(alarmLogDto.getIp());
             packetLossLogDto.setHostId(alarmLogDto.getHostId());

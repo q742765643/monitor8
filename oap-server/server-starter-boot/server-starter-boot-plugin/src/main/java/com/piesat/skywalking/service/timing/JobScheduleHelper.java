@@ -60,6 +60,10 @@ public class JobScheduleHelper {
                                 for (DefaultTypedTuple typedTuple : scheduleList) {
                                     String jobId = (String) typedTuple.getValue();
                                     HtJobInfoDto jobInfo = (HtJobInfoDto) redisUtil.hget(QUARTZ_HTHT_JOBDETAIL, jobId);
+                                    if(jobInfo==null){
+                                        redisUtil.zsetRemove(QUARTZ_HTHT_JOBDETAIL,jobId);
+                                        continue;
+                                    }
                                     long nextTime = typedTuple.getScore().longValue();
                                     jobInfo.setTriggerNextTime(nextTime);
                                     // time-ring jump

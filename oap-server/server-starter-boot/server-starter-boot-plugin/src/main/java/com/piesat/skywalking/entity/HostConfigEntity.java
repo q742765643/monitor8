@@ -22,9 +22,8 @@ public class HostConfigEntity extends HtJobInfo {
     @Column(name="host_name", length=100)
     private String hostName;
 
-    @Excel(name = "主机类型")
-    @Column(name="type", length=225)
-    private String type;
+    @Column(name="media_type", length=100)
+    private Integer mediaType;
 
     @Column(name="device_type", length=225)
     private Integer deviceType =-1;
@@ -63,7 +62,20 @@ public class HostConfigEntity extends HtJobInfo {
     @Column(name="packet_loss", length=10)
     private float packetLoss;
 
+    @Column(name="area", length=50)
+    private String area;
+
+    @Column(name="location", length=255)
+    private String location;
+
+    @Column(name="mac", length=255)
+    private String mac;
+    @Column(name="mask", length=255)
+    private String mask;
+
+    @Column(name="gateway", length=255)
+    private String gateway;
     @Transient
-    private List<String> types;
+    private List<Integer> mediaTypes;
 
 }

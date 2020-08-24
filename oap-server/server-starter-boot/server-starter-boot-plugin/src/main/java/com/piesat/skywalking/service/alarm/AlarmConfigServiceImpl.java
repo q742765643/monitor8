@@ -42,7 +42,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     public PageBean selectPageList(PageForm<AlarmConfigDto> pageForm) {
         AlarmConfigEntity alarmConfig=alarmConfigMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        if (!StringUtils.isEmpty(alarmConfig.getMonitorType())) {
+        if (null!=alarmConfig.getMonitorType()&&alarmConfig.getMonitorType()>-1) {
             specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
         }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
@@ -67,7 +67,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     public List<AlarmConfigDto> selectBySpecification(AlarmConfigDto alarmConfigDto){
         AlarmConfigEntity alarmConfig=alarmConfigMapstruct.toEntity(alarmConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        if (!StringUtils.isEmpty(alarmConfig.getMonitorType())) {
+        if (null!=alarmConfig.getMonitorType()&&alarmConfig.getMonitorType()>-1) {
             specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
         }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
@@ -111,7 +111,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         alarmConfigDto.setDelayTime(0);
         alarmConfigDto.setJobHandler("alarmHandler");
         AlarmConfigEntity alarmConfigEntity=alarmConfigMapstruct.toEntity(alarmConfigDto);
-        alarmConfigEntity.setId(MonitorTypeEnum.match(alarmConfigEntity.getMonitorType()).name());
+        alarmConfigEntity.setId(MonitorTypeEnum.match(alarmConfigEntity.getMonitorType()).getValue().toString());
         alarmConfigEntity.setGeneral(JSON.toJSONString(alarmConfigDto.getGenerals()));
         alarmConfigEntity.setDanger(JSON.toJSONString(alarmConfigDto.getDangers()));
         alarmConfigEntity.setSeverity(JSON.toJSONString(alarmConfigDto.getSeveritys()));

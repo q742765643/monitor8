@@ -61,13 +61,13 @@ public class FileMonitorHandlerTest {
         List<HostConfigDto> ips=new ArrayList<>();
         HostConfigDto hostConfigDto=new HostConfigDto();
         hostConfigDto.setIp("10.1.100.96");
-        hostConfigDto.setType("server");
+        hostConfigDto.setMediaType(0);
         ips.add(hostConfigDto);
         AlarmConfigDto alarmConfigDto=new AlarmConfigDto();
         alarmConfigDto.setGenerals(conditionDtos);
         alarmConfigDto.setDangers(conditionDtos);
         alarmConfigDto.setSeveritys(conditionDtos);
-        alarmConfigDto.setMonitorType(MonitorTypeEnum.CPU_USAGE.name());
+        alarmConfigDto.setMonitorType(MonitorTypeEnum.CPU_USAGE.getValue());
         jobContext.setHtJobInfoDto(alarmConfigDto);
         jobContext.setLists(ips);
         alarmHandler.execute(jobContext,new ResultT<>());
@@ -102,7 +102,7 @@ public class FileMonitorHandlerTest {
         alarmConfigDto.setGenerals(conditionDtos);
         alarmConfigDto.setDangers(conditionDtos);
         alarmConfigDto.setSeveritys(conditionDtos);
-        alarmConfigDto.setMonitorType(MonitorTypeEnum.PRCESS.name());
+        alarmConfigDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
         jobContext.setHtJobInfoDto(alarmConfigDto);
         jobContext.setLists(ips);
         alarmHandler.execute(jobContext,new ResultT<>());

@@ -40,8 +40,8 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             WildcardQueryBuilder deviceName = QueryBuilders.wildcardQuery("device_name", "*" + alarmLogDto.getDeviceName() + "*");
             boolBuilder.must(deviceName);
         }
-        if (!StringUtil.isEmpty(alarmLogDto.getType())) {
-            MatchQueryBuilder type = QueryBuilders.matchQuery("type", alarmLogDto.getType());
+        if (null!=alarmLogDto.getMonitorType()&&alarmLogDto.getMonitorType()>-1) {
+            MatchQueryBuilder type = QueryBuilders.matchQuery("monitor_type", alarmLogDto.getMonitorType());
             boolBuilder.must(type);
         }
         if (null!=alarmLogDto.getDeviceType()&&alarmLogDto.getDeviceType()>-1) {

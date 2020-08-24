@@ -29,7 +29,7 @@ public class SpecificationOperator {
 
 
     public static enum Operator {
-        eq, ge, le, gt, lt, likeL, likeR, likeAll, isNull, isNotNull, notEqual ,in ,ges, les, gts, lts, ;
+        eq, ge, le, gt, lt, likeL, likeR, likeAll, isNull, isNotNull, notEqual ,in,inn,ges, les, gts, lts, ;
         @Override
         public String toString() {
             return name();

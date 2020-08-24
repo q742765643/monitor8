@@ -58,11 +58,11 @@ public class MainService {
 
         HostConfigDto hostConfigDto=new HostConfigDto();
         hostConfigDto.setTriggerStatus(null);
-        List<String> types=new ArrayList<>();
-        types.add("linkSwitch");
-        types.add("networkSwitch");
-        types.add("router");
-        hostConfigDto.setTypes(types);
+        List<Integer> types=new ArrayList<>();
+        types.add(2);
+        types.add(3);
+        types.add(4);
+        hostConfigDto.setMediaTypes(types);
         long link=hostConfigService.selectCount(hostConfigDto);
         MonitorViewVo linkView=new MonitorViewVo();
         linkView.setClassify("链路设备");
@@ -70,10 +70,10 @@ public class MainService {
         monitorViewVos.add(linkView);
 
 
-        List<String> typeServer=new ArrayList<>();
-        typeServer.add("server");
-        typeServer.add("unknownDevice");
-        hostConfigDto.setTypes(typeServer);
+        List<Integer> typeServer=new ArrayList<>();
+        typeServer.add(0);
+        typeServer.add(1);
+        hostConfigDto.setMediaTypes(typeServer);
         long host=hostConfigService.selectCount(hostConfigDto);
         MonitorViewVo hostView=new MonitorViewVo();
         hostView.setClassify("主机设备");

@@ -8,6 +8,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
+import static io.protostuff.CollectionSchema.MessageFactories.ArrayList;
+
 /**
  * @program: sod
  * @描述
@@ -81,6 +83,9 @@ public class SimpleSpecification<T> implements Specification<T> {
             return criteriaBuilder.notEqual(root.get(op.getKey()), op.getValue());
         } else if (SpecificationOperator.Operator.in.name().equalsIgnoreCase(op.getOper())) {
             return root.get(op.getKey()).in(op.getValue());
+        } else if (SpecificationOperator.Operator.inn.name().equalsIgnoreCase(op.getOper())) {
+            List<Integer> list= (List<Integer>) op.getValue();
+            return root.get(op.getKey()).in(list);
         }
         return null;
     }

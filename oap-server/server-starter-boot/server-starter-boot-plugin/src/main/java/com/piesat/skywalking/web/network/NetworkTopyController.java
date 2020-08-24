@@ -43,7 +43,7 @@ public class NetworkTopyController {
             Map<String, Object> node = new HashMap<>();
             node.put("id", hostConfig.getId());
             node.put("name", hostConfig.getIp());
-            node.put("type", hostConfig.getType());
+            node.put("type", hostConfig.getMediaType());
             node.put("isReal", true);
             nodeList.add(node);
             ipList.add(hostConfig.getIp());
@@ -51,7 +51,7 @@ public class NetworkTopyController {
         String[] arpIp = {"1.3.6.1.2.1.4.22.1.3"};
         for (int i = 0; i < list.size(); i++) {
             HostConfigDto hostConfig = list.get(i);
-            if (null != hostConfig.getType() && hostConfig.getType().indexOf("Switch") != -1) {
+            if (null != hostConfig.getMediaType() && (hostConfig.getMediaType()==2||hostConfig.getMediaType()==3)) {
                 try {
                     SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                     if ("-1".equals(dv.getIsSnmpGet(PDU.GET, ".1.3.6.1.2.1.1.5").get(0))) {
@@ -73,7 +73,7 @@ public class NetworkTopyController {
                     e.printStackTrace();
                 }
             }
-            if (null != hostConfig.getType() && hostConfig.getType().indexOf("router") != -1) {
+            if (null != hostConfig.getMediaType() &&hostConfig.getMediaType()==4) {
                 try {
                     String[] ipRouteNextHop = {".1.3.6.1.2.1.4.21.1.7"};//ipRouteNextHop
                     String[] ipRouteType = {".1.3.6.1.2.1.4.21.1.8"};//ipRouteType

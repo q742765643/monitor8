@@ -12,10 +12,12 @@ public class HostConfigDto extends HtJobInfoDto {
     private String ip;
     @ApiModelProperty(value = "主机名称")
     private String hostName;
-    @ApiModelProperty(value = "类型 server 服务器 router 路由 linkSwitch 二层交换机 networkSwitch 三层交换机 unknownDevice 未知")
-    private String type;
+    //@ApiModelProperty(value = "类型 server 服务器 router 路由 linkSwitch 二层交换机 networkSwitch 三层交换机 unknownDevice 未知")
+    //private String type;
+    @ApiModelProperty(value = "详细设备类型 11 未知 0 windows 1 linux 2 二层交换机 3 三层交换机 4 路由")
+    private Integer mediaType =-1;
 
-    @ApiModelProperty(value = "设备类型 0 服务器 1网络设备 2进程 3文件")
+    @ApiModelProperty(value = "设备类型 11 未知 0 服务器 1网络设备 2进程 3文件")
     private Integer deviceType =-1;
 
     @ApiModelProperty(value = "是否snmp 0 不是 1是")
@@ -32,5 +34,16 @@ public class HostConfigDto extends HtJobInfoDto {
     private Integer currentStatus=-1;
     @ApiModelProperty(value = "丢包率")
     private float packetLoss;
-    private List<String> types;
+    @ApiModelProperty(value = "区域")
+    private String area;
+    @ApiModelProperty(value = "地址")
+    private String location;
+    @ApiModelProperty(value = "mac地址")
+    private String mac;
+    @ApiModelProperty(value = "掩码")
+    private String mask;
+    @ApiModelProperty(value = "网关")
+    private String gateway;
+
+    private List<Integer> mediaTypes;
 }
