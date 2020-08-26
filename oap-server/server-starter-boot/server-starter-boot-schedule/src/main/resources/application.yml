@@ -23,6 +23,8 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
+  hosts:
+    dpc35: 10.1.100.35
 spring:
   application:
     name: schedule-client-server

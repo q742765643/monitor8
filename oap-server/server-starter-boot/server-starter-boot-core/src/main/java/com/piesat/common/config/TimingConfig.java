@@ -42,8 +42,12 @@ public class TimingConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         Map<String,String> server=grpcProperties.getServer();
         Map<String,Map<String,Object>> client=grpcProperties.getClient();
+        Map<String,String> hosts=grpcProperties.getHosts();
         String host=server.get("host");
         String grpcPort=server.get("port");
+        if(null!=hosts&&null!=hosts.get(host)){
+            host=hosts.get(host);
+        }
         if(StringUtil.isEmpty(host)){
             host= NetUtils.getLocalHost();
         }
