@@ -61,3 +61,12 @@ import './svg/token.svg';
 import './svg/unlink.svg';
 import './svg/user.svg';
 import './svg/warning.svg';
+import './svgp/jiankong.svg'
+import './svgp/pifu.svg'
+import './svgp/shuaxin.svg'
+import './svgp/topu.svg'
+import './svgp/tuichu.svg'
+import './svgp/xiaoxi.svg'
+import './svgp/xinxi.svg'
+import './svgp/zhuji.svg'
+

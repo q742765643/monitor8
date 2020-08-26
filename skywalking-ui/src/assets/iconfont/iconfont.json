@@ -1,0 +1,65 @@
+{
+  "id": "2010018",
+  "name": "气象海洋",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "657506",
+      "name": "信息",
+      "font_class": "xinxi",
+      "unicode": "e649",
+      "unicode_decimal": 58953
+    },
+    {
+      "icon_id": "5270862",
+      "name": "用户群体-业务查询",
+      "font_class": "yonghu",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "6049449",
+      "name": "刷新",
+      "font_class": "shuaxin",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "6584496",
+      "name": "关闭",
+      "font_class": "guanbi1",
+      "unicode": "e69d",
+      "unicode_decimal": 59037
+    },
+    {
+      "icon_id": "8842685",
+      "name": "铃铛",
+      "font_class": "lingdang",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
+      "icon_id": "9512644",
+      "name": "皮肤",
+      "font_class": "skin",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
+      "icon_id": "10443743",
+      "name": "建筑",
+      "font_class": "jianzhu",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "13643975",
+      "name": "家",
+      "font_class": "jia",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    }
+  ]
+}

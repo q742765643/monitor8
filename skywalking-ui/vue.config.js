@@ -16,30 +16,38 @@
  */
 
 module.exports = {
-  publicPath: "/",
-  devServer: {
-    proxy: {
-      '/graphql': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.96:12800'}`,
-        changeOrigin: true,
-      },
-      '/monitor': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.96:12800'}`,
-        changeOrigin: true,
-        pathRewrite: {
-        ["^/monitor"]: ""
-      }
-      },
+
+
+
+    publicPath: "/",
+    devServer: {
+        proxy: {
+            '/graphql': {
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.96:12800'}`,
+                changeOrigin: true,
+            },
+            '/monitor': {
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.96:12800'}`,
+                changeOrigin: true,
+                pathRewrite: {
+                    ["^/monitor"]: ""
+                }
+            },
+        },
     },
-  },
-  chainWebpack: (config) => {
-    const svgRule = config.module.rule('svg');
-    svgRule.uses.clear();
-    svgRule
-      .use('svg-sprite-loader')
-      .loader('svg-sprite-loader')
-      .options({
-        symbolId: '[name]',
-      });
-  },
+    chainWebpack: (config) => {
+        /* const svgRule = config.module.rule('svg');
+        svgRule.uses.clear();
+        svgRule
+            .use('svg-sprite-loader')
+            .loader('svg-sprite-loader')
+            .options({
+                symbolId: '[name]',
+            }); */
+
+        /*  const CssRule = config.module.rule('css');
+         CssRule.uses.clear();
+         CssRule.loader('css-loader')
+         CssRule.loader('style-loader') */
+    }
 };

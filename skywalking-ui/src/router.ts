@@ -24,11 +24,17 @@ import Trace from './views/containers/trace.vue';
 import Topology from './views/containers/topology/topology.vue';
 import Alarm from './views/containers/alarm.vue';
 import Profile from './views/containers/profile.vue';
-import AutoDiscovery from  './views/config/autoDiscovery.vue';
-import networkTopology from  './views/containers/topology/networkTopology.vue';
+import AutoDiscovery from './views/config/autoDiscovery.vue';
+import networkTopology from './views/containers/topology/networkTopology.vue';
+
+
+import Home from './views/containers/home/home.vue';
+import mainer from './views/containers/home/right/index/mainer.vue';
+import topu from './views/containers/home/right/topu/topu.vue';
 
 Vue.use(Router);
 window.axiosCancel = [];
+
 
 const router = new Router({
   mode: 'history',
@@ -40,9 +46,10 @@ const router = new Router({
     //   component: Login,
     //   meta: { login: true },
     // },
-    {
+    /*  {
       path: '/',
       component: Index,
+     
       children: [
         {
           path: '',
@@ -73,7 +80,27 @@ const router = new Router({
           component: networkTopology,
         },
       ],
+    },  */
+
+    {
+      path: '/',
+      component: Home,
+      children: [
+        {
+          path: '',
+          component: mainer,
+        }, {
+          path: 'mainer',
+          component: mainer,
+        },
+        {
+          path: 'topu',
+          component: topu,
+        }
+      ],
     },
+
+
   ],
 });
 

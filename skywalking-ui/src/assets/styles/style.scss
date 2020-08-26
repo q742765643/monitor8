@@ -14,64 +14,85 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@font-face {
+    font-family: electronicFont;
+    src: url(../fonts/DS-DIGIT.TTF);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-width: 1024px !important;
+    max-width: 1920px !important;
+}
+
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease;
 }
+
 .fade-enter,
 .fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
 .d3-tip {
-  line-height: 1;
-  padding: 8px;
-  color: #eee;
-  border-radius: 4px;
-  font-size: 12px;
+    line-height: 1;
+    padding: 8px;
+    color: #eee;
+    border-radius: 4px;
+    font-size: 12px;
 }
+
 .d3-tip {
-  background: #252a2f;
+    background: #252a2f;
 }
 
 .d3-tip:after {
-  box-sizing: border-box;
-  display: block;
-  font-size: 10px;
-  width: 100%;
-  line-height: 0.8;
-  color: #252a2f;
-  content: '\25BC';
-  position: absolute;
-  text-align: center;
+    box-sizing: border-box;
+    display: block;
+    font-size: 10px;
+    width: 100%;
+    line-height: 0.8;
+    color: #252a2f;
+    content: '\25BC';
+    position: absolute;
+    text-align: center;
 }
 
 .d3-tip.n:after {
-  margin: -2px 0 0 0;
-  top: 100%;
-  left: 0;
+    margin: -2px 0 0 0;
+    top: 100%;
+    left: 0;
 }
+
 @keyframes loading {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(1turn);
-    transform: rotate(1turn);
-  }
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(1turn);
+        transform: rotate(1turn);
+    }
 }
 
 .oa {
-  overflow: hidden;
-}
-.oa:hover {
-  overflow: auto;
-}
-.app-container {
-  padding: 20px;
-  background: #fff;
-  margin: 20px;
-  flex-grow:1;
+    overflow: hidden;
 }
 
+.oa:hover {
+    overflow: auto;
+}
+
+.app-container {
+    padding: 20px;
+    background: #fff;
+    margin: 20px;
+    flex-grow: 1;
+}

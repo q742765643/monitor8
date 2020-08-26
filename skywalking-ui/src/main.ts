@@ -38,22 +38,29 @@ import 'echarts/lib/component/tooltip';
 import VModal from 'vue-js-modal';
 import { queryOAPTimeInfo } from './utils/localtime';
 import './assets';
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+/* import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css'; */
 import Pagination from "@/components/Pagination/index.vue";
+
+
+
 import {
   parseTime,
   resetForm,
   addDateRange
 } from "@/components/util";
+
+import "./static/iconfont/iconfont.css";
+import 'lib-flexible'
+
 Vue.prototype.parseTime = parseTime
 Vue.prototype.resetForm = resetForm
 Vue.prototype.addDateRange = addDateRange
 declare module 'vue/types/vue' {
   interface Vue {
-    parseTime(time:any, pattern:String): any
-    resetForm(refName:any): any
-    addDateRange(params:any, dateRange:any): any
+    parseTime(time: any, pattern: String): any
+    resetForm(refName: any): any
+    addDateRange(params: any, dateRange: any): any
   }
 }
 Vue.use(eventBus);
@@ -62,7 +69,7 @@ Vue.use(components);
 Vue.use(VModal, { dialog: true });
 Vue.directive('clickout', clickout);
 Vue.directive('tooltip', tooltip);
-Vue.use(ElementUI);
+/* Vue.use(ElementUI); */
 Vue.component('Pagination', Pagination);
 
 
