@@ -71,7 +71,34 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
         }
         return bean;
     }
+    @Override
+    public Object postProcessAfterInitialization (final Object bean, final String beanName) throws BeansException {
+        Class<?> targeClass = bean.getClass();
+        Field[] fields = targeClass.getDeclaredFields();
+        for (Field field: fields ) {
+            final GrpcHthtClient annotation = AnnotationUtils.findAnnotation(field, GrpcHthtClient.class);
+            if (null!=annotation) {  //判断属性是否是自定义注解@MyAnnotation
+                if(!field.getType().isInterface()) {  //加自定义注解的属性必须是接口类型（这样才可能出现多个不同的实例bean)
+                    throw new BeanCreationException("GrpcHthtClient field must be declared an interface");
+                } else {
+                    try {
+                        this.hanldGrpcHthtClient(field, bean, field.getType());
+                        final String name = annotation.value();
+                        if(null!=name&&!"".equals(name)){
+                            this.getgrpcChannel(field.getType().getName(),annotation);
+                        }
 
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        if(bean==null){
+            log.error("grpc接口初始化失败{}",targeClass.getCanonicalName());
+        }
+        return bean;
+    }
     /*@Override
     public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
         Class<?> targeClass = bean.getClass();

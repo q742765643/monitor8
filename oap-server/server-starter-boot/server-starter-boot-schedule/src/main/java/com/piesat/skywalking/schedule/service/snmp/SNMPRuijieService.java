@@ -39,11 +39,19 @@ public class SNMPRuijieService extends SNMPService{
         List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
         final CountDownLatch latch = new CountDownLatch(2);
         new Thread(()->{
-            this.cpuMap(snmp,basicInfo,esList);
+            try {
+                this.cpuMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.memoryMap(snmp,basicInfo,esList);
+            try {
+                this.memoryMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         latch.await();

@@ -134,6 +134,9 @@ public class MainService {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG+"-*", searchSourceBuilder);
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedLongTerms parsedLongTerms=aggregations.get("device_type");
+            if(parsedLongTerms==null){
+                return null;
+            }
             List<? extends Terms.Bucket> buckets = parsedLongTerms.getBuckets();
             if (buckets.size() > 0) {
                 for (int i = 0; i < buckets.size(); i++) {

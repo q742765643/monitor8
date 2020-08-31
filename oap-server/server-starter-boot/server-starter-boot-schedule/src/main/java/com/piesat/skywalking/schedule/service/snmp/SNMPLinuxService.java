@@ -40,36 +40,65 @@ public class SNMPLinuxService extends SNMPService{
         basicInfo.put("version",version);
         basicInfo.put("@timestamp",date);
         List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
-        final CountDownLatch latch = new CountDownLatch(6);
+        final CountDownLatch latch = new CountDownLatch(7);
         new Thread(()->{
-            this.cpuMap(snmp,basicInfo,esList);
+            try {
+                this.cpuMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.memoryMap(snmp,basicInfo,esList);
+            try {
+                this.memoryMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.networkMap(snmp,basicInfo,esList);
+            try {
+                this.networkMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.diskMap(snmp,basicInfo,esList);
+            try {
+                this.diskMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.processMap(snmp,basicInfo,esList);
+            try {
+                this.processMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.loadMap(snmp,basicInfo,esList);
+            try {
+                this.loadMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.diskioMap(snmp,basicInfo,esList);
+            try {
+                this.diskioMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         latch.await();
+        snmp.close();
         String indexName= IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT,date);
         for(Map<String,Object> source:esList){
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, IdUtils.fastUUID()).source(source);

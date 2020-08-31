@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.MonitorConstant;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -57,6 +58,13 @@ public class StorageEsInstaller extends ModelInstaller {
                 model.isTimeSeries() ?
                     TimeSeriesUtils.latestWriteIndexName(model) :
                     model.getName();
+            if (!MonitorConstant.ISENABLE) {
+                boolean flag = esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
+                if (timeSeriesIndexName.indexOf("ui_template") > -1) {
+                    return flag;
+                }
+                return true;
+            }
             return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
         } catch (IOException e) {
             throw new StorageException(e.getMessage());

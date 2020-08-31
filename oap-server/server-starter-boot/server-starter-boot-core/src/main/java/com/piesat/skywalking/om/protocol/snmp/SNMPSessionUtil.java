@@ -158,4 +158,14 @@ public class SNMPSessionUtil {
         return list;
     }
 
+    public void close(){
+        if(null!=snmp){
+            try {
+                snmp.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

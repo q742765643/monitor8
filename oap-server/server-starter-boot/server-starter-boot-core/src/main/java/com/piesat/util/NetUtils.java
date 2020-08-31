@@ -1,10 +1,13 @@
 package com.piesat.util;
 
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
@@ -450,5 +453,51 @@ public class NetUtils {
             return Integer.parseInt(ipSegment);
         }
         return Integer.parseInt(ipSegment, 16);
+    }
+    /**
+     * @return 获取本机IP
+     * @throws SocketException
+     */
+    public static List<String> getLocalIP() {
+        List<String> ipList = new ArrayList<String>();
+        InetAddress ip = null;
+        try {
+            Enumeration<NetworkInterface> netInterfaces = (Enumeration<NetworkInterface>) NetworkInterface.getNetworkInterfaces();
+            while (netInterfaces.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) netInterfaces.nextElement();
+                // 遍历所有ip
+                Enumeration<InetAddress> ips = ni.getInetAddresses();
+                while (ips.hasMoreElements()) {
+                    ip = (InetAddress) ips.nextElement();
+                    if (null == ip || "".equals(ip)) {
+                        continue;
+                    }
+
+                    String sIP = ip.getHostAddress();
+                    if("127.0.0.1".equals(sIP)||sIP.indexOf("192.168") > -1){
+                        continue;
+                    }
+                    if(sIP == null || sIP.indexOf(":") > -1) {
+                        continue;
+                    }
+                    ipList.add(sIP);
+                    System.out.println(sIP);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(ipList.size()==0){
+            ipList.add(getLocalHost());
+        }
+        return ipList;
+    }
+
+    public static void main(String[] args){
+        try {
+            System.out.println(JSON.toJSONString(getLocalIP()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

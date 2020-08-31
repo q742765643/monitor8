@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.MonitorConstant;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -140,7 +141,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
              */
             monitor.start();
         }
-
+        MonitorConstant.ISENABLE = config.getIsEnable();
         elasticSearchClient = new ElasticSearchClient(
                 config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
                 .getTrustStorePass(), config.getUser(), config.getPassword(),

@@ -42,7 +42,7 @@ public class TriggerService {
             }
             if(1==jobInfoDto.getTriggerType()){
                 List<?> list=remoteService.sharding(jobContext,resultT);
-                if(list.size()==0){
+                if(list==null||list.size()==0){
                     return;
                 }
                 double batch = new BigDecimal(list.size()).divide(new BigDecimal(3),2, RoundingMode.HALF_UP).doubleValue();

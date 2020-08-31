@@ -36,6 +36,9 @@ public class FileStatisticsHandler implements BaseShardHandler {
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
         fileMonitorDto.setTriggerStatus(null);
         List<FileMonitorDto> fileMonitorDtos=fileMonitorService.selectBySpecification(fileMonitorDto);
+        if(fileMonitorDtos==null){
+            return null;
+        }
         return fileMonitorDtos;
     }
 

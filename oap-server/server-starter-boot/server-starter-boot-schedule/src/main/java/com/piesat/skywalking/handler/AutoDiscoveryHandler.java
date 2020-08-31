@@ -64,37 +64,42 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                 hostConfig.setMediaType(mediaType);
                 hostConfig.setIp(ip);
                 SNMPSessionUtil dv = new SNMPSessionUtil(ip,"161", "public", "2");
-                if (!"-1".equals(dv.getIsSnmpGet(PDU.GET,".1.3.6.1.2.1.1.5").get(0))) {
-                    System.out.println(dv.getSnmpGet(PDU.GET,host).get(0));
-                    if (!"noSuchObject".equals(dv.getSnmpGet(PDU.GET,host).get(0))){//服务器
-                        hostConfig.setDeviceType(0);
-                        this.getMacAndGetaway(hostConfig,dv);
-                    }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && dv.snmpWalk2(sw).isEmpty()){//路由器
-                        hostConfig.setDeviceType(1);
-                        mediaType=4;
-                    }else if ("2".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()) {//二层交换机
-                        hostConfig.setDeviceType(1);
-                        mediaType=2;
-                    }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()){//三层交换机
-                        hostConfig.setDeviceType(1);
-                        mediaType=3;
-                    }else {//未知设备
-                        hostConfig.setDeviceType(11);
-                    }
-                    this.getMediaType(hostConfig,dv,mediaType);
-                    hostConfig.setIsSnmp("1");
-                    hostConfig.setJobCron("0/30 * * * * ?");
-                    hostConfig.setId(ip);
-                    hostConfig.setTriggerStatus(1);
-                    hostConfigService.save(hostConfig);
+                try {
+                    if (!"-1".equals(dv.getIsSnmpGet(PDU.GET,".1.3.6.1.2.1.1.5").get(0))) {
+                        System.out.println(dv.getSnmpGet(PDU.GET,host).get(0));
+                        if (!"noSuchObject".equals(dv.getSnmpGet(PDU.GET,host).get(0))){//服务器
+                            hostConfig.setDeviceType(0);
+                            this.getMacAndGetaway(hostConfig,dv);
+                        }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && dv.snmpWalk2(sw).isEmpty()){//路由器
+                            hostConfig.setDeviceType(1);
+                            mediaType=4;
+                        }else if ("2".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()) {//二层交换机
+                            hostConfig.setDeviceType(1);
+                            mediaType=2;
+                        }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()){//三层交换机
+                            hostConfig.setDeviceType(1);
+                            mediaType=3;
+                        }else {//未知设备
+                            hostConfig.setDeviceType(11);
+                        }
+                        this.getMediaType(hostConfig,dv,mediaType);
+                        hostConfig.setIsSnmp("1");
+                        hostConfig.setJobCron("0/30 * * * * ?");
+                        hostConfig.setId(ip);
+                        hostConfig.setTriggerStatus(1);
+                        hostConfigService.save(hostConfig);
 
-                }else {
-                    hostConfig.setJobCron("0/30 * * * * ?");
-                    hostConfig.setId(ip);
-                    hostConfig.setTriggerStatus(0);
-                    this.getHost(hostConfig);
-                    hostConfigService.save(hostConfig);
+                    }else {
+                        hostConfig.setJobCron("0/30 * * * * ?");
+                        hostConfig.setId(ip);
+                        hostConfig.setTriggerStatus(0);
+                        this.getHost(hostConfig);
+                        hostConfigService.save(hostConfig);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+                dv.close();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,7 +120,9 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
             e.printStackTrace();
         }
         List<String>  exists=hostConfigService.selectOnine();
-        ips.removeAll(exists);
+        if(null!=exists){
+            ips.removeAll(exists);
+        }
         return ips;
     }
 

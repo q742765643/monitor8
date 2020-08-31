@@ -52,8 +52,8 @@ public class NetworkTopyController {
         for (int i = 0; i < list.size(); i++) {
             HostConfigDto hostConfig = list.get(i);
             if (null != hostConfig.getMediaType() && (hostConfig.getMediaType()==2||hostConfig.getMediaType()==3)) {
+                SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                 try {
-                    SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                     if ("-1".equals(dv.getIsSnmpGet(PDU.GET, ".1.3.6.1.2.1.1.5").get(0))) {
                         continue;
                     }
@@ -72,12 +72,13 @@ public class NetworkTopyController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                dv.close();
             }
             if (null != hostConfig.getMediaType() &&hostConfig.getMediaType()==4) {
+                SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                 try {
                     String[] ipRouteNextHop = {".1.3.6.1.2.1.4.21.1.7"};//ipRouteNextHop
                     String[] ipRouteType = {".1.3.6.1.2.1.4.21.1.8"};//ipRouteType
-                    SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                     if ("-1".equals(dv.getIsSnmpGet(PDU.GET, ".1.3.6.1.2.1.1.5").get(0))) {
                         continue;
                     }
@@ -104,6 +105,7 @@ public class NetworkTopyController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                dv.close();
 
 
             }

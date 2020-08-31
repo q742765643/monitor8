@@ -39,15 +39,23 @@ public class SNMPH3cService extends SNMPService{
         List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
         final CountDownLatch latch = new CountDownLatch(2);
         new Thread(()->{
-            this.cpuMap(snmp,basicInfo,esList);
+            try {
+                this.cpuMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         new Thread(()->{
-            this.memoryMap(snmp,basicInfo,esList);
+            try {
+                this.memoryMap(snmp,basicInfo,esList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             latch.countDown();
         }).start();
         latch.await();
-
+        snmp.close();
         String indexName= IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT,date);
         for(Map<String,Object> source:esList){
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, IdUtils.fastUUID()).source(source);

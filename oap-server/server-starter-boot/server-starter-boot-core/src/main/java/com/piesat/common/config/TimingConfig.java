@@ -18,12 +18,13 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
 @Slf4j
 @Component
-@Order(1)
+@Order(10)
 public class TimingConfig implements ApplicationRunner {
     @Autowired
     private RedisUtil redisUtil;
@@ -49,15 +50,21 @@ public class TimingConfig implements ApplicationRunner {
             host=hosts.get(host);
         }
         if(StringUtil.isEmpty(host)){
-            host= NetUtils.getLocalHost();
+            List<String> grpcHosts=NetUtils.getLocalIP();
+            for(int i=0;i<grpcHosts.size();i++){
+                redisUtil.hset("GRPC.SERVER:"+name,grpcHosts.get(i)+":"+grpcPort,1);
+            }
+        }else {
+            String grpcHost=host;
+            redisUtil.hset("GRPC.SERVER:"+name,grpcHost+":"+grpcPort,1);
         }
-        String grpcHost=host;
+
         ThreadFactory timingPoolFactory = new ThreadFactoryBuilder().setNameFormat("grpc-worker-timing-pool-%d").build();
         ChannelUtil channelUtil= ChannelUtil.getInstance();
         timingPool = Executors.newScheduledThreadPool(2, timingPoolFactory);
         timingPool.scheduleWithFixedDelay (()->{
+            log.info("==执行服务发现线程==");
             try {
-                redisUtil.hset("GRPC.SERVER:"+name,grpcHost+":"+grpcPort,1);
                 for (String key : client.keySet()) {
                     Map<Object,Object> addresss=redisUtil.hmget("GRPC.SERVER:"+key);
                     addresss.forEach((a,b)->{
@@ -71,9 +78,10 @@ public class TimingConfig implements ApplicationRunner {
                             try {
                                 HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
                                 HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(channel);
-                                HealthCheckResponse response=stub.check(request);
+                                HealthCheckResponse response=stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
                                 status=response.getStatus().getValueDescriptor().toString();
                             } catch (Exception e) {
+                                redisUtil.hdel("GRPC.SERVER:"+key,address);
                                 log.info("grpc {} 心跳检测失败",address);
                             }finally {
                                 if(status.equals("SERVING")) {
@@ -87,14 +95,14 @@ public class TimingConfig implements ApplicationRunner {
                             try {
                                 HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
                                 HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(channel);
-                                HealthCheckResponse response=stub.check(request);
+                                HealthCheckResponse response=stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
                                 status=response.getStatus().getValueDescriptor().toString();
                             } catch (Exception e) {
+                                redisUtil.hdel("GRPC.SERVER:"+key,address);
                                 log.info("grpc {} 心跳检测失败",address);
                             }finally {
                                 if(status.equals("SERVING")){
                                     channelUtil.getChannel().get(key).put(address,channel);
-
                                 }
                             }
                         }
@@ -108,6 +116,7 @@ public class TimingConfig implements ApplicationRunner {
 
         }, 0, 30, TimeUnit.SECONDS);
         timingPool.scheduleWithFixedDelay(()->{
+            log.info("==执行心跳监测线程==");
             try {
                 ConcurrentHashMap<String, ConcurrentHashMap<String,ManagedChannel>>  channelMap=channelUtil.getChannel();
                 channelMap.forEach((k,v)->{
@@ -116,7 +125,7 @@ public class TimingConfig implements ApplicationRunner {
                         try {
                             HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
                             HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(b);
-                            HealthCheckResponse response=stub.check(request);
+                            HealthCheckResponse response=stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
                             status=response.getStatus().getValueDescriptor().toString();
                         } catch (Exception e) {
                             log.info("grpc {} 心跳检测失败",a);
