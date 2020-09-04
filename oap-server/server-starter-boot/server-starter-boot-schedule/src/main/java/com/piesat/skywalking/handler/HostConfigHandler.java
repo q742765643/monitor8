@@ -3,7 +3,9 @@ package com.piesat.skywalking.handler;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.base.BaseHandler;
+import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
 import com.piesat.skywalking.schedule.service.snmp.*;
+import com.piesat.util.OwnException;
 import com.piesat.util.ResultT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,16 +34,24 @@ public class HostConfigHandler implements BaseHandler {
             String ip= hostConfigDto.getIp();
             String os= hostConfigDto.getOs();
             Date date=new Date(System.currentTimeMillis());
-            if(os.indexOf("Cisco")!=-1){
-                snmpCiscoService.getSystemInfo(ip,"161","2",date);
-            }else if(os.indexOf("Ruijie")!=-1){
-                snmpRuijieService.getSystemInfo(ip,"161","2",date);
-            }else if(os.indexOf("H3C S5130")!=-1){
-                snmph3cService.getSystemInfo(ip,"161","2",date);
-            }else if(os.indexOf("Windows")!=-1){
-                snmpWindowsService.getSystemInfo(ip,"161","2",date);
-            }else {
-                snmpLinuxService.getSystemInfo(ip,"161","2",date);
+            SNMPSessionUtil snmp=new SNMPSessionUtil(ip,"161","public", "2");
+            try {
+                if(os.indexOf("Cisco")!=-1){
+                    snmpCiscoService.getSystemInfo(ip,"161","2",date,snmp);
+                }else if(os.indexOf("Ruijie")!=-1){
+                    snmpRuijieService.getSystemInfo(ip,"161","2",date,snmp);
+                }else if(os.indexOf("H3C S5130")!=-1){
+                    snmph3cService.getSystemInfo(ip,"161","2",date,snmp);
+                }else if(os.indexOf("Windows")!=-1){
+                    snmpWindowsService.getSystemInfo(ip,"161","2",date,snmp);
+                }else {
+                    snmpLinuxService.getSystemInfo(ip,"161","2",date,snmp);
+                }
+            } catch (Exception e) {
+                log.error("ip:{}采集失败,错误信息为:{}",ip, OwnException.get(e));
+
+            }finally {
+                snmp.close();
             }
             long endTime=System.currentTimeMillis();
             log.info("{}snmp采集结束,耗时{}s",ip,(endTime-startTime)/1000);

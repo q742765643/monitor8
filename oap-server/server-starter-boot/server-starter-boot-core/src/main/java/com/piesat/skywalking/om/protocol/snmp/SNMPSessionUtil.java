@@ -50,7 +50,7 @@ public class SNMPSessionUtil {
             communityTarget.setCommunity(new OctetString(community));
             communityTarget.setAddress(targetAddress);
             // 通信不成功重复次数
-            communityTarget.setRetries(1);
+            communityTarget.setRetries(0);
             // 超时时间
             communityTarget.setTimeout(2 * 1000);
             // 设置版本

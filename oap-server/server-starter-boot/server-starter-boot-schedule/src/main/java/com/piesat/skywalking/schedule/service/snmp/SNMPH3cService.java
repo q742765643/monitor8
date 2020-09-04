@@ -25,37 +25,17 @@ public class SNMPH3cService extends SNMPService{
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
     @SneakyThrows
-    public void getSystemInfo(String hostComputer, String port, String version, Date date){
+    @Override
+    public void getSystemInfo(String hostComputer, String port, String version, Date date,SNMPSessionUtil snmp){
         BulkRequest request = new BulkRequest();
-        SNMPSessionUtil snmp=new SNMPSessionUtil(hostComputer,port,"public", version);
         Map<String,Object> basicInfo=this.getBasicInfo(snmp);
-        if(basicInfo==null){
-            return;
-        }
         basicInfo.put("ip",hostComputer);
         basicInfo.put("port",port);
         basicInfo.put("version",version);
         basicInfo.put("@timestamp",date);
-        List<Map<String,Object>> esList = new CopyOnWriteArrayList<Map<String,Object>>();
-        final CountDownLatch latch = new CountDownLatch(2);
-        new Thread(()->{
-            try {
-                this.cpuMap(snmp,basicInfo,esList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            latch.countDown();
-        }).start();
-        new Thread(()->{
-            try {
-                this.memoryMap(snmp,basicInfo,esList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            latch.countDown();
-        }).start();
-        latch.await();
-        snmp.close();
+        List<Map<String,Object>> esList = new ArrayList<Map<String,Object>>();
+        this.cpuMap(snmp,basicInfo,esList);
+        this.memoryMap(snmp,basicInfo,esList);
         String indexName= IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT,date);
         for(Map<String,Object> source:esList){
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, IdUtils.fastUUID()).source(source);
@@ -66,7 +46,8 @@ public class SNMPH3cService extends SNMPService{
     }
     @SneakyThrows
     public Map<String,Object> getBasicInfo(SNMPSessionUtil snmp){
-        Map<String,Object> basicInfo=new HashMap<>();
+        Map<String,Object> basicInfo= null;
+        basicInfo = new HashMap<>();
         String[] sysDesc = {SNMPConstants.SYSDESC};
         ArrayList<String> sysDescs=snmp.getSnmpGet(PDU.GET,sysDesc);
         String[] sysName = {SNMPConstants.SYSNAME};
