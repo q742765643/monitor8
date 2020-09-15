@@ -15,8 +15,6 @@ export default {
     drawheatMap(id) {
       //获取横轴刻度
       var nowh = moment().hour();
-      var ttt = moment().format('YYYY/MM/DD');
-      debugger;
       var h = '';
       var xArray = [];
       xArray.push(nowh);
@@ -57,8 +55,6 @@ export default {
         value = Math.floor(Math.random() * (1 - 4)) + 4;
         data.push([x, y, value]);
       }
-
-      debugger;
 
       let option = {
         tooltip: {

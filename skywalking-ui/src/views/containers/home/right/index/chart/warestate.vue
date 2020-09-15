@@ -57,7 +57,7 @@ export default {
         mockData.push(...data);
       }
       // var data = this.getData();
-      debugger;
+
       //假数据
       /*   mockData = [
         {
@@ -181,7 +181,6 @@ export default {
         //鼠标提示
         tooltip: {
           formatter: function(params) {
-            debugger;
             return params.seriesName + '</br>' + params.value[1] + '~' + params.value[2];
           },
         },

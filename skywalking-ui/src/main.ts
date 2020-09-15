@@ -40,27 +40,21 @@ import { queryOAPTimeInfo } from './utils/localtime';
 import './assets';
 /* import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css'; */
-import Pagination from "@/components/Pagination/index.vue";
+import Pagination from '@/components/Pagination/index.vue';
 
+import { parseTime, resetForm, addDateRange } from '@/components/util';
 
+import './static/iconfont/iconfont.css';
+import 'lib-flexible';
 
-import {
-  parseTime,
-  resetForm,
-  addDateRange
-} from "@/components/util";
-
-import "./static/iconfont/iconfont.css";
-import 'lib-flexible'
-
-Vue.prototype.parseTime = parseTime
-Vue.prototype.resetForm = resetForm
-Vue.prototype.addDateRange = addDateRange
+Vue.prototype.parseTime = parseTime;
+Vue.prototype.resetForm = resetForm;
+Vue.prototype.addDateRange = addDateRange;
 declare module 'vue/types/vue' {
   interface Vue {
-    parseTime(time: any, pattern: String): any
-    resetForm(refName: any): any
-    addDateRange(params: any, dateRange: any): any
+    parseTime(time: any, pattern: String): any;
+    resetForm(refName: any): any;
+    addDateRange(params: any, dateRange: any): any;
   }
 }
 Vue.use(eventBus);
@@ -72,12 +66,7 @@ Vue.directive('tooltip', tooltip);
 /* Vue.use(ElementUI); */
 Vue.component('Pagination', Pagination);
 
-
-Vue.filter(
-  'dateformat',
-  (dataStr: any, pattern: string = 'YYYY-MM-DD HH:mm:ss') =>
-    moment(dataStr).format(pattern),
-);
+Vue.filter('dateformat', (dataStr: any, pattern: string = 'YYYY-MM-DD HH:mm:ss') => moment(dataStr).format(pattern));
 
 const savedLanguage = window.localStorage.getItem('lang');
 let language = navigator.language.split('-')[0];

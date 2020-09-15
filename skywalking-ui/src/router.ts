@@ -27,17 +27,16 @@ import Profile from './views/containers/profile.vue';
 import AutoDiscovery from './views/config/autoDiscovery.vue';
 import networkTopology from './views/containers/topology/networkTopology.vue';
 
-
 import Home from './views/containers/home/home.vue';
 import mainer from './views/containers/home/right/index/mainer.vue';
-import topu from './views/containers/home/right/topu/topu.vue';
+import topu from './views/containers/home/right/topu/topu/topu.vue';
 
 Vue.use(Router);
+
 window.axiosCancel = [];
 
-
 const router = new Router({
-  mode: 'history',
+  // mode: 'history',
   base: process.env.BASE_URL,
   linkActiveClass: 'active',
   routes: [
@@ -89,18 +88,29 @@ const router = new Router({
         {
           path: '',
           component: mainer,
-        }, {
+        },
+        {
           path: 'mainer',
           component: mainer,
         },
         {
           path: 'topu',
           component: topu,
-        }
+        },
+        {
+          path: 'topuConfig',
+          component: () => import('./views/containers/home/right/topu/config/config.vue'),
+        },
+        {
+          path: 'manager',
+          component: () => import('./views/containers/home/right/topu/manager/index.vue'),
+        },
+        {
+          path: 'resource',
+          component: () => import('./views/containers/home/right/host/resource/index.vue'),
+        },
       ],
     },
-
-
   ],
 });
 

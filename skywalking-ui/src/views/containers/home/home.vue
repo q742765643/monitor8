@@ -8,9 +8,8 @@
         <upper></upper>
       </div>
       <div class="content">
-       
-          <!-- <mainer></mainer> -->
-          <router-view></router-view>
+        <!-- <mainer></mainer> -->
+        <router-view></router-view>
       </div>
     </div>
   </div>
@@ -18,7 +17,7 @@
 
 <script>
 import naver from './left/naver';
-import upper from './right/upper';
+import upper from './top/upper';
 import mainer from './right/index/mainer';
 export default {
   components: { naver, upper, mainer },
@@ -43,7 +42,7 @@ export default {
       background-color: #ffffff;
     }
     .content {
-       height: 12.5rem;     
+      height: 12.5rem;
     }
   }
 }
