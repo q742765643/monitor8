@@ -22,12 +22,14 @@ import java.util.concurrent.TimeUnit;
 public class TriggerService {
     @GrpcHthtClient
     private RemoteService remoteService;
-    private ExecutorService executorService= new ThreadPoolExecutor(800, 800,
+    @Autowired
+    private ExecutorService executorTriggerService;
+    /*private ExecutorService executorService= new ThreadPoolExecutor(800, 800,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("trigger-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
+            new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("trigger-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());*/
 
     public void trigger(HtJobInfoDto jobInfoDto){
-        executorService.execute(()->{
+        executorTriggerService.execute(()->{
             ResultT<String> resultT=new ResultT<>();
             JobContext jobContext=new JobContext();
             long triggerLastTime=jobInfoDto.getTriggerLastTime();

@@ -39,16 +39,17 @@ public class GrpcClientService {
             htJobInfoDto= (HtJobInfoDto) jobContext.getHtJobInfoDto();
         }
         Channel channel=null;
-        if(null!=htJobInfoDto&&!StringUtil.isEmpty(htJobInfoDto.getAddress())){
-            channel=channelUtil.selectChannel(serverName,htJobInfoDto.getAddress());
-        }else {
-            channel=channelUtil.selectChannel(serverName);
-        }
-        if(channel==null){
+        try {
+            if(null!=htJobInfoDto&&!StringUtil.isEmpty(htJobInfoDto.getAddress())){
+                channel=channelUtil.selectChannel(serverName,htJobInfoDto.getAddress());
+            }else {
+                channel=channelUtil.selectChannel(serverName);
+            }
+        } catch (Exception e) {
             log.error("通道为null{},{}",grpcRequest.getClazz(),grpcRequest.getMethod());
             GrpcResponse response=new GrpcResponse();
-            response.setStatus(-1);
-            response.setMessage("获取通道错误!");
+            response.setStatus(-2);
+            response.setMessage("grpc无服务异常");
             return response;
         }
         CommonServiceGrpc.CommonServiceBlockingStub blockingStub=CommonServiceGrpc.newBlockingStub(channel);
@@ -61,13 +62,19 @@ public class GrpcClientService {
             response = blockingStub.handle(request);
         }catch (Exception exception){
             log.error("rpc exception: {}", exception.getMessage());
+            throw new RuntimeException(exception.getMessage());
+        }
+       /* try{
+            response = blockingStub.handle(request);
+        }catch (Exception exception){
+            log.error("rpc exception: {}", exception.getMessage());
             GrpcResponse response1=new GrpcResponse();
             response1.setStatus(-1);
             String message = exception.getCause().getClass().getName() + ": " + exception.getCause().getMessage();
             response1.error(message, exception.getCause(), exception.getCause().getStackTrace());
             return response1;
 
-        }
+        }*/
         return serializeService.deserialize(response);
     }
 }

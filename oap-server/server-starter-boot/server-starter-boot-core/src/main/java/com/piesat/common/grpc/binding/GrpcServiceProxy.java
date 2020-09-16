@@ -55,17 +55,18 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
         ChannelUtil channelUtil= ChannelUtil.getInstance();
         String serverName=channelUtil.getGrpcServerName().get(className);
         GrpcResponse response = null;
-        try {
-            response = grpcClientService.handle(serializeType, request,serverName);
-        } catch (Exception e) {
-            response=new GrpcResponse();
-            response.setException(e);
-            response.setStatus(-1);
-            //e.printStackTrace();
+
+        response = grpcClientService.handle(serializeType, request,serverName);
+        if(response==null){
+            throw new RuntimeException("grpc 调用未知异常");
         }
+
         //log.info("grpc{}.{},返回码{}",request.getClazz(),request.getMethod(),response.getStatus());
 
-        if (GrpcResponseStatus.ERROR.getCode() == response.getStatus()) {
+        if (GrpcResponseStatus.SUCCESS.getCode() != response.getStatus()) {
+            if(response.getStatus()==-2){
+                throw new RuntimeException("gprc 未发现可用服务");
+            }
             Throwable throwable = response.getException();
             GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());
             StackTraceElement[] exceptionStackTrace = exception.getStackTrace();
