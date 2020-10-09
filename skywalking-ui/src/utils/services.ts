@@ -1,16 +1,12 @@
-import axios from 'axios';
-
-let instance = axios.create({
-  baseURL: 'http://10.1.100.96:12800',
-  timeout: 6000,
-});
+import request from '@/utils/request';
 
 const dataService = {
   getMonitorViewVo() {
     return new Promise((resolve, reject) => {
-      instance
-        .get('/main/getMonitorViewVo')
-        .then((res) => {
+      request({
+        url: '/main/getMonitorViewVo',
+        method: 'get',
+      }).then((res) => {
           resolve(res);
         })
         .catch((err) => {
@@ -21,9 +17,10 @@ const dataService = {
 
   getAlarmDistribution() {
     return new Promise((resolve, reject) => {
-      instance
-        .get('/main/getAlarmDistribution')
-        .then((res) => {
+      request({
+        url: '/main/getAlarmDistribution',
+        method: 'get',
+      }).then((res) => {
           resolve(res);
         })
         .catch((err) => {
@@ -34,8 +31,10 @@ const dataService = {
 
   getAlarm() {
     return new Promise((resolve, reject) => {
-      instance
-        .get('/main/getAlarm')
+      request({
+        url: '/main/getAlarm',
+        method: 'get',
+      })
         .then((res) => {
           resolve(res);
         })
@@ -47,9 +46,10 @@ const dataService = {
 
   getDeviceStatus() {
     return new Promise((resolve, reject) => {
-      instance
-        .get('/main/getDeviceStatus')
-        .then((res) => {
+      request({
+        url: '/main/getDeviceStatus',
+        method: 'get',
+      }).then((res) => {
           resolve(res);
         })
         .catch((err) => {

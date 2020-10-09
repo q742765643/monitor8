@@ -160,7 +160,7 @@ const actions: ActionTree<State, any> = {
       variablesList.map((variable: any) => {
         if (variable) {
           return axios
-            .post('http://10.1.100.96:12800/graphql', { query, variables: variable }, { cancelToken: cancelToken() })
+            .post('/graphql', { query, variables: variable }, { cancelToken: cancelToken() })
             .then((res: AxiosResponse<any>) => {
               const resData = res.data.data;
 

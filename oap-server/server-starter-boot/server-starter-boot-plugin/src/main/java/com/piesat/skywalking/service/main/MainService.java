@@ -133,6 +133,9 @@ public class MainService {
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG+"-*", searchSourceBuilder);
             Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return null;
+            }
             ParsedLongTerms parsedLongTerms=aggregations.get("device_type");
             if(parsedLongTerms==null){
                 return null;

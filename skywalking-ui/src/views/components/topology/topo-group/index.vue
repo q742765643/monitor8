@@ -90,7 +90,7 @@ export default class TopoGroup extends Vue {
     this.GET_TOPO({ duration: this.durationTime, serviceIds: this.services.map((i) => i.key) });
   }
   private fetchData() {
-    return Axios.post('http://10.1.100.96:12800/graphql', {
+    return Axios.post('/graphql', {
       query: `
           query queryServices($duration: Duration!) {
             services: getAllServices(duration: $duration) {
