@@ -23,5 +23,11 @@ public class ThreadPoolConfig {
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("insert-oper-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
     }
+    @Bean
+    public ExecutorService executorTriggerService(){
+        return new ThreadPoolExecutor(200, 200,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("trigger-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
+    }
 }
 
