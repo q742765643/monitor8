@@ -20,6 +20,18 @@
     src: url(../fonts/DS-DIGIT.TTF);
 }
 
+@font-face {
+    font-family: regular;
+    font-display: swap;
+    src: url('../fonts/regular/webfont.eot');
+    /* IE9 */
+    src: url('../fonts/regular/webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/regular/webfont.woff2') format('woff2'), url('../fonts/regular/webfont.woff') format('woff'), /* chrome、firefox */
+    url('../fonts/regular/webfont.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    url('../fonts/regular/webfont.svg#webfont') format('svg');
+    /* iOS 4.1- */
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -106,4 +118,81 @@ body {
     background-color: #000000e6;
     padding: 10px 8px;
     box-shadow: rgb(174, 174, 174) 0px 0px 10px;
+}
+
+.vxe-table {
+    font-size: 12px !important;
+}
+
+.vxe-table .vxe-cell--checkbox .vxe-checkbox--icon:before {
+    border: 1px solid #dcdfe6 !important;
+}
+
+.vxe-table .vxe-body--column:not(.col--ellipsis) {
+    padding: 0.1rem 0 !important;
+}
+
+.vxe-table.border--full .vxe-body--column {
+    height: 0.6rem !important;
+}
+
+.date-picker--box {
+    padding: 0 !important;
+}
+
+.date-picker--panel-body td {
+    padding: 0 !important;
+}
+
+.vxe-table .vxe-cell {
+    white-space: pre-line;
+    word-break: break-all;
+    padding: 0 !important;
+    text-align: center;
+}
+
+.vxe-table .vxe-table--body-wrapper::-webkit-scrollbar {
+    width: 0.15rem;
+    background-color: #f6f7f9;
+}
+
+.vxe-table .vxe-table--body-wrapper::-webkit-scrollbar-thumb {
+    background-color: #d8dce8;
+}
+
+.vxe-table .vxe-table--body-wrapper::-webkit-scrollbar-track {
+    //box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.3);
+    background-color: #f6f7f9;
+}
+
+.vxe-input--inner {
+    height: 0.375rem !important;
+}
+
+.vue-treeselect--open-below .vue-treeselect__menu::-webkit-scrollbar {
+    width: 0.15rem;
+    background-color: #f6f7f9;
+}
+
+.vue-treeselect--open-below .vue-treeselect__menu::-webkit-scrollbar-thumb {
+    background-color: #d8dce8;
+}
+
+.vue-treeselect--open-below .vue-treeselect__menu::-webkit-scrollbar-track {
+    //box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.3);
+    background-color: #f6f7f9;
+}
+
+.vxe-modal--content::-webkit-scrollbar {
+    width: 0.15rem;
+    background-color: #f6f7f9;
+}
+
+.vxe-modal--content::-webkit-scrollbar-thumb {
+    background-color: #d8dce8;
+}
+
+.vxe-modal--content::-webkit-scrollbar-track {
+    //box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.3);
+    background-color: #f6f7f9;
 }

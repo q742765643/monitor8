@@ -18,79 +18,79 @@ limitations under the License. -->
   </div>
 </template>
 <script lang="ts">
-import { DurationTime } from '@/types/global';
-import compareObj from '@/utils/comparison';
-import Axios, { AxiosResponse } from 'axios';
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import { Action, Getter, Mutation } from 'vuex-class';
-import TopoSelect from '../../../components/topology/topo-select.vue';
+  import { DurationTime } from '@/types/global';
+  import compareObj from '@/utils/comparison';
+  import Axios, { AxiosResponse } from 'axios';
+  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { Action, Getter, Mutation } from 'vuex-class';
+  import TopoSelect from '../../../components/topology/topo-select.vue';
 
-@Component({ components: { TopoSelect } })
-export default class TopoServices extends Vue {
-  @Getter('durationTime') public durationTime: any;
-  @Action('rocketTopoNetwork/GET_TOPO') public GET_TOPO: any;
-  @Mutation('rocketTopoGroup/UNSELECT_GROUP') private UNSELECT_GROUP: any;
-  private services = [{ key: 0, label: 'All services' }];
-  private service = { key: 0, label: 'All services' };
+  @Component({ components: { TopoSelect } })
+  export default class TopoServices extends Vue {
+    @Getter('durationTime') public durationTime: any;
+    @Action('rocketTopoNetwork/GET_TOPO') public GET_TOPO: any;
+    @Mutation('rocketTopoGroup/UNSELECT_GROUP') private UNSELECT_GROUP: any;
+    private services = [{ key: 0, label: 'All services' }];
+    private service = { key: 0, label: 'All services' };
 
-  private fetchData() {
-    Axios.post('http://10.1.100.96:12800/graphql', {
-      query: `
+    private fetchData() {
+      Axios.post('http://10.1.100.35:12800/graphql', {
+        query: `
       query queryServices($duration: Duration!) {
         services: getAllServices(duration: $duration) {
           key: id
           label: name
         }
       }`,
-      variables: {
-        duration: this.durationTime,
-      },
-    }).then((res: AxiosResponse) => {
-      this.services = res.data.data.services
-        ? [{ key: 0, label: 'All services' }, ...res.data.data.services]
-        : [{ key: 0, label: 'All services' }];
-    });
-  }
-
-  @Watch('durationTime')
-  private watchDurationTime(newValue: DurationTime, oldValue: DurationTime) {
-    // Avoid repeating fetchData() after enter the component for the first time.
-    if (compareObj(newValue, oldValue)) {
-      this.fetchData();
-    }
-  }
-
-  private handleChange(i: any) {
-    this.service = i;
-    this.UNSELECT_GROUP();
-    this.GET_TOPO({
-      serviceId: this.service.key,
-      duration: this.durationTime,
-    });
-  }
-
-  private created() {
-    this.fetchData();
-    const groups = localStorage.getItem('topology-groups');
-    if (groups) {
-      const jsonGroup = JSON.parse(groups);
-      if (!jsonGroup.length) {
-        this.GET_TOPO({
-          serviceId: 0,
+        variables: {
           duration: this.durationTime,
-        });
+        },
+      }).then((res: AxiosResponse) => {
+        this.services = res.data.data.services
+          ? [{ key: 0, label: 'All services' }, ...res.data.data.services]
+          : [{ key: 0, label: 'All services' }];
+      });
+    }
+
+    @Watch('durationTime')
+    private watchDurationTime(newValue: DurationTime, oldValue: DurationTime) {
+      // Avoid repeating fetchData() after enter the component for the first time.
+      if (compareObj(newValue, oldValue)) {
+        this.fetchData();
       }
-    } else {
+    }
+
+    private handleChange(i: any) {
+      this.service = i;
+      this.UNSELECT_GROUP();
       this.GET_TOPO({
         serviceId: this.service.key,
         duration: this.durationTime,
       });
     }
+
+    private created() {
+      this.fetchData();
+      const groups = localStorage.getItem('topology-groups');
+      if (groups) {
+        const jsonGroup = JSON.parse(groups);
+        if (!jsonGroup.length) {
+          this.GET_TOPO({
+            serviceId: 0,
+            duration: this.durationTime,
+          });
+        }
+      } else {
+        this.GET_TOPO({
+          serviceId: this.service.key,
+          duration: this.durationTime,
+        });
+      }
+    }
   }
-}
 </script>
 <style lang="scss">
-.topo-server.dao-select .dao-select-main .dao-select-switch {
-  border: 0;
-}
+  .topo-server.dao-select .dao-select-main .dao-select-switch {
+    border: 0;
+  }
 </style>

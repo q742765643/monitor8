@@ -27,7 +27,17 @@
         <span class="iconfont icondelete">删除</span>
       </div>
       <div class="tableEdit">
-        <div class="title">
+        <vxe-table border ref="xTable2" :data="tableInfo" align="center" :checkbox-config="{ labelField: 'id' }">
+          <!--   <vxe-table-column field="id" title="序号"></vxe-table-column> -->
+          <vxe-table-column type="checkbox" title="序号"></vxe-table-column>
+          <vxe-table-column field="netname" title="网段名称"></vxe-table-column>
+          <vxe-table-column field="sIP" title="起始IP"></vxe-table-column>
+          <vxe-table-column field="eIP" title="结束IP"></vxe-table-column>
+          <vxe-table-column field="cTime" title="创建时间" show-overflow></vxe-table-column>
+        </vxe-table>
+        <!--   :checkbox-config="{ labelField: 'netname' }" -->
+        <!-- <div class="title">
+          :checkbox-config="{labelField: 'name'}"
           <span class="number">序号</span>
           <span class="netname">网段名称</span>
           <span class="sIP">起始IP</span>
@@ -44,7 +54,7 @@
           <span class="sIP">{{ item.sIP }}</span>
           <span class="eIP">{{ item.eIP }}</span>
           <span class="cTime">{{ item.cTime }}</span>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -55,12 +65,12 @@
     data() {
       return {
         tableInfo: [
-          { netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
-          { netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
-          { netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
-          { netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
-          { netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
-          { netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
+          { id: '1', netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
+          { id: '2', netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
+          { id: '3', netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
+          { id: '4', netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
+          { id: '5', netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
+          { id: '6', netname: '机房网段', sIP: '10.65.24.1', eIP: '10.65.24.159', cTime: '2019-08-24' },
         ],
       };
     },
@@ -75,38 +85,39 @@
     background: #eef5fd;
     width: 20rem;
 
-    font-weight: 600;
+    //font-weight: 600;
+
     .contnet {
       height: 11.625rem;
       width: 19.625rem;
       background: white;
       padding-left: 0.375rem;
+      font-size: 0.2rem;
       input[type='text'] {
-        height: 0.45rem;
+        height: 0.35rem;
         font-size: 16px;
-        width: 2.5rem;
-        border: 1px solid #c9c1c1 !important;
-        border-radius: 0.0375rem;
+        width: 2rem;
+        // border: 1px solid #c9c1c1 !important;
+        border: 1px solid #dcdfe6;
+        border-radius: 0.05rem;
         &:focus {
           outline: none !important;
-          border: 2px solid #0f9fec !important;
+          border: 1px solid #0f9fec !important;
         }
       }
       .name {
         padding-top: 0.25rem;
         input {
-          width: 4rem;
+          width: 2.5rem;
         }
         span {
           line-height: 0.5rem;
-          font-size: 0.24rem;
         }
       }
       .startIP {
         margin-top: 0.25rem;
         span {
           line-height: 0.5rem;
-          font-size: 0.24rem;
         }
         .ip {
           display: flex;
@@ -119,7 +130,6 @@
         margin-top: 0.25rem;
         span {
           line-height: 0.5rem;
-          font-size: 0.24rem;
         }
         .ip {
           line-height: 0.5rem;
@@ -134,14 +144,25 @@
         display: flex;
         justify-content: flex-end;
         span {
+          color: #409eff;
+          background: #ecf5ff;
+          cursor: pointer;
+          &:hover {
+            background: #409eff;
+            color: #fff;
+          }
+
+          padding: 0.0625rem 0.125rem;
+          border: 1px solid #b3d8ff;
+          border-radius: 0.05rem;
           display: block;
           font-weight: 500;
           margin-left: 0.1875rem;
-          font-size: 0.25rem;
-          cursor: pointer;
+          font-size: 0.2rem;
         }
       }
       .tableEdit {
+        padding-right: 0.3rem;
         margin-top: 0.5rem;
         width: 100%;
         div:nth-child(2n) {

@@ -125,7 +125,6 @@
       this.ringList = [];
       //告警分布
       services.getAlarmDistribution().then((res) => {
-        debugger;
         if ((res.status == 200) & (res.data.code == 200)) {
           res.data.data.forEach((item) => {
             if (item.num && item.classify) {

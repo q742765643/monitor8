@@ -74,27 +74,27 @@ const actions: ActionTree<State, any> = {
       if (config.entityType === 'All') {
         variables = names.includes(config.queryMetricType)
           ? {
-            duration: params.duration,
-            condition: {
-              name,
-              parentService: null,
-              normal: true,
-              scope: config.entityType,
-              topN: 10,
-              order: config.sortOrder || 'DES',
-            },
-          }
-          : {
-            duration: params.duration,
-            condition: {
-              name,
-              entity: {
-                scope: config.entityType,
+              duration: params.duration,
+              condition: {
+                name,
+                parentService: null,
                 normal: true,
+                scope: config.entityType,
+                topN: 10,
+                order: config.sortOrder || 'DES',
               },
-            },
-            labels,
-          };
+            }
+          : {
+              duration: params.duration,
+              condition: {
+                name,
+                entity: {
+                  scope: config.entityType,
+                  normal: true,
+                },
+              },
+              labels,
+            };
       } else {
         if (names.includes(config.queryMetricType)) {
           const parentService = normal ? currentServiceId : currentDatabaseId;
@@ -160,7 +160,7 @@ const actions: ActionTree<State, any> = {
       variablesList.map((variable: any) => {
         if (variable) {
           return axios
-            .post('http://10.1.100.96:12800/graphql', { query, variables: variable }, { cancelToken: cancelToken() })
+            .post('http://10.1.100.35:12800/graphql', { query, variables: variable }, { cancelToken: cancelToken() })
             .then((res: AxiosResponse<any>) => {
               const resData = res.data.data;
 

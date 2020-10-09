@@ -15,7 +15,6 @@
     },
     created() {
       this.legendData = this.peiData.map((item) => item.name);
-      debugger;
     },
     methods: {
       drawPie(id) {
@@ -39,9 +38,9 @@
               fontSize: 18,
             },
           },
-           tooltip: {
-        trigger: 'axis'
-    },
+          tooltip: {
+            trigger: 'axis',
+          },
           series: [
             {
               type: 'pie',

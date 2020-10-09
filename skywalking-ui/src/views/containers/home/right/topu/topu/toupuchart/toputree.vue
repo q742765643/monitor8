@@ -24,13 +24,89 @@
         <span>其他区</span>
       </div>
     </div>
-    <editWindow v-if="showEditWindow"></editWindow>
+    <!--   <editWindow :showEditWindow="showEditWindow"></editWindow> -->
     <mointorWindow v-if="showMointorWindow"></mointorWindow>
+
+    <!--  编辑框 -->
+    <template>
+      <vxe-modal :mask="false" v-model="showEditWindow" size="mini" title="添加设备">
+        <vxe-form ref="xForm" title-width="80" title-align="right" :title-colon="true">
+          <vxe-form-item title="设备别名" field="othername" span="24">
+            <template v-slot="scope">
+              <vxe-input placeholder="请输入设备别名" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+            </template>
+          </vxe-form-item>
+
+          <vxe-form-item title="设备名称" field="name" span="24">
+            <!--   <template v-slot="scope">
+          <vxe-input placeholder="请输入设备名称" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+        </template> -->
+            hostname
+          </vxe-form-item>
+
+          <vxe-form-item title="设备IP" field="IP" span="24">
+            <!--  <template v-slot="scope">
+          <vxe-input placeholder="请输入设备IP" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+        </template> -->
+            192.168.0.1
+          </vxe-form-item>
+
+          <vxe-form-item title="网关" field="gateway" span="24">
+            <!--  <template v-slot="scope">
+          <vxe-input placeholder="请输入网关" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+        </template> -->
+            114.108.12.155
+          </vxe-form-item>
+
+          <vxe-form-item title="监视方式" field="monitorType" span="24">
+            <vxe-select v-model="monitor" placeholder="默认尺寸">
+              <vxe-option v-for="(item, index) in monitorType" :key="index" :value="item" :label="item"></vxe-option>
+            </vxe-select>
+          </vxe-form-item>
+
+          <vxe-form-item title="设备类型" field="deviceType" span="24">
+            <!--  <template v-slot="scope">
+          <vxe-input placeholder="请输入设备类型" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+        </template> -->
+
+            <vxe-select v-model="type" placeholder="默认尺寸">
+              <vxe-option v-for="(item, index) in deviceType" :key="index" :value="item" :label="item"></vxe-option>
+            </vxe-select>
+          </vxe-form-item>
+
+          <vxe-form-item title="设备负责人" field="devCharge" span="24">
+            <template v-slot="scope">
+              <vxe-input placeholder="请输入设备负责人" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+            </template>
+          </vxe-form-item>
+
+          <vxe-form-item title="区域" field="position" span="24">
+            <!-- <template v-slot="scope">
+          <vxe-input placeholder="请输入设备负责人" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+        </template> -->
+            <vxe-select v-model="position" placeholder="默认尺寸">
+              <vxe-option v-for="(item, index) in positionType" :key="index" :value="item" :label="item"></vxe-option>
+            </vxe-select>
+          </vxe-form-item>
+          <vxe-form-item title="详细地址" field="address" span="24">
+            <template v-slot="scope">
+              <vxe-input placeholder="请输入详细地址" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
+            </template>
+          </vxe-form-item>
+
+          <vxe-form-item align="center" span="24">
+            <template v-slot>
+              <vxe-button type="submit" status="primary">保存</vxe-button>
+            </template>
+          </vxe-form-item>
+        </vxe-form>
+      </vxe-modal>
+    </template>
   </div>
 </template>
 
 <script>
-  import editWindow from '../window/editwindow';
+  /*   import editWindow from '../window/editwindow'; */
   import mointorWindow from '../window/mointorwindow';
   import echarts from 'echarts';
   import Icon from '../toupuchart/iconBase64';
@@ -43,6 +119,15 @@
   export default {
     data() {
       return {
+        //编辑框
+        monitor: 'snmp协议接口',
+        type: 'windows服务器',
+        position: '机房区',
+        deviceType: ['windows服务器', 'linux服务器', '打印机', '交换机', '监视器', '其它'],
+        monitorType: ['snmp协议接口', '代理接口', 'ping'],
+        positionType: ['机房区', '值班区', '办公区四楼', '办公区五楼', '其它'],
+
+        //
         timeer: null,
         showEditWindow: false,
         showMointorWindow: false,
@@ -195,7 +280,7 @@
         },
       };
     },
-    components: { editWindow, mointorWindow },
+    components: { mointorWindow },
     mounted() {
       this.$nextTick(() => {
         this.drawRectTree();
@@ -206,7 +291,7 @@
         let sortByCombo = true;
         let width = document.getElementById('mountNode').clientWidth;
         // let height = document.getElementById('mountNode').clientHeight;
-        debugger;
+
         let graph = new G6.Graph({
           width,
           container: 'mountNode',

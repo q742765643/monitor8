@@ -25,23 +25,10 @@
               </span>
               <span>{{ infoData.alias }}</span>
             </div>
-            <div class="cell">
-              <span>
-                区域:
-                <i></i>
-              </span>
-              <span>{{ infoData.name }}</span>
-            </div>
+
             <div class="cell">
               <span>
                 IP地址:
-                <i></i>
-              </span>
-              <span>{{ infoData.ip }}</span>
-            </div>
-            <div class="cell">
-              <span>
-                丢包率:
                 <i></i>
               </span>
               <span>{{ infoData.ip }}</span>
@@ -53,12 +40,20 @@
               </span>
               <span>{{ infoData.DNS }}</span>
             </div>
+
             <div class="cell">
               <span>
                 设备类型:
                 <i></i>
               </span>
               <span>{{ infoData.type }}</span>
+            </div>
+            <div class="cell">
+              <span>
+                丢包率:
+                <i></i>
+              </span>
+              <span>{{ infoData.lostPack }}</span>
             </div>
             <div class="cell">
               <span>
@@ -73,6 +68,20 @@
                 <i></i>
               </span>
               <span>{{ infoData.time }}</span>
+            </div>
+            <div class="cell">
+              <span>
+                详细地址:
+                <i></i>
+              </span>
+              <span>{{ infoData.addr }}</span>
+            </div>
+            <div class="cell">
+              <span>
+                区域:
+                <i></i>
+              </span>
+              <span>{{ infoData.name }}</span>
             </div>
           </div>
         </div>
@@ -91,7 +100,9 @@
         infoData: {
           name: 'test-name',
           alias: '报文接收服务器',
+          addr: '办公区三层306',
           ip: '66.32.5.122',
+          lostPack: '3%',
           DNS: '255.255.255.80',
           type: 'windows服务器',
           state: '正常/异常',
