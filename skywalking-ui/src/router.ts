@@ -37,7 +37,8 @@ window.axiosCancel = [];
 
 const router = new Router({
   // mode: 'history',
-  base: process.env.BASE_URL,
+  //base: process.env.BASE_URL,
+  base: '/mointor/',
   linkActiveClass: 'active',
   routes: [
     // {
@@ -106,8 +107,24 @@ const router = new Router({
           component: () => import('./views/containers/home/right/topu/manager/index.vue'),
         },
         {
+          path: 'report',
+          component: () => import('./views/containers/home/right/topu/report/index.vue'),
+        },
+        {
           path: 'resource',
           component: () => import('./views/containers/home/right/host/resource/index.vue'),
+        },
+        {
+          path: 'detail',
+          component: () => import('./views/containers/home/right/host/details/index.vue'),
+        },
+        {
+          path: 'masterReport',
+          component: () => import('./views/containers/home/right/host/report/index.vue'),
+        },
+        {
+          path: 'dataView',
+          component: () => import('./views/containers/home/right/busines/dataView/index.vue'),
         },
       ],
     },

@@ -15,39 +15,57 @@
  * limitations under the License.
  */
 
+var webpack = require('webpack');
+
 module.exports = {
+    configureWebpack: {
+        plugins: [
+            new webpack.ProvidePlugin({
+                $: 'jquery',
+                jQuery: 'jquery',
+                'windows.jQuery': 'jquery',
+                Popper: ['popper.js', 'default'],
+            }),
+        ],
+    },
 
-    lintOnSave: false,
-
-    publicPath: "/",
+    //publicPath: '/',
+    publicPath: process.env.NODE_ENV === 'production' ? '/mointor/' : '/',
     devServer: {
         proxy: {
             '/graphql': {
+<<<<<<< HEAD
                 target: `${process.env.SW_PROXY_TARGET || ''}`,
                 changeOrigin: true,
             },
             '/monitor': {
                 target: `${process.env.SW_PROXY_TARGET || ''}`,
+=======
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
+                changeOrigin: true,
+            },
+            '/monitor': {
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
+>>>>>>> 0606a8a8326bc1e09138c0baeb84ace7da4011a6
                 changeOrigin: true,
                 pathRewrite: {
-                    ["^/monitor"]: ""
-                }
+                    ['^/monitor']: '',
+                },
             },
         },
     },
     chainWebpack: (config) => {
         /* const svgRule = config.module.rule('svg');
-        svgRule.uses.clear();
-        svgRule
-            .use('svg-sprite-loader')
-            .loader('svg-sprite-loader')
-            .options({
-                symbolId: '[name]',
-            }); */
-
+                                            svgRule.uses.clear();
+                                            svgRule
+                                                .use('svg-sprite-loader')
+                                                .loader('svg-sprite-loader')
+                                                .options({
+                                                    symbolId: '[name]',
+                                                }); */
         /*  const CssRule = config.module.rule('css');
-         CssRule.uses.clear();
-         CssRule.loader('css-loader')
-         CssRule.loader('style-loader') */
-    }
+                                             CssRule.uses.clear();
+                                             CssRule.loader('css-loader')
+                                             CssRule.loader('style-loader') */
+    },
 };

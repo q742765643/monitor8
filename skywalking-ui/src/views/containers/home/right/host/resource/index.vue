@@ -1,66 +1,42 @@
 <template>
-  <div id="res">
-    <resleft :stateData="stateData" :cpuData="cpuData" :romData="romData"></resleft>
-
-    <resright></resright>
-    <monWindow v-if="showType"></monWindow>
+  <div id="resource">
+    <div id="r_left">
+      <leftPlane></leftPlane>
+    </div>
+    <div id="r_right">
+      <rightPlane></rightPlane>
+    </div>
   </div>
 </template>
 
 <script>
-  import monWindow from './rightPlane/mointorwindow';
-  import resleft from './leftPlane/resleft';
-  import resright from './rightPlane/resright';
+  import leftPlane from './leftPlane/index';
+  import rightPlane from './rightPlane/index';
   export default {
-    data() {
-      return {
-        showType: false,
-        stateData: {
-          id: 'stateChart22',
-          color1: '#02d6fc',
-          color2: '#367bec',
-          value: 3,
-          total: 3,
-        },
-        cpuData: {
-          id: 'cpuChart22',
-          color1: '#02d6fc',
-          color2: '#367bec',
-          value: 10,
-          total: 100,
-        },
-        romData: {
-          id: 'romChart22',
-          color1: '#02d6fc',
-          color2: '#367bec',
-          value: 55,
-          total: 100,
-        },
-      };
-    },
-    components: { resleft, resright, monWindow },
-    methods: {
-      closeMonWindow() {
-        this.showType = false;
-      },
-      openMonWindow() {
-        this.showType = true;
-      },
+    components: {
+      leftPlane,
+      rightPlane,
     },
   };
 </script>
 
 <style lang="scss" scoped>
-  #res {
-    width: 20rem;
+  #resource {
+    width: 100%;
     height: 100%;
+    //  background: pink;
     padding: 0.5rem 0.375rem 0.375rem 0.2rem;
-    background: #eef5fd;
     display: flex;
-    .rightplane {
+    justify-content: space-between;
+    #r_left {
+      width: 5.35rem;
+      height: 100%;
       background: white;
-      flex: 3;
-      display: flex;
+    }
+    #r_right {
+      height: 100%;
+      width: calc(100% - 5.35rem - 0.375rem);
+      background: white;
     }
   }
 </style>

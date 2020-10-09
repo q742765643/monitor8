@@ -44,8 +44,34 @@ import Pagination from '@/components/Pagination/index.vue';
 
 import { parseTime, resetForm, addDateRange } from '@/components/util';
 
-import './static/iconfont/iconfont.css';
+import '@/assets/iconfont/iconfont.css';
 import 'lib-flexible';
+
+//VXETable
+import 'xe-utils';
+import VXETable from 'vxe-table';
+import 'vxe-table/lib/style.css';
+Vue.use(VXETable);
+VXETable.setup({ size: 'mini' });
+import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf';
+VXETable.use(VXETablePluginExportPDF);
+import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx';
+VXETable.use(VXETablePluginExportXLSX);
+VXETablePluginExportPDF.setup({
+  fontName: 'SourceHanSans-Normal',
+  fonts: [
+    {
+      fontName: 'SourceHanSans-Normal',
+      //fontUrl: './static/pdfHans/source-han-sans-normal.js',
+      fontUrl: 'https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-normal.js',
+    },
+  ],
+});
+
+//拖动
+/* import VueDND from 'awe-dnd' */
+let VueDND: any = require('awe-dnd');
+Vue.use(VueDND);
 
 Vue.prototype.parseTime = parseTime;
 Vue.prototype.resetForm = resetForm;
