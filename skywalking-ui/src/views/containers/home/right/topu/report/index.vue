@@ -6,12 +6,12 @@
       </div>
       <div id="table">
         <div id="toolbar">
-          <vxe-toolbar custom>
+          <!-- <vxe-toolbar custom>
             <template v-slot:buttons>
               <vxe-button @click="exportEventXls">导出excel</vxe-button>
               <vxe-button @click="exportEventPdf">导出pdf</vxe-button>
             </template>
-          </vxe-toolbar>
+          </vxe-toolbar> -->
         </div>
         <!--   -->
         <vxe-table border ref="xTable" :height="tableheight" :data="tableData">
@@ -250,19 +250,19 @@
 
         this.charts.setOption(options);
       },
-      exportEventXls() {
+      /*  exportEventXls() {
         this.$refs.xTable.exportData({
           filename: '报表',
           sheetName: 'Sheet1',
           type: 'xlsx',
         });
-      },
-      exportEventPdf() {
+      }, */
+      /*  exportEventPdf() {
         this.$refs.xTable.exportData({
           filename: '报表',
           type: 'pdf',
         });
-      },
+      }, */
     },
   };
 </script>

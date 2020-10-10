@@ -31,22 +31,15 @@ module.exports = {
 
     //publicPath: '/',
     publicPath: process.env.NODE_ENV === 'production' ? '/mointor/' : '/',
+    lintOnSave: false,
     devServer: {
         proxy: {
             '/graphql': {
-<<<<<<< HEAD
-                target: `${process.env.SW_PROXY_TARGET || ''}`,
-                changeOrigin: true,
-            },
-            '/monitor': {
-                target: `${process.env.SW_PROXY_TARGET || ''}`,
-=======
                 target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
                 changeOrigin: true,
             },
             '/monitor': {
                 target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
->>>>>>> 0606a8a8326bc1e09138c0baeb84ace7da4011a6
                 changeOrigin: true,
                 pathRewrite: {
                     ['^/monitor']: '',

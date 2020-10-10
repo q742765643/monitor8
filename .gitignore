@@ -24,3 +24,5 @@ node_modules/
 mesh-buffer/
 trace-buffer/
 apm/skywalking-ui/node/node.exe
+skywalking-ui/mointor.rar
+skywalking-ui/node/node.exe
