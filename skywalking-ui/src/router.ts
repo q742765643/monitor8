@@ -36,9 +36,9 @@ Vue.use(Router);
 window.axiosCancel = [];
 
 const router = new Router({
-  // mode: 'history',
+  mode: 'history',
   //base: process.env.BASE_URL,
-  base: '/mointor/',
+  base: '/',
   linkActiveClass: 'active',
   routes: [
     // {
@@ -49,7 +49,7 @@ const router = new Router({
     /*  {
       path: '/',
       component: Index,
-     
+
       children: [
         {
           path: '',

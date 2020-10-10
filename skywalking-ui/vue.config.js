@@ -30,7 +30,7 @@ module.exports = {
     },
 
     //publicPath: '/',
-    publicPath: process.env.NODE_ENV === 'production' ? '/mointor/' : '/',
+    publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
     lintOnSave: false,
     devServer: {
         proxy: {
