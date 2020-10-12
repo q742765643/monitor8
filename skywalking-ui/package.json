@@ -23,6 +23,7 @@
   "dependencies": {
     "@antv/g6": "^3.8.0",
     "@riophae/vue-treeselect": "^0.4.0",
+    "ant-design-vue": "^1.6.5",
     "awe-dnd": "^0.3.4",
     "axios": "^0.18.0",
     "bootstrap": "^4.5.2",

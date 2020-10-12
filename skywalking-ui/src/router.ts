@@ -126,6 +126,14 @@ const router = new Router({
           path: 'dataView',
           component: () => import('./views/containers/home/right/busines/dataView/index.vue'),
         },
+        {
+          path: 'dictType',
+          component: () => import('./views/containers/home/right/dict/index.vue'),
+        },
+        {
+          path: 'dictData',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
+        },
       ],
     },
   ],

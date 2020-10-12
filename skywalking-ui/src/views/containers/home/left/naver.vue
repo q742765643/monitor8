@@ -74,6 +74,16 @@
       <div class="bt_link" v-bind:class="{ avtive: showType == 7 }" @click="showPage(7)">
         <span class="icon iconfont iconshezhi"></span>
         <span>系统设置</span>
+        <span v-if="!showResLeaf" class="icon sousuo iconfont iconshousuoshangjiantou"></span>
+        <span v-if="showResLeaf" class="icon sousuo iconfont iconshousuoxiajiantou"></span>
+      </div>
+      <div v-if="showBusLeaf" class="leaf">
+        <div class="leal_link" v-bind:class="{ avtive_leaf: showType == 70 }" @click="showPage(70)">
+          <span>字典管理</span>
+        </div>
+        <div class="leal_link" v-bind:class="{ avtive_leaf: showType == 71 }" @click="showPage(71)">
+          <span>字典数据</span>
+        </div>
       </div>
     </div>
   </div>
@@ -135,8 +145,12 @@
         } else if (page == 40) {
           this.$router.push('/dataView');
         } else if (page == 7) {
-          this.$router.push('/topuConfig');
-        } else {
+          this.showBusLeaf = !this.showBusLeaf;
+        }else if  (page == 70){
+          this.$router.push('/dictType');
+        } else if (page == 71){
+          this.$router.push('/dictData');
+        }  else{
           return;
         }
       },

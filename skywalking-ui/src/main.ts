@@ -23,6 +23,7 @@ import zh from '@/assets/lang/zh';
 import en from '@/assets/lang/en';
 import VueI18n from 'vue-i18n';
 import eventBus from './event-bus';
+import Antd from 'ant-design-vue';
 import App from './App.vue';
 import router from './router';
 import store from './store';
@@ -51,7 +52,9 @@ import 'lib-flexible';
 import 'xe-utils';
 import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
+import 'ant-design-vue/dist/antd.css';
 Vue.use(VXETable);
+Vue.use(Antd);
 VXETable.setup({ size: 'mini' });
 
 
