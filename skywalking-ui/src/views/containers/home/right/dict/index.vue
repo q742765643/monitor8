@@ -10,9 +10,17 @@
           <a-input v-model="queryParams.dictType" placeholder="请输入字典类型">
           </a-input>
         </a-form-model-item>
-        <a-form-model-item label="状态" prop="status">
-          <a-input v-model="queryParams.status" placeholder="字典状态">
-          </a-input>
+        <a-form-model-item label="字典状态" prop="status">
+            <a-select style="width: 120px"
+                    v-model="queryParams.status"
+                    placeholder="字典状态"
+            >
+              <a-select-option  v-for="dict in statusOptions"
+                                :value="dict.dictValue">
+                {{dict.dictLabel}}
+              </a-select-option>
+
+            </a-select>
         </a-form-model-item>
         <a-form-model-item >
           <a-col :span="24" :style="{ textAlign: 'right' }">
@@ -32,6 +40,11 @@
                   icon="plus"
                   @click="handleAdd">
           新增
+        </a-button>
+        <a-button type="danger"
+                  icon="delete"
+                  @click="handleDelete">
+          删除
         </a-button>
       </a-col>
     </a-row>
@@ -165,7 +178,8 @@
       rowSelection() {
         return {
           onChange: (selectedRowKeys, selectedRows) => {
-            console.log(selectedRows)
+            this.ids = selectedRows.map(item => item.id);
+            this.dictNames = selectedRows.map(item => item.dictName);
           },
           getCheckboxProps: record => ({
             props: {

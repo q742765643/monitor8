@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @Table(name="T_MT_HOST_CONFIG")
 @DiscriminatorValue("HOSTCONFIG")
-public class HostConfigEntity extends HtJobInfo {
+public class  HostConfigEntity extends HtJobInfo {
     @Excel(name = "主机ip")
     @Column(name="ip", length=50)
     private String ip;
