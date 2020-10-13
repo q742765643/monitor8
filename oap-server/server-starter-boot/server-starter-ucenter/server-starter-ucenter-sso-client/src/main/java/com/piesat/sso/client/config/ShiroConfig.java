@@ -225,12 +225,12 @@ public class ShiroConfig  {
      * @param securityManager
      * @return
      */
-    @Bean
+/*    @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
-    }
+    }*/
 
     /*@Bean
     public  LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {

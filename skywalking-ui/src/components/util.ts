@@ -1,3 +1,4 @@
+import request from "@/utils/request";
 export function parseTime(time:any, pattern:String) {
   if (arguments.length === 0) {
     return null
@@ -66,4 +67,21 @@ export function addDateRange(params:any, dateRange:any) {
     };
   }
   return search;
+}
+
+export function getDicts(dictType:String) {
+  return request({
+    url: '/system/dict/data/dictType/' + dictType,
+    method: 'get'
+  })
+}
+export function selectDictLabel(datas:any, value:String) {
+  var actions:any = [];
+  Object.keys(datas).map((key) => {
+    if (datas[key].dictValue == ('' + value)) {
+      actions.push(datas[key].dictLabel);
+      return false;
+    }
+  })
+  return actions.join('');
 }

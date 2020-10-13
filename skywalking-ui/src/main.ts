@@ -43,10 +43,12 @@ import './assets';
 import 'element-ui/lib/theme-chalk/index.css'; */
 import Pagination from '@/components/Pagination/index.vue';
 
-import { parseTime, resetForm, addDateRange } from '@/components/util';
+import { parseTime, resetForm, addDateRange,getDicts,selectDictLabel} from '@/components/util';
 
 import '@/assets/iconfont/iconfont.css';
 import 'lib-flexible';
+import { Button } from 'ant-design-vue';
+
 
 //VXETable
 import 'xe-utils';
@@ -77,16 +79,32 @@ VXETable.setup({ size: 'mini' });
 /* import VueDND from 'awe-dnd' */
 let VueDND: any = require('awe-dnd');
 Vue.use(VueDND);
+Vue.use(Button);
 
 Vue.prototype.parseTime = parseTime;
 Vue.prototype.resetForm = resetForm;
 Vue.prototype.addDateRange = addDateRange;
+Vue.prototype.getDicts=getDicts;
+Vue.prototype.selectDictLabel=selectDictLabel;
 declare module 'vue/types/vue' {
   interface Vue {
     parseTime(time: any, pattern: String): any;
     resetForm(refName: any): any;
     addDateRange(params: any, dateRange: any): any;
+    getDicts(dictType:String):any;
+    selectDictLabel(datas:any, value:String):any;
   }
+}
+Vue.prototype.msgSuccess = function (msg:any) {
+    this.$message.success(
+        msg
+    );
+}
+
+Vue.prototype.msgError = function (msg:any) {
+  this.$message.success(
+      msg
+  );
 }
 Vue.use(eventBus);
 Vue.use(VueI18n);

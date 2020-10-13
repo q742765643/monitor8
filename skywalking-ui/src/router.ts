@@ -131,7 +131,7 @@ const router = new Router({
           component: () => import('./views/containers/home/right/dict/index.vue'),
         },
         {
-          path: 'dictData',
+          path: 'dictData/:dictId',
           component: () => import('./views/containers/home/right/dict/data.vue'),
         },
       ],
