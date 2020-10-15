@@ -218,6 +218,7 @@
         });
       },
       handleAdd(){
+        this.form.id=undefined;
         this.title="新增字典类型";
         this.visible = true;
       },

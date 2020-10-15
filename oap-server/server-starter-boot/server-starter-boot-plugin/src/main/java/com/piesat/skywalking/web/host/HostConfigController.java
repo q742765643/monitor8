@@ -33,7 +33,7 @@ public class HostConfigController {
         return resultT;
     }
     @ApiOperation(value = "根据ID查询主机", notes = "根据ID查询主机")
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "/{id:.+}")
     public ResultT<HostConfigDto> getInfo(@PathVariable String id)
     {
         ResultT<HostConfigDto> resultT=new ResultT<>();
@@ -51,7 +51,7 @@ public class HostConfigController {
     }
 
     @ApiOperation(value = "删除主机", notes = "删除主机")
-    @DeleteMapping("/{ids}")
+    @DeleteMapping("/{ids:.+}")
     public  ResultT<String> remove(@PathVariable String[] ids)
     {
         ResultT<String> resultT=new ResultT<>();

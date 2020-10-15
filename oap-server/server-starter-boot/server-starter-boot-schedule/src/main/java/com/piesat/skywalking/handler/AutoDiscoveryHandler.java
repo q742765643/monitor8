@@ -63,6 +63,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                 Integer mediaType=11;
                 hostConfig.setMediaType(mediaType);
                 hostConfig.setIp(ip);
+                hostConfig.setCurrentStatus(11);
                 SNMPSessionUtil dv = new SNMPSessionUtil(ip,"161", "public", "2");
                 try {
                     if (!"-1".equals(dv.getIsSnmpGet(PDU.GET,".1.3.6.1.2.1.1.5").get(0))) {
@@ -83,7 +84,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                             hostConfig.setDeviceType(11);
                         }
                         this.getMediaType(hostConfig,dv,mediaType);
-                        hostConfig.setIsSnmp("1");
+                        hostConfig.setMonitoringMethods(2);
                         hostConfig.setJobCron("0/30 * * * * ?");
                         hostConfig.setId(ip);
                         hostConfig.setTriggerStatus(1);
@@ -92,7 +93,8 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                     }else {
                         hostConfig.setJobCron("0/30 * * * * ?");
                         hostConfig.setId(ip);
-                        hostConfig.setTriggerStatus(0);
+                        hostConfig.setTriggerStatus(1);
+                        hostConfig.setMonitoringMethods(3);
                         this.getHost(hostConfig);
                         hostConfigService.save(hostConfig);
                     }
@@ -147,7 +149,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                 Map jsonMap = new LinkedHashMap();
                 JsonParseUtil.parseJSON2Map(jsonMap,hit.getSourceAsString(),null);
                 hostConfigDto.setHostName(String.valueOf(jsonMap.get("host.hostname")));
-                hostConfigDto.setIsAgent("1");
+                hostConfigDto.setMonitoringMethods(1);
                 hostConfigDto.setOs(String.valueOf(jsonMap.get("host.os.name")));
                 if(hostConfigDto.getOs().toUpperCase().indexOf("WINDOW")!=-1){
                     hostConfigDto.setMediaType(0);
@@ -219,11 +221,22 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
             indexMap.put(ip,index);
             maskMap.put(ip,mask);
         }
+        String index="";
         if(!indexMap.containsKey(hostConfig.getIp())){
+            for (Map.Entry<String, String> entry : indexMap.entrySet()){
+                if("2".equals(entry.getValue())){
+                    index="2";
+                    hostConfig.setMask(maskMap.get(entry.getKey()));
+                }
+            };
+        }else{
+            index=indexMap.get(hostConfig.getIp());
+            hostConfig.setMask(maskMap.get(hostConfig.getIp()));
+        }
+        if("".equals(index)){
             return;
         }
-        String index=indexMap.get(hostConfig.getIp());
-        hostConfig.setMask(maskMap.get(hostConfig.getIp()));
+
         String[] macOid = {
                 ".1.3.6.1.2.1.2.2.1.1",".1.3.6.1.2.1.2.2.1.6"
         };

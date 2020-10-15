@@ -26,9 +26,12 @@ public class  HostConfigEntity extends HtJobInfo {
     private Integer mediaType;
 
     @Column(name="device_type", length=225)
-    private Integer deviceType =-1;
+    private Integer deviceType;
 
-    @Excel(name = "是否开启snmp")
+    @Column(name="monitoring_methods", length=2)
+    private Integer monitoringMethods;
+
+/*    @Excel(name = "是否开启snmp")
     @Column(name="is_snmp", length=10)
     private String isSnmp;
 
@@ -38,13 +41,13 @@ public class  HostConfigEntity extends HtJobInfo {
 
     @Excel(name = "是否开启ssh")
     @Column(name="is_ssh", length=10)
-    private String isSsh;
+    private String isSsh;*/
 
     @Excel(name = "操作系统类型")
     @Column(name="os", length=255)
     private String os;
 
-    @Excel(name = "ssh端口")
+   /* @Excel(name = "ssh端口")
     @Column(name="ssh_port", length=50)
     private int sshPort;
 
@@ -54,7 +57,7 @@ public class  HostConfigEntity extends HtJobInfo {
 
     @Excel(name = "ssh密码")
     @Column(name="ssh_password", length=50)
-    private String sshPassWord;
+    private String sshPassWord;*/
 
     @Column(name="current_status", length=10)
     private Integer currentStatus=-1;
@@ -63,7 +66,7 @@ public class  HostConfigEntity extends HtJobInfo {
     private float packetLoss;
 
     @Column(name="area", length=50)
-    private String area;
+    private Integer area;
 
     @Column(name="location", length=255)
     private String location;

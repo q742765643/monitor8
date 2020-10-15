@@ -15,27 +15,29 @@ public class HostConfigDto extends HtJobInfoDto {
     //@ApiModelProperty(value = "类型 server 服务器 router 路由 linkSwitch 二层交换机 networkSwitch 三层交换机 unknownDevice 未知")
     //private String type;
     @ApiModelProperty(value = "详细设备类型 11 未知 0 windows 1 linux 2 二层交换机 3 三层交换机 4 路由")
-    private Integer mediaType =-1;
+    private Integer mediaType;
 
     @ApiModelProperty(value = "设备类型 11 未知 0 服务器 1网络设备 2进程 3文件")
-    private Integer deviceType =-1;
+    private Integer deviceType;
 
-    @ApiModelProperty(value = "是否snmp 0 不是 1是")
+ /*   @ApiModelProperty(value = "是否snmp 0 不是 1是")
     private String isSnmp;
     @ApiModelProperty(value = "是否代理 0 不是 1是")
     private String isAgent;
-    private String isSsh;
+    private String isSsh;*/
+    @ApiModelProperty(value = "监控方式 11 未知 1 代理 2 snmp 3 ping")
+    private Integer monitoringMethods;
     @ApiModelProperty(value = "主机描述")
     private String os;
-    private int sshPort;
+/*    private int sshPort;
     private String sshUserName;
-    private String sshPassWord;
-    @ApiModelProperty(value = "设备当前状态 0 一般 1 危险 2故障 3正常")
-    private Integer currentStatus=-1;
+    private String sshPassWord;*/
+    @ApiModelProperty(value = "设备当前状态 11 未知 0 一般 1 危险 2故障 3正常")
+    private Integer currentStatus;
     @ApiModelProperty(value = "丢包率")
     private float packetLoss;
     @ApiModelProperty(value = "区域")
-    private String area;
+    private Integer area;
     @ApiModelProperty(value = "地址")
     private String location;
     @ApiModelProperty(value = "mac地址")

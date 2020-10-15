@@ -249,6 +249,7 @@
         });
       },
       handleAdd(){
+        this.form.id=undefined;
         this.title="新增字典数据";
         this.visible = true;
         this.form.dictType = this.queryParams.dictType;

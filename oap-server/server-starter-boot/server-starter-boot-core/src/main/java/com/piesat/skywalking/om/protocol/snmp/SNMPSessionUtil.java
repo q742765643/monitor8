@@ -78,7 +78,24 @@ public class SNMPSessionUtil {
         }
         return list;
     }
-
+    public ArrayList<Long> getSnmpGetV(Integer type, String... oid) throws Exception {
+        ResponseEvent event = null;
+        ArrayList<Long> list = new ArrayList<Long>();
+        for (int i = 0; i < oid.length; i++) {
+            PDU pdu = new PDU();
+            pdu.add(new VariableBinding(new OID(oid[i])));
+            // 设置请求方式
+            pdu.setType(type);
+            event = snmp.send(pdu, communityTarget);
+            if (null != event && event.getResponse() != null) {
+                Vector<VariableBinding> vector = (Vector<VariableBinding>) event.getResponse().getVariableBindings();
+                VariableBinding vec = vector.elementAt(0);
+                TimeTicks timeTicks= (TimeTicks) vec.getVariable();
+                list.add(i,timeTicks.toMilliseconds());
+            }
+        }
+        return list;
+    }
     // 单个获取方式
     public ArrayList<String> getIsSnmpGet(Integer type, String... oid) throws Exception {
         ResponseEvent event = null;

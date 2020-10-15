@@ -26,12 +26,6 @@ public class HostConfigQuartzService  extends ScheduleService {
         List<HostConfigDto> hostConfigEntities=hostConfigService.selectBySpecification(hostConfig);
         if(null!=hostConfigEntities&&!hostConfigEntities.isEmpty()){
             for(HostConfigDto o:hostConfigEntities){
-                if(!"1".equals(o.getIsSnmp())){
-                    o.setTriggerStatus(0);
-                }
-                if("1".equals(o.getIsAgent())){
-                    o.setTriggerStatus(0);
-                }
                 this.handleJob(o);
             }
         }

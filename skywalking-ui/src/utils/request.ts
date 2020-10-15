@@ -21,8 +21,6 @@ const service = axios.default.create({
 })
 
 service.interceptors.request.use((config: AxiosRequestConfig) => {
-    console.log(config)
-
     return config
 }, (err: any) => {
     /* Message({
@@ -34,7 +32,6 @@ service.interceptors.request.use((config: AxiosRequestConfig) => {
 });
 
 service.interceptors.response.use((response: AxiosResponse) => {
-    console.log(response)
     if (response.status !== 200) {
         /*  Message({
              message: `请求错误，${String(response.status)}`,

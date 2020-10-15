@@ -56,22 +56,16 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString((String) host.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) host.getParamt().get("endTime"));
         }
-        if (StringUtils.isNotNullString(host.getIsSnmp())){
-            specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), host.getIsSnmp());
-        }
-        if (StringUtils.isNotNullString(host.getIsAgent())){
-            specificationBuilder.add("isAgent", SpecificationOperator.Operator.eq.name(), host.getIsAgent());
-        }
         if (null!=host.getTriggerStatus()){
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), host.getTriggerStatus());
         }
         if (StringUtils.isNotNullString(host.getOs())){
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), host.getOs());
         }
-        if (null!=host.getMediaType()&&host.getMediaType()>-1){
+        if (null!=host.getMediaType()){
             specificationBuilder.add("media_type", SpecificationOperator.Operator.eq.name(), host.getMediaType());
         }
-        if (null!=host.getCurrentStatus()&&host.getCurrentStatus()>-1) {
+        if (null!=host.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), host.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
@@ -96,12 +90,6 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString((String) hostConfig.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) hostConfig.getParamt().get("endTime"));
         }
-        if (StringUtils.isNotNullString(hostConfig.getIsSnmp())){
-            specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), hostConfig.getIsSnmp());
-        }
-        if (StringUtils.isNotNullString(hostConfig.getIsAgent())){
-            specificationBuilder.add("isAgent", SpecificationOperator.Operator.eq.name(), hostConfig.getIsAgent());
-        }
         if (null!=hostConfig.getTriggerStatus()){
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getTriggerStatus());
         }
@@ -125,12 +113,6 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         }
         if(hostConfigDto.getTriggerStatus()==null){
             hostConfigDto.setTriggerStatus(1);
-        }
-        if(!"1".equals(hostConfigDto.getIsSnmp())){
-            hostConfigDto.setTriggerStatus(0);
-        }
-        if("1".equals(hostConfigDto.getIsAgent())){
-            hostConfigDto.setTriggerStatus(0);
         }
         hostConfigDto.setIsUt(0);
         hostConfigDto.setDelayTime(0);
@@ -192,12 +174,6 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         }
         if (StringUtils.isNotNullString((String) hostConfig.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) hostConfig.getParamt().get("endTime"));
-        }
-        if (StringUtils.isNotNullString(hostConfig.getIsSnmp())){
-            specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), hostConfig.getIsSnmp());
-        }
-        if (StringUtils.isNotNullString(hostConfig.getIsAgent())){
-            specificationBuilder.add("isAgent", SpecificationOperator.Operator.eq.name(), hostConfig.getIsAgent());
         }
         if (null!=hostConfig.getTriggerStatus()){
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getTriggerStatus());

@@ -43,6 +43,7 @@ public class SNMPWindowsService extends SNMPService{
         this.networkMap(snmp,basicInfo,esList);
         this.diskMap(snmp,basicInfo,esList);
         this.processMap(snmp,basicInfo,esList);
+        this.uptimeMap(snmp,basicInfo,esList);
 
       /*  new Thread(()->{
             this.loadMap(snmp,basicInfo,esList);

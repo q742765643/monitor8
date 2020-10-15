@@ -667,4 +667,22 @@ public class SNMPService {
 
         }
     }
+
+    @SneakyThrows
+    public void uptimeMap(SNMPSessionUtil snmp, Map<String, Object> basicInfo, List<Map<String, Object>> esList) {
+        Map<String, Object> source = this.metricbeatMap("uptime", basicInfo);
+        String[] oid = {
+                ".1.3.6.1.2.1.25.1.1.0", //name
+        };
+        ArrayList<Long> list=snmp.getSnmpGetV(PDU.GET,oid);
+        System.out.println(list.get(0));
+        Map<String,Object> system=new HashMap<>();
+        Map<String,Object> uptime=new HashMap<>();
+        Map<String,Object> duration=new HashMap<>();
+        duration.put("ms",list.get(0));
+        uptime.put("duration",duration);
+        system.put("uptime",uptime);
+        source.put("system",system);
+        esList.add(source);
+    }
 }

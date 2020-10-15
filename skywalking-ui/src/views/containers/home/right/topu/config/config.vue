@@ -227,17 +227,13 @@
   <div>
     <div  class="app-container">
       <a-form-model layout="inline"  :model="queryParams" ref="queryForm" >
-        <a-form-model-item label="字典名称"  prop="dictName">
-          <a-input v-model="queryParams.dictName" placeholder="请输入字典名称">
+        <a-form-model-item label="网段名称"  prop="taskName">
+          <a-input v-model="queryParams.taskName" placeholder="请输入网段名称">
           </a-input>
         </a-form-model-item>
-        <a-form-model-item label="字典类型" prop="dictType">
-          <a-input v-model="queryParams.dictType" placeholder="请输入字典类型">
-          </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="字典状态" prop="status">
+        <a-form-model-item label="执行状态" prop="triggerStatus">
           <a-select style="width: 120px"
-                    v-model="queryParams.status"
+                    v-model="queryParams.triggerStatus"
                     placeholder="字典状态"
           >
             <a-select-option  v-for="dict in statusOptions"
@@ -282,12 +278,7 @@
               @change="handleTableChange"
 
     >
-       <span slot="dictType" slot-scope="text">
-        <router-link :to="'/dictData/' + text" class="link-type">
-          <span>{{ text }}</span>
-        </router-link>
-       </span>
-      <span slot="status" slot-scope="text">
+      <span slot="triggerStatus" slot-scope="text">
        {{ statusFormat(text) }}
       </span>
       <span slot="createTime" slot-scope="text">
@@ -306,24 +297,28 @@
              width="50%" @ok="submitForm"
     >
       <a-form-model  :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" :model="form" ref="form" >
-        <a-form-model-item  label="字典名称"  prop="dictName">
-          <a-input v-model="form.dictName" placeholder="请输入字典名称">
+        <a-form-model-item  label="网段名称"  prop="taskName">
+          <a-input v-model="form.taskName" placeholder="请输入网段名称">
           </a-input>
         </a-form-model-item>
-        <a-form-model-item  label="字典类型"  prop="dictType">
-          <a-input v-model="form.dictType" placeholder="请输入字典类型">
+        <a-form-model-item  label="ip范围"  prop="ipRange">
+          <a-input v-model="form.ipRange" placeholder="格式为10.1.100.20-55">
           </a-input>
         </a-form-model-item>
-        <a-form-model-item  label="状态"  prop="status">
-          <a-radio-group  v-model="form.status">
+        <a-form-model-item  label="发现策略"  prop="jobCron">
+          <a-input v-model="form.jobCron" placeholder="请输入cron表达式">
+          </a-input>
+        </a-form-model-item>
+        <a-form-model-item  label="状态"  prop="triggerStatus">
+          <a-radio-group  v-model="form.triggerStatus">
             <a-radio
                     v-for="dict in statusOptions"
                     :value="dict.dictValue"
             >{{dict.dictLabel}}</a-radio>
           </a-radio-group>
         </a-form-model-item>
-        <a-form-model-item  label="备注"  prop="remark">
-          <a-input v-model="form.remark" type="textarea" placeholder="请输入内容">
+        <a-form-model-item  label="备注"  prop="jobDesc">
+          <a-input v-model="form.jobDesc" type="textarea" placeholder="请输入内容">
           </a-input>
         </a-form-model-item>
       </a-form-model>
@@ -335,24 +330,27 @@
   import request from "@/utils/request";
   const columns = [
     {
-      title: '字典名称',
-      dataIndex: 'dictName',
-      width: '20%',
+      title: '网段名称',
+      dataIndex: 'taskName',
+      width: '15%',
+      scopedSlots: { customRender: 'taskName' },
     },
     {
-      title: '字典类型',
-      dataIndex: 'dictType',
-      width: '20%',
-      scopedSlots: { customRender: 'dictType' },
+      title: '发现策略',
+      dataIndex: 'jobCron',
+    },
+    {
+      title: 'ip范围',
+      dataIndex: 'ipRange',
     },
     {
       title: '状态',
-      dataIndex: 'status',
-      scopedSlots: { customRender: 'status' },
+      dataIndex: 'triggerStatus',
+      scopedSlots: { customRender: 'triggerStatus' },
     },
     {
-      title: '备注',
-      dataIndex: 'remark',
+      title: '描述',
+      dataIndex: 'jobDesc',
     },
     {
       title: '创建时间',
@@ -379,20 +377,19 @@
         queryParams: {
           pageNum: 1,
           pageSize: 10,
-          dictName: undefined,
-          dictType: undefined,
-          status: undefined
+          triggerStatus: undefined,
+          taskName: undefined,
         },
         visible: false,
         form: {},
         statusOptions: [],
         title: "",
         ids: [],
-        dictNames: [],
+        taskNames: [],
       };
     },
     created(){
-      this.getDicts("sys_normal_disable").then(response => {
+      this.getDicts("job_trigger_status").then(response => {
         this.statusOptions = response.data;
       });
     },
@@ -431,7 +428,7 @@
       fetch() {
         this.loading = true;
         request({
-          url:'/system/dict/type/list',
+          url:'/autoDiscovery/list',
           method: 'get',
           params: this.addDateRange(this.queryParams, this.dateRange)
         }).then(data => {
@@ -443,7 +440,8 @@
         });
       },
       handleAdd(){
-        this.title="新增字典类型";
+        this.form.id=undefined;
+        this.title="新增自动发现配置";
         this.visible = true;
       },
       handleTableChange(pagination, filters, sorter) {
@@ -456,27 +454,27 @@
         this.form={};
         const id = row.id || this.ids;
         request({
-          url: '/system/dict/type/' + id,
+          url: '/autoDiscovery/' + id,
           method: 'get'
         }).then(response => {
           this.form = response.data;
+          this.form.triggerStatus=this.form.triggerStatus.toString();
           this.visible = true;
-          this.title = "修改字典类型";
+          this.title = "修改自动发现配置";
         });
       },
       handleDelete(row) {
         const ids = row.id || this.ids;
-        console.log(ids)
-        const dictNames = row.dictName || this.dictNames;
+        const taskNames = row.taskName || this.taskNames;
         this.$confirm({
-          title:  '是否确认删除字典标签为"' + dictNames + '"的数据项?',
+          title:  '是否确认删除配置为"' + taskNames + '"的数据项?',
           content: '',
           okText: '是',
           okType: 'danger',
           cancelText: '否',
           onOk:()=> {
             request({
-              url: '/system/dict/type/' + ids,
+              url: '/autoDiscovery/' + ids,
               method: 'delete'
             }).then((response) => {
               if (response.code === 200) {
@@ -495,8 +493,8 @@
       submitForm(){
         if (this.form.id != undefined) {
           request({
-            url: '/system/dict/type',
-            method: 'put',
+            url: '/autoDiscovery',
+            method: 'post',
             data: this.form
           }).then(response => {
             if (response.code === 200) {
@@ -508,9 +506,8 @@
             }
           });
         }else {
-          console.log(this.form)
           request({
-            url: '/system/dict/type',
+            url: '/autoDiscovery',
             method: 'post',
             data: this.form
           }).then(response => {
