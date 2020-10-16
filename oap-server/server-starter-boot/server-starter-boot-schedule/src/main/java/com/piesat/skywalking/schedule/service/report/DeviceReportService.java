@@ -1,9 +1,18 @@
 package com.piesat.skywalking.schedule.service.report;
 
+import com.piesat.common.grpc.annotation.GrpcHthtClient;
 import com.piesat.constant.IndexNameConstant;
+import com.piesat.skywalking.api.host.HostConfigService;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
+import com.piesat.skywalking.util.IdUtils;
+import com.piesat.util.IndexNameUtil;
+import com.piesat.util.NullUtil;
 import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -39,6 +48,9 @@ import java.util.Map;
 public class DeviceReportService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @GrpcHthtClient
+    private HostConfigService hostConfigService;
+
     public void getSystem(SystemQueryDto systemQueryDto){
         Map<String, Map<String,Object>> baseInfo=new HashMap<>();
         this.getCpu(systemQueryDto,baseInfo);
@@ -47,7 +59,18 @@ public class DeviceReportService {
         this.getPacketloss(systemQueryDto,baseInfo);
         this.getProcess(systemQueryDto,baseInfo);
         this.getUptime(systemQueryDto,baseInfo);
-        
+        HostConfigDto hostConfigdto=new HostConfigDto();
+        NullUtil.changeToNull(hostConfigdto);
+        List<HostConfigDto> hostConfigDtos=hostConfigService.selectBySpecification(hostConfigdto);
+        BulkRequest request = new BulkRequest();
+        for(HostConfigDto hostConfigDto:hostConfigDtos){
+            Map<String,Object> source=this.getMap();
+            IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_REPORT, hostConfigDto.getIp()+"_"+systemQueryDto.getStartTime()).source(source);
+            source.putAll(baseInfo.get(hostConfigDto.getIp()));
+            request.add(indexRequest);
+        }
+        elasticSearch7Client.synchronousBulk(request);
+
     }
 
     public void getCpu(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
@@ -272,6 +295,19 @@ public class DeviceReportService {
             }else {
                 return new HashMap<>();
             }
+    }
+
+    public Map<String,Object> getMap(){
+        Map<String,Object> map=new HashMap<>();
+        map.put("avg.cpu.pct",0f);
+        map.put("max.cpu.pct",0f);
+        map.put("avg.memory.pct",0f);
+        map.put("max.memory.pct",0f);
+        map.put("max.filesystem.pct",0f);
+        map.put("avg.packet.pct",0f);
+        map.put("max.packet.pct",0f);
+        map.put("max.uptime.pct",0f);
+        return map;
     }
 }
 

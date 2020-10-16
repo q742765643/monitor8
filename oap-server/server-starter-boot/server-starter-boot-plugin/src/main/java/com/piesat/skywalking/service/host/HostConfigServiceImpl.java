@@ -96,10 +96,10 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(hostConfig.getOs())){
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), hostConfig.getOs());
         }
-        if (null!=hostConfig.getMediaType()&&hostConfig.getMediaType()>-1){
+        if (null!=hostConfig.getMediaType()){
             specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), hostConfig.getMediaType());
         }
-        if (null!=hostConfig.getCurrentStatus()&&hostConfig.getCurrentStatus()>-1) {
+        if (null!=hostConfig.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();

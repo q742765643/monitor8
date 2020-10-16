@@ -17,7 +17,9 @@ public class NullUtil {
             Field[] fs = c.getDeclaredFields();
             for (Field f : fs) {
                 f.setAccessible(true);
-                f.set(o, null);
+                if(f.getType() == Integer.class) {
+                    f.set(o, null);
+                }
             }
         } catch (SecurityException e) {
             e.printStackTrace();

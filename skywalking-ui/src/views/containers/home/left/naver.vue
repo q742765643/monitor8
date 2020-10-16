@@ -84,6 +84,9 @@
         <div class="leal_link" v-bind:class="{ avtive_leaf: showType == 71 }" @click="showPage(71)">
           <span>字典数据</span>
         </div>
+        <div class="leal_link" v-bind:class="{ avtive_leaf: showType == 72 }" @click="showPage(72)">
+          <span>调度管理</span>
+        </div>
       </div>
     </div>
   </div>
@@ -150,6 +153,8 @@
           this.$router.push('/dictType');
         } else if (page == 71){
           this.$router.push('/dictData');
+        } else if (page == 72){
+          this.$router.push('/job');
         }  else{
           return;
         }

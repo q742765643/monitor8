@@ -138,6 +138,10 @@ const router = new Router({
           path: 'dictData',
           component: () => import('./views/containers/home/right/dict/data.vue'),
         },
+        {
+          path: 'job',
+          component: () => import('./views/containers/home/right/job/index.vue'),
+        },
       ],
     },
   ],

@@ -8,6 +8,7 @@ import com.piesat.skywalking.service.host.HostConfigServiceImpl;
 
 import com.piesat.skywalking.service.timing.ScheduleService;
 
+import com.piesat.util.NullUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,9 @@ public class HostConfigQuartzService  extends ScheduleService {
     private HostConfigService hostConfigService;
 
 
-
-
     public void initJob() {
         HostConfigDto hostConfig=new HostConfigDto();
+        NullUtil.changeToNull(hostConfig);
         List<HostConfigDto> hostConfigEntities=hostConfigService.selectBySpecification(hostConfig);
         if(null!=hostConfigEntities&&!hostConfigEntities.isEmpty()){
             for(HostConfigDto o:hostConfigEntities){

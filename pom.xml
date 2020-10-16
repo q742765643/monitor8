@@ -578,7 +578,8 @@
                         **/*.xml
                     </resourceIncludes>
                     <resourceExcludes>
-                        **/logback-spring.xml
+                        **/logback-spring.xml,
+                        mapper/*.xml
                     </resourceExcludes>
                     <excludes>
                         **/target/generated-test-sources/**,

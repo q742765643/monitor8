@@ -24,7 +24,7 @@ public class HtJobInfo extends BaseEntity {
     @Column(name="job_desc", length=255)
     private String jobDesc;
     @Column(name="job_handler", length=255)
-    private String JobHandler;
+    private String jobHandler;
     @Column(name="trigger_type", length=10)
     private Integer triggerType;
     @Column(name="is_ut", length=10)
