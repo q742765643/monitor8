@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.core.MonitorConstant;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -81,7 +82,10 @@ public enum DataTTLKeeperTimer {
         log.info("Beginning to remove expired metrics from the storage.");
         IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
         List<Model> models = modelGetter.allModels();
-        models.forEach(this::execute);
+        if (MonitorConstant.ISENABLE) {
+            models.forEach(this::execute);
+        }
+
     }
 
     private void execute(Model model) {

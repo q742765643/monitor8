@@ -24,6 +24,8 @@ public class JobInitConfig implements ApplicationRunner {
     private JobScheduleHelper jobScheduleHelper;
     @Autowired
     private CommonQuartzService commonQuartzService;
+    @Autowired
+    private JobInfoQuartzService jobInfoQuartzService;
     @Override
     public void run(ApplicationArguments args) throws Exception {
         autoDiscoveryQuartzService.initJob();
@@ -31,6 +33,8 @@ public class JobInitConfig implements ApplicationRunner {
         alarmConfigQuartzService.initJob();
         fileMonitorQuartzService.initJob();
         commonQuartzService.initJob();
+        jobInfoQuartzService.initJob();
         jobScheduleHelper.start();
+
     }
 }

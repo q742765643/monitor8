@@ -80,6 +80,18 @@
           <a-input v-model="form.jobCron" placeholder="请输入cron表达式">
           </a-input>
         </a-form-model-item>
+        <a-form-model-item  label="调度执行器"  prop="jobHandler">
+          <a-select
+                    v-model="form.jobHandler"
+                    placeholder="调度执行器"
+          >
+            <a-select-option  v-for="dict in jobHandlerOptions"
+                              :value="dict.dictValue">
+              {{dict.dictLabel}}
+            </a-select-option>
+
+          </a-select>
+        </a-form-model-item>
         <a-form-model-item  label="状态"  prop="triggerStatus">
           <a-radio-group  v-model="form.triggerStatus">
             <a-radio
@@ -150,6 +162,7 @@
         visible: false,
         form: {},
         statusOptions: [],
+        jobHandlerOptions: [],
         title: "",
         ids: [],
         taskNames: [],
@@ -158,6 +171,9 @@
     created(){
       this.getDicts("job_trigger_status").then(response => {
         this.statusOptions = response.data;
+      });
+      this.getDicts("job_hander").then(response => {
+        this.jobHandlerOptions = response.data;
       });
     },
     mounted() {
@@ -227,7 +243,7 @@
           this.form = response.data;
           this.form.triggerStatus=this.form.triggerStatus.toString();
           this.visible = true;
-          this.title = "修改自动发现配置";
+          this.title = "修改调度任务";
         });
       },
       handleDelete(row) {

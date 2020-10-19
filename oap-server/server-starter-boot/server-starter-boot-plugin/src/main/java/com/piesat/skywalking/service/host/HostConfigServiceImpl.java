@@ -71,6 +71,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
+        pageBean.setPageData(hostConfigMapstruct.toDto(pageBean.getPageData()));
         return pageBean;
 
     }

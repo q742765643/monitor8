@@ -34,6 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,11 +65,29 @@ public class DeviceReportService {
         NullUtil.changeToNull(hostConfigdto);
         List<HostConfigDto> hostConfigDtos=hostConfigService.selectBySpecification(hostConfigdto);
         BulkRequest request = new BulkRequest();
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date time=new Date();
         for(HostConfigDto hostConfigDto:hostConfigDtos){
             Map<String,Object> source=this.getMap();
-            IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_REPORT, hostConfigDto.getIp()+"_"+systemQueryDto.getStartTime()).source(source);
+            source.put("ip",hostConfigDto.getIp());
+            source.put("@timestamp",time);
             source.putAll(baseInfo.get(hostConfigDto.getIp()));
+            IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_REPORT, hostConfigDto.getIp()+"_"+systemQueryDto.getStartTime()).source(source);
             request.add(indexRequest);
+        }
+        try {
+            boolean flag=elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_MEDIA_REPORT);
+            if(!flag){
+                Map<String, Object> ip = new HashMap<>();
+                ip.put("type", "keyword");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("ip", ip);
+                Map<String, Object> mapping = new HashMap<>();
+                mapping.put("properties", properties);
+                elasticSearch7Client.createIndex(IndexNameConstant.T_MT_MEDIA_REPORT,new HashMap<>(),mapping);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         elasticSearch7Client.synchronousBulk(request);
 
@@ -307,6 +327,7 @@ public class DeviceReportService {
         map.put("avg.packet.pct",0f);
         map.put("max.packet.pct",0f);
         map.put("max.uptime.pct",0f);
+        map.put("max.process.size",0l);
         return map;
     }
 }

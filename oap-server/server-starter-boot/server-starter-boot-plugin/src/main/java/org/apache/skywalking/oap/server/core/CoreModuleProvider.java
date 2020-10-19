@@ -314,15 +314,14 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }**/
+        if (MonitorConstant.ISENABLE) {
+            PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
-        PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
-
-        if (moduleConfig.isEnableDataKeeperExecutor()) {
-            DataTTLKeeperTimer.INSTANCE.start(getManager(), moduleConfig);
+            if (moduleConfig.isEnableDataKeeperExecutor()) {
+                DataTTLKeeperTimer.INSTANCE.start(getManager(), moduleConfig);
+            }
+            CacheUpdateTimer.INSTANCE.start(getManager(), moduleConfig.getMetricsDataTTL());
         }
-
-        CacheUpdateTimer.INSTANCE.start(getManager(), moduleConfig.getMetricsDataTTL());
-
         try {
             new UITemplateInitializer(ResourceUtils.read("ui-initialized-templates.yml"))
                     .read()

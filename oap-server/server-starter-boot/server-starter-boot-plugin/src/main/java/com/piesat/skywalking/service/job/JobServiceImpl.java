@@ -61,22 +61,7 @@ public class JobServiceImpl extends BaseService<HtJobInfo> implements JobInfoSer
 
     public List<HtJobInfoDto> selectBySpecification(HtJobInfoDto htJobInfoDto){
         HtJobInfo htJobInfo=htJobInfoMapstruct.toEntity(htJobInfoDto);
-        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-
-        if (StringUtils.isNotNullString(htJobInfo.getTaskName())) {
-            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), htJobInfo.getTaskName());
-        }
-        if (StringUtils.isNotNullString((String) htJobInfo.getParamt().get("beginTime"))) {
-            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) htJobInfo.getParamt().get("beginTime"));
-        }
-        if (StringUtils.isNotNullString((String) htJobInfo.getParamt().get("endTime"))) {
-            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) htJobInfo.getParamt().get("endTime"));
-        }
-        if (null!=htJobInfo.getTriggerStatus()){
-            specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), htJobInfo.getTriggerStatus());
-        }
-        Specification specification = specificationBuilder.generateSpecification();
-        List<HtJobInfo> htJobInfos=this.getAll(specification);
+        List<HtJobInfo> htJobInfos=jobInfoMapper.selectList(htJobInfo);
         return htJobInfoMapstruct.toDto(htJobInfos);
     }
     @Transactional

@@ -47,5 +47,24 @@ public class HostConfigDto extends HtJobInfoDto {
     @ApiModelProperty(value = "网关")
     private String gateway;
 
+    @ApiModelProperty(value = "平均cpu使用率")
+    private float avgCpuPct;
+    @ApiModelProperty(value = "最大cpu使用率")
+    private float maxCpuPct;
+    @ApiModelProperty(value = "平均内存使用率")
+    private float avgMemoryPct;
+    @ApiModelProperty(value = "最大内存使用率")
+    private float maxMemoryPct;
+    @ApiModelProperty(value = "最大文件使用率")
+    private float maxFilesystemPct;
+    @ApiModelProperty(value = "最大进程数")
+    private long maxProcessSize;
+    @ApiModelProperty(value = "平均丢包率")
+    private float avgPacketPct;
+    @ApiModelProperty(value = "最大丢包率")
+    private float maxPacketPct;
+    @ApiModelProperty(value = "总在线时间长")
+    private long maxUptime;
+
     private List<Integer> mediaTypes;
 }
