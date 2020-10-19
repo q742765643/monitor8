@@ -6,6 +6,83 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1359251",
+      "name": "缩小",
+      "font_class": "suoxiao",
+      "unicode": "e822",
+      "unicode_decimal": 59426
+    },
+    {
+      "icon_id": "1362400",
+      "name": "放大",
+      "font_class": "fangda",
+      "unicode": "e826",
+      "unicode_decimal": 59430
+    },
+    {
+      "icon_id": "3216060",
+      "name": "放大",
+      "font_class": "icon--",
+      "unicode": "e70e",
+      "unicode_decimal": 59150
+    },
+    {
+      "icon_id": "1398686",
+      "name": "3,六边形,复杂,three",
+      "font_class": "three",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
+      "icon_id": "10883762",
+      "name": "关系图",
+      "font_class": "guanxitu",
+      "unicode": "e8bb",
+      "unicode_decimal": 59579
+    },
+    {
+      "icon_id": "1804306",
+      "name": "链条",
+      "font_class": "chains",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "3743608",
+      "name": "11.重点项目展示",
+      "font_class": "zhongdianxiangmuzhanshi",
+      "unicode": "e62d",
+      "unicode_decimal": 58925
+    },
+    {
+      "icon_id": "7058058",
+      "name": "链路追踪",
+      "font_class": "icon-lianlu",
+      "unicode": "e68d",
+      "unicode_decimal": 59021
+    },
+    {
+      "icon_id": "13592742",
+      "name": "xtrace 链路追踪",
+      "font_class": "xtracelianluzhuizong",
+      "unicode": "e6f9",
+      "unicode_decimal": 59129
+    },
+    {
+      "icon_id": "1149700",
+      "name": "上",
+      "font_class": "shang",
+      "unicode": "e68a",
+      "unicode_decimal": 59018
+    },
+    {
+      "icon_id": "6318182",
+      "name": "下",
+      "font_class": "xia",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
       "icon_id": "689297",
       "name": "添加",
       "font_class": "tianjia1",
