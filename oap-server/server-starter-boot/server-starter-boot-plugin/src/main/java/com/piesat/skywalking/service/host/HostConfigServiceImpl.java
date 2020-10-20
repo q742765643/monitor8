@@ -115,6 +115,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if(hostConfigDto.getTriggerStatus()==null){
             hostConfigDto.setTriggerStatus(1);
         }
+        if(hostConfigDto.getIsHost()==null){
+            hostConfigDto.setIsHost(0);
+        }
         hostConfigDto.setIsUt(0);
         hostConfigDto.setDelayTime(0);
         hostConfigDto.setJobHandler("hostConfigHandler");

@@ -78,6 +78,9 @@ public class  HostConfigEntity extends HtJobInfo {
 
     @Column(name="gateway", length=255)
     private String gateway;
+    @Column(name="is_host", length=255)
+    private Integer isHost;
+
     @Transient
     private List<Integer> mediaTypes;
 
