@@ -396,9 +396,10 @@ public class SNMPService {
             if(values == null ||!DISK_OID.equals(values[0].getVariable().toString()))
                 continue;
             String diskName=values[1].getVariable().toString();
-            if(diskName.indexOf("kubernetes")!=-1||diskName.indexOf("docker")!=-1){
+            //先注释掉
+          /*  if(diskName.indexOf("kubernetes")!=-1||diskName.indexOf("docker")!=-1){
                 continue;
-            }
+            }*/
             BigDecimal unit = new BigDecimal(values[2].getVariable().toString());//unit 存储单元大小
             BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
             BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use

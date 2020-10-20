@@ -87,6 +87,9 @@ public class SNMPLinuxService extends SNMPService {
         Map<String, Object> systemM = new HashMap<>();
         Map<String, Object> cpu = new HashMap<>();
         cpu.put("cores", 0f);
+        if(null!=basicInfo.get("cores")){
+            cpu.put("cores",basicInfo.get("cores"));
+        }
         Map<String, Object> idleEs = new HashMap<>();
         Map<String, Object> idleNorm = new HashMap<>();
         idleNorm.put("pct", 0f);

@@ -5,10 +5,7 @@ import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
-import com.piesat.skywalking.util.IdUtils;
-import com.piesat.util.IndexNameUtil;
 import com.piesat.util.NullUtil;
-import com.sun.prism.shader.Solid_TextureYV12_AlphaTest_Loader;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -18,37 +15,34 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.script.BucketAggregationScript;
-import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.PipelineAggregatorBuilders;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.*;
-import org.elasticsearch.search.aggregations.pipeline.*;
+import org.elasticsearch.search.aggregations.pipeline.MaxBucketPipelineAggregationBuilder;
+import org.elasticsearch.search.aggregations.pipeline.ParsedBucketMetricValue;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * @ClassName : DeviceReportService
- * @Description : 日报
+ * @ClassName : OverviewService
+ * @Description : 资源概览
  * @Author : zzj
- * @Date: 2020-10-14 19:44
+ * @Date: 2020-10-19 14:56
  */
 @Service
-public class DeviceReportService {
+public class OverviewService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
     @GrpcHthtClient
@@ -59,9 +53,9 @@ public class DeviceReportService {
         this.getCpu(systemQueryDto,baseInfo);
         this.getMemory(systemQueryDto,baseInfo);
         this.getFilesystem(systemQueryDto,baseInfo);
-        this.getPacketloss(systemQueryDto,baseInfo);
         this.getProcess(systemQueryDto,baseInfo);
-        this.getUptime(systemQueryDto,baseInfo);
+        this.getCpuSize(systemQueryDto,baseInfo);
+        this.getMemorySize(systemQueryDto,baseInfo);
         HostConfigDto hostConfigdto=new HostConfigDto();
         NullUtil.changeToNull(hostConfigdto);
         List<HostConfigDto> hostConfigDtos=hostConfigService.selectBySpecification(hostConfigdto);
@@ -75,176 +69,19 @@ public class DeviceReportService {
             if(null!=baseInfo.get(hostConfigDto.getIp())){
                 source.putAll(baseInfo.get(hostConfigDto.getIp()));
             }
-            IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_REPORT, hostConfigDto.getIp()+"_"+systemQueryDto.getStartTime()).source(source);
-            request.add(indexRequest);
-        }
-        try {
-            boolean flag=elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_MEDIA_REPORT);
-            if(!flag){
-                Map<String, Object> ip = new HashMap<>();
-                ip.put("type", "keyword");
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("ip", ip);
-                Map<String, Object> mapping = new HashMap<>();
-                mapping.put("properties", properties);
-                elasticSearch7Client.createIndex(IndexNameConstant.T_MT_MEDIA_REPORT,new HashMap<>(),mapping);
+            long memoryTotal= (long) source.get("memory.total");
+            long cpuCores= (long) source.get("cpu.cores");
+            if(memoryTotal==0&&cpuCores==0){
+                source.put("online",0l);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_OVERVIEW, hostConfigDto.getIp()).source(source);
+            request.add(indexRequest);
         }
         elasticSearch7Client.synchronousBulk(request);
 
     }
 
-    public void getCpu(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"cpu");
-        AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_cpu_pct").field("system.cpu.total.norm.pct").format("0.0000");
-        MaxAggregationBuilder maxPct = AggregationBuilders.max("max_cpu_pct").field("system.cpu.total.norm.pct").format("0.0000");
-        TermsAggregationBuilder groupById=AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
-        groupById.subAggregation(avgPct);
-        groupById.subAggregation(maxPct);
-        search.aggregation(groupById);
-        search.size(0);
-        try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
-            Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
-                return;
-            }
-            ParsedStringTerms terms=aggregations.get("groupby_ip");
-            List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for(int i=0;i<buckets.size();i++){
-                Terms.Bucket bucket=buckets.get(i);
-                String ip=bucket.getKeyAsString();
-                ParsedAvg parsedAvg = bucket.getAggregations().get("avg_cpu_pct");
-                ParsedMax parsedMax = bucket.getAggregations().get("max_cpu_pct");
-                float avgCpuPct=Float.parseFloat(parsedAvg.getValueAsString());
-                float maxCpuPct=Float.parseFloat(parsedMax.getValueAsString());
-                Map<String,Object> value=this.getValueMap(baseInfo,ip);
-                value.put("avg.cpu.pct",avgCpuPct);
-                value.put("max.cpu.pct",maxCpuPct);
-                baseInfo.put(ip,value);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-    public void getMemory(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"memory");
-        AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_memory_pct").field("system.memory.used.pct").format("0.0000");
-        MaxAggregationBuilder maxPct = AggregationBuilders.max("max_memory_pct").field("system.memory.used.pct").format("0.0000");
-        TermsAggregationBuilder groupById=AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
-        groupById.subAggregation(avgPct);
-        groupById.subAggregation(maxPct);
-        search.aggregation(groupById);
-        search.size(0);
-        try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
-            Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
-                return;
-            }
-            ParsedStringTerms terms=aggregations.get("groupby_ip");
-            List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for(int i=0;i<buckets.size();i++){
-                Terms.Bucket bucket=buckets.get(i);
-                String ip=bucket.getKeyAsString();
-                ParsedAvg parsedAvg = bucket.getAggregations().get("avg_memory_pct");
-                ParsedMax parsedMax = bucket.getAggregations().get("max_memory_pct");
-                float avgMemoryPct=Float.parseFloat(parsedAvg.getValueAsString());
-                float maxMemoryPct=Float.parseFloat(parsedMax.getValueAsString());
-                Map<String,Object> value=this.getValueMap(baseInfo,ip);
-                value.put("avg.memory.pct",avgMemoryPct);
-                value.put("max.memory.pct",maxMemoryPct);
-                baseInfo.put(ip,value);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public void getFilesystem(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"filesystem");
-        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_ip ").field("host.name").size(10000);
-        TermsAggregationBuilder groupbyTime= AggregationBuilders.terms("groupby_time").field("@timestamp").size(1);
-        SumAggregationBuilder sumFilesystemUse = AggregationBuilders.sum("sum_filesystem_use").field("system.filesystem.used.bytes").format("0.0000");
-        SumAggregationBuilder sumFilesystem = AggregationBuilders.sum("sum_filesystem").field("system.filesystem.total").format("0.0000");
-        Script select = new Script("params.sum_filesystem_use/params.sum_filesystem");
-        Map<String, String> bucketsPath = new HashMap<>();
-        bucketsPath.put("sum_filesystem", "sum_filesystem");
-        bucketsPath.put("sum_filesystem_use","sum_filesystem_use");
-        BucketScriptPipelineAggregationBuilder bucketScript = PipelineAggregatorBuilders.bucketScript("avg_filesystem_pct", bucketsPath, select);
-        bucketScript.format("0.0000");
-        groupbyTime.subAggregation(sumFilesystemUse);
-        groupbyTime.subAggregation(sumFilesystem);
-        groupbyTime.subAggregation(bucketScript);
-        groupbyIp.subAggregation(groupbyTime);
-        MaxBucketPipelineAggregationBuilder maxFilesystemPct= new MaxBucketPipelineAggregationBuilder("max_filesystem_pct","groupby_time>avg_filesystem_pct").format("0.0000");
-        groupbyIp.subAggregation(maxFilesystemPct);
-        search.aggregation(groupbyIp);
-        search.size(0);
-        try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
-            Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
-                return;
-            }
-            List<Aggregation> aggs= aggregations.asList();
-            for(int i=0;i<aggs.size();i++){
-               ParsedStringTerms parsedStringTerms = (ParsedStringTerms) aggs.get(i);
-                List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
-                for(int j=0;j<buckets.size();j++){
-                    Terms.Bucket bucket=buckets.get(j);
-                    String ip=bucket.getKeyAsString();
-                    Map<String, Aggregation> map=bucket.getAggregations().getAsMap();
-                    ParsedBucketMetricValue max= (ParsedBucketMetricValue) map.get("max_filesystem_pct");
-                    Map<String,Object> value=this.getValueMap(baseInfo,ip);
-                    value.put("max.filesystem.pct",Float.parseFloat(max.getValueAsString()));
-                    baseInfo.put(ip,value);
-
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public void getProcess(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"process");
-        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_ip ").field("host.name").size(10000);
-        TermsAggregationBuilder groupbyTime= AggregationBuilders.terms("groupby_time").field("@timestamp").size(1);
-        ValueCountAggregationBuilder sumProcess = AggregationBuilders.count("sum_process").field("process.pid");
-        groupbyTime.subAggregation(sumProcess);
-        groupbyIp.subAggregation(groupbyTime);
-        MaxBucketPipelineAggregationBuilder maxProcessSize= new MaxBucketPipelineAggregationBuilder("max_process","groupby_time>sum_process");
-        groupbyIp.subAggregation(maxProcessSize);
-        search.aggregation(groupbyIp);
-        search.size(0);
-        try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
-            Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
-                return;
-            }
-            List<Aggregation> aggs= aggregations.asList();
-            for(int i=0;i<aggs.size();i++){
-                ParsedStringTerms parsedStringTerms = (ParsedStringTerms) aggs.get(i);
-                List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
-                for(int j=0;j<buckets.size();j++){
-                    Terms.Bucket bucket=buckets.get(j);
-                    String ip=bucket.getKeyAsString();
-                    Map<String, Aggregation> map=bucket.getAggregations().getAsMap();
-                    ParsedBucketMetricValue max= (ParsedBucketMetricValue) map.get("max_process");
-                    Map<String,Object> value=this.getValueMap(baseInfo,ip);
-                    value.put("max.process.size",Float.parseFloat(max.getValueAsString()));
-                    baseInfo.put(ip,value);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto,String type){
+    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto, String type){
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system."+type);
@@ -260,15 +97,19 @@ public class DeviceReportService {
         searchSourceBuilder.query(boolBuilder);
         return searchSourceBuilder;
     }
-    public void getPacketloss(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"packet");
-        AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_packet_pct").field("loss").format("0.0000");
-        MaxAggregationBuilder maxPct = AggregationBuilders.max("max_packet_pct").field("loss").format("0.0000");
+    public Map<String,Object>  getValueMap(Map<String, Map<String,Object>> baseInfo,String ip){
+        if(null!=baseInfo.get(ip)){
+            return baseInfo.get(ip);
+        }else {
+            return new HashMap<>();
+        }
+    }
+    public void getCpu(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
+        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"cpu");
+        AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_cpu_pct").field("system.cpu.total.norm.pct").format("0.0000");
         TermsAggregationBuilder groupById=AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
         groupById.subAggregation(avgPct);
-        groupById.subAggregation(maxPct);
         search.aggregation(groupById);
-        search.size(0);
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
             Aggregations aggregations = searchResponse.getAggregations();
@@ -280,69 +121,225 @@ public class DeviceReportService {
             for(int i=0;i<buckets.size();i++){
                 Terms.Bucket bucket=buckets.get(i);
                 String ip=bucket.getKeyAsString();
-                ParsedAvg parsedAvg = bucket.getAggregations().get("avg_packet_pct");
-                ParsedMax parsedMax = bucket.getAggregations().get("max_packet_pct");
-                float avgPacketPct=Float.parseFloat(parsedAvg.getValueAsString());
-                float maxPacketPct=Float.parseFloat(parsedMax.getValueAsString());
+                ParsedAvg parsedAvg = bucket.getAggregations().get("avg_cpu_pct");
+                float avgCpuPct=Float.parseFloat(parsedAvg.getValueAsString());
                 Map<String,Object> value=this.getValueMap(baseInfo,ip);
-                value.put("avg.packet.pct",avgPacketPct);
-                value.put("max.packet.pct",maxPacketPct);
+                value.put("avg.cpu.pct",avgCpuPct);
                 baseInfo.put(ip,value);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    public void getUptime (SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"uptime");
-        MaxAggregationBuilder maxTime = AggregationBuilders.max("uptime").field("system.uptime.duration.ms").format("0.0000");
-        TermsAggregationBuilder groupById=AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
-        groupById.subAggregation(maxTime);
-        search.aggregation(groupById);
-        search.size(0);
-        try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
-            Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
-                return;
-            }
-            ParsedStringTerms terms=aggregations.get("groupby_ip");
-            List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for(int i=0;i<buckets.size();i++){
-                Terms.Bucket bucket=buckets.get(i);
-                String ip=bucket.getKeyAsString();
-                ParsedMax parsedMax = bucket.getAggregations().get("uptime");
-                float maxUptime=Float.parseFloat(parsedMax.getValueAsString());
-                Map<String,Object> value=this.getValueMap(baseInfo,ip);
-                value.put("max.uptime.pct",maxUptime);
-                baseInfo.put(ip,value);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public Map<String,Object>  getValueMap(Map<String, Map<String,Object>> baseInfo,String ip){
-            if(null!=baseInfo.get(ip)){
-                return baseInfo.get(ip);
-            }else {
-                return new HashMap<>();
-            }
+
     }
 
+    public void getMemory(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
+        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"memory");
+        AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_memory_pct").field("system.memory.used.pct").format("0.0000");
+        TermsAggregationBuilder groupById=AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
+        groupById.subAggregation(avgPct);
+        search.aggregation(groupById);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return;
+            }
+            ParsedStringTerms terms=aggregations.get("groupby_ip");
+            List<? extends Terms.Bucket> buckets = terms.getBuckets();
+            for(int i=0;i<buckets.size();i++){
+                Terms.Bucket bucket=buckets.get(i);
+                String ip=bucket.getKeyAsString();
+                ParsedAvg parsedAvg = bucket.getAggregations().get("avg_memory_pct");
+                float avgMemoryPct=Float.parseFloat(parsedAvg.getValueAsString());
+                Map<String,Object> value=this.getValueMap(baseInfo,ip);
+                value.put("avg.memory.pct",avgMemoryPct);
+                baseInfo.put(ip,value);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getFilesystem(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
+        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"filesystem");
+        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_ip ").field("host.name").size(10000);
+        TermsAggregationBuilder groupbyTime= AggregationBuilders.terms("groupby_time").field("@timestamp").size(1).order(BucketOrder.key(false));
+        SumAggregationBuilder filesystemUse = AggregationBuilders.sum("use_filesystem_size").field("system.filesystem.used.bytes").format("0.0000");
+        SumAggregationBuilder sumFileSize=AggregationBuilders.sum("sum_filesystem_size").field("system.filesystem.total").format("0.0000");
+        groupbyTime.subAggregation(filesystemUse);
+        groupbyTime.subAggregation(sumFileSize);
+        groupbyIp.subAggregation(groupbyTime);
+        search.aggregation(groupbyIp);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return;
+            }
+            List<Aggregation> aggs= aggregations.asList();
+            for(int i=0;i<aggs.size();i++){
+                ParsedStringTerms parsedStringTerms = (ParsedStringTerms) aggs.get(i);
+                List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
+                for(int j=0;j<buckets.size();j++){
+                    Terms.Bucket bucket=buckets.get(j);
+                    String ip=bucket.getKeyAsString();
+                    ParsedLongTerms parsedLongTerms = bucket.getAggregations().get("groupby_time");
+                    List<? extends Terms.Bucket> bucketsTime = parsedLongTerms.getBuckets();
+
+                    for(int k=0;k<bucketsTime.size();k++){
+                        Terms.Bucket bucketTime=bucketsTime.get(k);
+                        Map<String,Object> value=this.getValueMap(baseInfo,ip);
+                        ParsedSum parsedUseSum=bucketTime.getAggregations().get("use_filesystem_size");
+                        ParsedSum parsedSum=bucketTime.getAggregations().get("sum_filesystem_size");
+                        value.put("filesystem.use.size",Float.parseFloat(parsedUseSum.getValueAsString()));
+                        value.put("filesystem.size",new BigDecimal(parsedSum.getValueAsString()).longValue());
+                        value.put("filesystem.pct",new BigDecimal(parsedUseSum.getValueAsString()).divide(new BigDecimal(parsedSum.getValueAsString())).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+
+                        baseInfo.put(ip,value);
+                    }
+
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getProcess(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
+        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"process");
+        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_ip ").field("host.name").size(10000);
+        TermsAggregationBuilder groupbyTime= AggregationBuilders.terms("groupby_time").field("@timestamp").size(1).order(BucketOrder.key(false));
+        ValueCountAggregationBuilder sumProcess = AggregationBuilders.count("sum_process").field("process.pid");
+        groupbyTime.subAggregation(sumProcess);
+        groupbyIp.subAggregation(groupbyTime);
+        search.aggregation(groupbyIp);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return;
+            }
+            List<Aggregation> aggs= aggregations.asList();
+            for(int i=0;i<aggs.size();i++){
+                ParsedStringTerms parsedStringTerms = (ParsedStringTerms) aggs.get(i);
+                List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
+                for(int j=0;j<buckets.size();j++){
+                    Terms.Bucket bucket=buckets.get(j);
+                    String ip=bucket.getKeyAsString();
+                    ParsedLongTerms parsedLongTerms = bucket.getAggregations().get("groupby_time");
+                    List<? extends Terms.Bucket> bucketsTime = parsedLongTerms.getBuckets();
+
+                    for(int k=0;k<bucketsTime.size();k++){
+                        Terms.Bucket bucketTime=bucketsTime.get(k);
+                        Map<String,Object> value=this.getValueMap(baseInfo,ip);
+                        ParsedValueCount parsedValueCount=bucketTime.getAggregations().get("sum_process");
+                        value.put("process.size",new BigDecimal(parsedValueCount.getValueAsString()).longValue());
+                        baseInfo.put(ip,value);
+                    }
+
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void getCpuSize(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
+        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"cpu");
+        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_ip ").field("host.name").size(10000);
+        TermsAggregationBuilder groupbyTime= AggregationBuilders.terms("groupby_time").field("@timestamp").size(1).order(BucketOrder.key(false));
+        MaxAggregationBuilder maxCpuCores = AggregationBuilders.max("sum_cpu_size").field("system.cpu.cores").format("0");
+        groupbyTime.subAggregation(maxCpuCores);
+        groupbyIp.subAggregation(groupbyTime);
+        search.aggregation(groupbyIp);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return;
+            }
+            List<Aggregation> aggs= aggregations.asList();
+            for(int i=0;i<aggs.size();i++){
+                ParsedStringTerms parsedStringTerms = (ParsedStringTerms) aggs.get(i);
+                List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
+                for(int j=0;j<buckets.size();j++){
+                    Terms.Bucket bucket=buckets.get(j);
+                    String ip=bucket.getKeyAsString();
+                    ParsedLongTerms parsedLongTerms = bucket.getAggregations().get("groupby_time");
+                    List<? extends Terms.Bucket> bucketsTime = parsedLongTerms.getBuckets();
+
+                    for(int k=0;k<bucketsTime.size();k++){
+                        Terms.Bucket bucketTime=bucketsTime.get(k);
+                        Map<String,Object> value=this.getValueMap(baseInfo,ip);
+                        ParsedMax parsedMax=bucketTime.getAggregations().get("sum_cpu_size");
+                        value.put("cpu.cores",new BigDecimal(parsedMax.getValueAsString()).longValue());
+                        baseInfo.put(ip,value);
+                    }
+
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void getMemorySize(SystemQueryDto systemQueryDto,Map<String, Map<String,Object>> baseInfo){
+        SearchSourceBuilder search=this.buildWhere(systemQueryDto,"memory");
+        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_ip ").field("host.name").size(10000);
+        TermsAggregationBuilder groupbyTime= AggregationBuilders.terms("groupby_time").field("@timestamp").size(1).order(BucketOrder.key(false));
+        MaxAggregationBuilder maxMemory = AggregationBuilders.max("sum_memory_size").field("system.memory.total").format("0");
+        groupbyTime.subAggregation(maxMemory);
+        groupbyIp.subAggregation(groupbyTime);
+        search.aggregation(groupbyIp);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return;
+            }
+            List<Aggregation> aggs= aggregations.asList();
+            for(int i=0;i<aggs.size();i++){
+                ParsedStringTerms parsedStringTerms = (ParsedStringTerms) aggs.get(i);
+                List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
+                for(int j=0;j<buckets.size();j++){
+                    Terms.Bucket bucket=buckets.get(j);
+                    String ip=bucket.getKeyAsString();
+                    ParsedLongTerms parsedLongTerms = bucket.getAggregations().get("groupby_time");
+                    List<? extends Terms.Bucket> bucketsTime = parsedLongTerms.getBuckets();
+
+                    for(int k=0;k<bucketsTime.size();k++){
+                        Terms.Bucket bucketTime=bucketsTime.get(k);
+                        Map<String,Object> value=this.getValueMap(baseInfo,ip);
+                        ParsedMax parsedMax=bucketTime.getAggregations().get("sum_memory_size");
+                        value.put("memory.total",new BigDecimal(parsedMax.getValueAsString()).longValue());
+                        baseInfo.put(ip,value);
+                    }
+
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public Map<String,Object> getMap(){
         Map<String,Object> map=new HashMap<>();
         map.put("avg.cpu.pct",0f);
-        map.put("max.cpu.pct",0f);
         map.put("avg.memory.pct",0f);
-        map.put("max.memory.pct",0f);
-        map.put("max.filesystem.pct",0f);
-        map.put("avg.packet.pct",0f);
-        map.put("max.packet.pct",0f);
-        map.put("max.uptime.pct",0f);
-        map.put("max.process.size",0l);
-        map.put("down.time",60*60*1000*60l);
-        map.put("down.num",5l);
-        map.put("alarm.num",10l);
+        map.put("filesystem.pct",0f);
+        map.put("filesystem.use.size",0f);
+        map.put("filesystem.size",0l);
+        map.put("process.size",0l);
+        map.put("cpu.cores",0l);
+        map.put("memory.total",0l);
+        map.put("online",1l);
         return map;
     }
 }

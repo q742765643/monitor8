@@ -1,3 +1,4 @@
+<!--
 <template>
   <div id="managerMaster">
     <div id="header">
@@ -42,8 +43,8 @@
           :edit-config="{ trigger: 'manual', mode: 'row' }"
           :checkbox-config="{ labelField: 'number' }"
         >
-          <!--   :checkbox-config="{ labelField: 'number' }" -->
-          <!--   <vxe-table-column type="checkbox" width="80" title="序号"></vxe-table-column> -->
+          &lt;!&ndash;   :checkbox-config="{ labelField: 'number' }" &ndash;&gt;
+          &lt;!&ndash;   <vxe-table-column type="checkbox" width="80" title="序号"></vxe-table-column> &ndash;&gt;
           <vxe-table-column field="number" title="序号" type="checkbox"></vxe-table-column>
           <vxe-table-column
             field="name"
@@ -105,14 +106,14 @@
           <vxe-table-column title="操作" width="160">
             <template v-slot="{ row }">
               <template v-if="$refs.xTable.isActiveByRow(row)">
-                <!--   <vxe-button @click="saveRowEvent(row)">保存</vxe-button>
-                <vxe-button @click="cancelRowEvent(row)">取消</vxe-button> -->
+                &lt;!&ndash;   <vxe-button @click="saveRowEvent(row)">保存</vxe-button>
+                <vxe-button @click="cancelRowEvent(row)">取消</vxe-button> &ndash;&gt;
 
                 <span class="iconfont iconiconfontcheck" @click="saveRowEvent(row)">保存</span>
                 <span class="iconfont iconcuo" @click="cancelRowEvent(row)">取消</span>
               </template>
               <template v-else>
-                <!--  <vxe-button @click="editRowEvent(row)">编辑</vxe-button> -->
+                &lt;!&ndash;  <vxe-button @click="editRowEvent(row)">编辑</vxe-button> &ndash;&gt;
                 <span class="iconfont iconbianji1" @click="editRowEvent(row)">编辑</span>
               </template>
             </template>
@@ -121,10 +122,10 @@
       </div>
     </div>
 
-    <!--   添加设备 -->
+    &lt;!&ndash;   添加设备 &ndash;&gt;
     <template>
       <div>
-        <!--   添加设备 -->
+        &lt;!&ndash;   添加设备 &ndash;&gt;
         <vxe-modal :mask="false" v-model="showAddMoadl" size="mini" title="添加设备">
           <vxe-form ref="xForm" title-width="80" title-align="right">
             <vxe-form-item title="设备名称" field="name" span="24">
@@ -222,7 +223,7 @@
           </vxe-form>
         </vxe-modal>
 
-        <!--   链路中添加 -->
+        &lt;!&ndash;   链路中添加 &ndash;&gt;
         <vxe-modal :mask="false" @hide="clearData" v-model="showTopuMoadl" size="mini" title="链路选择">
           <template v-slot>
             <div id="treeSelect" style="height:330px">
@@ -783,3 +784,498 @@
     }
   }
 </style>
+-->
+<template>
+  <div>
+    <div  class="app-container">
+      <a-form-model layout="inline"  :model="queryParams" ref="queryForm" >
+        <a-form-model-item label="ip地址"  prop="ip">
+          <a-input v-model="queryParams.ip" placeholder="请输入ip地址">
+          </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="运行状态" prop="triggerStatus">
+          <a-select style="width: 120px"
+                    v-model="queryParams.triggerStatus"
+          >
+            <a-select-option  v-for="dict in triggerStatusOptions"
+                              :value="dict.dictValue">
+              {{dict.dictLabel}}
+            </a-select-option>
+
+          </a-select>
+        </a-form-model-item>
+        <a-form-model-item >
+          <a-col :span="24" :style="{ textAlign: 'right' }">
+            <a-button type="primary" html-type="submit" @click="handleQuery">
+              搜索
+            </a-button>
+            <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
+              重置
+            </a-button>
+          </a-col>
+        </a-form-model-item>
+      </a-form-model>
+    </div>
+    <a-row type="flex"  style="margin-left: 2% " >
+      <a-col :span="1.5">
+        <a-button type="primary"
+                  icon="plus"
+                  @click="handleAdd">
+          新增
+        </a-button>
+        <a-button type="danger"
+                  icon="delete"
+                  @click="handleDelete">
+          删除
+        </a-button>
+      </a-col>
+    </a-row>
+    <a-row type="flex">
+      <a-table  :row-selection="rowSelection"
+                :row-key="record => record.id"
+                :columns="columns"
+                :data-source="data"
+                :pagination="pagination"
+                :loading="loading"
+                size="small"
+                @change="handleTableChange"
+                :rowClassName="fnRowClass"
+                :scroll="{ x: 'calc(1200px + 50%)'}"
+
+      >
+      <span slot="currentStatus" slot-scope="text">
+       {{statusFormat(currentStatusOptions,text)}}
+      </span>
+        <span slot="mediaType" slot-scope="text">
+       {{statusFormat(mediaTypeOptions,text)}}
+      </span>
+        <span slot="monitoringMethods" slot-scope="text">
+       {{statusFormat(monitoringMethodsOptions,text)}}
+      </span>
+        <span slot="triggerStatus" slot-scope="text">
+        {{statusFormat(triggerStatusOptions,text)}}
+      </span>
+        <span slot="area" slot-scope="text">
+        {{statusFormat(areaOptions,text)}}
+      </span>
+
+        <span slot="createTime" slot-scope="text">
+       {{ parseTime(text) }}
+      </span>
+        <span slot="operate" slot-scope="text, record">
+       <a-button icon="edit" size="small" @click="handleUpdate(record)">
+        编辑
+       </a-button>
+       <a-button icon="delete" size="small"  @click="handleDelete(record)">
+        删除
+       </a-button>
+      </span>
+      </a-table>
+    </a-row>
+    <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消"
+             width="50%" @ok="submitForm"
+    >
+      <a-form-model  :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form" >
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item  label="设备别名"  prop="taskName">
+              <a-input v-model="form.taskName" placeholder="请输入设备别名">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item  label="设备名称"  prop="hostName">
+              <a-input v-model="form.hostName" placeholder="请输入设备名称">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item  label="ip地址"  prop="ip">
+              <a-input v-model="form.ip" placeholder="请输入ip地址">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item  label="网关"  prop="gateway">
+              <a-input v-model="form.gateway" placeholder="请输入网关">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item  label="子网掩码"  prop="mask">
+              <a-input v-model="form.mask" placeholder="请输入子网掩码">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item  label="监控策略"  prop="jobCron">
+              <a-input v-model="form.jobCron" placeholder="请输入监控策略">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item  label="mac地址"  prop="mac">
+              <a-input v-model="form.mac" placeholder="请输入mac地址">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item  label="负责人"  prop="createBy">
+              <a-input v-model="form.createBy" placeholder="负责人">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item  label="监视方式"  prop="monitoringMethods">
+              <a-select
+                      v-model="form.monitoringMethods"
+                      placeholder="字典状态"
+              >
+                <a-select-option v-for="dict in monitoringMethodsOptions"
+                                 :value="parseInt(dict.dictValue)">
+                  {{dict.dictLabel}}
+                </a-select-option>
+              </a-select>
+
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item  label="设备类型"  prop="mediaType">
+              <a-select
+                      v-model="form.mediaType"
+              >
+                <a-select-option  v-for="dict in mediaTypeOptions"
+                                  :value="parseInt(dict.dictValue)">
+                  {{dict.dictLabel}}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item  label="区域"  prop="area">
+              <a-select
+                      v-model="form.area"
+              >
+                <a-select-option v-for="dict in areaOptions"
+                                 :value="parseInt(dict.dictValue)">
+                  {{dict.dictLabel}}
+                </a-select-option>
+              </a-select>
+
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item  label="设备状态"  prop="currentStatus">
+
+              <a-select
+                      v-model="form.currentStatus"
+              >
+                <a-select-option v-for="dict in currentStatusOptions"
+                                 :value="parseInt(dict.dictValue)">
+                  {{dict.dictLabel}}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-model-item  :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="详细地址"  prop="location">
+              <a-input type="textarea" v-model="form.location" placeholder="详细地址">
+              </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
+
+        </a-row>
+      </a-form-model>
+    </a-modal>
+  </div>
+
+</template>
+<style>
+  .csbsTypes{
+    font-size: 14px;
+  }
+  .ant-table-thead > tr > th {
+    font-size: 15px;
+  }
+</style>
+<script>
+  import request from "@/utils/request";
+  const columns = [
+    {
+      title: '设备别名',
+      dataIndex: 'taskName',
+      width: '10%',
+      scopedSlots: { customRender: 'taskName' },
+    },
+    {
+      title: '监控策略',
+      dataIndex: 'jobCron',
+      width: '10%',
+    },
+    {
+      title: '设备状态',
+      dataIndex: 'currentStatus',
+      width: '10%',
+      scopedSlots: { customRender: 'currentStatus' },
+    },
+    {
+      title: '设备名称',
+      dataIndex: 'hostName',
+      width: '10%',
+    },
+    {
+      title: 'ip地址',
+      dataIndex: 'ip',
+      width: '10%',
+    },
+    {
+      title: '监控方式',
+      dataIndex: 'monitoringMethods',
+      width: '10%',
+      scopedSlots: { customRender: 'monitoringMethods' },
+    },
+    {
+      title: '设备类型',
+      dataIndex: 'mediaType',
+      width: '10%',
+      scopedSlots: { customRender: 'mediaType' },
+    },
+    {
+      title: '网关',
+      dataIndex: 'gateway',
+      width: '10%',
+    },
+    {
+      title: 'mac地址',
+      dataIndex: 'mac',
+      width: '15%',
+    },
+    {
+      title: '区域',
+      dataIndex: 'area',
+      width: '10%',
+      scopedSlots: { customRender: 'area' },
+    },
+    {
+      title: '地址',
+      dataIndex: 'location',
+      width: '15%',
+    },
+    {
+      title: '运行状态',
+      dataIndex: 'triggerStatus',
+      width: '10%',
+      scopedSlots: { customRender: 'triggerStatus' },
+    },
+    {
+      title: '发现时间',
+      dataIndex: 'createTime',
+      width: '200px',
+      scopedSlots: { customRender: 'createTime' },
+    },
+    {
+      title: '操作',
+      dataIndex: 'operate',
+      width: '200px',
+      scopedSlots: { customRender: 'operate' },
+    },
+  ];
+
+  export default {
+    data() {
+      return {
+        data: [],
+        pagination: {},
+        loading: false,
+        columns,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          triggerStatus: undefined,
+          taskName: undefined,
+          ip: undefined,
+        },
+        visible: false,
+        form: {},
+        triggerStatusOptions: [],
+        currentStatusOptions: [],
+        mediaTypeOptions: [],
+        monitoringMethodsOptions:[],
+        areaOptions:[],
+        title: "",
+        ids: [],
+        ips: [],
+      };
+    },
+    created(){
+      this.getDicts("job_trigger_status").then(response => {
+        this.triggerStatusOptions = response.data;
+      });
+      this.getDicts("current_status").then(response => {
+        this.currentStatusOptions = response.data;
+      });
+      this.getDicts("media_type").then(response => {
+        this.mediaTypeOptions = response.data;
+      });
+      this.getDicts("monitoring_methods").then(response => {
+        this.monitoringMethodsOptions = response.data;
+      });
+      this.getDicts("media_area").then(response => {
+        this.areaOptions = response.data;
+      });
+    },
+    mounted() {
+      this.fetch();
+    },
+    computed: {
+      rowSelection() {
+        return {
+          onChange: (selectedRowKeys, selectedRows) => {
+            this.ids = selectedRows.map(item => item.id);
+            this.ips = selectedRows.map(item => item.ip);
+          },
+          getCheckboxProps: record => ({
+            props: {
+              disabled: record.id === 'Disabled User', // Column configuration not to be checked
+              name: record.id,
+            },
+          }),
+        };
+      },
+    },
+    methods: {
+      statusFormat(options,status) {
+        return this.selectDictLabel(options,status);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        this.loading = true;
+        request({
+          url:'/hostConfig/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange)
+        }).then(data => {
+          const pagination = { ...this.pagination };
+          pagination.total = data.data.totalCount;
+          this.loading = false;
+          this.data = data.data.pageData;
+          this.pagination = pagination;
+        });
+      },
+      handleAdd(){
+        this.form.id=undefined;
+        this.title="新增链路设备";
+        this.visible = true;
+      },
+      handleTableChange(pagination, filters, sorter) {
+        const pager = { ...this.pagination };
+        this.queryParams.pageNum = pagination.current;
+        this.pagination = pager;
+        this.fetch();
+      },
+      handleUpdate(row) {
+        this.form={};
+        const id = row.id || this.ids;
+
+        request({
+          url: '/hostConfig/' + id,
+          method: 'get'
+        }).then(response => {
+          this.form = response.data;
+          //this.form.monitoringMethods= this.form.monitoringMethods.toString();
+          //this.form.mediaType= this.form.mediaType.toString();
+          //this.form.deviceType= this.form.deviceType.toString();
+          //this.form.currentStatus= this.form.currentStatus.toString();
+          //this.form.triggerStatus=this.form.triggerStatus.toString();
+          this.visible = true;
+          this.title = "修改链路设备";
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        const ips = row.ip || this.ips;
+        this.$confirm({
+          title:  '是否确认删除ip为"' + ips + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk:()=> {
+            request({
+              url: '/hostConfig/' + ids,
+              method: 'delete'
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError("删除成功!");
+              } else {
+                this.msgError(response.msg);
+              }
+            })
+          },
+          onCancel() {
+
+          },
+        });
+      },
+      submitForm(){
+        if (this.form.id != undefined) {
+          request({
+            url: '/hostConfig',
+            method: 'post',
+            data: this.form
+          }).then(response => {
+            if (response.code === 200) {
+              this.msgSuccess("修改成功");
+              this.visible = false;
+              this.fetch();
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        }else {
+          request({
+            url: '/hostConfig',
+            method: 'post',
+            data: this.form
+          }).then(response => {
+            if (response.code === 200) {
+              this.msgSuccess("新增成功");
+              this.visible = false;
+              this.fetch();
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        }
+      },
+      fnRowClass(record,index){
+        return  "csbsTypes"
+      }
+    },
+  };
+</script>

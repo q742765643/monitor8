@@ -91,7 +91,7 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
         AvgAggregationBuilder avgPacketPct = AggregationBuilders.avg("avg_packet_pct").field("avg.packet.pct").format("0.0000");
         MaxAggregationBuilder maxPacketPct = AggregationBuilders.max("max_packet_pct").field("max.packet.pct").format("0.0000");
         MaxAggregationBuilder maxUptime = AggregationBuilders.max("max_uptime").field("max.uptime.pct");
-        TermsAggregationBuilder groupByIp=AggregationBuilders.terms("groupby_ip").field("ip");
+        TermsAggregationBuilder groupByIp=AggregationBuilders.terms("groupby_ip").field("ip").size(10000);
         groupByIp.subAggregation(avgCpuPct);
         groupByIp.subAggregation(maxCpuPct);
         groupByIp.subAggregation(avgMemoryPct);
