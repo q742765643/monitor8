@@ -27,11 +27,9 @@ import Profile from './views/containers/profile.vue';
 import AutoDiscovery from './views/config/autoDiscovery.vue';
 import networkTopology from './views/containers/topology/networkTopology.vue';
 
-/* import Home from './views/containers/home/home.vue';
+import Home from './views/containers/home/home.vue';
 import mainer from './views/containers/home/right/index/mainer.vue';
-import topu from './views/containers/home/right/topu/topu/topu.vue'; */
-
-import Home from './page/home.vue';
+import topu from './views/containers/home/right/topu/topu/topu.vue';
 
 Vue.use(Router);
 
@@ -43,73 +41,106 @@ const router = new Router({
   base: '/',
   linkActiveClass: 'active',
   routes: [
+    // {
+    //   path: '/login',
+    //   component: Login,
+    //   meta: { login: true },
+    // },
+    /*  {
+      path: '/',
+      component: Index,
+
+      children: [
+        {
+          path: '',
+          component: Dashboard,
+        },
+        {
+          path: 'trace',
+          component: Trace,
+        },
+        {
+          path: 'topology',
+          component: Topology,
+        },
+        {
+          path: 'alarm',
+          component: Alarm,
+        },
+        {
+          path: 'profile',
+          component: Profile,
+        },
+        {
+          path: 'autoDiscovery',
+          component: AutoDiscovery,
+        },
+        {
+          path: 'networkTopology',
+          component: networkTopology,
+        },
+      ],
+    },  */
+
     {
       path: '/',
       component: Home,
       children: [
         {
           path: '',
-          redirect: '/mainMonitor',
+          component: mainer,
         },
         {
-          path: '/mainMonitor',
-          name: 'mainMonitor',
-          component: () => import('@/page/mainMonitor/index.vue'),
+          path: 'mainer',
+          component: mainer,
         },
         {
-          path: '/discoverLink/linkTopu',
-          name: 'linkTopu',
-          component: () => import('@/page/discoverLink/linkTopu/index.vue'),
+          path: 'topu',
+          component: topu,
         },
         {
-          path: '/discoverLink/linkManager',
-          name: 'linkManager',
-          component: () => import('@/page/discoverLink/linkManager/index.vue'),
+          path: 'topuConfig',
+          component: () => import('./views/containers/home/right/topu/config/config.vue'),
         },
         {
-          path: '/discoverLink/linkConfig',
-          name: 'linkConfig',
-          component: () => import('@/page/discoverLink/linkConfig/index.vue'),
+          path: 'manager',
+          component: () => import('./views/containers/home/right/topu/manager/index.vue'),
         },
         {
-          path: '/discoverLink/linkReport',
-          name: 'linkReport',
-          component: () => import('@/page/discoverLink/linkReport/index.vue'),
+          path: 'report',
+          component: () => import('./views/containers/home/right/topu/report/index.vue'),
         },
         {
-          path: '/masterMonitor/resourceView',
-          name: 'resourceView',
-          component: () => import('@/page/masterMonitor/resourceView/index.vue'),
+          path: 'resource',
+          component: () => import('./views/containers/home/right/host/resource/index.vue'),
         },
         {
-          path: '/masterMonitor/masterManager',
-          name: 'masterManager',
-          component: () => import('@/page/masterMonitor/masterManager/index.vue'),
+          path: 'detail',
+          component: () => import('./views/containers/home/right/host/details/index.vue'),
         },
         {
-          path: '/masterMonitor/masterReport',
-          name: 'masterReport',
-          component: () => import('@/page/masterMonitor/masterReport/index.vue'),
+          path: 'masterReport',
+          component: () => import('./views/containers/home/right/host/report/index.vue'),
         },
         {
-          path: '/businessView/dataView',
-          name: 'dataView',
-          component: () => import('@/page/businessView/dataView/index.vue'),
+          path: 'dataView',
+          component: () => import('./views/containers/home/right/busines/dataView/index.vue'),
         },
         {
-          path: '/businessView/softwareView',
-          name: 'softwareView',
-          component: () => import('@/page/businessView/softwareView/index.vue'),
+          path: 'dictType',
+          component: () => import('./views/containers/home/right/dict/index.vue'),
         },
         {
-          path: '/businessView/dataReport',
-          name: 'dataReport',
-          component: () => import('@/page/businessView/dataReport/index.vue'),
+          path: 'dictData/:dictId',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
         },
         {
-          path: '/businessView/softwareReport',
-          name: 'softwareReport',
-          component: () => import('@/page/businessView/softwareReport/index.vue'),
+          path: 'dictData',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
+        },
+        {
+          path: 'job',
+          component: () => import('./views/containers/home/right/job/index.vue'),
         },
       ],
     },
