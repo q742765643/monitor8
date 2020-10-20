@@ -12,6 +12,11 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +46,36 @@ public class OverviewQServiceImpl implements OverviewQService {
         systemQueryDto.setEndTime(endTime);
         List<OverviewDto> overviewDtos=this.getOverviewEs(systemQueryDto);
         return overviewDtos;
+    }
+
+    public Map<String,Long> getNodes(){
+        Map<String,Long> map=new HashMap<>();
+        long time=System.currentTimeMillis();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
+        String endTime= dateFormat.format(time);
+        String starTime= dateFormat.format(time-6000000);
+        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        systemQueryDto.setStartTime(starTime);
+        systemQueryDto.setEndTime(endTime);
+        SearchSourceBuilder search = this.buildWhere(systemQueryDto);
+
+        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_online ").field("online").size(10000);
+        search.aggregation(groupbyIp);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_MEDIA_OVERVIEW, search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return map;
+            }
+            ParsedStringTerms terms=aggregations.get("groupby_ip");
+            List<? extends Terms.Bucket> buckets = terms.getBuckets();
+            for(int i=0;i<buckets.size();i++){
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 
     public List<OverviewDto> getOverviewEs(SystemQueryDto systemQueryDto) {
@@ -77,7 +112,7 @@ public class OverviewQServiceImpl implements OverviewQService {
                     overviewDto.setCpuUse(new BigDecimal(overviewDto.getAvgCpuPct()).multiply(cpuCores).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
                 }
                 if(memoryTotal.compareTo(BigDecimal.ZERO)>0){
-                    overviewDto.setMemoryUse(new BigDecimal(overviewDto.getAvgMemoryPct()).multiply(new BigDecimal(overviewDto.getMemoryTotal())).setScale(4,BigDecimal.ROUND_HALF_UP).floatValue());
+                    overviewDto.setMemoryUse(new BigDecimal(overviewDto.getAvgMemoryPct()).multiply(new BigDecimal(overviewDto.getMemoryTotal())).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
                 }
                 overviewDtos.add(overviewDto);
 

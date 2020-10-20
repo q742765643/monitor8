@@ -3,6 +3,7 @@ package com.piesat.skywalking.api.report;
 import com.piesat.skywalking.dto.OverviewDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName : OverviewService
@@ -13,5 +14,7 @@ import java.util.List;
 
 public interface OverviewQService {
     public List<OverviewDto> getOverview();
+
+    public Map<String,Long> getNodes();
 }
 

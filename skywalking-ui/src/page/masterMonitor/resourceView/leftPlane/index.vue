@@ -56,7 +56,6 @@ export default {
     return {
       statuChart: '',
       cpuChart: '',
-      cpuChart: '',
       totalMaster: 3,
       totalCpu: 24,
       totalRom: 93.49,

@@ -55,8 +55,8 @@ export default {
       this.progressChart = echarts.init(document.getElementById(id));
 
       var myData = ['CPU', '内存', '硬盘'];
-      var lineData = [this.current.cpuCores, this.current.memoryTotal, this.current.filesystemSize];
-      var thisYearData = [this.current.cpuUse, this.current.memoryUse, this.current.filesystemUse];
+      var lineData = [1, 1, 1];
+      var thisYearData = [this.current.avgCpuPct, this.current.avgMemoryPct, this.current.filesystemPct];
       let options = {
         baseOption: {
           timeline: {
@@ -223,23 +223,31 @@ export default {
                 show: true, // 是否显示进度条上方的百分比
                 formatter: (series) => {
                   let astyle = 'a0';
+                  let use=0;
+                  let total=0;
                   if (series.dataIndex == 0) {
                     astyle = 'a0';
+                    use=this.current.cpuUse;
+                    total=this.current.cpuCores;
                   } else if (series.dataIndex == 1) {
                     astyle = 'a1';
+                    use=this.current.memoryUse;
+                    total=this.current.memoryTotal;
                   } else if (series.dataIndex == 2) {
                     astyle = 'a2';
+                    use=this.current.filesystemUse;
+                    total=this.current.filesystemSize;
                   }
 
                   return (
                     '{' +
                     astyle +
                     '|' +
-                    thisYearData[series.dataIndex] +
+                    use +
                     '}' +
                     '{b|' +
                     '/' +
-                    series.data +
+                    total +
                     '}'
                   );
                 },
