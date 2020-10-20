@@ -43,9 +43,9 @@ public class ReportTest {
         SystemQueryDto systemQueryDto=new SystemQueryDto();
         //systemQueryDto.setIp("10.1.100.69");
         systemQueryDto.setStartTime("2020-10-14 00:00:00");
-        systemQueryDto.setEndTime("2020-10-20 00:00:00");
+        systemQueryDto.setEndTime("2020-10-21 00:00:00");
         Map<String, Map<String,Object>> baseInfo=new HashMap<>();
-        overviewService.getMemorySize(systemQueryDto,baseInfo);
+        overviewService.getFilesystem(systemQueryDto,baseInfo);
     }
 }
 

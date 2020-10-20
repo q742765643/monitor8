@@ -105,7 +105,7 @@ public class HostConfigHandler implements BaseHandler {
             Pattern pattern = Pattern.compile("([0-9]\\d*)% 丢失");
             Matcher matcher = pattern.matcher(resultT.getData());
             while (matcher.find()) {
-                usage=Float.parseFloat(matcher.group(1));
+                usage=Float.parseFloat(matcher.group(1))/100;
             }
         } catch (Exception e) {
             e.printStackTrace();

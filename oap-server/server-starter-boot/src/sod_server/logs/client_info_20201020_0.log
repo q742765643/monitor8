@@ -65,3 +65,53 @@
 [2020-10-20 09:52:52.994] [grpc-worker-timing-pool-0] [INFO ] com.piesat.common.config.TimingConfig - grpc 10.1.10.1:11800 心跳检测失败
 [2020-10-20 09:52:53.043] [Thread-2] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC server shutdown.
 [2020-10-20 09:52:53.051] [Thread-2] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@6cde0c69 was removed from the NameResolverRegistry
+[2020-10-20 10:32:39.443] [main] [INFO ] com.htht.ReportTest - Starting ReportTest on DESKTOP-B511OAC with PID 17832 (started by admin in D:\gitcangku\monitor8\oap-server\server-starter-boot\server-starter-boot-schedule)
+[2020-10-20 10:32:39.446] [main] [INFO ] com.htht.ReportTest - No active profile set, falling back to default profiles: default
+[2020-10-20 10:32:42.325] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode!
+[2020-10-20 10:32:42.336] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data repositories in DEFAULT mode.
+[2020-10-20 10:32:42.430] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 57ms. Found 0 repository interfaces.
+[2020-10-20 10:32:43.285] [main] [INFO ] o.a.s.o.s.l.c.elasticsearch.ElasticSearchClient - elasticsearch cluster nodes: 10.1.100.35:9200
+[2020-10-20 10:32:47.623] [main] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@7a7f9d45 is available -> Added to the NameResolverRegistry
+[2020-10-20 10:32:48.708] [main] [INFO ] n.d.b.g.s.serverfactory.AbstractGrpcServerFactory - Registered gRPC service: CommonService, bean: commonService, class: com.piesat.common.grpc.service.CommonService
+[2020-10-20 10:32:49.914] [main] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC Server started, listening on address: *, port: 11700
+[2020-10-20 10:32:49.927] [main] [INFO ] com.htht.ReportTest - Started ReportTest in 12.149 seconds (JVM running for 14.192)
+[2020-10-20 10:32:49.930] [grpc-worker-timing-pool-1] [INFO ] com.piesat.common.config.TimingConfig - ==执行服务发现线程==
+[2020-10-20 10:32:49.931] [grpc-worker-timing-pool-2] [INFO ] com.piesat.common.config.TimingConfig - ==执行心跳监测线程==
+[2020-10-20 10:32:50.144] [grpc-worker-timing-pool-1] [INFO ] io.lettuce.core.EpollProvider - Starting without optional epoll library
+[2020-10-20 10:32:50.148] [grpc-worker-timing-pool-1] [INFO ] io.lettuce.core.KqueueProvider - Starting without optional kqueue library
+[2020-10-20 10:33:20.924] [Thread-2] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC server shutdown.
+[2020-10-20 10:33:20.936] [Thread-2] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@7a7f9d45 was removed from the NameResolverRegistry
+[2020-10-20 10:33:21.612] [grpc-worker-timing-pool-1] [INFO ] com.piesat.common.config.TimingConfig - grpc服务发现定时线程异常
+[2020-10-20 10:35:33.817] [main] [INFO ] com.htht.ReportTest - Starting ReportTest on DESKTOP-B511OAC with PID 11480 (started by admin in D:\gitcangku\monitor8\oap-server\server-starter-boot\server-starter-boot-schedule)
+[2020-10-20 10:35:33.819] [main] [INFO ] com.htht.ReportTest - No active profile set, falling back to default profiles: default
+[2020-10-20 10:35:37.487] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode!
+[2020-10-20 10:35:37.498] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data repositories in DEFAULT mode.
+[2020-10-20 10:35:37.599] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 56ms. Found 0 repository interfaces.
+[2020-10-20 10:35:38.407] [main] [INFO ] o.a.s.o.s.l.c.elasticsearch.ElasticSearchClient - elasticsearch cluster nodes: 10.1.100.35:9200
+[2020-10-20 10:35:43.046] [main] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@56499781 is available -> Added to the NameResolverRegistry
+[2020-10-20 10:35:44.263] [main] [INFO ] n.d.b.g.s.serverfactory.AbstractGrpcServerFactory - Registered gRPC service: CommonService, bean: commonService, class: com.piesat.common.grpc.service.CommonService
+[2020-10-20 10:35:45.487] [main] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC Server started, listening on address: *, port: 11700
+[2020-10-20 10:35:45.500] [main] [INFO ] com.htht.ReportTest - Started ReportTest in 13.159 seconds (JVM running for 15.542)
+[2020-10-20 10:35:45.504] [grpc-worker-timing-pool-1] [INFO ] com.piesat.common.config.TimingConfig - ==执行服务发现线程==
+[2020-10-20 10:35:45.505] [grpc-worker-timing-pool-2] [INFO ] com.piesat.common.config.TimingConfig - ==执行心跳监测线程==
+[2020-10-20 10:35:45.705] [grpc-worker-timing-pool-1] [INFO ] io.lettuce.core.EpollProvider - Starting without optional epoll library
+[2020-10-20 10:35:45.709] [grpc-worker-timing-pool-1] [INFO ] io.lettuce.core.KqueueProvider - Starting without optional kqueue library
+[2020-10-20 10:35:46.183] [Thread-2] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC server shutdown.
+[2020-10-20 10:35:46.192] [Thread-2] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@56499781 was removed from the NameResolverRegistry
+[2020-10-20 10:35:47.182] [grpc-worker-timing-pool-1] [INFO ] com.piesat.common.config.TimingConfig - grpc服务发现定时线程异常
+[2020-10-20 10:36:51.981] [main] [INFO ] com.htht.ReportTest - Starting ReportTest on DESKTOP-B511OAC with PID 8056 (started by admin in D:\gitcangku\monitor8\oap-server\server-starter-boot\server-starter-boot-schedule)
+[2020-10-20 10:36:51.984] [main] [INFO ] com.htht.ReportTest - No active profile set, falling back to default profiles: default
+[2020-10-20 10:36:55.031] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode!
+[2020-10-20 10:36:55.041] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data repositories in DEFAULT mode.
+[2020-10-20 10:36:55.155] [main] [INFO ] o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 61ms. Found 0 repository interfaces.
+[2020-10-20 10:36:55.943] [main] [INFO ] o.a.s.o.s.l.c.elasticsearch.ElasticSearchClient - elasticsearch cluster nodes: 10.1.100.35:9200
+[2020-10-20 10:37:00.496] [main] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@7f77e065 is available -> Added to the NameResolverRegistry
+[2020-10-20 10:37:01.586] [main] [INFO ] n.d.b.g.s.serverfactory.AbstractGrpcServerFactory - Registered gRPC service: CommonService, bean: commonService, class: com.piesat.common.grpc.service.CommonService
+[2020-10-20 10:37:02.846] [main] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC Server started, listening on address: *, port: 11700
+[2020-10-20 10:37:02.859] [main] [INFO ] com.htht.ReportTest - Started ReportTest in 12.274 seconds (JVM running for 14.344)
+[2020-10-20 10:37:02.863] [grpc-worker-timing-pool-1] [INFO ] com.piesat.common.config.TimingConfig - ==执行服务发现线程==
+[2020-10-20 10:37:02.863] [grpc-worker-timing-pool-2] [INFO ] com.piesat.common.config.TimingConfig - ==执行心跳监测线程==
+[2020-10-20 10:37:03.060] [grpc-worker-timing-pool-1] [INFO ] io.lettuce.core.EpollProvider - Starting without optional epoll library
+[2020-10-20 10:37:03.065] [grpc-worker-timing-pool-1] [INFO ] io.lettuce.core.KqueueProvider - Starting without optional kqueue library
+[2020-10-20 10:37:12.209] [Thread-2] [INFO ] n.d.b.g.server.serverfactory.GrpcServerLifecycle - gRPC server shutdown.
+[2020-10-20 10:37:12.221] [Thread-2] [INFO ] n.d.b.g.c.nameresolver.NameResolverRegistration - net.devh.boot.grpc.server.nameresolver.SelfNameResolverFactory@7f77e065 was removed from the NameResolverRegistry

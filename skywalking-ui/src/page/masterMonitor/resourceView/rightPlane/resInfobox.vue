@@ -25,8 +25,20 @@
 import echarts from 'echarts';
 import { remFontSize } from '@/components/utils/fontSize.js';
 export default {
-  props: ['name', 'chartId'],
-
+  props: {
+    current: {
+      type: Object,
+      default: () => ({}),
+    },
+    chartId: {
+      type: String,
+      default: () => "",
+    },
+    name: {
+      type: String,
+      default: () => "",
+    },
+  },
   data() {
     return {
       progressChart: '',
@@ -42,8 +54,8 @@ export default {
       this.progressChart = echarts.init(document.getElementById(id));
 
       var myData = ['CPU', '内存', '硬盘'];
-      var lineData = [80, 80, 80];
-      var thisYearData = [0.6, 19.84, 19.84];
+      var lineData = [this.current.cpuCores, this.current.memoryTotal, this.current.filesystemSize];
+      var thisYearData = [this.current.cpuUse, this.current.memoryUse, this.current.filesystemPct];
       let options = {
         baseOption: {
           timeline: {

@@ -77,7 +77,7 @@ public class OverviewQServiceImpl implements OverviewQService {
                     overviewDto.setCpuUse(new BigDecimal(overviewDto.getAvgCpuPct()).multiply(cpuCores).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
                 }
                 if(memoryTotal.compareTo(BigDecimal.ZERO)>0){
-                    overviewDto.setMemoryUse(new BigDecimal(overviewDto.getAvgMemoryPct()).multiply(new BigDecimal(overviewDto.getMemoryTotal())).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+                    overviewDto.setMemoryUse(new BigDecimal(overviewDto.getAvgMemoryPct()).multiply(new BigDecimal(overviewDto.getMemoryTotal())).setScale(4,BigDecimal.ROUND_HALF_UP).floatValue());
                 }
                 overviewDtos.add(overviewDto);
 

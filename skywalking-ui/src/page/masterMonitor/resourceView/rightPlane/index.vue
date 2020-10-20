@@ -11,38 +11,28 @@
     </div>
     <div id="contnet">
       <div class="box" v-for="(item, index) in list" :key="index">
-        <infoBox :name="item.name" :chartId="item.name + index"></infoBox>
+        <infoBox :current="item" :name="item.ip" :chartId="item.ip + index"></infoBox>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import request from "@/utils/request";
 import infoBox from './resInfobox.vue';
 export default {
   data() {
     return {
-      list: [
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-        { name: 'DCP33' },
-      ],
+      list: [],
     };
+  },
+  created(){
+    request({
+      url:'/overview/get',
+      method: 'get'
+    }).then(data => {
+      this.list = data.data;
+    });
   },
   components: { infoBox },
 };

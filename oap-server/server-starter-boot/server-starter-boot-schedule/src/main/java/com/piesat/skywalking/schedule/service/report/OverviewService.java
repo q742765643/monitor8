@@ -196,7 +196,8 @@ public class OverviewService {
                         ParsedSum parsedSum=bucketTime.getAggregations().get("sum_filesystem_size");
                         value.put("filesystem.use.size",Float.parseFloat(parsedUseSum.getValueAsString()));
                         value.put("filesystem.size",new BigDecimal(parsedSum.getValueAsString()).longValue());
-                        value.put("filesystem.pct",new BigDecimal(parsedUseSum.getValueAsString()).divide(new BigDecimal(parsedSum.getValueAsString())).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+                        BigDecimal filesystemPct=new BigDecimal(parsedUseSum.getValueAsString()).divide(new BigDecimal(parsedSum.getValueAsString()),4,BigDecimal.ROUND_HALF_UP);
+                        value.put("filesystem.pct",filesystemPct.floatValue());
 
                         baseInfo.put(ip,value);
                     }

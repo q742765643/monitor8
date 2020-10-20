@@ -44,24 +44,26 @@ public class TimingConfig implements ApplicationRunner {
         Map<String,String> server=grpcProperties.getServer();
         Map<String,Map<String,Object>> client=grpcProperties.getClient();
         Map<String,String> hosts=grpcProperties.getHosts();
-        String host=server.get("host");
-        String grpcPort=server.get("port");
-        if(null!=hosts&&null!=hosts.get(host)){
-            host=hosts.get(host);
-        }
-        if(StringUtil.isEmpty(host)){
-            List<String> grpcHosts=NetUtils.getLocalIP();
-            for(int i=0;i<grpcHosts.size();i++){
-                redisUtil.hset("GRPC.SERVER:"+name,grpcHosts.get(i)+":"+grpcPort,1);
-            }
-        }else {
-            String grpcHost=host;
-            redisUtil.hset("GRPC.SERVER:"+name,grpcHost+":"+grpcPort,1);
-        }
-
         ThreadFactory timingPoolFactory = new ThreadFactoryBuilder().setNameFormat("grpc-worker-timing-pool-%d").build();
         ChannelUtil channelUtil= ChannelUtil.getInstance();
-        timingPool = Executors.newScheduledThreadPool(2, timingPoolFactory);
+        timingPool = Executors.newScheduledThreadPool(3, timingPoolFactory);
+        timingPool.scheduleWithFixedDelay (()->{
+            String host=server.get("host");
+            String grpcPort=server.get("port");
+            if(null!=hosts&&null!=hosts.get(host)){
+                host=hosts.get(host);
+            }
+            if(StringUtil.isEmpty(host)){
+                List<String> grpcHosts=NetUtils.getLocalIP();
+                for(int i=0;i<grpcHosts.size();i++){
+                    redisUtil.hset("GRPC.SERVER:"+name,grpcHosts.get(i)+":"+grpcPort,1);
+                }
+            }else {
+                String grpcHost=host;
+                redisUtil.hset("GRPC.SERVER:"+name,grpcHost+":"+grpcPort,1);
+            }
+
+        }, 0, 60, TimeUnit.SECONDS);
         timingPool.scheduleWithFixedDelay (()->{
             log.info("==执行服务发现线程==");
             try {
