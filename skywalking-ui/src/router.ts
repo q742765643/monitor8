@@ -142,6 +142,34 @@ const router = new Router({
           path: 'job',
           component: () => import('./views/containers/home/right/job/index.vue'),
         },
+        {
+          path: 'dictType',
+          component: () => import('./views/containers/home/right/dict/index.vue'),
+        },
+        {
+          path: 'dictData/:dictId',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
+        },
+        {
+          path: 'dictData',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
+        },
+        {
+          path: 'job',
+          component: () => import('./views/containers/home/right/job/index.vue'),
+        },
+        {
+          path: 'topuConfig',
+          component: () => import('./views/containers/home/right/topu/config/config.vue'),
+        },
+        {
+          path: 'manager',
+          component: () => import('./views/containers/home/right/topu/manager/index.vue'),
+        },
+        {
+          path: 'report',
+          component: () => import('./views/containers/home/right/topu/report/index.vue'),
+        },
       ],
     },
   ],

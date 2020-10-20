@@ -65,6 +65,8 @@ public class HostConfigDto extends HtJobInfoDto {
     private float maxPacketPct;
     @ApiModelProperty(value = "总在线时间长")
     private long maxUptime;
+    @ApiModelProperty(value = "是否主机 1 是 0否")
+    private Integer isHost;
 
     private List<Integer> mediaTypes;
 }

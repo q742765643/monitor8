@@ -66,6 +66,7 @@ public class OverviewService {
             Map<String,Object> source=this.getMap();
             source.put("ip",hostConfigDto.getIp());
             source.put("@timestamp",time);
+            source.put("ishost",hostConfigDto.getIsHost());
             if(null!=baseInfo.get(hostConfigDto.getIp())){
                 source.putAll(baseInfo.get(hostConfigDto.getIp()));
             }

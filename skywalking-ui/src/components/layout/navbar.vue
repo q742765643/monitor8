@@ -89,6 +89,38 @@
           <router-link to="/businessView/softwareReport"> 软件报表</router-link>
         </a-menu-item>
       </a-sub-menu>
+
+      <a-sub-menu key="sub3">
+        <span slot="title">
+          <span class="iconfont">&#xe692;</span>旧页面</span
+        >
+
+        <a-menu-item key="/dictType">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/dictType"> 字典管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/dictData">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/dictData"> 字典数据</router-link>
+        </a-menu-item>
+        <a-menu-item key="/job">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/job"> 调度管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/topuConfig">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/topuConfig"> 自动发现配置</router-link>
+        </a-menu-item>
+        <a-menu-item key="/manager">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/manager"> 链路设备管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/report">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/report"> 链路设备报表</router-link>
+        </a-menu-item>
+      </a-sub-menu>
+
     </a-menu>
   </a-layout-sider>
 </template>
