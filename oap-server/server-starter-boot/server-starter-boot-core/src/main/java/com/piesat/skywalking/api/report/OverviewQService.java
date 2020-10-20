@@ -1,6 +1,8 @@
 package com.piesat.skywalking.api.report;
 
 import com.piesat.skywalking.dto.OverviewDto;
+import com.piesat.skywalking.dto.model.NodeStatusDto;
+import com.piesat.skywalking.dto.model.OverviewNodeDto;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,9 @@ import java.util.Map;
 public interface OverviewQService {
     public List<OverviewDto> getOverview();
 
-    public Map<String,Long> getNodes();
+    public OverviewNodeDto getNodes();
+
+
+    public NodeStatusDto getNodesStatus();
 }
 

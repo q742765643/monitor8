@@ -8,8 +8,8 @@
         <div class="info">
           <span class="name">就绪节点</span>
           <span class="number">
-            <p>{{ readyMater }}</p>
-            <p>/{{ totalMaster }}</p>
+            <p>{{ overviewNode.ready }}</p>
+            <p>/{{ overviewNode.total }}</p>
           </span>
         </div>
       </div>
@@ -26,8 +26,8 @@
           <div class="info">
             <span class="name" style="color:#FFBA00">CPU core</span>
             <span class="number">
-              <p style="color:#FFBA00">{{ usageCpu }}</p>
-              <p>/{{ totalCpu }}</p>
+              <p style="color:#FFBA00">{{ this.nodeStatus.cpuUse }}</p>
+              <p>/{{ this.nodeStatus.cpuCores }}</p>
             </span>
           </div>
         </div>
@@ -36,8 +36,8 @@
           <div class="info">
             <span class="name" style="color:#20BB01">内存 GiB</span>
             <span class="number">
-              <p style="color:#20BB01">{{ usageRom }}</p>
-              <p>/{{ totalRom }}</p>
+              <p style="color:#20BB01">{{ this.nodeStatus.memoryUse }}</p>
+              <p>/{{ this.nodeStatus.memoryTotal }}</p>
             </span>
           </div>
         </div>
@@ -48,20 +48,17 @@
 
 <script>
 import echarts from 'echarts';
+import request from "@/utils/request";
 import planeTitle from '@/components/titile/planeTitle.vue';
 import { remFontSize } from '@/components/utils/fontSize.js';
 export default {
   components: { planeTitle },
   data() {
     return {
+      overviewNode:{},
       statuChart: '',
       cpuChart: '',
-      totalMaster: 3,
-      totalCpu: 24,
-      totalRom: 93.49,
-      readyMater: 3,
-      usageCpu: 2.44,
-      usageRom: 50.9,
+      nodeStatus: {},
       lnerColors: [
         ['#C225FC', '#1272EB', '#5483FF'],
         ['#FFBA00', '#FF992C', '#FF696B'],
@@ -69,29 +66,44 @@ export default {
       ],
     };
   },
+  created(){
+    request({
+      url:'/overview/getNodes',
+      method: 'get'
+    }).then(data => {
+      this.overviewNode = data.data;
+      this.drawChart(
+              'statuChart',
+              this.statuChart,
+              this.overviewNode.total,
+              this.overviewNode.ready,
+              this.lnerColors[0]
+      );
+    });
+    request({
+      url:'/overview/getNodesStatus',
+      method: 'get'
+    }).then(data => {
+      this.nodeStatus = data.data;
+      this.drawChart(
+              'cpuChart',
+              this.cpuChart,
+              this.nodeStatus.cpuCores,
+              this.nodeStatus.cpuUse,
+              this.lnerColors[1]
+      );
+      this.drawChart(
+              'romChart',
+              this.romChart,
+              this.nodeStatus.memoryTotal,
+              this.nodeStatus.memoryUse,
+              this.lnerColors[2]
+      );
+    });
+  },
   mounted() {
     this.$nextTick(() => {
-      this.drawChart(
-        'statuChart',
-        this.statuChart,
-        this.totalMaster,
-        this.readyMater,
-        this.lnerColors[0]
-      );
-      this.drawChart(
-        'cpuChart',
-        this.cpuChart,
-        this.totalCpu,
-        this.usageCpu,
-        this.lnerColors[1]
-      );
-      this.drawChart(
-        'romChart',
-        this.romChart,
-        this.totalRom,
-        this.usageRom,
-        this.lnerColors[2]
-      );
+
     });
   },
   methods: {

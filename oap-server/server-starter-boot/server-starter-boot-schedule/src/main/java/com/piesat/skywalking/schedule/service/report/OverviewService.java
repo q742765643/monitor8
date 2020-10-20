@@ -71,6 +71,10 @@ public class OverviewService {
             }
             long memoryTotal= (long) source.get("memory.total");
             long cpuCores= (long) source.get("cpu.cores");
+            float cpuUse= (float) source.get("avg.cpu.pct");
+            float memoryUse= (float) source.get("avg.memory.pct");
+            source.put("cpu.use",cpuUse*cpuCores);
+            source.put("memory.use",memoryUse*memoryTotal);
             if(memoryTotal==0&&cpuCores==0){
                 source.put("online",0l);
             }
@@ -339,7 +343,9 @@ public class OverviewService {
         map.put("filesystem.size",0l);
         map.put("process.size",0l);
         map.put("cpu.cores",0l);
+        map.put("cpu.use",0l);
         map.put("memory.total",0l);
+        map.put("memory.use",0l);
         map.put("online",1l);
         return map;
     }

@@ -3,6 +3,8 @@ package com.piesat.skywalking.web.report;
 import com.piesat.skywalking.api.report.OverviewQService;
 import com.piesat.skywalking.dto.OverviewDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
+import com.piesat.skywalking.dto.model.NodeStatusDto;
+import com.piesat.skywalking.dto.model.OverviewNodeDto;
 import com.piesat.skywalking.vo.NetworkVo;
 import com.piesat.util.ResultT;
 import io.swagger.annotations.Api;
@@ -37,10 +39,19 @@ public class OverviewQController {
     }
     @ApiOperation(value = "获取就绪节点", notes = "获取就绪节点")
     @GetMapping("/getNodes")
-    public ResultT<Map<String,Long>> getNodes(){
-        ResultT<Map<String,Long>> resultT=new ResultT<>();
-        Map<String,Long> map=overviewQService.getNodes();
-        resultT.setData(map);
+    public ResultT<OverviewNodeDto> getNodes(){
+        ResultT<OverviewNodeDto> resultT=new ResultT<>();
+        OverviewNodeDto overviewNodeDto=overviewQService.getNodes();
+        resultT.setData(overviewNodeDto);
+        return resultT;
+    }
+
+    @ApiOperation(value = "获取节点总状态", notes = "获取节点总状态")
+    @GetMapping("/getNodesStatus")
+    public  ResultT<NodeStatusDto> getNodesStatus(){
+        ResultT<NodeStatusDto> resultT=new ResultT<>();
+        NodeStatusDto nodeStatusDto=overviewQService.getNodesStatus();
+        resultT.setData(nodeStatusDto);
         return resultT;
     }
 }
