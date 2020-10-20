@@ -56,7 +56,7 @@ export default {
 
       var myData = ['CPU', '内存', '硬盘'];
       var lineData = [this.current.cpuCores, this.current.memoryTotal, this.current.filesystemSize];
-      var thisYearData = [this.current.cpuUse, this.current.memoryUse, this.current.filesystemPct];
+      var thisYearData = [this.current.cpuUse, this.current.memoryUse, this.current.filesystemUse];
       let options = {
         baseOption: {
           timeline: {
