@@ -12,8 +12,9 @@
         <div id="img"></div>
         <div id="thred_info">
           <span>
-            <p>进程20个</p>
-            <p>网络在线</p>
+            <p>进程{{current.processSize}}个</p>
+            <p v-if="this.current.online==0">网络不在线</p>
+            <p v-if="this.current.online==1">网络在线</p>
           </span>
         </div>
       </div>
