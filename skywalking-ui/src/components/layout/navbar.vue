@@ -90,7 +90,7 @@
         </a-menu-item>
       </a-sub-menu>
 
-      <a-sub-menu key="sub3">
+      <a-sub-menu key="sub7">
         <span slot="title">
           <span class="iconfont">&#xe692;</span>旧页面</span
         >

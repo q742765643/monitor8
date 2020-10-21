@@ -82,13 +82,13 @@
             :height="tableheight"
             :data="tableData"
           >
-            <vxe-table-column field="number" title="序号"></vxe-table-column>
+            <!--<vxe-table-column field="number" title="序号"></vxe-table-column>-->
             <vxe-table-column
-              field="devAlias"
+              field="hostName"
               title="设备别名"
             ></vxe-table-column>
             <vxe-table-column
-              field="IP"
+              field="ip"
               title="IP地址"
               show-overflow
             ></vxe-table-column>
@@ -98,7 +98,7 @@
               show-overflow
             ></vxe-table-column>
             <vxe-table-column
-              field="onlineDuration"
+              field="maxUptime"
               title="连续在线时长(时)"
               show-overflow
             ></vxe-table-column>
@@ -111,23 +111,23 @@
               title="宕机次数"
             ></vxe-table-column>
             <vxe-table-column
-              field="downDuration"
+              field="downTime"
               title="宕机总时长(时)"
             ></vxe-table-column>
             <vxe-table-column
-              field="cpuUsage"
+              field="maxCpuPct"
               title="CPU最高使用率(%)"
             ></vxe-table-column>
             <vxe-table-column
-              field="ramUsage"
+              field="maxMemoryPct"
               title="内存最高使用率(%)"
             ></vxe-table-column>
             <vxe-table-column
-              field="romUsage"
+              field="maxFilesystemPct"
               title="磁盘最高占用率(%)"
             ></vxe-table-column>
             <vxe-table-column
-              field="maxThreadCount"
+              field="maxProcessSize"
               title="最多进程数"
             ></vxe-table-column>
           </vxe-table>
@@ -135,10 +135,11 @@
           <vxe-pager
             id="page_table"
             perfect
-            :current-page.sync="page.currentPage"
-            :page-size.sync="page.pageSize"
-            :total="tableData.length"
+            :current-page.sync="queryParams.pageNum"
+            :page-size.sync="queryParams.pageSize"
+            :total="total"
             :page-sizes="[10, 20, 100]"
+            @page-change="fetch"
             :layouts="[
               'PrevJump',
               'PrevPage',
@@ -162,12 +163,14 @@ import aYearPicker from '@/components/datePickYear/datePickYear.vue';
 import { remFontSize } from '@/components/utils/fontSize.js';
 import echarts from 'echarts';
 import moment from 'moment';
+import request from "@/utils/request";
 export default {
   data() {
     return {
-      page: {
-        currentPage: 1,
-        pageSize: 10,
+      total:0,
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10
       },
       dayFormat: 'YYYY-MM-DD',
       monthFormat: 'YYYY-MM',
@@ -194,120 +197,16 @@ export default {
       alarmLegend: ['宕机总时长', '告警次数', '宕机次数'],
       usageLegend: ['CPU最高使用率', '内存最高使用率', '磁盘最高使用率'],
       colors: ['#5793F3', '#FF0000', '#0000FF'],
-      tableData: [
-        {
-          number: '1',
-          devAlias: '报文接收器',
-          IP: 'xxx.xxx.xxx.xx',
-          updateTime: '2020/8/20 10:00',
-          onlineDuration: '2000',
-          alarmCount: '5',
-          downCount: '3',
-          downDuration: '2.4',
-          cpuUsage: '90',
-          ramUsage: '85',
-          romUsage: '(d:/)96',
-          maxThreadCount: '27',
-        },
-        {
-          number: '2',
-          devAlias: 'MySql数据库',
-          IP: 'xxx.xxx.xxx.xx',
-          updateTime: '2020/8/20 10:03',
-          onlineDuration: '2000',
-          alarmCount: '6',
-          downCount: '2',
-          downDuration: '2.3',
-          cpuUsage: '90',
-          ramUsage: '85',
-          romUsage: '(/boot)92',
-          maxThreadCount: '22',
-        },
-        {
-          number: '3',
-          devAlias: '监控台A',
-          IP: 'xxx.xxx.xxx.xx',
-          updateTime: '2020/8/20 10:20',
-          onlineDuration: '2000',
-          alarmCount: '7',
-          downCount: '3',
-          downDuration: '2.3',
-          cpuUsage: '90',
-          ramUsage: '85',
-          romUsage: '(/boot)92',
-          maxThreadCount: '23',
-        },
-        {
-          number: '4',
-          devAlias: '监控台B',
-          IP: 'xxx.xxx.xxx.xx',
-          updateTime: '2020/8/20 10:10',
-          onlineDuration: '2000',
-          alarmCount: '8',
-          downCount: '4',
-          downDuration: '2.5',
-          cpuUsage: '90',
-          ramUsage: '85',
-          romUsage: '(/boot)92',
-          maxThreadCount: '10',
-        },
-        {
-          number: '5',
-          devAlias: '监控台C',
-          IP: 'xxx.xxx.xxx.xx',
-          updateTime: '2020/8/20 10:00',
-          onlineDuration: '2000',
-          alarmCount: '9',
-          downCount: '5',
-          downDuration: '2',
-          downDuration: '2.5',
-          cpuUsage: '90',
-          ramUsage: '85',
-          romUsage: '(/boot)92',
-          maxThreadCount: '10',
-        },
-        {
-          number: '6',
-          devAlias: '监控台C',
-          IP: 'xxx.xxx.xxx.xx',
-          updateTime: '2020/8/20 10:00',
-          onlineDuration: '2000',
-          alarmCount: '9',
-          downCount: '5',
-          downDuration: '2',
-          downDuration: '2.5',
-          cpuUsage: '90',
-          ramUsage: '85',
-          romUsage: '(/boot)92',
-          maxThreadCount: '10',
-        },
-      ],
+      tableData: [],
     };
   },
   components: { aYearPicker },
-  created() {},
+  created() {
+  },
   mounted() {
+    this.fetch();
     this.$nextTick(() => {
-      this.setTableHeight();
-      this.initData(); //数据
-      this.initSeries(); //series
-      this.initYaxis(); //Y轴
-      this.drawChart(
-        'alarmChart',
-        this.alarmChart,
-        '主机告警与宕机情况统计',
-        this.alarmLegend,
-        this.alarmYaxis,
-        this.alarmSeries
-      );
-      this.drawChart(
-        'useageChart',
-        this.useageChart,
-        '主机CPU、内存、磁盘使用率情况统计',
-        this.usageLegend,
-        this.usageYaxis,
-        this.useageSeries
-      );
+
     });
 
     window.addEventListener('resize', () => {
@@ -360,18 +259,25 @@ export default {
       }
     },
     initData() {
+      this.downCountData=[];
+      this.downDurationData=[];
+      this.xAxisData=[];
+      this.alarmCountData=[];
+      this.cpuUsageData=[];
+      this.ramUsageData=[];
+
       this.tableData.forEach((item) => {
         this.downCountData.push(item.downCount);
-        this.downDurationData.push(item.downDuration);
-        this.xAxisData.push(item.devAlias);
+        this.downDurationData.push(item.downTime);
+        this.xAxisData.push(item.ip);
         this.alarmCountData.push(item.alarmCount);
-        this.cpuUsageData.push(item.cpuUsage);
-        this.ramUsageData.push(item.ramUsage);
-        let romarr = item.romUsage.split(')');
-        this.romUsageData.push(parseInt(romarr[1]));
+        this.cpuUsageData.push(item.maxMemoryPct);
+        this.ramUsageData.push(item.maxFilesystemPct);
       });
     },
     initSeries() {
+      this.alarmSeries=[];
+      this.useageSeries=[];
       this.alarmSeries.push({
         type: 'bar',
         data: this.downDurationData,
@@ -412,7 +318,6 @@ export default {
           type: 'value',
           name: '(小时)',
           min: 0,
-          max: 10,
           position: 'left',
           axisTick: {
             //y轴刻度线
@@ -442,7 +347,6 @@ export default {
           type: 'value',
           name: '(次)',
           min: 0,
-          max: 10,
           position: 'right',
           axisTick: {
             //y轴刻度线
@@ -528,7 +432,6 @@ export default {
       )['paddingLeft'];
       let chartHeight = document.getElementById('report_chartdiv').offsetHeight;
       let h_page = document.getElementById('page_table').offsetHeight;
-      debugger;
       this.tableheight = h - chartHeight - parseInt(padding) * 2 - h_page - 1;
     },
     drawChart(id, chart, title, legend, Yaxis, series) {
@@ -587,6 +490,38 @@ export default {
         series: series,
       };
       chart.setOption(options);
+    },
+    fetch() {
+      this.queryParams.beginTime="2020-10-17 00:00:00";
+      this.queryParams.endTime="2020-10-20 00:00:00";
+      request({
+        url:'/report/list',
+        method: 'get',
+        params: this.addDateRange(this.queryParams, this.dateRange)
+      }).then(data => {
+        this.total = data.data.totalCount;
+        this.tableData = data.data.pageData;
+        this.initData(); //数据
+        this.setTableHeight();
+        this.initSeries(); //series
+        this.initYaxis(); //Y轴
+        this.drawChart(
+                'alarmChart',
+                this.alarmChart,
+                '主机告警与宕机情况统计',
+                this.alarmLegend,
+                this.alarmYaxis,
+                this.alarmSeries
+        );
+        this.drawChart(
+                'useageChart',
+                this.useageChart,
+                '主机CPU、内存、磁盘使用率情况统计',
+                this.usageLegend,
+                this.usageYaxis,
+                this.useageSeries
+        );
+      });
     },
   },
 };

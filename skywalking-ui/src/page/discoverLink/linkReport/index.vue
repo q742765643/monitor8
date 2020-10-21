@@ -30,61 +30,68 @@
         >
           <!--   :checkbox-config="{ labelField: 'number' }" -->
           <!--   <vxe-table-column type="checkbox" width="80" title="序号"></vxe-table-column> -->
-          <vxe-table-column field="number" title="序号"></vxe-table-column>
-          <vxe-table-column field="name" title="设备别名"></vxe-table-column>
-          <vxe-table-column field="state" title="当前状态"></vxe-table-column>
-          <vxe-table-column field="IP" title="IP地址"></vxe-table-column>
+<!--          <vxe-table-column field="number" title="序号"></vxe-table-column>-->
+          <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
+          <vxe-table-column field="currentStatus" title="当前状态" :formatter="formatCurrentStatus">
+          </vxe-table-column>
+          <vxe-table-column field="ip" title="IP地址"></vxe-table-column>
           <vxe-table-column
-            field="monitMode"
-            title="监视方式"
+            field="monitoringMethods"
+            title="监视方式" :formatter="formatMonitoringMethods"
           ></vxe-table-column>
           <vxe-table-column
-            field="time"
+            field="createTime"
             title="采集时间"
             show-overflow
-          ></vxe-table-column>
+          >
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createTime) }}</span>
+            </template>
+
+          </vxe-table-column>
           <vxe-table-column
-            field="onlineTime"
+            field="maxUptime"
             title="连续在线时长"
             show-overflow
           ></vxe-table-column>
           <vxe-table-column
-            field="aveLost"
+            field="avgPacketPct"
             title="平均丢包率"
           ></vxe-table-column>
           <vxe-table-column
-            field="maxLost"
+            field="maxPacketPct"
             title="最大丢包率"
           ></vxe-table-column>
           <vxe-table-column
             field="area"
-            title="区域"
+            title="区域" :formatter="formatArea"
             show-overflow
           ></vxe-table-column>
           <vxe-table-column
-            field="address"
+            field="location"
             title="详细地址"
             show-overflow
           ></vxe-table-column>
         </vxe-table>
 
         <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="page.currentPage"
-          :page-size.sync="page.pageSize"
-          :total="tableData.length"
-          :page-sizes="[10, 20, 100]"
-          :layouts="[
-            'PrevJump',
-            'PrevPage',
-            'Number',
-            'NextPage',
-            'NextJump',
-            'Sizes',
-            'FullJump',
-            'Total',
-          ]"
+                id="page_table"
+                perfect
+                :current-page.sync="queryParams.pageNum"
+                :page-size.sync="queryParams.pageSize"
+                :total="total"
+                :page-sizes="[10, 20, 100]"
+                @page-change="fetch"
+                :layouts="[
+              'PrevJump',
+              'PrevPage',
+              'Number',
+              'NextPage',
+              'NextJump',
+              'Sizes',
+              'FullJump',
+              'Total',
+            ]"
         >
         </vxe-pager>
       </div>
@@ -95,13 +102,18 @@
 <script>
 import echarts from 'echarts';
 import { remFontSize } from '@/components/utils/fontSize.js';
+import request from "@/utils/request";
 export default {
   data() {
     return {
-      page: {
-        currentPage: 1,
-        pageSize: 10,
+      total:0,
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10
       },
+      currentStatusOptions: [],
+      monitoringMethodsOptions:[],
+      areaOptions:[],
       Xdata: [],
       series: [],
       Ydata: [],
@@ -110,136 +122,39 @@ export default {
       chartType: ['bar', 'line', 'line'],
       name: ['在线时长', '平均丢包率', '最大丢包率'],
       tableheight: null,
-      tableData: [
-        {
-          number: '1',
-          name: 'Oracle数据库',
-          state: '正常',
-          IP: 'xxx.xxx.xxx.xx',
-          monitMode: '代理',
-          time: '2020/8/20 10:00',
-          onlineTime: '2000小时',
-          aveLost: '1.1',
-          maxLost: '2.3',
-          area: '机房',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-        },
-        {
-          number: '2',
-          name: '报文接收器',
-          state: '正常',
-          IP: 'xxx.xxx.xxx.xx',
-          monitMode: '代理',
-          time: '2020/8/20 10:00',
-          onlineTime: '2001小时',
-          aveLost: '1.2',
-          maxLost: '2.4',
-          area: '机房',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-        },
-        {
-          number: '3',
-          name: 'MySql数据库',
-          state: '正常',
-          IP: 'xxx.xxx.xxx.xx',
-          monitMode: '代理',
-          time: '2020/8/20 10:03',
-          onlineTime: '2002小时',
-          aveLost: '1.3',
-          maxLost: '2.3',
-          area: '机房',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-        },
-        {
-          number: '4',
-          name: '监控台A',
-          state: '正常',
-          IP: 'xxx.xxx.xxx.xx',
-          monitMode: 'snmp',
-          time: '2020/8/20 10:20',
-          onlineTime: '2300',
-          aveLost: '1.4',
-          maxLost: '2.3',
-          area: '值班室',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-        },
-        {
-          number: '5',
-          name: '监控台B',
-          state: '正常',
-          IP: 'xxx.xxx.xxx.xx',
-          monitMode: 'snmp',
-          time: '2020/8/20 10:10',
-          onlineTime: '1300',
-          aveLost: '1.5',
-          maxLost: '2.5',
-          area: '值班室',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-        },
-        {
-          number: '6',
-          name: '监控台B',
-          state: '正常',
-          IP: 'xxx.xxx.xxx.xx',
-          monitMode: 'snmp',
-          time: '2020/8/20 10:10',
-          onlineTime: '1500',
-          aveLost: '1.5',
-          maxLost: '2.5',
-          area: '值班室',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-        },
-      ],
+      tableData:[],
     };
   },
   created() {
-    let Ydata1 = [],
-      Ydata2 = [],
-      Ydata3 = [];
-    this.tableData.forEach((item, index) => {
-      this.Xdata.push(item.name);
-      Ydata1.push(parseFloat(item.onlineTime));
-      Ydata2.push(parseFloat(item.aveLost));
-      Ydata3.push(parseFloat(item.maxLost));
+    this.getDicts("current_status").then(response => {
+      this.currentStatusOptions = response.data;
+    });
+    this.getDicts("monitoring_methods").then(response => {
+      this.monitoringMethodsOptions = response.data;
+    });
+    this.getDicts("media_area").then(response => {
+      this.areaOptions = response.data;
     });
 
-    this.Ydata.push(Ydata1, Ydata2, Ydata3);
-    this.series = this.chartType.map((item, index) => {
-      let obj = {};
-      obj.name = this.name[index];
-      obj.type = item;
-      obj.data = this.Ydata[index];
-      if (item == 'bar') {
-        obj.barWidth = '40%';
-        obj.itemStyle = {
-          color: this.colors[index],
-        };
-      } else {
-        obj.lineStyle = {
-          normal: {
-            color: this.colors[index],
-          },
-        };
-      }
-
-      if (obj.type == 'bar') {
-        obj.yAxisIndex = 0;
-      } else {
-        obj.yAxisIndex = 1;
-      }
-      return obj;
-    });
   },
   mounted() {
+    this.fetch()
     this.$nextTick(() => {
-      this.drawChart('barlineChart');
-      this.setTableHeight();
     });
     window.addEventListener('resize', () => {
       this.setTableHeight();
     });
   },
   methods: {
+    formatCurrentStatus({ cellValue }){
+      return this.selectDictLabel(this.currentStatusOptions,cellValue);
+    },
+    formatMonitoringMethods({ cellValue }) {
+      return this.selectDictLabel(this.monitoringMethodsOptions,cellValue);
+    },
+    formatArea({ cellValue }) {
+      return this.selectDictLabel(this.areaOptions,cellValue);
+    },
     setTableHeight() {
       let h = document.getElementById('content').clientHeight;
       let padding = getComputedStyle(document.getElementById('content'), false)[
@@ -311,7 +226,6 @@ export default {
         yAxis: [
           {
             min: 0,
-            max: 3000,
             interval: 500,
             type: 'value',
             name: '在线时长',
@@ -324,8 +238,8 @@ export default {
             type: 'value',
             name: '平均/最大丢包率',
             min: 0,
-            max: 3,
-            interval: 0.5,
+            max: 100,
+            interval: 20,
             axisLabel: {
               formatter: '{value}%',
               fontSize: remFontSize(12 / 64),
@@ -348,6 +262,61 @@ export default {
       this.$refs.xTable.exportData({
         filename: '报表',
         type: 'pdf',
+      });
+    },
+    fetch() {
+      this.queryParams.beginTime="2020-10-17 00:00:00";
+      this.queryParams.endTime="2020-10-20 00:00:00";
+      request({
+        url:'/report/list',
+        method: 'get',
+        params: this.addDateRange(this.queryParams, this.dateRange)
+      }).then(data => {
+        this.total = data.data.totalCount;
+        this.tableData = data.data.pageData;
+        this.chart();
+        this.drawChart('barlineChart');
+        this.setTableHeight();
+      });
+    },
+    chart(){
+      let Ydata1 = [],
+              Ydata2 = [],
+              Ydata3 = [];
+      this.Xdata=[];
+      this.Ydata=[];
+      this.tableData.forEach((item, index) => {
+        this.Xdata.push(item.ip);
+        Ydata1.push(parseFloat(item.maxUptime));
+        Ydata2.push(parseFloat(item.avgPacketPct));
+        Ydata3.push(parseFloat(item.maxPacketPct));
+      });
+
+      this.Ydata.push(Ydata1, Ydata2, Ydata3);
+      this.series = this.chartType.map((item, index) => {
+        let obj = {};
+        obj.name = this.name[index];
+        obj.type = item;
+        obj.data = this.Ydata[index];
+        if (item == 'bar') {
+          obj.barWidth = '40%';
+          obj.itemStyle = {
+            color: this.colors[index],
+          };
+        } else {
+          obj.lineStyle = {
+            normal: {
+              color: this.colors[index],
+            },
+          };
+        }
+
+        if (obj.type == 'bar') {
+          obj.yAxisIndex = 0;
+        } else {
+          obj.yAxisIndex = 1;
+        }
+        return obj;
       });
     },
   },
