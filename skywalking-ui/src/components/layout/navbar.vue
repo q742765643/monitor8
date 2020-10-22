@@ -3,12 +3,7 @@
     <div class="logo">
       <span class="web_title"> 气象海洋空间天气信息系统综合监控平台 </span>
     </div>
-    <a-menu
-      mode="inline"
-      :default-open-keys="['sub1']"
-      id="menu"
-      :selectedKeys="[this.$route.path]"
-    >
+    <a-menu mode="inline" :default-open-keys="['sub1']" id="menu" :selectedKeys="[this.$route.path]">
       <!--   :selectedKeys="[this.$route.path]" -->
       <!--  :default-selected-keys="['1']" -->
       <!--     :default-open-keys="['sub1']" -->
@@ -29,9 +24,7 @@
         </a-menu-item>
         <a-menu-item key="/discoverLink/linkManager">
           <span class="iconfont">&#xe611;</span>
-          <router-link to="/discoverLink/linkManager">
-            链路设备管理</router-link
-          >
+          <router-link to="/discoverLink/linkManager"> 链路设备管理</router-link>
         </a-menu-item>
         <a-menu-item key="/discoverLink/linkConfig">
           <span class="iconfont">&#xe611;</span>
@@ -45,9 +38,7 @@
       </a-sub-menu>
 
       <a-sub-menu key="sub3">
-        <span slot="title">
-          <span class="iconfont">&#xe692;</span>主机监视</span
-        >
+        <span slot="title"> <span class="iconfont">&#xe692;</span>主机监视</span>
 
         <a-menu-item key="/masterMonitor/resourceView">
           <span class="iconfont">&#xe611;</span>
@@ -64,9 +55,7 @@
       </a-sub-menu>
 
       <a-sub-menu key="sub4">
-        <span slot="title">
-          <span class="iconfont">&#xe640;</span>业务视图</span
-        >
+        <span slot="title"> <span class="iconfont">&#xe640;</span>业务视图</span>
 
         <a-menu-item key="/businessView/dataView">
           <span class="iconfont">&#xe611;</span>
@@ -91,9 +80,7 @@
       </a-sub-menu>
 
       <a-sub-menu key="sub7">
-        <span slot="title">
-          <span class="iconfont">&#xe692;</span>旧页面</span
-        >
+        <span slot="title"> <span class="iconfont">&#xe692;</span>旧页面</span>
 
         <a-menu-item key="/dictType">
           <span class="iconfont">&#xe611;</span>
@@ -121,87 +108,86 @@
         </a-menu-item>
 
       </a-sub-menu>
-
     </a-menu>
   </a-layout-sider>
 </template>
 
 <script>
-export default {
-  name: 'navbar',
-  data() {
-    return {};
-  },
-};
+  export default {
+    name: 'navbar',
+    data() {
+      return {};
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-#slider {
-  // width: 4.25rem !important;
-  width: 100% !important;
-  height: 100%;
-  flex: none !important;
-  max-width: none !important;
-  min-width: none !important;
-  background: #f1f2f4;
-
-  .logo {
-    padding: 0 0.75rem;
-    width: 100%;
-    height: 2rem;
-    &::after {
-      content: '';
-      height: 1px;
-      background: $borderColor;
-      width: calc(100% - 0.75rem);
-      position: absolute;
-      top: 2rem;
-      left: 0.375rem;
-    }
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .web_title {
-      display: block;
-      font-size: 0.3rem;
-      color: $nav_textColor;
-      font-family: Alibaba-PuHuiTi-Medium;
-    }
-  }
-
-  #menu {
-    font-family: Alibaba-PuHuiTi-Regular;
-    height: calc(100% - 2rem);
-    overflow-y: auto;
-    overflow-x: hidden;
+  #slider {
+    // width: 4.25rem !important;
+    width: 100% !important;
+    height: 100%;
+    flex: none !important;
+    max-width: none !important;
+    min-width: none !important;
     background: #f1f2f4;
-    padding: 0.5rem 0.375rem 0.375rem 0.375rem;
-    color: $nav_textColor;
-    .iconfont {
-      font-size: 0.3rem !important;
-      margin-right: 0.25rem;
-    }
-    .expand {
-      position: absolute;
-      right: 0.275rem;
-      margin: 0;
-      padding-top: 0.0375rem;
-      font-size: 0.25rem !important;
-    }
-  }
 
-  #menu::-webkit-scrollbar {
-    width: 3px;
-    background-color: #f5f5f5;
-  }
+    .logo {
+      padding: 0 0.75rem;
+      width: 100%;
+      height: 2rem;
+      &::after {
+        content: '';
+        height: 1px;
+        background: $borderColor;
+        width: calc(100% - 0.75rem);
+        position: absolute;
+        top: 2rem;
+        left: 0.375rem;
+      }
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-  #menu::-webkit-scrollbar-thumb {
-    background-color: #5aa6ee;
+      .web_title {
+        display: block;
+        font-size: 0.3rem;
+        color: $nav_textColor;
+        font-family: Alibaba-PuHuiTi-Medium;
+      }
+    }
+
+    #menu {
+      font-family: Alibaba-PuHuiTi-Regular;
+      height: calc(100% - 2rem);
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #f1f2f4;
+      padding: 0.5rem 0.375rem 0.375rem 0.375rem;
+      color: $nav_textColor;
+      .iconfont {
+        font-size: 0.3rem !important;
+        margin-right: 0.25rem;
+      }
+      .expand {
+        position: absolute;
+        right: 0.275rem;
+        margin: 0;
+        padding-top: 0.0375rem;
+        font-size: 0.25rem !important;
+      }
+    }
+
+    #menu::-webkit-scrollbar {
+      width: 3px;
+      background-color: #f5f5f5;
+    }
+
+    #menu::-webkit-scrollbar-thumb {
+      background-color: #5aa6ee;
+    }
+    #menu::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+      background-color: #f5f5f5;
+    }
   }
-  #menu::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-    background-color: #f5f5f5;
-  }
-}
 </style>

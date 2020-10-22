@@ -221,15 +221,11 @@
         } else {
           if (type == 'date') {
             this.date_title = moment(value).format('YYYY-MM-DD');
-            debugger;
           } else if (type == 'week') {
-            debugger;
             this.date_title = moment().format('YYYY') + '年,第' + moment(value[0]).weeks() + '周';
           } else if (type == 'month') {
-            debugger;
             this.date_title = moment(value).format('YYYY-MM') + '月';
           } else if (type == 'year') {
-            debugger;
             this.date_title = moment(value).format('YYYY') + '年';
           }
         }
