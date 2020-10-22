@@ -27,37 +27,36 @@
 </template>
 
 <script>
-//commonTitle.vue --> cloundMointor.vue -->index.vue     eventBus
-//indexvue -->cloundMointor.vue --->commonTitle.vue      $attrs
-//indexvue -->fullChart--->cloundMointor.vue --->commonTitle.vue   $attrs
-import planeTitle from '@/components/titile/planeTitle.vue';
-import eventBus from '@/components/utils/eventBus.js';
-export default {
-  components: { planeTitle },
-  // props: ['titleName', 'titleID', 'showFullType'],
-  data() {
-    return {};
-  },
-
-  methods: {
-    fullChart(type, titleName, titleID = '') {
-      debugger;
-      eventBus.$emit('fullChart', type, titleName, titleID);
+  //commonTitle.vue --> cloundMointor.vue -->index.vue     eventBus
+  //indexvue -->cloundMointor.vue --->commonTitle.vue      $attrs
+  //indexvue -->fullChart--->cloundMointor.vue --->commonTitle.vue   $attrs
+  import planeTitle from '@/components/titile/planeTitle.vue';
+  import eventBus from '@/components/utils/eventBus.js';
+  export default {
+    components: { planeTitle },
+    // props: ['titleName', 'titleID', 'showFullType'],
+    data() {
+      return {};
     },
-  },
-};
+
+    methods: {
+      fullChart(type, titleName, titleID = '') {
+        eventBus.$emit('fullChart', type, titleName, titleID);
+      },
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-#tool {
-  .iconfont {
-    margin: 0 0.1rem;
-    font-size: 0.3rem;
-    color: #06a5ff;
-    cursor: pointer;
+  #tool {
+    .iconfont {
+      margin: 0 0.1rem;
+      font-size: 0.3rem;
+      color: #06a5ff;
+      cursor: pointer;
+    }
+    .full {
+      font-size: 0.35rem;
+    }
   }
-  .full {
-    font-size: 0.35rem;
-  }
-}
 </style>

@@ -110,7 +110,6 @@
           let parentX = $('#column1').offset().left;
           let parentY = $('#column1').offset().top;
           let p = $('#column1').offset();
-          debugger;
 
           $(document)
             .mousemove(function(event) {
@@ -120,12 +119,6 @@
                   left: event.pageX - abs_x - parentX,
                   top: event.pageY - abs_y + parentY,
                 });
-
-                /*   let ax = abs_x;
-                let ay = abs_y;
-                let l = event.pageX - abs_x;
-                let t = event.pageY - abs_y;
-                debugger; */
               }
             })
             .mouseup(function() {

@@ -6,6 +6,7 @@ let instance = axios.create({
 });
 
 const dataService = {
+  // 首页-查询监控总览
   getMonitorViewVo() {
     return new Promise((resolve, reject) => {
       instance

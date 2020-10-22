@@ -52,7 +52,6 @@
             this.charts.resize();
           }, 300);
         });
-        debugger;
         /* window.onresize = (value) => {
         this.charts.resize();
       }; */

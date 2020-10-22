@@ -43,7 +43,6 @@
     mounted() {},
     methods: {
       showinfoWindow() {
-        debugger;
         this.$parent.openMonWindow();
       },
       initData() {
@@ -81,7 +80,6 @@
           data1 = JSON.parse(JSON.stringify(data));
           this.dataList.push(data1);
         }
-        debugger;
       },
     },
   };

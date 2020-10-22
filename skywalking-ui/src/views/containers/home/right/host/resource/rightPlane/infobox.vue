@@ -47,7 +47,6 @@
     components: { pieChart },
     mounted() {
       this.stateData;
-      debugger;
     },
     methods: {
       showinfoWindow() {

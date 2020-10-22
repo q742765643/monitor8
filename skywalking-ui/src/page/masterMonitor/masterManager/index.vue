@@ -10,12 +10,7 @@
           <vxe-option value="address" label="详细地址"></vxe-option>
         </vxe-select> -->
 
-        <a-select
-          v-model="selctValue"
-          default-value="IP"
-          style="width: 3.2rem; font-size: 0.185rem"
-          size="small"
-        >
+        <a-select v-model="selctValue" default-value="IP" style="width: 3.2rem; font-size: 0.185rem" size="small">
           <a-select-option value="IP"> IP地址 </a-select-option>
           <a-select-option value="name"> 设备名称 </a-select-option>
           <a-select-option value="state"> 当前状态 </a-select-option>
@@ -60,19 +55,11 @@
           添加
         </a-button>
 
-        <a-button
-          type="primary"
-          icon="delete"
-          @click="$refs.xTable.removeCheckboxRow()"
-        >
+        <a-button type="primary" icon="delete" @click="$refs.xTable.removeCheckboxRow()">
           删除
         </a-button>
 
-        <a-button
-          type="primary"
-          icon="plus-circle"
-          @click="showTopuMoadl = true"
-        >
+        <a-button type="primary" icon="plus-circle" @click="showTopuMoadl = true">
           从链路中添加
         </a-button>
       </div>
@@ -96,11 +83,7 @@
         >
           <!--   :checkbox-config="{ labelField: 'number' }" -->
           <!--   <vxe-table-column type="checkbox" width="80" title="序号"></vxe-table-column> -->
-          <vxe-table-column
-            field="number"
-            title="序号"
-            type="checkbox"
-          ></vxe-table-column>
+          <vxe-table-column field="number" title="序号" type="checkbox"></vxe-table-column>
           <vxe-table-column
             field="name"
             title="设备别名"
@@ -213,18 +196,10 @@
                   @click="saveRowEvent(row)"
                   >保存</span
                 > -->
-                <a-button
-                  type="primary"
-                  icon="check-circle"
-                  @click="saveRowEvent(row)"
-                >
+                <a-button type="primary" icon="check-circle" @click="saveRowEvent(row)">
                   保存
                 </a-button>
-                <a-button
-                  type="primary"
-                  icon="close-circle"
-                  @click="cancelRowEvent(row)"
-                >
+                <a-button type="primary" icon="close-circle" @click="cancelRowEvent(row)">
                   取消
                 </a-button>
                 <!-- <span class="iconfont iconcuo" @click="cancelRowEvent(row)"
@@ -250,16 +225,7 @@
           :page-size.sync="page.pageSize"
           :total="tableData.length"
           :page-sizes="[10, 20, 100]"
-          :layouts="[
-            'PrevJump',
-            'PrevPage',
-            'Number',
-            'NextPage',
-            'NextJump',
-            'Sizes',
-            'FullJump',
-            'Total',
-          ]"
+          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
         >
         </vxe-pager>
       </div>
@@ -269,12 +235,7 @@
     <template>
       <div>
         <!--   添加设备 -->
-        <vxe-modal
-          :mask="false"
-          v-model="showAddMoadl"
-          size="mini"
-          title="添加设备"
-        >
+        <vxe-modal :mask="false" v-model="showAddMoadl" size="mini" title="添加设备">
           <vxe-form ref="xForm" title-width="80" title-align="right">
             <vxe-form-item title="设备名称" field="name" span="24">
               <template v-slot="scope">
@@ -372,27 +333,11 @@
         </vxe-modal>
 
         <!--   链路中添加 -->
-        <vxe-modal
-          :mask="false"
-          @hide="clearData"
-          v-model="showTopuMoadl"
-          size="mini"
-          title="链路选择"
-        >
+        <vxe-modal :mask="false" @hide="clearData" v-model="showTopuMoadl" size="mini" title="链路选择">
           <template v-slot>
             <div id="treeSelect" style="min-height: 3rem">
-              <a-input
-                size="small"
-                v-model="treeValue"
-                placeholder="请先选择"
-                allow-clear
-              />
-              <a-tree
-                :tree-data="treeData"
-                :defaultExpandAll="true"
-                @select="onSelect"
-              >
-              </a-tree>
+              <a-input size="small" v-model="treeValue" placeholder="请先选择" allow-clear />
+              <a-tree :tree-data="treeData" :defaultExpandAll="true" @select="onSelect"> </a-tree>
               <!--    @select="onSelect" -->
               <!--   <treeselect
                 v-model="treeValue"
@@ -405,71 +350,39 @@
               /> -->
             </div>
             <div style="float: right;margin-top:10px">
-              <vxe-button
-                size="mini"
-                status="primary"
-                content="下一步"
-                @click="confirmEvent"
-              ></vxe-button>
+              <vxe-button size="mini" status="primary" content="下一步" @click="confirmEvent"></vxe-button>
             </div>
           </template>
         </vxe-modal>
 
-        <vxe-modal
-          :mask="false"
-          @hide="clearData"
-          v-model="showMaterMoadl"
-          size="mini"
-          title="主机添加"
-        >
+        <vxe-modal :mask="false" @hide="clearData" v-model="showMaterMoadl" size="mini" title="主机添加">
           <template v-slot>
             <div id="services">
               <span class="services_tiitle">Windiows服务器</span>
               <div class="dostype">
-                <div
-                  class="angent"
-                  :class="dostype == 1 ? 'chooseDos' : ''"
-                  @click="dostype = 1"
-                >
+                <div class="angent" :class="dostype == 1 ? 'chooseDos' : ''" @click="dostype = 1">
                   <div class="img"></div>
                   <div class="name">Agent Windows</div>
                 </div>
-                <div
-                  class="snmp"
-                  :class="dostype == 2 ? 'chooseDos' : ''"
-                  @click="dostype = 2"
-                >
+                <div class="snmp" :class="dostype == 2 ? 'chooseDos' : ''" @click="dostype = 2">
                   <div class="img"></div>
                   <div class="name">Snmp Windows</div>
                 </div>
               </div>
               <span class="services_tiitle">Linux服务器</span>
               <div class="dostype">
-                <div
-                  class="angent"
-                  :class="dostype == 3 ? 'chooseDos' : ''"
-                  @click="dostype = 3"
-                >
+                <div class="angent" :class="dostype == 3 ? 'chooseDos' : ''" @click="dostype = 3">
                   <div class="img"></div>
                   <div class="name">Agent Linux</div>
                 </div>
-                <div
-                  class="snmp"
-                  :class="dostype == 4 ? 'chooseDos' : ''"
-                  @click="dostype = 4"
-                >
+                <div class="snmp" :class="dostype == 4 ? 'chooseDos' : ''" @click="dostype = 4">
                   <div class="img"></div>
                   <div class="name">Snmp Linux</div>
                 </div>
               </div>
             </div>
             <div style="float: right">
-              <vxe-button
-                size="mini"
-                status="primary"
-                content="下一步"
-                @click="confirmDosType"
-              ></vxe-button>
+              <vxe-button size="mini" status="primary" content="下一步" @click="confirmDosType"></vxe-button>
             </div>
           </template>
         </vxe-modal>
@@ -481,13 +394,7 @@
           size="mini"
           :title="`添加设备${dosTypeName[dostype - 1]}`"
         >
-          <vxe-form
-            ref="xForm"
-            title-width="120"
-            title-align="right"
-            :rules="formRules"
-            :data="formData"
-          >
+          <vxe-form ref="xForm" title-width="120" title-align="right" :rules="formRules" :data="formData">
             <vxe-form-item title="IP地址" field="IP" span="24">
               <template v-slot="scope">
                 <vxe-input
@@ -521,12 +428,7 @@
               </template>
             </vxe-form-item>
 
-            <vxe-form-item
-              v-if="dostype == 1 || dostype == 3"
-              title="可读共同体名称"
-              field="nameRead"
-              span="24"
-            >
+            <vxe-form-item v-if="dostype == 1 || dostype == 3" title="可读共同体名称" field="nameRead" span="24">
               <template v-slot="scope">
                 <vxe-input
                   placeholder="请输入名称"
@@ -584,471 +486,461 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      page: {
-        currentPage: 1,
-        pageSize: 10,
-      },
-      tableheight: null,
-      formData: {
-        IP: '',
-        port: '',
-        devType: '',
-        nameRead: '',
-        version: '',
-        position: '',
-        title: '',
-      },
-      formRules: {
-        IP: [{ required: true, message: '请输入IP地址' }],
-        port: [{ required: true, message: '请输入端口好' }],
-        devType: [{ required: true, message: '请输入设备型号' }],
-        nameRead: [{ required: true, message: '请输入共同体名称' }],
-      },
-      dosTypeName: [
-        'Agent Windows',
-        'Snmp Windows',
-        'Agent Linux',
-        'Snmp Linux',
-      ],
-      dostype: 0,
-      // dostypeName: '',
-      showAddMoadl: false,
-      showTopuMoadl: false,
-      showMaterMoadl: false,
-      showEditMoadl: false,
-      selctValue: 'IP',
-      queryValue: '',
-      tableData: [],
-      checkData: [],
-      treeValue: '',
-      selectNode: '',
-      treeData: [
-        {
-          key: '机房区',
-          title: '机房区',
-          children: [
-            {
-              key: 'serveice0',
-              title: '服务器A',
-            },
-            {
-              key: 'serveice1',
-              title: '服务器B',
-            },
-            {
-              key: 'serveice2',
-              title: '服务器C',
-            },
-            {
-              key: 'serveice3',
-              title: '服务器D',
-            },
-          ],
+  export default {
+    data() {
+      return {
+        page: {
+          currentPage: 1,
+          pageSize: 10,
         },
-        {
-          key: '值班区',
-          title: '值班区',
-          children: [
-            {
-              key: 'monitor0',
-              title: '监控A',
-            },
-            {
-              key: 'monitor1',
-              title: '监控B',
-            },
-            {
-              key: 'monitor2',
-              title: '监控C',
-            },
-          ],
+        tableheight: null,
+        formData: {
+          IP: '',
+          port: '',
+          devType: '',
+          nameRead: '',
+          version: '',
+          position: '',
+          title: '',
         },
-        {
-          key: '办公楼4楼',
-          title: '办公楼5楼',
+        formRules: {
+          IP: [{ required: true, message: '请输入IP地址' }],
+          port: [{ required: true, message: '请输入端口好' }],
+          devType: [{ required: true, message: '请输入设备型号' }],
+          nameRead: [{ required: true, message: '请输入共同体名称' }],
         },
-        {
-          key: '办公楼5楼',
-          title: '办公楼5楼',
-        },
-        {
-          key: '其它区域',
-          title: '其它区域',
-        },
-      ],
-      resData: [
-        {
-          number: '1',
-          name: 'Oracle数据库',
-          state: '正常',
-          IP: '192.168.0.100',
-          monitMode: '代理',
-          time: '2020/8/20 10:00',
-          macAdress: 'XX:XX:XX:XX',
-          gateway: '10.24.23.10',
-          deviceType: 'windows Agent',
+        dosTypeName: ['Agent Windows', 'Snmp Windows', 'Agent Linux', 'Snmp Linux'],
+        dostype: 0,
+        // dostypeName: '',
+        showAddMoadl: false,
+        showTopuMoadl: false,
+        showMaterMoadl: false,
+        showEditMoadl: false,
+        selctValue: 'IP',
+        queryValue: '',
+        tableData: [],
+        checkData: [],
+        treeValue: '',
+        selectNode: '',
+        treeData: [
+          {
+            key: '机房区',
+            title: '机房区',
+            children: [
+              {
+                key: 'serveice0',
+                title: '服务器A',
+              },
+              {
+                key: 'serveice1',
+                title: '服务器B',
+              },
+              {
+                key: 'serveice2',
+                title: '服务器C',
+              },
+              {
+                key: 'serveice3',
+                title: '服务器D',
+              },
+            ],
+          },
+          {
+            key: '值班区',
+            title: '值班区',
+            children: [
+              {
+                key: 'monitor0',
+                title: '监控A',
+              },
+              {
+                key: 'monitor1',
+                title: '监控B',
+              },
+              {
+                key: 'monitor2',
+                title: '监控C',
+              },
+            ],
+          },
+          {
+            key: '办公楼4楼',
+            title: '办公楼5楼',
+          },
+          {
+            key: '办公楼5楼',
+            title: '办公楼5楼',
+          },
+          {
+            key: '其它区域',
+            title: '其它区域',
+          },
+        ],
+        resData: [
+          {
+            number: '1',
+            name: 'Oracle数据库',
+            state: '正常',
+            IP: '192.168.0.100',
+            monitMode: '代理',
+            time: '2020/8/20 10:00',
+            macAdress: 'XX:XX:XX:XX',
+            gateway: '10.24.23.10',
+            deviceType: 'windows Agent',
 
-          area: '机房',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-          devCharge: '张三',
-        },
-        {
-          number: '2',
-          name: '报文接收器',
-          state: '正常',
-          IP: '192.168.0.102',
-          monitMode: '代理',
-          time: '2020/8/20 10:00',
-          macAdress: 'XX:XX:XX:XX',
-          gateway: '10.24.23.10',
-          deviceType: 'windows Agent',
-          area: '机房',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-          devCharge: '张三',
-        },
-        {
-          number: '3',
-          name: 'MySql数据库',
-          state: '正常',
-          IP: '192.168.0.120',
-          monitMode: '代理',
-          time: '2020/8/20 10:03',
-          macAdress: 'XX:XX:XX:XX',
-          gateway: '10.24.23.10',
-          deviceType: 'windows Agent',
-          area: '机房',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-          devCharge: '张三',
-        },
-        {
-          number: '4',
-          name: '监控台A',
-          state: '正常',
-          IP: '192.168.0.104',
-          monitMode: 'snmp',
-          time: '2020/8/20 10:20',
-          macAdress: 'XX:XX:XX:XX',
-          gateway: '10.24.23.10',
-          deviceType: 'Linux Agent',
-          area: '值班室',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-          devCharge: '李四',
-        },
-        {
-          number: '5',
-          name: '监控台B',
-          state: '正常',
-          IP: '192.168.0.107',
-          monitMode: 'snmp',
-          time: '2020/8/20 10:10',
-          macAdress: 'XX:XX:XX:XX',
-          gateway: '10.24.23.10',
-          deviceType: 'Linux Agent',
-          area: '值班室',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-          devCharge: '李四',
-        },
-        {
-          number: '6',
-          name: '监控台B',
-          state: '正常',
-          IP: '192.168.0.103',
-          monitMode: 'snmp',
-          time: '2020/8/20 10:10',
-          macAdress: 'XX:XX:XX:XX',
-          gateway: '10.24.23.10',
-          deviceType: 'Linux Agent',
-          area: '值班室',
-          address: 'xxxxxxxxxxxxxxxxxxxxx',
-          devCharge: '李四',
-        },
-      ],
-    };
-  },
-  created() {
-    this.tableData = this.resData;
-  },
-  components: {},
-  methods: {
-    async insertEvent(row) {
-      let record = {
-        number: parseInt(this.tableData[this.tableData.length - 1].number) + 1,
+            area: '机房',
+            address: 'xxxxxxxxxxxxxxxxxxxxx',
+            devCharge: '张三',
+          },
+          {
+            number: '2',
+            name: '报文接收器',
+            state: '正常',
+            IP: '192.168.0.102',
+            monitMode: '代理',
+            time: '2020/8/20 10:00',
+            macAdress: 'XX:XX:XX:XX',
+            gateway: '10.24.23.10',
+            deviceType: 'windows Agent',
+            area: '机房',
+            address: 'xxxxxxxxxxxxxxxxxxxxx',
+            devCharge: '张三',
+          },
+          {
+            number: '3',
+            name: 'MySql数据库',
+            state: '正常',
+            IP: '192.168.0.120',
+            monitMode: '代理',
+            time: '2020/8/20 10:03',
+            macAdress: 'XX:XX:XX:XX',
+            gateway: '10.24.23.10',
+            deviceType: 'windows Agent',
+            area: '机房',
+            address: 'xxxxxxxxxxxxxxxxxxxxx',
+            devCharge: '张三',
+          },
+          {
+            number: '4',
+            name: '监控台A',
+            state: '正常',
+            IP: '192.168.0.104',
+            monitMode: 'snmp',
+            time: '2020/8/20 10:20',
+            macAdress: 'XX:XX:XX:XX',
+            gateway: '10.24.23.10',
+            deviceType: 'Linux Agent',
+            area: '值班室',
+            address: 'xxxxxxxxxxxxxxxxxxxxx',
+            devCharge: '李四',
+          },
+          {
+            number: '5',
+            name: '监控台B',
+            state: '正常',
+            IP: '192.168.0.107',
+            monitMode: 'snmp',
+            time: '2020/8/20 10:10',
+            macAdress: 'XX:XX:XX:XX',
+            gateway: '10.24.23.10',
+            deviceType: 'Linux Agent',
+            area: '值班室',
+            address: 'xxxxxxxxxxxxxxxxxxxxx',
+            devCharge: '李四',
+          },
+          {
+            number: '6',
+            name: '监控台B',
+            state: '正常',
+            IP: '192.168.0.103',
+            monitMode: 'snmp',
+            time: '2020/8/20 10:10',
+            macAdress: 'XX:XX:XX:XX',
+            gateway: '10.24.23.10',
+            deviceType: 'Linux Agent',
+            area: '值班室',
+            address: 'xxxxxxxxxxxxxxxxxxxxx',
+            devCharge: '李四',
+          },
+        ],
       };
-      let { row: newRow } = await this.$refs.xTable.insertAt(record, row);
-      await this.$refs.xTable.setActiveCell(newRow, 'number');
     },
-    tableCheck({ row }) {},
-    queryTbaleData() {
-      if (this.queryValue == '') {
-        this.tableData = this.resData;
-        return;
-      }
-      this.tableData = [];
-      this.tableData = this.resData.filter((item) => {
-        if (item[this.selctValue].indexOf(this.queryValue) > -1) {
-          return item;
-        }
-      });
-    },
-    clearQueryValue() {
-      this.queryValue = '';
+    created() {
       this.tableData = this.resData;
     },
-    editRowEvent(row) {
-      this.$refs.xTable.setActiveRow(row);
-    },
-    saveRowEvent(row) {
-      this.$refs.xTable.clearActived().then(() => {
-        this.loading = true;
-        setTimeout(() => {
-          this.loading = false;
-          this.$XModal.message({ message: '保存成功！', status: 'success' });
-        }, 300);
-      });
-    },
-    cancelRowEvent(row) {
-      const xTable = this.$refs.xTable;
-      xTable.clearActived().then(() => {
-        // 还原行数据
-        xTable.revertData(row);
-      });
-    },
-    confirmEvent() {
-      if (this.treeValue != '' && this.treeValue != null) {
-        this.showMaterMoadl = true;
-        this.showTopuMoadl = false;
-      } else {
-        this.$XModal.message({ message: '请先选择设备', status: 'warning' });
-      }
-    },
-    confirmDosType() {
-      if (this.dostype !== 0) {
-        this.showMaterMoadl = false;
-        this.showEditMoadl = true;
-      } else {
-        this.$XModal.message({ message: '请先选择主机', status: 'warning' });
-      }
-    },
-    goback() {
-      this.showEditMoadl = false;
-      this.showMaterMoadl = true;
-    },
-    clearData() {
-      this.treeValue = null;
-      //this.dostype = 0;
-    },
-    insertDevice() {
-      this.showAddMoadl = true;
-    },
-    setTableHeight() {
-      let h = document.getElementById('masterManager_content').clientHeight;
-      let padding = getComputedStyle(document.getElementById('table'), false)[
-        'paddingTop'
-      ];
-      let h_page = document.getElementById('page_table').offsetHeight;
-      debugger;
-      this.tableheight = h - 2 * parseInt(padding) - h_page - 1;
-
-      debugger;
-    },
-
-    getKeyvalue(selectedKeys, treeData) {
-      for (let index in treeData) {
-        if (treeData[index].key == selectedKeys) {
-          this.selectNode = treeData[index];
-          break;
+    components: {},
+    methods: {
+      async insertEvent(row) {
+        let record = {
+          number: parseInt(this.tableData[this.tableData.length - 1].number) + 1,
+        };
+        let { row: newRow } = await this.$refs.xTable.insertAt(record, row);
+        await this.$refs.xTable.setActiveCell(newRow, 'number');
+      },
+      tableCheck({ row }) {},
+      queryTbaleData() {
+        if (this.queryValue == '') {
+          this.tableData = this.resData;
+          return;
+        }
+        this.tableData = [];
+        this.tableData = this.resData.filter((item) => {
+          if (item[this.selctValue].indexOf(this.queryValue) > -1) {
+            return item;
+          }
+        });
+      },
+      clearQueryValue() {
+        this.queryValue = '';
+        this.tableData = this.resData;
+      },
+      editRowEvent(row) {
+        this.$refs.xTable.setActiveRow(row);
+      },
+      saveRowEvent(row) {
+        this.$refs.xTable.clearActived().then(() => {
+          this.loading = true;
+          setTimeout(() => {
+            this.loading = false;
+            this.$XModal.message({ message: '保存成功！', status: 'success' });
+          }, 300);
+        });
+      },
+      cancelRowEvent(row) {
+        const xTable = this.$refs.xTable;
+        xTable.clearActived().then(() => {
+          // 还原行数据
+          xTable.revertData(row);
+        });
+      },
+      confirmEvent() {
+        if (this.treeValue != '' && this.treeValue != null) {
+          this.showMaterMoadl = true;
+          this.showTopuMoadl = false;
         } else {
-          if (treeData[index].hasOwnProperty('children')) {
-            this.getKeyvalue(selectedKeys, treeData[index].children);
+          this.$XModal.message({ message: '请先选择设备', status: 'warning' });
+        }
+      },
+      confirmDosType() {
+        if (this.dostype !== 0) {
+          this.showMaterMoadl = false;
+          this.showEditMoadl = true;
+        } else {
+          this.$XModal.message({ message: '请先选择主机', status: 'warning' });
+        }
+      },
+      goback() {
+        this.showEditMoadl = false;
+        this.showMaterMoadl = true;
+      },
+      clearData() {
+        this.treeValue = null;
+        //this.dostype = 0;
+      },
+      insertDevice() {
+        this.showAddMoadl = true;
+      },
+      setTableHeight() {
+        let h = document.getElementById('masterManager_content').clientHeight;
+        let padding = getComputedStyle(document.getElementById('table'), false)['paddingTop'];
+        let h_page = document.getElementById('page_table').offsetHeight;
+        this.tableheight = h - 2 * parseInt(padding) - h_page - 1;
+      },
+
+      getKeyvalue(selectedKeys, treeData) {
+        for (let index in treeData) {
+          if (treeData[index].key == selectedKeys) {
+            this.selectNode = treeData[index];
+            break;
+          } else {
+            if (treeData[index].hasOwnProperty('children')) {
+              this.getKeyvalue(selectedKeys, treeData[index].children);
+            }
           }
         }
-      }
-    },
-    onSelect(selectedKeys, info) {
-      this.getKeyvalue(selectedKeys[0], this.treeData);
+      },
+      onSelect(selectedKeys, info) {
+        this.getKeyvalue(selectedKeys[0], this.treeData);
 
-      this.treeValue = this.selectNode.title;
+        this.treeValue = this.selectNode.title;
+      },
     },
-  },
 
-  mounted() {
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-    window.addEventListener('resize', () => {
-      this.setTableHeight();
-    });
-  },
-};
+    mounted() {
+      this.$nextTick(() => {
+        this.setTableHeight();
+      });
+      window.addEventListener('resize', () => {
+        this.setTableHeight();
+      });
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-#managerMaster {
-  width: 100%;
-  height: 100%;
-  font-family: Alibaba-PuHuiTi-Regular;
-  // padding: 0.5rem 0.375rem 0.375rem 0.2rem;
-  #header {
-    z-index: 1;
+  #managerMaster {
     width: 100%;
-    height: 1.25rem;
-    // line-height: 1.25rem;
-    font-size: 0.2rem;
-    //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
-    box-shadow: $plane_shadow;
-    margin-bottom: 0.1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    div {
-      flex: 1;
-    }
-    #select {
-      text-align: right;
-    }
-
-    #query {
-      text-align: center;
-      #queryIcon {
-        margin-left: -0.4rem;
-        color: #dcdfe6;
-      }
-      #clearIcon {
-        margin-left: -0.4rem;
-        color: #676767;
-        cursor: pointer;
-      }
-      #queryValue {
-        height: 0.375rem;
-        width: 4rem;
-        border: 1px solid #dcdfe6;
-        border-radius: 0.05rem;
-        &:focus {
-          outline: none !important;
-          border: 1px solid #0f9fec !important;
-        }
-      }
-    }
-    #operate {
-      display: inline-block;
-      text-align: center;
-      padding-right: 1rem;
-      span {
-        color: #409eff;
-        background: #ecf5ff;
-        cursor: pointer;
-        &:hover {
-          background: #409eff;
-          color: #fff;
-        }
-        padding: 0.0625rem 0.125rem;
-        border: 1px solid #b3d8ff;
-        border-radius: 0.05rem;
-        // display: block;
-        font-weight: 500;
-        margin-left: $ant_font_size;
-        font-size: 0.2rem !important;
-      }
-    }
-  }
-  #masterManager_content {
-    //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
-
-    box-shadow: $plane_shadow;
-    width: 100%;
-    height: calc(100% - 1.35rem);
-    background: white;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    overflow: auto;
-    #table {
-      padding: 0.25rem;
+    height: 100%;
+    font-family: Alibaba-PuHuiTi-Regular;
+    // padding: 0.5rem 0.375rem 0.375rem 0.2rem;
+    #header {
+      z-index: 1;
       width: 100%;
+      height: 1.25rem;
+      // line-height: 1.25rem;
+      font-size: 0.2rem;
+      //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
+      box-shadow: $plane_shadow;
+      margin-bottom: 0.1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      div {
+        flex: 1;
+      }
+      #select {
+        text-align: right;
+      }
 
-      span {
-        color: #409eff;
-        background: #ecf5ff;
-        cursor: pointer;
-        &:hover {
-          background: #409eff;
-          color: #fff;
+      #query {
+        text-align: center;
+        #queryIcon {
+          margin-left: -0.4rem;
+          color: #dcdfe6;
         }
-        padding: 0.0625rem 0.125rem;
-        border: 1px solid #b3d8ff;
-        border-radius: 0.05rem;
-        // display: block;
-        font-weight: 500;
-        margin-left: $ant_font_size;
-        font-size: 0.2rem !important;
+        #clearIcon {
+          margin-left: -0.4rem;
+          color: #676767;
+          cursor: pointer;
+        }
+        #queryValue {
+          height: 0.375rem;
+          width: 4rem;
+          border: 1px solid #dcdfe6;
+          border-radius: 0.05rem;
+          &:focus {
+            outline: none !important;
+            border: 1px solid #0f9fec !important;
+          }
+        }
+      }
+      #operate {
+        display: inline-block;
+        text-align: center;
+        padding-right: 1rem;
+        span {
+          color: #409eff;
+          background: #ecf5ff;
+          cursor: pointer;
+          &:hover {
+            background: #409eff;
+            color: #fff;
+          }
+          padding: 0.0625rem 0.125rem;
+          border: 1px solid #b3d8ff;
+          border-radius: 0.05rem;
+          // display: block;
+          font-weight: 500;
+          margin-left: $ant_font_size;
+          font-size: 0.2rem !important;
+        }
+      }
+    }
+    #masterManager_content {
+      //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
+
+      box-shadow: $plane_shadow;
+      width: 100%;
+      height: calc(100% - 1.35rem);
+      background: white;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      overflow: auto;
+      #table {
+        padding: 0.25rem;
+        width: 100%;
+
+        span {
+          color: #409eff;
+          background: #ecf5ff;
+          cursor: pointer;
+          &:hover {
+            background: #409eff;
+            color: #fff;
+          }
+          padding: 0.0625rem 0.125rem;
+          border: 1px solid #b3d8ff;
+          border-radius: 0.05rem;
+          // display: block;
+          font-weight: 500;
+          margin-left: $ant_font_size;
+          font-size: 0.2rem !important;
+        }
       }
     }
   }
-}
 
-#services {
-  width: 100%;
-  height: 5rem;
-  //padding: 0 0.25rem;
-  .services_tiitle {
-    font-size: 0.25rem;
-    color: green;
-    display: block;
-    padding-left: 0.25rem;
-  }
-
-  .dostype {
-    user-select: none;
-    height: 2rem;
+  #services {
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    .angent {
-      cursor: pointer;
-      margin: 0.4rem 0;
-      width: 45%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid #ebebeb;
-      border-radius: 0.1rem;
-      .img {
-        background-image: url('../../../assets/imgs/window1.png');
-      }
+    height: 5rem;
+    //padding: 0 0.25rem;
+    .services_tiitle {
+      font-size: 0.25rem;
+      color: green;
+      display: block;
+      padding-left: 0.25rem;
     }
 
-    .snmp {
-      cursor: pointer;
-      margin: 0.4rem 0;
-      width: 45%;
+    .dostype {
+      user-select: none;
+      height: 2rem;
+      width: 100%;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid #ebebeb;
-      border-radius: 0.1rem;
-      .img {
-        background-image: url('../../../assets/imgs/window2.png');
+      justify-content: space-between;
+      .angent {
+        cursor: pointer;
+        margin: 0.4rem 0;
+        width: 45%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ebebeb;
+        border-radius: 0.1rem;
+        .img {
+          background-image: url('../../../assets/imgs/window1.png');
+        }
       }
-    }
 
-    .chooseDos {
-      background: #bdd5f0;
-    }
-    .img {
-      width: 40%;
-      height: 100%;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-    .name {
-      width: 60%;
-      height: 100%;
-      padding: 0.5rem 0;
-      font-size: 13px;
+      .snmp {
+        cursor: pointer;
+        margin: 0.4rem 0;
+        width: 45%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #ebebeb;
+        border-radius: 0.1rem;
+        .img {
+          background-image: url('../../../assets/imgs/window2.png');
+        }
+      }
+
+      .chooseDos {
+        background: #bdd5f0;
+      }
+      .img {
+        width: 40%;
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+      .name {
+        width: 60%;
+        height: 100%;
+        padding: 0.5rem 0;
+        font-size: 13px;
+      }
     }
   }
-}
 </style>
