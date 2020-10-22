@@ -69,7 +69,9 @@ public class JsonParseUtil {
     }
 
     public static boolean isNested(Object jsonObj){
-
+        if(null==jsonObj){
+            return false;
+        }
         return jsonObj.toString().contains("{");
     }
 
