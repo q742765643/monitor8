@@ -87,7 +87,7 @@
 <script>
 import echarts from 'echarts';
 /* import toupuChart from './toupuchart/toupuchart'; */
-import topuTree from './toupuchart/toputree';
+import topuTree from './toupuchart/toputree1';
 import planeTitle from '@/components/titile/planeTitle.vue';
 import { remFontSize } from '@/components/utils/fontSize.js';
 export default {

@@ -145,6 +145,7 @@
 <script>
 /*   import editWindow from '../window/editwindow'; */
 import mointorWindow from "../window/mointorwindow";
+import request from "@/utils/request";
 import echarts from "echarts";
 import Icon from "../toupuchart/iconBase64";
 import G6 from "@antv/g6";
@@ -175,281 +176,114 @@ export default {
       timeer: null,
       showEditWindow: false,
       showMointorWindow: false,
-      data: {
-        nodes: [
-          {
-            id: "0",
-            label: "switch1",
-            img: "switchIcon",
-            type: "image",
-            size: 250,
-          },
-          {
-            id: "1",
-            label: "交换机1",
-            img: switchIcon,
-            type: "image",
-            size: 250,
-          },
-          {
-            id: "2",
-            label: "交换机2",
-            img: switchIcon,
-            type: "image",
-            size: 250,
-          },
-          {
-            id: "3",
-            label: "交换机3",
-            img: switchIcon,
-            type: "image",
-            size: 250,
-          },
-          {
-            id: "4",
-            label: "交换机4",
-            img: switchIcon,
-            type: "image",
-            size: 250,
-          },
-          {
-            id: "5",
-            label: "交换机5",
-            img: switchIcon,
-            type: "image",
-            size: 250,
-          },
-          {
-            id: "6",
-            label: "监视台",
-            comboId: "A",
-            img: watchIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "7",
-            label: "监视台",
-            comboId: "A",
-            img: watchIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "8",
-            label: "办公",
-            comboId: "B",
-            img: computerIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "9",
-            label: "办公",
-            comboId: "B",
-            img: computerIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "10",
-            label: "办公",
-            comboId: "C",
-            img: computerIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "11",
-            label: "办公",
-            comboId: "D",
-            img: computerIcon,
-            type: "image",
-            size: 200
-          },
-          {
-            id: "12",
-            label: "服务器",
-            comboId: "D",
-            img: serveiceIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "13",
-            label: "服务器",
-            comboId: "D",
-            img: serveiceIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "14",
-            label: "办公",
-            comboId: "E",
-            img: computerIcon,
-            type: "image",
-            size: 200,
-          },
-          {
-            id: "15",
-            label: "办公",
-            comboId: "E",
-            img: computerIcon,
-            type: "image",
-            size: 200,
-          },
-        ],
-        edges: [
-          {
-            source: "0",
-            target: "1",
-          },
-          {
-            source: "0",
-            target: "2",
-          },
-          {
-            source: "0",
-            target: "3",
-          },
-          {
-            source: "0",
-            target: "4",
-          },
-          {
-            source: "0",
-            target: "5",
-          },
-          {
-            source: "1",
-            target: "6",
-          },
-          {
-            source: "1",
-            target: "7",
-          },
-
-          {
-            source: "2",
-            target: "8",
-          },
-
-          {
-            source: "2",
-            target: "9",
-          },
-
-          {
-            source: "3",
-            target: "10",
-          },
-
-          {
-            source: "3",
-            target: "11",
-          },
-          {
-            source: "4",
-            target: "12",
-          },
-          {
-            source: "4",
-            target: "13",
-          },
-          {
-            source: "5",
-            target: "14",
-          },
-          {
-            source: "5",
-            target: "15",
-          },
-        ],
-        combos: [
-          {
-            id: "A",
-            label: "",
-
-            style: {
-              fill: "#edfbed",
-              lineWidth: 5,
-              stroke: "#01a1ff",
-              lineDash: [14, 14],
-            },
-          },
-          {
-            id: "B",
-            label: "",
-
-            style: {
-              fill: "#eeedfb",
-              lineWidth: 5,
-              stroke: "#01a1ff",
-              lineDash: [14, 14],
-            },
-          },
-          {
-            id: "C",
-            label: "",
-
-            style: {
-              fill: "#fbfdef",
-              lineWidth: 5,
-              stroke: "#01a1ff",
-              lineDash: [14, 14],
-            },
-          },
-          {
-            id: "D",
-            label: "",
-            style: {
-              fill: "#fcf3ee",
-              lineWidth: 5,
-              stroke: "#01a1ff",
-              lineDash: [14, 14],
-            },
-          },
-          {
-            id: "E",
-            label: "",
-            style: {
-              fill: "#a183a3",
-              lineWidth: 5,
-              stroke: "#01a1ff",
-              lineDash: [14, 14],
-            },
-          },
-        ],
-      },
+      data: {},
     };
   },
   components: { mointorWindow },
+  created() {
+    request({
+      url:'/networkTopy/getTopy',
+      method: 'get'
+    }).then(data => {
+      let nodes=[];
+      this.data = data.data;
+      this.data.nodes.forEach((item) => {
+        item.img=computerIcon
+        nodes.push(item)
+      });
+      this.data.nodes=nodes;
+      this.drawRectTree();
+    });
+  },
   mounted() {
     this.$nextTick(() => {
-      this.drawRectTree();
+
     });
   },
   methods: {
     drawRectTree() {
       let sortByCombo = true;
-      let width = document.getElementById("mountNode").clientWidth;
-      // let height = document.getElementById('mountNode').clientHeight;
+      let width = document.getElementById("mountNode").clientWidth-20;
+      G6.registerNode(
+              'card-node',
+              {
+                drawShape: function drawShape(cfg, group) {
+                  let img=computerIcon;
+                  if(cfg.mediaType==1||cfg.mediaType==0){
+                    img=serveiceIcon;
+                  }
+                  if(cfg.mediaType==2||cfg.mediaType==3){
+                    img=switchIcon;
+                  }
+                  if(cfg.mediaType==4){
+                    img=watchIcon;
+                  }
 
-      let graph = new G6.Graph({
+                  let color = '#6666ff';
+                  if(cfg.area==0){
+                    color ='#9933cc';
+                  }
+                  if(cfg.area==1){
+                    color ='#993333';
+                  }
+                  if(cfg.area==2){
+                    color ='#cccc33';
+                  }
+                  if(cfg.area==3){
+                    color ='#ff0099';
+                  }
+                  const r = 2;
+
+                  group.addShape('image', {
+                    attrs: {
+                      x:-12,
+                      y:0,
+                      height: 50,
+                      width: 60,
+                      cursor: 'pointer',
+                      img: img,
+                    },
+                    name: 'node-icon',
+                  });
+                  group.addShape('text', {
+                    attrs: {
+                      textBaseline: 'top',
+                      y: 45,
+                      x: 15 ,
+                      lineHeight: 20,
+                      text: cfg.ip,
+                      fill: 'rgba(0,0,0, 0.4)',
+                      textAlign: 'center',
+                      fontSize:10,
+                    },
+                    name: `index-title`,
+                  });
+                  const shape = group.addShape('rect', {
+                    attrs: {
+                      x: 0,
+                      y: 0,
+                      width: 36,
+                      height: 36,
+                      stroke: color,
+                      lineWidth: 2,
+                      lineDash: [12,12,24,12,24,12,24],
+                    },
+                    name: 'main-box',
+                    draggable: true,
+                  });
+
+
+                  return shape;
+                },
+              },
+              'single-node',
+      );
+      var graph = new G6.Graph({
         width,
         container: "mountNode",
-        height: 700,
-        linkCenter: true,
-        fitView: true,
-        fitViewPadding: 30,
-        animate: true,
+        height: window.innerHeight,
         modes: {
-          default: [
-            "drag-combo",
-            "drag-canvas",
-            "zoom-canvas",
-            //'drag-node',
+          default: [ 'drag-node', 'drag-canvas', 'zoom-canvas',
             {
               type: "collapse-expand-combo",
               relayout: false,
@@ -461,44 +295,41 @@ export default {
                 return text;
               },
               offset: 20,
-            },
-          ],
+            },]
         },
         layout: {
-          type: "dagre",
-          //type: 'comboForce',
-          sortByCombo: true,
-          ranksep: 200,
+          type: 'fruchterman',
+          center: [ 400, 400 ],     // 可选，默认为图的中心
+          gravity: 2,              // 可选
+          speed: 2,                 // 可选
+          clustering: true,         // 可选
+          clusterGravity: 1,       // 可选
+          maxIteration: 2000
         },
+        animate: true,
         defaultNode: {
-          size: [150, 100],
-          type: "rect",
-
-          labelCfg: {
-            offset: -80,
-            style: {
-              fill: "#000",
-              fontSize: 50,
-            },
-          },
-        },
-        defaultCombo: {
-          type: "rect",
+          type: 'card-node'
         },
         defaultEdge: {
-          type: "line",
+          size: 1,
+          type: 'line-arrow',
           style: {
-            lineWidth: 2,
-            stroke: "#53D7A4",
+            stroke: '#F6BD16',
             endArrow: {
-              path: G6.Arrow.vee(40, 40, 50),
-              d: 50,
-              fill: "#53D7A4",
-            },
-          },
-        },
-      });
+              path: 'M 0,0 L 12,4 L 6,0 L 12,-4 Z',
+              fill: '#F6BD16',
+            }
+          }
+          /*lineWidth: 2,
+          stroke: "#53D7A4",
+          endArrow: {
+            path: G6.Arrow.vee(40, 40, 50),
+            d: 50,
+            fill: "#53D7A4",
+          },*/
 
+        }
+      });
       graph.data(this.data);
       graph.render();
 
