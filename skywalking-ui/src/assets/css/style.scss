@@ -21,6 +21,7 @@
         background: $main_color !important;
         border-radius: 0.0625rem;
     }
+
     .ant-menu-submenu-arrow {
         color: #fff !important;
     }
@@ -29,6 +30,7 @@
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
     background: #b8e3f6;
     color: $main_color;
+
     &::before {
         position: absolute;
         top: 0;
@@ -70,9 +72,11 @@
     border-radius: 0.0625rem;
     height: 0.625rem;
     line-height: 00.625rem;
+
     &::before {
         border: none !important;
     }
+
     a {
         color: #fff !important;
         text-decoration: none;
@@ -92,6 +96,7 @@
     font-size: $nav_fontSize;
     height: 0.625rem !important;
     line-height: 0.625rem !important;
+
     a {
         display: inline-block;
         text-decoration: none;
@@ -100,6 +105,7 @@
 
 .ant-menu-item[id='main'] {
     padding-left: 0.25rem !important;
+
     a {
         color: $nav_textColor;
         text-decoration: none;
@@ -174,9 +180,11 @@
     .ant-tree-child-tree>li:first-child {
         padding-top: 0px !important;
     }
+
     .ant-tree li {
         padding: 0 !important;
     }
+
     .ant-tree {
         border: solid 0.00625rem #eee;
         border-radius: 0.05rem;
@@ -253,4 +261,42 @@
 @font-face {
     font-family: Alibaba-PuHuiTi-Regular;
     src: url(../font/Alibaba-PuHuiTi-Regular.ttf);
+}
+
+
+.queryForm {
+    padding-left: 2%;
+
+    .ant-form-item-label,
+    .ant-form-item-control,
+    .ant-input,
+    .ant-select,
+    .ant-select-selection__rendered {
+        line-height: 0.375rem;
+    }
+
+    .ant-input,
+    .ant-select,
+    .ant-select-selection--single {
+        height: 0.375rem;
+    }
+
+    .ant-select {
+        width: 2.05rem;
+    }
+
+}
+
+.rowToolbar {
+    margin: 0.2rem;
+}
+
+.ant-modal-close-x {
+    padding-top: 16px;
+}
+
+.dialogBox {
+    .ant-form-item {
+        margin-bottom: 0.3rem;
+    }
 }

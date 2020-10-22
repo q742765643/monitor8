@@ -10,29 +10,32 @@
 </template>
 
 <script>
-import navbar from '@/components/layout/navbar';
-import upper from '@/components/layout/upper';
-import container from '@/components/layout/container';
-export default {
-  data() {
-    return {
-      collapsed: false,
-    };
-  },
-  components: { navbar, upper, container },
-};
+  import navbar from '@/components/layout/navbar';
+  import upper from '@/components/layout/upper';
+  import container from '@/components/layout/container';
+  export default {
+    data() {
+      return {
+        collapsed: false,
+      };
+    },
+    components: { navbar, upper, container },
+  };
 </script>
 
 <style lang="scss" scoped>
-#components-layout {
-  width: 100%;
-  height: 13.5rem;
-  #leftPlane {
-    width: 4.25rem;
-  }
+  #components-layout {
+    width: 100%;
+    height: 100%;
+    #leftPlane {
+      width: 4.25rem;
+    }
 
-  #rightPalne {
-    width: calc(100% - 4.25rem);
+    #rightPalne {
+      width: calc(100% - 4.25rem);
+    }
+    #center {
+      height: calc(100% - 1rem);
+    }
   }
-}
 </style>

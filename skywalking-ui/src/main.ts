@@ -54,6 +54,8 @@ import 'xe-utils';
 import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
 import 'ant-design-vue/dist/antd.css';
+import { FormModel } from 'ant-design-vue';
+Vue.use(FormModel);
 Vue.use(VXETable);
 Vue.use(Antd);
 VXETable.setup({ size: 'mini' });
