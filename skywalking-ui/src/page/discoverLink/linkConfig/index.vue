@@ -23,18 +23,18 @@
         </a-form-model-item>
       </a-form-model>
     </div>
-    <a-row type="flex" class="rowToolbar">
-      <a-col :span="1.5">
-        <a-button type="primary" icon="plus" @click="handleAdd">
-          新增
-        </a-button>
-        <a-button type="danger" icon="delete" @click="handleDelete">
-          删除
-        </a-button>
-      </a-col>
-    </a-row>
 
     <div id="linkManger_content">
+      <a-row type="flex" class="rowToolbar">
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="handleAdd">
+            新增
+          </a-button>
+          <a-button type="danger" icon="delete" @click="handleDelete">
+            删除
+          </a-button>
+        </a-col>
+      </a-row>
       <div id="tablediv">
         <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
           <vxe-table-column type="checkbox"></vxe-table-column>

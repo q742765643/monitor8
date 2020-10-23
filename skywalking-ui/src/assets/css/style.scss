@@ -288,7 +288,7 @@
 }
 
 .rowToolbar {
-    margin: 0.2rem;
+    margin-bottom: 0.2rem;
 }
 
 .ant-modal-close-x {
@@ -299,4 +299,19 @@
     .ant-form-item {
         margin-bottom: 0.3rem;
     }
+}
+
+.ant-calendar-header .ant-calendar-prev-century-btn,
+.ant-calendar-header .ant-calendar-next-century-btn,
+.ant-calendar-header .ant-calendar-prev-decade-btn,
+.ant-calendar-header .ant-calendar-next-decade-btn,
+.ant-calendar-header .ant-calendar-prev-month-btn,
+.ant-calendar-header .ant-calendar-next-month-btn,
+.ant-calendar-header .ant-calendar-prev-year-btn,
+.ant-calendar-header .ant-calendar-next-year-btn {
+    top: 18px;
+}
+
+.ant-calendar-range-picker-separator {
+    line-height: 100%;
 }

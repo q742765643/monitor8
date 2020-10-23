@@ -111,6 +111,18 @@ const router = new Router({
           name: 'softwareReport',
           component: () => import('@/page/businessView/softwareReport/index.vue'),
         },
+        // 文件监控
+        {
+          path: '/fileMonitoring',
+          name: 'fileMonitoring',
+          component: () => import('@/page/fileMonitoring/index.vue'),
+        },
+        // 告警管理
+        {
+          path: '/alarmMonitoring',
+          name: 'alarmMonitoring',
+          component: () => import('@/page/alarmMonitoring/index.vue'),
+        },
       ],
     },
   ],

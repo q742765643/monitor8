@@ -248,6 +248,120 @@ const dataService = {
         });
     });
   },
+
+  // 文件监控-表格
+  fileMonitorList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/fileMonitor/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 文件监控-详情
+  fileMonitorDetail(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/fileMonitor/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 文件监控-删除
+  fileMonitorDelete(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/fileMonitor/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 文件监控-新增/编辑
+  fileMonitorPost(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/fileMonitor', params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 告警管理-表格
+  alarmCofigList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/alarmCofig/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 告警管理-详情
+  alarmCofigDetail(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/alarmCofig/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 告警管理-删除
+  alarmCofigDelete(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/alarmCofig/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 告警管理-新增/编辑
+  alarmCofigPost(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/alarmCofig', params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 };
 
 export default dataService;

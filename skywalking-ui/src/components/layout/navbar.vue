@@ -79,6 +79,23 @@
         </a-menu-item>
       </a-sub-menu>
 
+      <a-sub-menu key="sub5">
+        <span slot="title"> <span class="iconfont">&#xe640;</span>文件监控</span>
+
+        <a-menu-item key="/fileMonitoring">
+          <span class="iconfont">&#xe611;</span>
+
+          <router-link to="/fileMonitoring"> 文件监控</router-link>
+        </a-menu-item>
+      </a-sub-menu>
+      <a-sub-menu key="sub5">
+        <span slot="title"> <span class="iconfont">&#xe640;</span>告警管理</span>
+        <a-menu-item key="/alarmMonitoring">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/alarmMonitoring"> 告警管理</router-link>
+        </a-menu-item>
+      </a-sub-menu>
+
       <a-sub-menu key="sub7">
         <span slot="title"> <span class="iconfont">&#xe692;</span>旧页面</span>
 
