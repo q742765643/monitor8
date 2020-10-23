@@ -108,6 +108,7 @@
 <script>
   /*   import editWindow from '../window/editwindow'; */
   import mointorWindow from '../window/mointorwindow';
+  import request from '@/utils/request';
   import echarts from 'echarts';
   import Icon from '../toupuchart/iconBase64';
   import G6 from '@antv/g6';
@@ -131,352 +132,114 @@
         timeer: null,
         showEditWindow: false,
         showMointorWindow: false,
-        data: {
-          nodes: [
-            {
-              id: '0',
-              label: 'switch1',
-              img: 'switchIcon',
-              type: 'image',
-              size: 250,
-            },
-            {
-              id: '1',
-              label: '交换机1',
-              img: switchIcon,
-              type: 'image',
-              size: 250,
-            },
-            {
-              id: '2',
-              label: '交换机2',
-              img: switchIcon,
-              type: 'image',
-              size: 250,
-            },
-            {
-              id: '3',
-              label: '交换机3',
-              img: switchIcon,
-              type: 'image',
-              size: 250,
-            },
-            {
-              id: '4',
-              label: '交换机4',
-              img: switchIcon,
-              type: 'image',
-              size: 250,
-            },
-            {
-              id: '5',
-              label: '交换机5',
-              img: switchIcon,
-              type: 'image',
-              size: 250,
-            },
-            {
-              id: '6',
-              label: '监视台',
-              comboId: 'A',
-              img: watchIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '7',
-              label: '监视台',
-              comboId: 'A',
-              img: watchIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '8',
-              label: '办公',
-              comboId: 'B',
-              img: computerIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '9',
-              label: '办公',
-              comboId: 'B',
-              img: computerIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '10',
-              label: '办公',
-              comboId: 'C',
-              img: computerIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '11',
-              label: '办公',
-              comboId: 'D',
-              img: computerIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '12',
-              label: '服务器',
-              comboId: 'D',
-              img: serveiceIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '13',
-              label: '服务器',
-              comboId: 'D',
-              img: serveiceIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '14',
-              label: '办公',
-              comboId: 'E',
-              img: computerIcon,
-              type: 'image',
-              size: 200,
-            },
-            {
-              id: '15',
-              label: '办公',
-              comboId: 'E',
-              img: computerIcon,
-              type: 'image',
-              size: 200,
-            },
-          ],
-          edges: [
-            {
-              source: '0',
-              target: '1',
-            },
-            {
-              source: '0',
-              target: '2',
-            },
-            {
-              source: '0',
-              target: '3',
-            },
-            {
-              source: '0',
-              target: '4',
-            },
-            {
-              source: '0',
-              target: '5',
-            },
-            {
-              source: '1',
-              target: '6',
-            },
-            {
-              source: '1',
-              target: '7',
-            },
-
-            {
-              source: '2',
-              target: '8',
-            },
-
-            {
-              source: '2',
-              target: '9',
-            },
-
-            {
-              source: '3',
-              target: '10',
-            },
-
-            {
-              source: '3',
-              target: '11',
-            },
-            {
-              source: '4',
-              target: '12',
-            },
-            {
-              source: '4',
-              target: '13',
-            },
-            {
-              source: '5',
-              target: '14',
-            },
-            {
-              source: '5',
-              target: '15',
-            },
-          ],
-          combos: [
-            {
-              id: 'A',
-              label: '',
-
-              style: {
-                fill: '#edfbed',
-                lineWidth: 5,
-                stroke: '#01a1ff',
-                lineDash: [14, 14],
-              },
-            },
-            {
-              id: 'B',
-              label: '',
-
-              style: {
-                fill: '#eeedfb',
-                lineWidth: 5,
-                stroke: '#01a1ff',
-                lineDash: [14, 14],
-              },
-            },
-            {
-              id: 'C',
-              label: '',
-
-              style: {
-                fill: '#fbfdef',
-                lineWidth: 5,
-                stroke: '#01a1ff',
-                lineDash: [14, 14],
-              },
-            },
-            {
-              id: 'D',
-              label: '',
-              style: {
-                fill: '#fcf3ee',
-                lineWidth: 5,
-                stroke: '#01a1ff',
-                lineDash: [14, 14],
-              },
-            },
-            {
-              id: 'E',
-              label: '',
-              style: {
-                fill: '#a183a3',
-                lineWidth: 5,
-                stroke: '#01a1ff',
-                lineDash: [14, 14],
-              },
-            },
-          ],
-        },
+        data: {},
       };
     },
     components: { mointorWindow },
-    mounted() {
-      this.$nextTick(() => {
+    created() {
+      request({
+        url: '/networkTopy/getTopy',
+        method: 'get',
+      }).then((data) => {
+        let nodes = [];
+        this.data = data.data;
+        this.data.nodes.forEach((item) => {
+          item.img = computerIcon;
+          nodes.push(item);
+        });
+        this.data.nodes = nodes;
         this.drawRectTree();
       });
+    },
+    mounted() {
+      this.$nextTick(() => {});
     },
     methods: {
       drawRectTree() {
         let sortByCombo = true;
         let width = document.getElementById('mountNode').clientWidth;
-        // let height = document.getElementById('mountNode').clientHeight;
 
-        let graph = new G6.Graph({
-          width,
+        var colors = [
+          'rgb(64, 174, 247)',
+          'rgb(108, 207, 169)',
+          'rgb(157, 223, 125)',
+          'rgb(240, 198, 74)',
+          'rgb(221, 158, 97)',
+          'rgb(141, 163, 112)',
+          'rgb(115, 136, 220)',
+          'rgb(133, 88, 219)',
+          'rgb(203, 135, 226)',
+          'rgb(227, 137, 163)',
+        ];
+
+        var nodes = this.data.nodes;
+        var clusterMap = new Map();
+        var clusterId = 0;
+        nodes.forEach(function(node) {
+          // cluster
+          if (node.cluster && clusterMap.get(node.cluster) === undefined) {
+            clusterMap.set(node.cluster, clusterId);
+            clusterId++;
+          }
+          var cid = clusterMap.get(node.cluster);
+          if (node.style) {
+            node.style.fill = colors[cid % colors.length];
+          } else {
+            node.style = {
+              fill: colors[cid % colors.length],
+            };
+          }
+        });
+        var graph = new G6.Graph({
           container: 'mountNode',
-          height: 700,
-          linkCenter: true,
-          fitView: true,
-          fitViewPadding: 30,
-          animate: true,
+          width: window.innerWidth,
+          height: window.innerHeight,
           modes: {
-            default: [
-              'drag-combo',
-              'drag-canvas',
-              'zoom-canvas',
-              //'drag-node',
-              {
-                type: 'collapse-expand-combo',
-                relayout: false,
-              },
-              {
-                type: 'tooltip',
-                formatText(model) {
-                  const text = '单击编辑属性,双击显示详情';
-                  return text;
-                },
-                offset: 20,
-              },
-            ],
+            default: ['drag-canvas', 'drag-node'],
           },
           layout: {
-            type: 'dagre',
-            //type: 'comboForce',
-            sortByCombo: true,
-            ranksep: 200,
+            type: 'fruchterman',
+            gravity: 1,
+            speed: 5,
           },
+          animate: true,
           defaultNode: {
-            size: [150, 100],
-            type: 'rect',
-
+            size: [30, 30],
             labelCfg: {
-              offset: -80,
+              //position: 'center',
+              offset: -30,
               style: {
                 fill: '#000',
-                fontSize: 50,
+                fontSize: 10,
               },
             },
           },
-          defaultCombo: {
-            type: 'rect',
-          },
           defaultEdge: {
-            type: 'line',
+            size: 1,
+            color: '#e2e2e2',
             style: {
-              lineWidth: 2,
-              stroke: '#53D7A4',
               endArrow: {
-                path: G6.Arrow.vee(40, 40, 50),
-                d: 50,
-                fill: '#53D7A4',
+                path: 'M 4,0 L -4,-4 L -4,4 Z',
+                d: 4,
               },
             },
           },
         });
-
         graph.data(this.data);
         graph.render();
 
-        graph.on('node:click', (ev) => {
-          clearTimeout(this.timeer);
-          this.timeer = setTimeout(() => {
-            this.showEditWindow = true;
-          }, 300);
-        });
-
-        graph.on('node:dblclick', (ev) => {
-          clearTimeout(this.timeer);
-          clearTimeout(this.timeer);
-          this.showMointorWindow = true;
-        });
-      },
-
-      closeWindow() {
-        this.showEditWindow = false;
-      },
-      closeMonWindow() {
-        this.showMointorWindow = false;
+        var descriptionDiv = document.createElement('div');
+        descriptionDiv.innerHTML = 'Fruchterman 布局，重力：1';
+        var graphDiv = document.getElementById('mountNode');
+        //document.body.insertBefore(descriptionDiv, graphDiv);
+        setTimeout(function() {
+          descriptionDiv.innerHTML = 'Fructherman 布局，重力：10，按聚类布局';
+          graph.updateLayout({
+            gravity: 5,
+            clustering: true,
+            unitRadius: 80,
+          });
+        }, 2500);
       },
     },
   };

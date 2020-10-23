@@ -12,6 +12,7 @@ import com.piesat.skywalking.vo.AlarmDistributionVo;
 import com.piesat.skywalking.vo.MonitorViewVo;
 import com.piesat.util.IndexNameUtil;
 import com.piesat.util.JsonParseUtil;
+import com.piesat.util.NullUtil;
 import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -57,7 +58,7 @@ public class MainService {
         List<MonitorViewVo> monitorViewVos=new ArrayList<>();
 
         HostConfigDto hostConfigDto=new HostConfigDto();
-        hostConfigDto.setTriggerStatus(null);
+        NullUtil.changeToNull(hostConfigDto);
         List<Integer> types=new ArrayList<>();
         types.add(2);
         types.add(3);
@@ -73,6 +74,7 @@ public class MainService {
         List<Integer> typeServer=new ArrayList<>();
         typeServer.add(0);
         typeServer.add(1);
+        NullUtil.changeToNull(hostConfigDto);
         hostConfigDto.setMediaTypes(typeServer);
         long host=hostConfigService.selectCount(hostConfigDto);
         MonitorViewVo hostView=new MonitorViewVo();

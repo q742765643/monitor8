@@ -5,6 +5,8 @@ import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
 import com.piesat.skywalking.service.host.HostConfigServiceImpl;
+import com.piesat.ucenter.rpc.api.system.DictDataService;
+import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.util.ResultT;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,10 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @Api(value = "网络拓扑接口", tags = {"网络拓扑接口"})
@@ -26,6 +25,8 @@ import java.util.Map;
 public class NetworkTopyController {
     @Autowired
     private HostConfigService hostConfigService;
+    @Autowired
+    private DictDataService dictDataService;
 
     @ApiOperation(value = "查询网络拓扑图", notes = "查询网络拓扑图")
     @GetMapping("/getTopy")
@@ -34,19 +35,41 @@ public class NetworkTopyController {
         Map<String, Object> map = new HashMap<>();
         List<Map<String, Object>> nodeList = new ArrayList<>();
         List<Map<String, Object>> callList = new ArrayList<>();
+        List<Map<String, Object>> groupList = new ArrayList<>();
         Sort sort = Sort.by("ip");
         List<HostConfigDto> list = hostConfigService.selectAll();
         List<String> ipList = new ArrayList<>();
-
-        for (int i = 0; i < list.size(); i++) {
-            HostConfigDto hostConfig = list.get(i);
+        List<DictDataDto> dictDataDtoList=dictDataService.selectDictDataByType("media_area");
+        int x=100;
+        int y=100;
+        Set<String> areaIds=new HashSet<>();
+        for (int i = 1; i <= list.size(); i++) {
+            HostConfigDto hostConfig = list.get(i-1);
             Map<String, Object> node = new HashMap<>();
-            node.put("id", hostConfig.getId());
-            node.put("name", hostConfig.getIp());
-            node.put("type", hostConfig.getMediaType());
-            node.put("isReal", true);
+            areaIds.add(String.valueOf(hostConfig.getArea()));
+            node.put("id", hostConfig.getIp());
+            node.put("ip", hostConfig.getIp());
+            if(!"null".equals(String.valueOf(hostConfig.getArea()))) {
+                node.put("comboId", String.valueOf(hostConfig.getArea()));
+                node.put("cluster", String.valueOf(hostConfig.getArea()));
+            }
+            node.put("mediaType", hostConfig.getMediaType());
+            node.put("area", hostConfig.getArea());
+         /*   node.put("x", x);
+            node.put("y", y);*/
+            //node.put("isReal", true);
             nodeList.add(node);
             ipList.add(hostConfig.getIp());
+        }
+        for (int i=0;i<dictDataDtoList.size();i++){
+            DictDataDto dictDataDto=dictDataDtoList.get(i);
+            Map<String, Object> group = new HashMap<>();
+            if(!areaIds.contains(dictDataDto.getDictValue())){
+                continue;
+            }
+            group.put("id",String.valueOf(dictDataDto.getDictValue()));
+            group.put("title",dictDataDto.getDictLabel());
+            groupList.add(group);
         }
         String[] arpIp = {"1.3.6.1.2.1.4.22.1.3"};
         for (int i = 0; i < list.size(); i++) {
@@ -111,7 +134,8 @@ public class NetworkTopyController {
             }
         }
         map.put("nodes", nodeList);
-        map.put("calls", callList);
+        map.put("edges", callList);
+        //map.put("groups", groupList);
         resultT.setData(map);
         return resultT;
     }

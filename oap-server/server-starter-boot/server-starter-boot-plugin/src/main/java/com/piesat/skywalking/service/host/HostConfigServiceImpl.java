@@ -127,7 +127,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         return hostConfigMapstruct.toDto(hostConfig);
     }
     public List<HostConfigDto> selectAll(){
-        Sort sort = Sort.by("ip");
+        Sort sort = Sort.by("area");
         List<HostConfigEntity> list = super.getAll(sort);
         return hostConfigMapstruct.toDto(list);
     }
@@ -144,10 +144,10 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
 
     public List<String> selectOnine(){
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), "1");
-        specificationBuilder.addOr("isAgent", SpecificationOperator.Operator.eq.name(), "1");
+        specificationBuilder.add("monitoringMethods", SpecificationOperator.Operator.eq.name(), 1);
+        specificationBuilder.addOr("monitoringMethods", SpecificationOperator.Operator.eq.name(), 2);
         Specification specification = specificationBuilder.generateSpecification();
-        List<HostConfigEntity> hostConfigEntities=this.getAll();
+        List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
         List<String> ips=new ArrayList<>();
         for(int i=0;i<hostConfigEntities.size();i++){
             ips.add(hostConfigEntities.get(i).getIp());
@@ -157,8 +157,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
     }
     public List<HostConfigDto> selectOnineAll(){
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        specificationBuilder.add("isSnmp", SpecificationOperator.Operator.eq.name(), "1");
-        specificationBuilder.addOr("isAgent", SpecificationOperator.Operator.eq.name(), "1");
+        specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), 1);
         Specification specification = specificationBuilder.generateSpecification();
         List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
         return hostConfigMapstruct.toDto(hostConfigEntities);
@@ -185,13 +184,13 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (StringUtils.isNotNullString(hostConfig.getOs())){
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), hostConfig.getOs());
         }
-        if (null!=hostConfig.getMediaType()&&hostConfig.getMediaType()>-1){
+        if (null!=hostConfig.getMediaType()){
             specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), hostConfig.getMediaType());
         }
         if (hostConfig.getMediaTypes()!=null&&hostConfig.getMediaTypes().size()>0){
             specificationBuilder.add("mediaType", SpecificationOperator.Operator.inn.name(), hostConfig.getMediaTypes());
         }
-        if (null!=hostConfig.getCurrentStatus()&&hostConfig.getCurrentStatus()>-1) {
+        if (null!=hostConfig.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();

@@ -85,150 +85,150 @@
 </template>
 
 <script>
-import echarts from 'echarts';
-/* import toupuChart from './toupuchart/toupuchart'; */
-import topuTree from './toupuchart/toputree';
-import planeTitle from '@/components/titile/planeTitle.vue';
-import { remFontSize } from '@/components/utils/fontSize.js';
-export default {
-  data() {
-    return {
-      infoData: {
-        name: 'test-name',
-        alias: '报文接收服务器',
-        addr: '办公区三层306',
-        ip: '66.32.5.122',
-        lostPack: '3%',
-        DNS: '255.255.255.80',
-        type: 'windows服务器',
-        state: '正常/异常',
-        time: '20天30时45分',
-      },
-      charts: '',
-      pieData: [
-        { value: 210, name: '良好', color1: '#329A2E', color2: '#5DFC57' },
-        { value: 735, name: '一般', color1: '#E4A302', color2: '#FDF901' },
-        { value: 834, name: '未知', color1: '#FC000D', color2: '#E10008' },
-        { value: 535, name: '严重', color1: '#0063F2', color2: '#0065F5' },
-      ],
-    };
-  },
-  components: { /* toupuChart ,*/ topuTree, planeTitle },
-  methods: {
-    drawPie(id) {
-      var linearcolor = [];
-      this.pieData.map((item) => {
-        linearcolor.push({
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [
-            {
-              offset: 0,
-              color: item.color1,
-            },
-            {
-              offset: 1,
-              color: item.color2,
-            },
-          ],
-          globalCoord: false, // 缺省为 false
-        });
-      });
-      this.charts = echarts.init(document.getElementById(id));
-      var option = {
-        textStyle: {
-          fontFamily: 'Alibaba-PuHuiTi-Medium',
+  import echarts from 'echarts';
+  /* import toupuChart from './toupuchart/toupuchart'; */
+  import topuTree from './toupuchart/toputree1';
+  import planeTitle from '@/components/titile/planeTitle.vue';
+  import { remFontSize } from '@/components/utils/fontSize.js';
+  export default {
+    data() {
+      return {
+        infoData: {
+          name: 'test-name',
+          alias: '报文接收服务器',
+          addr: '办公区三层306',
+          ip: '66.32.5.122',
+          lostPack: '3%',
+          DNS: '255.255.255.80',
+          type: 'windows服务器',
+          state: '正常/异常',
+          time: '20天30时45分',
         },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b} : {c} ({d}%)',
-        },
-
-        color: linearcolor,
-        series: [
-          {
-            type: 'pie',
-            radius: ['25%', '60%'],
-            center: ['50%', '50%'],
-            selectedMode: 'single',
-            data: this.pieData,
-            /* label: {
-              color: '#000000',
-            }, */
-            label: {
-              padding: [0, -remFontSize(30 / 64), 0, -remFontSize(30 / 64)],
-              formatter: '{b}\n\n{c}',
-            },
-            labelLine: {
-              length: remFontSize(30 / 64),
-              length2: remFontSize(50 / 64),
-              lineStyle: { color: '#acacac', width: 0.5 },
-            },
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)',
-              },
-            },
-          },
+        charts: '',
+        pieData: [
+          { value: 210, name: '良好', color1: '#329A2E', color2: '#5DFC57' },
+          { value: 735, name: '一般', color1: '#E4A302', color2: '#FDF901' },
+          { value: 834, name: '未知', color1: '#FC000D', color2: '#E10008' },
+          { value: 535, name: '严重', color1: '#0063F2', color2: '#0065F5' },
         ],
       };
-
-      this.charts.setOption(option);
     },
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.drawPie('pieChart');
-    });
-    window.addEventListener('resize', () => {
-      this.charts.resize();
-    });
-  },
-};
+    components: { /* toupuChart ,*/ topuTree, planeTitle },
+    methods: {
+      drawPie(id) {
+        var linearcolor = [];
+        this.pieData.map((item) => {
+          linearcolor.push({
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              {
+                offset: 0,
+                color: item.color1,
+              },
+              {
+                offset: 1,
+                color: item.color2,
+              },
+            ],
+            globalCoord: false, // 缺省为 false
+          });
+        });
+        this.charts = echarts.init(document.getElementById(id));
+        var option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Medium',
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: '{b} : {c} ({d}%)',
+          },
+
+          color: linearcolor,
+          series: [
+            {
+              type: 'pie',
+              radius: ['25%', '60%'],
+              center: ['50%', '50%'],
+              selectedMode: 'single',
+              data: this.pieData,
+              /* label: {
+              color: '#000000',
+            }, */
+              label: {
+                padding: [0, -remFontSize(30 / 64), 0, -remFontSize(30 / 64)],
+                formatter: '{b}\n\n{c}',
+              },
+              labelLine: {
+                length: remFontSize(30 / 64),
+                length2: remFontSize(50 / 64),
+                lineStyle: { color: '#acacac', width: 0.5 },
+              },
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)',
+                },
+              },
+            },
+          ],
+        };
+
+        this.charts.setOption(option);
+      },
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.drawPie('pieChart');
+      });
+      window.addEventListener('resize', () => {
+        this.charts.resize();
+      });
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-.topu {
-  // padding: 0 0.375rem 0.375rem 0rem;
-  display: flex;
-  //background: #eef5fd;
-  width: 100%;
-  height: calc(12.5rem - 0.5rem - 0.375rem);
-  display: flex;
-  justify-content: space-between;
-  #column1 {
-    width: calc(12.875rem - 0.25rem);
+  .topu {
+    // padding: 0 0.375rem 0.375rem 0rem;
+    display: flex;
+    //background: #eef5fd;
+    width: 100%;
     height: calc(12.5rem - 0.5rem - 0.375rem);
-    background-color: #ffffff;
-    box-shadow: $plane_shadow;
-  }
-  #column2 {
-    width: calc(6.3375rem - 0.25rem);
-    height: calc(12.5rem - 0.5rem - 0.375rem);
-    font-family: 'Alibaba-PuHuiTi-Medium';
-    #deviceState {
-      height: 4.5rem;
+    display: flex;
+    justify-content: space-between;
+    #column1 {
+      width: calc(12.875rem - 0.25rem);
+      height: calc(12.5rem - 0.5rem - 0.375rem);
       background-color: #ffffff;
       box-shadow: $plane_shadow;
-      #pieChart {
-        height: 3.75rem;
-        width: 6.3375rem;
+    }
+    #column2 {
+      width: calc(6.3375rem - 0.25rem);
+      height: calc(12.5rem - 0.5rem - 0.375rem);
+      font-family: 'Alibaba-PuHuiTi-Medium';
+      #deviceState {
+        height: 4.5rem;
+        background-color: #ffffff;
+        box-shadow: $plane_shadow;
+        #pieChart {
+          height: 3.75rem;
+          width: 6.3375rem;
+        }
+      }
+      #devideInfo {
+        margin-top: 0.5rem;
+        height: 6.625rem;
+        background-color: #ffffff;
+        box-shadow: $plane_shadow;
       }
     }
-    #devideInfo {
-      margin-top: 0.5rem;
-      height: 6.625rem;
-      background-color: #ffffff;
-      box-shadow: $plane_shadow;
-    }
-  }
 
-  /* .title {
+    /* .title {
     font-family: Georgia;
     font-weight: 600;
     height: 0.75rem;
@@ -240,34 +240,34 @@ export default {
     }
   } */
 
-  .info {
-    padding: 0.5rem 1rem;
+    .info {
+      padding: 0.5rem 1rem;
 
-    .column {
-      height: 4.875rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      .cell {
-        flex: 1;
+      .column {
+        height: 4.875rem;
         display: flex;
-        span:first-child {
-          font-size: $ant_font_size;
-          width: 1.125rem;
-          display: inline-block;
-          font-weight: 600;
-          text-align: justify;
-          i {
-            width: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        .cell {
+          flex: 1;
+          display: flex;
+          span:first-child {
+            font-size: $ant_font_size;
+            width: 1.125rem;
             display: inline-block;
+            font-weight: 600;
+            text-align: justify;
+            i {
+              width: 100%;
+              display: inline-block;
+            }
           }
-        }
 
-        span:last-child {
-          margin-left: 0.125rem;
+          span:last-child {
+            margin-left: 0.125rem;
+          }
         }
       }
     }
   }
-}
 </style>
