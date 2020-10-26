@@ -48,15 +48,12 @@
               <span v-if="row.triggerStatus == 1">启动 </span>
             </template>
           </vxe-table-column>
-          <vxe-table-column field="fileNum" title="应到数量" show-overflow></vxe-table-column>
-          <vxe-table-column field="fileSize" title="应到大小" show-overflow></vxe-table-column>
           <vxe-table-column field="isUt" title="时区" show-overflow>
             <template v-slot="{ row }">
               <span v-if="row.triggerStatus == 0">北京时 </span>
               <span v-if="row.triggerStatus == 1">世界时 </span>
             </template>
           </vxe-table-column>
-          <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
           <vxe-table-column width="160" field="date" title="操作">
             <template v-slot="{ row }">
               <a-button type="primary" icon="edit" @click="handleEdit(row)">
@@ -121,33 +118,10 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="调度地址" prop="address">
-              <a-input v-model="formDialog.address" placeholder="请输入调度地址"> </a-input>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="文件路径样例" prop="fileSample">
-              <a-input v-model="formDialog.fileSample" placeholder="请输入文件路径样例"> </a-input>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="应到数量" prop="fileNum">
-              <a-input v-model="formDialog.fileNum" placeholder="请输入应到数量"> </a-input>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="应到大小" prop="fileSize">
-              <a-input v-model="formDialog.fileSize" placeholder="请输入应到大小"> </a-input>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="时区" prop="isUt">
-              <a-select v-model="formDialog.isUt">
-                <a-select-option :value="0">
-                  北京时
-                </a-select-option>
-                <a-select-option :value="1">
-                  世界时
+            <a-form-model-item label="监测类型" prop="monitorType">
+              <a-select v-model="formDialog.monitorType" @change="changeType">
+                <a-select-option v-for="(item, index) in typeOptions" :key="index" :value="item.dictValue">
+                  {{ item.dictLabel }}
                 </a-select-option>
               </a-select>
             </a-form-model-item>
@@ -157,14 +131,116 @@
               <a-input v-model="formDialog.jobCron" placeholder="corn表达式"> </a-input>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="资料文件名规则 " prop="filenameRegular">
-              <a-input v-model="formDialog.filenameRegular" placeholder="资料文件名规则 "> </a-input>
+          <a-col :span="24" v-for="(itemp, indexp) in formDialog.generals" :key="'0-' + indexp">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+              <span v-show="indexp == 0" slot="label" class="lineLabel">
+                <i class="formIcon">*</i><i class="rulesIcon rulesIcon1"></i> 一般阈值</span
+              >
+              <span v-show="indexp > 0" slot="label" class="lineLabel2">
+                <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
+                  <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
+                    {{ item.dictLabel }}
+                  </a-select-option>
+                </a-select>
+              </span>
+              <a-row class="lineContent" :gutter="[16, 16]">
+                <a-col :span="6">
+                  <a-input v-model="formDialog.monitorLabel" disabled> </a-input>
+                </a-col>
+                <a-col :span="7">
+                  <a-select v-model="itemp.paramname">
+                    <a-select-option v-for="(item, index) in kpiOptions" :key="index" :value="item.dictValue">
+                      {{ item.dictLabel }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+                <a-col :span="7">
+                  <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
+                </a-col>
+                <a-col :span="4" class="unitBox">
+                  <a-button type="primary" icon="plus" @click="generalsHandleAdd">
+                    新增
+                  </a-button>
+                  <a-button type="danger" icon="delete" @click="generalsHandleDelete(indexp)" v-show="indexp > 0">
+                    删除
+                  </a-button>
+                </a-col>
+              </a-row>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="资料文件目录规则" prop="folderRegular">
-              <a-input v-model="formDialog.folderRegular" placeholder="资料文件目录规则"> </a-input>
+          <a-col :span="24" v-for="(itemp, indexp) in formDialog.dangers" :key="'1-' + indexp">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+              <span v-show="indexp == 0" slot="label" class="lineLabel">
+                <i class="formIcon">*</i><i class="rulesIcon rulesIcon2"></i> 危险阈值</span
+              >
+              <span v-show="indexp > 0" slot="label" class="lineLabel2">
+                <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
+                  <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
+                    {{ item.dictLabel }}
+                  </a-select-option>
+                </a-select>
+              </span>
+              <a-row class="lineContent" :gutter="[16, 16]">
+                <a-col :span="6">
+                  <a-input v-model="formDialog.monitorLabel" disabled> </a-input>
+                </a-col>
+                <a-col :span="7">
+                  <a-select v-model="itemp.paramname">
+                    <a-select-option v-for="(item, index) in kpiOptions" :key="index" :value="item.dictValue">
+                      {{ item.dictLabel }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+                <a-col :span="7">
+                  <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
+                </a-col>
+                <a-col :span="4" class="unitBox">
+                  <a-button type="primary" icon="plus" @click="dangerHandleAdd">
+                    新增
+                  </a-button>
+                  <a-button type="danger" icon="delete" @click="dangerHandleDelete(indexp)" v-show="indexp > 0">
+                    删除
+                  </a-button>
+                </a-col>
+              </a-row>
+            </a-form-model-item>
+          </a-col>
+
+          <a-col :span="24" v-for="(itemp, indexp) in formDialog.severitys" :key="'2-' + indexp">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+              <span v-show="indexp == 0" slot="label" class="lineLabel">
+                <i class="formIcon">*</i><i class="rulesIcon rulesIcon3"></i> 故障阈值</span
+              >
+              <span v-show="indexp > 0" slot="label" class="lineLabel2">
+                <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
+                  <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
+                    {{ item.dictLabel }}
+                  </a-select-option>
+                </a-select>
+              </span>
+              <a-row class="lineContent" :gutter="[16, 16]">
+                <a-col :span="6">
+                  <a-input v-model="formDialog.monitorLabel" disabled> </a-input>
+                </a-col>
+                <a-col :span="7">
+                  <a-select v-model="itemp.paramname">
+                    <a-select-option v-for="(item, index) in kpiOptions" :key="index" :value="item.dictValue">
+                      {{ item.dictLabel }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+                <a-col :span="7">
+                  <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
+                </a-col>
+                <a-col :span="4" class="unitBox">
+                  <a-button type="primary" icon="plus" @click="severitysHandleAdd">
+                    新增
+                  </a-button>
+                  <a-button type="danger" icon="delete" @click="severitysHandleDelete(indexp)" v-show="indexp > 0">
+                    删除
+                  </a-button>
+                </a-col>
+              </a-row>
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
@@ -199,10 +275,11 @@
         visibleModel: false, //弹出框
         operatorOptions: [], //告警运算符号
         kpiOptions: [], //告警指标
-        typeOptions: [], //告警类型
+        typeOptions: [], //告警类型,监测类型
         dialogTitle: '',
         formDialog: {
           taskName: '',
+          dangers: [{ operate: '', paramname: '', paramvalue: '' }],
         },
         rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
       };
@@ -234,6 +311,9 @@
       });
     },
     methods: {
+      changeType(val) {
+        this.formDialog.monitorLabel = services.formatterselectDictLabel(this.typeOptions, val);
+      },
       moment,
       range(start, end) {
         const result = [];
@@ -256,9 +336,8 @@
         this.queryParams = {
           pageNum: 1,
           pageSize: 10,
-          ip: '',
-          triggerLastTime: '',
-          triggerNextTime: '',
+          beginTime: '',
+          endTime: '',
         };
         this.queryTable();
       },
@@ -279,23 +358,47 @@
       statusFormat(list, text) {
         return services.formatterselectDictLabel(list, text);
       },
+      /* 一般阈值条件 */
+      generalsHandleAdd() {
+        this.formDialog.generals.push({
+          operate: '',
+          paramname: '',
+          paramvalue: '',
+        });
+      },
+      generalsHandleDelete(index) {
+        this.formDialog.generals.splice(index, 1);
+      },
+      /* 危险阈值条件 */
+      dangerHandleAdd() {
+        this.formDialog.dangers.push({
+          operate: '',
+          paramname: '',
+          paramvalue: '',
+        });
+      },
+      dangerHandleDelete(index) {
+        this.formDialog.dangers.splice(index, 1);
+      },
+      /* 故障阈值条件 */
+      severitysHandleAdd() {
+        this.formDialog.severitys.push({
+          operate: '',
+          paramname: '',
+          paramvalue: '',
+        });
+      },
+      severitysHandleDelete(index) {
+        this.formDialog.severitys.splice(index, 1);
+      },
       handleAdd() {
         /* 新增 */
         this.dialogTitle = '新增';
         this.formDialog = {
           taskName: '',
-          hostName: '',
-          ip: '',
-          gateway: '',
-          mask: '',
-          jobCron: '',
-          mac: '',
-          createBy: '',
-          monitoringMethods: '',
-          mediaType: '',
-          area: '',
-          location: '',
-          currentStatus: '',
+          dangers: [{ operate: '', paramname: '', paramvalue: '' }],
+          severitys: [{ operate: '', paramname: '', paramvalue: '' }],
+          generals: [{ operate: '', paramname: '', paramvalue: '' }],
         };
         this.visibleModel = true;
       },
@@ -393,5 +496,36 @@
       padding: 0.25rem;
       overflow: hidden;
     }
+  }
+
+  .lineLabel {
+    .formIcon {
+      color: red;
+    }
+    .rulesIcon {
+      width: 0.15rem;
+      height: 0.15rem;
+      display: inline-block;
+      margin: 0 0.15rem;
+    }
+    .rulesIcon1 {
+      background: rgb(65, 184, 181);
+    }
+    .rulesIcon2 {
+      background: rgb(237, 184, 29);
+    }
+    .rulesIcon3 {
+      background: rgb(235, 93, 93);
+    }
+  }
+
+  .lineContent {
+    .unitBox {
+      text-align: right;
+    }
+  }
+
+  .ant-form-item-label > label::after {
+    opacity: 0;
   }
 </style>
