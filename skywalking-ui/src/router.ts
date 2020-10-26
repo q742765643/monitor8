@@ -123,6 +123,22 @@ const router = new Router({
           name: 'alarmMonitoring',
           component: () => import('@/page/alarmMonitoring/index.vue'),
         },
+        {
+          path: 'dictType',
+          component: () => import('./views/containers/home/right/dict/index.vue'),
+        },
+        {
+          path: 'dictData/:dictId',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
+        },
+        {
+          path: 'dictData',
+          component: () => import('./views/containers/home/right/dict/data.vue'),
+        },
+        {
+          path: 'job',
+          component: () => import('./views/containers/home/right/job/index.vue'),
+        },
       ],
     },
   ],

@@ -108,5 +108,6 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
     @Override
     public void deleteByIds(List<String> ids) {
        super.deleteByIds(ids);
+       autoDiscoveryQuartzService.deleteJob(ids);
     }
 }

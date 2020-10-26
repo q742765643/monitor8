@@ -15,7 +15,7 @@ public class CronUtil {
             Date time3 = cronExpression.getNextValidTimeAfter(time2);
             long bad = (time3.getTime() -time2.getTime());
             long beginTime=now-bad;
-            int i=0;
+            /*int i=0;
             while (i<30){
                 i++;
                 Date nowTime=cronExpression.getNextValidTimeAfter(new Date(beginTime));
@@ -26,7 +26,8 @@ public class CronUtil {
                 beginTime=beginTime-bad;
                 l=beginTime;
             }
-            return l;
+            return l;*/
+            return  beginTime;
         } catch (ParseException e) {
             e.printStackTrace();
             return 0;

@@ -22,7 +22,6 @@ public class PingUtil {
                 resultT.setErrorMessage("ping 异常");
                 return resultT;
             }
-            System.out.println("返回值:"+p.waitFor());
             in = new BufferedReader(new InputStreamReader(p.getInputStream(),"GBK"));   // 逐行检查输出,计算类似出现=23ms TTL=62字样的次数
 
             String line = null;

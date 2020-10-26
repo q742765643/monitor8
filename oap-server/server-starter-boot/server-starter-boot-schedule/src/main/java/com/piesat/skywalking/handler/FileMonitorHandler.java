@@ -36,7 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Service("fileMonitorHandler")
+@Service("fileMonitorHandler11111")
 public class FileMonitorHandler implements BaseHandler {
     private static final String REGEX = "(\\$\\{(.*?)\\})";
     private static final Pattern PATTERN = Pattern.compile(REGEX);

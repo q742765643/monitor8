@@ -25,6 +25,9 @@ public class FileStatisticsDto {
     @ApiModelProperty(value = "应到文件大小")
     private long fileSize;
 
+    @ApiModelProperty(value = "晚到数")
+    private long lateNum;
+
     @ApiModelProperty(value = "实到文件数量")
     private long realFileNum;
 
@@ -37,6 +40,9 @@ public class FileStatisticsDto {
     @ApiModelProperty(value = "文件大小到达率")
     private float perFileSize;
 
+    @ApiModelProperty(value = "及时率")
+    private float timelinessRate;
+
     @ApiModelProperty(value = "应开始时间long型")
     private long startTimeL;
 
@@ -48,6 +54,8 @@ public class FileStatisticsDto {
 
     @ApiModelProperty(value = "结束时间")
     private Date endTimeA;
+
+
 
     @ApiModelProperty(value = "当前状态 0 一般 1 危险 2故障 3正常 4 未执行")
     private Integer status;

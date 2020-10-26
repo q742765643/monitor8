@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -266,6 +268,18 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    @SneakyThrows
+    public void bulkEx(BulkRequest request) {
+        request.timeout(TimeValue.timeValueMinutes(2));
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
+        request.waitForActiveShards(ActiveShardCount.ONE);
+
+        int size = request.requests().size();
+        BulkResponse responses = client.bulk(request, RequestOptions.DEFAULT);
+        log.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
+
     }
 
     public BulkProcessor createBulkProcessor(int bulkActions, int flushInterval, int concurrentRequests) {

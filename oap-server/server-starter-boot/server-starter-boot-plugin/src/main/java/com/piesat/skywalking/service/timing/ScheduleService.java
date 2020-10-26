@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ScheduleService {
@@ -39,5 +40,15 @@ public class ScheduleService {
             redisUtil.hdel(QUARTZ_HTHT_JOBDETAIL,jobInfo.getId());
             redisUtil.zsetRemove(QUARTZ_HTHT_JOB,jobInfo.getId());
         }
+    }
+
+    public void deleteJob(String id){
+        redisUtil.hdel(QUARTZ_HTHT_JOBDETAIL,id);
+        redisUtil.zsetRemove(QUARTZ_HTHT_JOB,id);
+    }
+    public void deleteJob(List<String> ids){
+       for(int i=0;i<ids.size();i++){
+           this.deleteJob(ids.get(i));
+       }
     }
 }

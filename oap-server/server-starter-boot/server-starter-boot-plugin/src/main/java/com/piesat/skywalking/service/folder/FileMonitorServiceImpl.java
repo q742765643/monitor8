@@ -124,6 +124,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     @Override
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
+        fileMonitorQuartzService.deleteJob(ids);
     }
 
     public long selectCount(FileMonitorDto fileMonitorDto){

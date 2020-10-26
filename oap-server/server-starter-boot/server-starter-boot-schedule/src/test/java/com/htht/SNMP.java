@@ -13,13 +13,15 @@ import java.util.ArrayList;
  */
 public class SNMP {
     public static void main(String[] args){
-        SNMPSessionUtil snmp=new SNMPSessionUtil("10.1.100.69","161","public", "2");
+        SNMPSessionUtil snmp=new SNMPSessionUtil("10.1.254.202","161","public", "2");
 
         String[] oid = {
-                ".1.3.6.1.2.1.25.1.1.0", //name
+                ".1.3.6.1.2.1.1.5", //name
         };
+        String[] sw = {".1.3.6.1.2.1.17.4.3"};
         try {
-            ArrayList<Long> list=snmp.getSnmpGetV(PDU.GET,oid);
+            ArrayList<String> list=snmp.getSnmpGet(PDU.GET,oid);
+            ArrayList<String> ss=snmp.snmpWalk2(sw);
             System.out.println(list.get(0));
         } catch (Exception e) {
             e.printStackTrace();

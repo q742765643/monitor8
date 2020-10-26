@@ -20,7 +20,7 @@ package com.piesat.util;
 
 public final class StringUtil {
     public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
+        return str == null || str.length() == 0 || "".equals(str);
     }
 
     public static boolean isNotEmpty(String str) {

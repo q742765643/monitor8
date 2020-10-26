@@ -93,6 +93,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.samba.jcifs/jcifs -->
+        <dependency>
+            <groupId>org.codelibs</groupId>
+            <artifactId>jcifs</artifactId>
+            <version>2.1.19</version>
+        </dependency>
+
         <!--   <dependency>
                <groupId>org.apache.shardingsphere.elasticjob</groupId>
                <artifactId>elasticjob-lite-spring-boot-starter</artifactId>

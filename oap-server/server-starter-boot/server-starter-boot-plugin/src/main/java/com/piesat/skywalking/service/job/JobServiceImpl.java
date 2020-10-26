@@ -89,6 +89,7 @@ public class JobServiceImpl extends BaseService<HtJobInfo> implements JobInfoSer
     @Override
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
+        jobInfoQuartzService.deleteJob(ids);
     }
 }
 

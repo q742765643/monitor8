@@ -136,6 +136,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     @Override
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
+        alarmConfigQuartzService.deleteJob(ids);
     }
 
 }

@@ -60,30 +60,34 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
 
             for(String ip:ips){
                 HostConfigDto hostConfig=new HostConfigDto();
-                Integer mediaType=11;
-                hostConfig.setMediaType(mediaType);
                 hostConfig.setIp(ip);
                 hostConfig.setCurrentStatus(11);
+                hostConfig.setDeviceType(11);
+                hostConfig.setMediaType(11);
                 SNMPSessionUtil dv = new SNMPSessionUtil(ip,"161", "public", "2");
                 try {
+
                     if (!"-1".equals(dv.getIsSnmpGet(PDU.GET,".1.3.6.1.2.1.1.5").get(0))) {
-                        System.out.println(dv.getSnmpGet(PDU.GET,host).get(0));
                         if (!"noSuchObject".equals(dv.getSnmpGet(PDU.GET,host).get(0))){//服务器
-                            hostConfig.setDeviceType(0);
                             this.getMacAndGetaway(hostConfig,dv);
-                        }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && dv.snmpWalk2(sw).isEmpty()){//路由器
-                            hostConfig.setDeviceType(1);
-                            mediaType=4;
-                        }else if ("2".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()) {//二层交换机
-                            hostConfig.setDeviceType(1);
-                            mediaType=2;
-                        }else if ("1".equals(dv.getSnmpGet(PDU.GET,router).get(0)) && !dv.snmpWalk2(sw).isEmpty()){//三层交换机
-                            hostConfig.setDeviceType(1);
-                            mediaType=3;
-                        }else {//未知设备
-                            hostConfig.setDeviceType(11);
+                            this.getMediaType(hostConfig,dv);
                         }
-                        this.getMediaType(hostConfig,dv,mediaType);
+                        if(0!=hostConfig.getDeviceType()){
+                            String isRouter=dv.getSnmpGet(PDU.GET,router).get(0);
+                            boolean isSw=dv.snmpWalk2(sw).isEmpty();
+                            if ("1".equals(isRouter) && isSw){//路由器
+                                hostConfig.setDeviceType(1);
+                                hostConfig.setMediaType(4);
+                            }
+                            if ("2".equals(isRouter) && !isSw) {//二层交换机
+                                hostConfig.setDeviceType(1);
+                                hostConfig.setMediaType(2);
+                            }
+                            if ("1".equals(isRouter) && !isSw){//三层交换机
+                                hostConfig.setDeviceType(1);
+                                hostConfig.setMediaType(3);
+                            }
+                        }
                         hostConfig.setMonitoringMethods(2);
                         hostConfig.setJobCron("0/30 * * * * ?");
                         hostConfig.setId(ip);
@@ -133,6 +137,8 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.cpu");
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", hostConfigDto.getIp());
+        MatchQueryBuilder matchType = QueryBuilders.matchQuery("agent.type", "metricbeat");
+        boolBuilder.must(matchType);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
         String[] fields = new String[]{"host.os.name",
@@ -179,7 +185,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
 
     }
 
-    public void getMediaType(HostConfigDto hostConfig,SNMPSessionUtil dv,Integer mediaType){
+    public void getMediaType(HostConfigDto hostConfig,SNMPSessionUtil dv){
 
         try {
             String[] sysDesc = {SNMPConstants.SYSDESC};
@@ -188,17 +194,15 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
             ArrayList<String> sysNames = dv.getSnmpGet(PDU.GET, sysName);
             hostConfig.setHostName(sysNames.get(0));
             hostConfig.setOs(sysDescs.get(0));
-            if(hostConfig.getDeviceType()==0){
-              if(hostConfig.getOs().toUpperCase().indexOf("WINDOW")!=-1){
-                  hostConfig.setMediaType(0);
-              }
-              if(hostConfig.getOs().toUpperCase().indexOf("LINUX")!=-1){
-                  hostConfig.setMediaType(1);
-              }
+            if(hostConfig.getOs().toUpperCase().indexOf("WINDOW")!=-1){
+              hostConfig.setMediaType(0);
+              hostConfig.setDeviceType(0);
             }
-            if(hostConfig.getDeviceType()==1){
-                hostConfig.setMediaType(mediaType);
+            if(hostConfig.getOs().toUpperCase().indexOf("LINUX")!=-1){
+              hostConfig.setMediaType(1);
+              hostConfig.setDeviceType(0);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

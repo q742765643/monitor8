@@ -140,6 +140,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
     @Override
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
+        hostConfigQuartzService.deleteJob(ids);
     }
 
     public List<String> selectOnine(){
