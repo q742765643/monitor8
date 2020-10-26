@@ -1,9 +1,9 @@
 import axios from 'axios';
-
-let instance = axios.create({
-  baseURL: 'http://127.0.0.1:12800',
+import instance from '@/utils/request';
+/* let instance = axios.create({
+  baseURL: 'http://10.1.100.35:12800',
   timeout: 6000,
-});
+}); */
 
 const dataService = {
   // 首页-查询监控总览

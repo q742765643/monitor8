@@ -19,7 +19,7 @@
 <script>
   import planeTitle from '@/components/titile/planeTitle.vue';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
   export default {
     data() {
       return {
@@ -105,7 +105,7 @@
     name: 'untreatAlarm',
     components: { planeTitle },
     mounted() {
-      services.getAlarm().then((res) => {
+      hongtuConfig.getAlarm().then((res) => {
         if (res.status == 200 && res.data.code == 200) {
           this.tableData = res.data.data;
         }

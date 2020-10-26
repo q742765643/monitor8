@@ -5,51 +5,62 @@ import * as axios from 'axios';
 import { AxiosResponse, AxiosRequestConfig } from 'axios';
 
 export interface AjaxResponse {
-    code: number;
-    message: string;
-    data: any
+  code: number;
+  message: string;
+  data: any;
 }
 
 // baseURL根据实际进行定义
-const baseURL = "/monitor";
+const baseURL = 'http://10.1.100.35:12800';
 
 // 创建axios实例
 const service = axios.default.create({
-    baseURL,
-    timeout: 10000,  // 请求超时时间
-    maxContentLength: 4000
-})
+  baseURL,
+  timeout: 10000, // 请求超时时间
+  maxContentLength: 4000,
+});
+/* 
+let instance = axios.create({
+    baseURL: 'http://10.1.100.35:12800',
+    timeout: 6000,
+  }); */
 
-service.interceptors.request.use((config: AxiosRequestConfig) => {
-    return config
-}, (err: any) => {
+service.interceptors.request.use(
+  (config: AxiosRequestConfig) => {
+    return config;
+  },
+  (err: any) => {
     /* Message({
         message: err.message,
         type: 'error',
         duration: 3 * 1000
     }); */
-    Promise.reject(err)
-});
+    Promise.reject(err);
+  },
+);
 
-service.interceptors.response.use((response: AxiosResponse) => {
+service.interceptors.response.use(
+  (response: AxiosResponse) => {
     if (response.status !== 200) {
-        /*  Message({
+      /*  Message({
              message: `请求错误，${String(response.status)}`,
              type: 'error',
              duration: 3 * 1000
          }); */
-        return { code: 100 }
+      return { code: 100 };
     } else {
-        let res = response.data;
-        return res
+      let res = response.data;
+      return res;
     }
-}, (err: any) => {
+  },
+  (err: any) => {
     /*  Message({
          message: err,
          type: 'error',
          duration: 3 * 1000
      }); */
-    return { code: 100 }
-})
+    return { code: 100 };
+  },
+);
 
 export default service;

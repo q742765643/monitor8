@@ -181,7 +181,7 @@
 <script>
   import echarts from 'echarts';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
   import moment from 'moment';
   export default {
     data() {
@@ -252,14 +252,14 @@
       },
       /* table方法 */
       queryTable() {
-        services.fileMonitorList(this.queryParams).then((response) => {
-          this.tableData = response.data.data.pageData;
-          this.paginationTotal = response.data.data.totalCount;
+        hongtuConfig.fileMonitorList(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
         });
       },
       /* 字典格式化 */
       statusFormat(list, text) {
-        return services.formatterselectDictLabel(list, text);
+        return hongtuConfig.formatterselectDictLabel(list, text);
       },
       handleAdd() {
         /* 新增 */
@@ -283,9 +283,9 @@
       },
       /* 编辑 */
       handleEdit(row) {
-        services.fileMonitorDetail(row.id).then((response) => {
-          if (response.data.code == 200) {
-            this.formDialog = response.data.data;
+        hongtuConfig.fileMonitorDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            this.formDialog = response.data;
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }
@@ -295,8 +295,8 @@
       handleOk() {
         this.$refs.formModel.validate((valid) => {
           if (valid) {
-            services.fileMonitorPost(this.formDialog).then((response) => {
-              if (response.data.code == 200) {
+            hongtuConfig.fileMonitorPost(this.formDialog).then((response) => {
+              if (response.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
                 this.visibleModel = false;
                 this.queryTable();
@@ -329,8 +329,8 @@
           okType: 'danger',
           cancelText: '否',
           onOk: () => {
-            services.fileMonitorDelete(ids.join(',')).then((response) => {
-              if (response.data.code == 200) {
+            hongtuConfig.fileMonitorDelete(ids.join(',')).then((response) => {
+              if (response.code == 200) {
                 this.$message.success('删除成功');
                 this.resetQuery();
               }

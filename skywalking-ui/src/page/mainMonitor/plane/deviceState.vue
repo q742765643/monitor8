@@ -45,7 +45,7 @@
   import echarts from 'echarts';
   import { remFontSize } from '@/components/utils/fontSize.js';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
   export default {
     name: 'deviceState',
     components: { planeTitle },
@@ -113,7 +113,7 @@
       this.type = this.data.map((item) => item.status);
       this.color = this.data.map((item) => item.color);
 
-      await services.getDeviceStatus().then((res) => {
+      await hongtuConfig.getDeviceStatus().then((res) => {
         if (res.status == 200 && res.data.code == 200) {
           this.heatData = res.data.data;
           this.initData();
