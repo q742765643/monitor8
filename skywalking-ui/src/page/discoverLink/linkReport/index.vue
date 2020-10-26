@@ -63,7 +63,8 @@
 <script>
   import echarts from 'echarts';
   import { remFontSize } from '@/components/utils/fontSize.js';
-  import request from '@/utils/request';
+  // 接口地址
+  import hongtuConfig from '@/utils/services';
   export default {
     data() {
       return {
@@ -223,16 +224,14 @@
       fetch() {
         this.queryParams.beginTime = '2020-10-17 00:00:00';
         this.queryParams.endTime = '2020-10-20 00:00:00';
-        request({
-          url: '/report/list',
-          method: 'get',
-          params: this.addDateRange(this.queryParams, this.dateRange),
-        }).then((data) => {
-          this.total = data.data.totalCount;
-          this.tableData = data.data.pageData;
-          this.chart();
-          this.drawChart('barlineChart');
-          this.setTableHeight();
+        hongtuConfig.reportList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
+          if (res.code == 200) {
+            this.total = res.data.totalCount;
+            this.tableData = res.data.pageData;
+            this.chart();
+            this.drawChart('barlineChart');
+            this.setTableHeight();
+          }
         });
       },
       chart() {

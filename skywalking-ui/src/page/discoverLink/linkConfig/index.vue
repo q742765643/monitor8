@@ -137,7 +137,7 @@
 <script>
   import echarts from 'echarts';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
 
   export default {
     data() {
@@ -164,9 +164,9 @@
       };
     },
     created() {
-      services.getDicts('job_trigger_status').then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          this.triggerStatusOptions = res.data.data;
+      hongtuConfig.getDicts('job_trigger_status').then((res) => {
+        if (res.code == 200) {
+          this.triggerStatusOptions = res.data;
         }
       });
       this.queryTable();
@@ -203,14 +203,14 @@
       },
       /* table方法 */
       queryTable() {
-        services.autoDiscoveryList(this.queryParams).then((response) => {
-          this.tableData = response.data.data.pageData;
-          this.paginationTotal = response.data.data.totalCount;
+        hongtuConfig.autoDiscoveryList(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
         });
       },
       /* 字典格式化 */
       statusFormat(list, text) {
-        return services.formatterselectDictLabel(list, text);
+        return hongtuConfig.formatterselectDictLabel(list, text);
       },
       handleAdd() {
         /* 新增 */
@@ -226,10 +226,10 @@
       },
       /* 编辑 */
       handleEdit(row) {
-        services.autoDiscoveryDetail(row.id).then((response) => {
-          if (response.data.code == 200) {
-            response.data.data.triggerStatus = response.data.data.triggerStatus + '';
-            this.formDialog = response.data.data;
+        hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            response.data.triggerStatus = response.data.triggerStatus + '';
+            this.formDialog = response.data;
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }
@@ -239,8 +239,8 @@
       handleOk() {
         this.$refs.formModel.validate((valid) => {
           if (valid) {
-            services.autoDiscoveryPost(this.formDialog).then((response) => {
-              if (response.data.code == 200) {
+            hongtuConfig.autoDiscoveryPost(this.formDialog).then((response) => {
+              if (response.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
                 this.visibleModel = false;
                 this.queryTable();
@@ -273,8 +273,8 @@
           okType: 'danger',
           cancelText: '否',
           onOk: () => {
-            services.autoDiscoveryDelete(ids.join(',')).then((response) => {
-              if (response.data.code == 200) {
+            hongtuConfig.autoDiscoveryDelete(ids.join(',')).then((response) => {
+              if (response.code == 200) {
                 this.$message.success('删除成功');
                 this.resetQuery();
               }

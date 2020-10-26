@@ -10,7 +10,7 @@
   import planeTitle from '@/components/titile/planeTitle.vue';
   import { remFontSize } from '@/components/utils/fontSize.js';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
   export default {
     data() {
       return {
@@ -27,7 +27,7 @@
     name: 'distributAlarm',
     components: { planeTitle },
     async mounted() {
-      await services.getAlarmDistribution().then((res) => {
+      await hongtuConfig.getAlarmDistribution().then((res) => {
         if (res.status == 200 && res.data.code == 200) {
           let dataarray = res.data.data;
           dataarray.forEach((element, index) => {

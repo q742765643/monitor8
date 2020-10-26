@@ -224,7 +224,7 @@
 <script>
   import echarts from 'echarts';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
 
   export default {
     data() {
@@ -263,22 +263,20 @@
       };
     },
     created() {
-      services.getDicts('job_trigger_status').then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          this.triggerStatusOptions = res.data.data;
-        }
+      hongtuConfig.getDicts('job_trigger_status').then((res) => {
+        this.triggerStatusOptions = res.data;
       });
-      services.getDicts('current_status').then((response) => {
-        this.currentStatusOptions = response.data.data;
+      hongtuConfig.getDicts('current_status').then((response) => {
+        this.currentStatusOptions = response.data;
       });
-      services.getDicts('media_type').then((response) => {
-        this.mediaTypeOptions = response.data.data;
+      hongtuConfig.getDicts('media_type').then((response) => {
+        this.mediaTypeOptions = response.data;
       });
-      services.getDicts('monitoring_methods').then((response) => {
-        this.monitoringMethodsOptions = response.data.data;
+      hongtuConfig.getDicts('monitoring_methods').then((response) => {
+        this.monitoringMethodsOptions = response.data;
       });
-      services.getDicts('media_area').then((response) => {
-        this.areaOptions = response.data.data;
+      hongtuConfig.getDicts('media_area').then((response) => {
+        this.areaOptions = response.data;
       });
       this.queryTable();
     },
@@ -314,14 +312,14 @@
       },
       /* table方法 */
       queryTable() {
-        services.hostConfigLIst(this.queryParams).then((response) => {
-          this.tableData = response.data.data.pageData;
-          this.paginationTotal = response.data.data.totalCount;
+        hongtuConfig.hostConfigLIst(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
         });
       },
       /* 字典格式化 */
       statusFormat(list, text) {
-        return services.formatterselectDictLabel(list, text);
+        return hongtuConfig.formatterselectDictLabel(list, text);
       },
       handleAdd() {
         /* 新增 */
@@ -345,7 +343,7 @@
       },
       /* 编辑 */
       handleEdit(row) {
-        services.hostConfigDetail(row.id).then((response) => {
+        hongtuConfig.hostConfigDetail(row.id).then((response) => {
           if (response.data.code == 200) {
             this.formDialog = response.data.data;
             this.visibleModel = true;
@@ -357,7 +355,7 @@
       handleOk() {
         this.$refs.formModel.validate((valid) => {
           if (valid) {
-            services.hostConfigPost(this.formDialog).then((response) => {
+            hongtuConfig.hostConfigPost(this.formDialog).then((response) => {
               if (response.data.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
                 this.visibleModel = false;
@@ -391,7 +389,7 @@
           okType: 'danger',
           cancelText: '否',
           onOk: () => {
-            services.hostConfigDelete(ids.join(',')).then((response) => {
+            hongtuConfig.hostConfigDelete(ids.join(',')).then((response) => {
               if (response.data.code == 200) {
                 this.$message.success('删除成功');
                 this.resetQuery();

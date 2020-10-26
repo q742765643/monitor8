@@ -257,7 +257,7 @@
 <script>
   import echarts from 'echarts';
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
   import moment from 'moment';
   export default {
     data() {
@@ -285,19 +285,19 @@
       };
     },
     created() {
-      services.getDicts('alarm_operator').then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          this.operatorOptions = res.data.data;
+      hongtuConfig.getDicts('alarm_operator').then((res) => {
+        if (res.code == 200) {
+          this.operatorOptions = res.data;
         }
       });
-      services.getDicts('alarm_kpi').then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          this.kpiOptions = res.data.data;
+      hongtuConfig.getDicts('alarm_kpi').then((res) => {
+        if (res.code == 200) {
+          this.kpiOptions = res.data;
         }
       });
-      services.getDicts('alarm_type').then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          this.typeOptions = res.data.data;
+      hongtuConfig.getDicts('alarm_type').then((res) => {
+        if (res.code == 200) {
+          this.typeOptions = res.data;
         }
       });
       this.queryTable();
@@ -312,7 +312,7 @@
     },
     methods: {
       changeType(val) {
-        this.formDialog.monitorLabel = services.formatterselectDictLabel(this.typeOptions, val);
+        this.formDialog.monitorLabel = hongtuConfig.formatterselectDictLabel(this.typeOptions, val);
       },
       moment,
       range(start, end) {
@@ -349,14 +349,14 @@
       },
       /* table方法 */
       queryTable() {
-        services.alarmCofigList(this.queryParams).then((response) => {
-          this.tableData = response.data.data.pageData;
-          this.paginationTotal = response.data.data.totalCount;
+        hongtuConfig.alarmCofigList(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
         });
       },
       /* 字典格式化 */
       statusFormat(list, text) {
-        return services.formatterselectDictLabel(list, text);
+        return hongtuConfig.formatterselectDictLabel(list, text);
       },
       /* 一般阈值条件 */
       generalsHandleAdd() {
@@ -404,9 +404,9 @@
       },
       /* 编辑 */
       handleEdit(row) {
-        services.alarmCofigDetail(row.id).then((response) => {
-          if (response.data.code == 200) {
-            this.formDialog = response.data.data;
+        hongtuConfig.alarmCofigDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            this.formDialog = response.data;
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }
@@ -416,8 +416,8 @@
       handleOk() {
         this.$refs.formModel.validate((valid) => {
           if (valid) {
-            services.alarmCofigPost(this.formDialog).then((response) => {
-              if (response.data.code == 200) {
+            hongtuConfig.alarmCofigPost(this.formDialog).then((response) => {
+              if (response.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
                 this.visibleModel = false;
                 this.queryTable();
@@ -450,8 +450,8 @@
           okType: 'danger',
           cancelText: '否',
           onOk: () => {
-            services.alarmCofigDelete(ids.join(',')).then((response) => {
-              if (response.data.code == 200) {
+            hongtuConfig.alarmCofigDelete(ids.join(',')).then((response) => {
+              if (response.code == 200) {
                 this.$message.success('删除成功');
                 this.resetQuery();
               }

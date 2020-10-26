@@ -88,7 +88,7 @@
           <router-link to="/fileMonitoring"> 文件监控</router-link>
         </a-menu-item>
       </a-sub-menu>
-      <a-sub-menu key="sub5">
+      <a-sub-menu key="sub6">
         <span slot="title"> <span class="iconfont">&#xe640;</span>告警管理</span>
         <a-menu-item key="/alarmMonitoring">
           <span class="iconfont">&#xe611;</span>

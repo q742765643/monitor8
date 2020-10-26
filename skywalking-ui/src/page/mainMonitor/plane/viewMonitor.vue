@@ -26,9 +26,8 @@
   import planeTitle from '@/components/titile/planeTitle.vue';
   import { remFontSize } from '@/components/utils/fontSize.js';
   import echarts from 'echarts';
-
   // 接口地址
-  import services from '@/utils/services';
+  import hongtuConfig from '@/utils/services';
   export default {
     data() {
       return {
@@ -72,16 +71,16 @@
 
     async mounted() {
       //监控总览
-      await services.getMonitorViewVo().then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          let dataarray = res.data.data;
+      await hongtuConfig.getMonitorViewVo().then((res) => {
+        if (res.code == 200) {
+          let dataarray = res.data;
           dataarray.forEach((element, index) => {
             if (element.classify == this.ringList[index].name) {
               this.ringList[index].value = element.num;
             }
           });
         } else {
-          alert('监控总览数据请求失败');
+          alert('监控总览数据请求失败2');
         }
       });
       this.$nextTick(() => {
