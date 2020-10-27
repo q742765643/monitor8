@@ -138,18 +138,25 @@
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
                 <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
-                  <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
-                    {{ item.dictLabel }}
+                  <a-select-option value="and">
+                    并且
+                  </a-select-option>
+                  <a-select-option value="or">
+                    或者
                   </a-select-option>
                 </a-select>
               </span>
               <a-row class="lineContent" :gutter="[16, 16]">
-                <a-col :span="6">
-                  <a-input v-model="formDialog.monitorLabel" disabled> </a-input>
-                </a-col>
                 <a-col :span="7">
-                  <a-select v-model="itemp.paramname">
+                  <a-select v-model="itemp.monitorValue" disabled>
                     <a-select-option v-for="(item, index) in kpiOptions" :key="index" :value="item.dictValue">
+                      {{ item.dictLabel }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+                <a-col :span="6">
+                  <a-select v-model="itemp.paramname">
+                    <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
                       {{ item.dictLabel }}
                     </a-select-option>
                   </a-select>
@@ -175,18 +182,25 @@
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
                 <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
-                  <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
-                    {{ item.dictLabel }}
+                  <a-select-option value="and">
+                    并且
+                  </a-select-option>
+                  <a-select-option value="or">
+                    或者
                   </a-select-option>
                 </a-select>
               </span>
               <a-row class="lineContent" :gutter="[16, 16]">
-                <a-col :span="6">
-                  <a-input v-model="formDialog.monitorLabel" disabled> </a-input>
-                </a-col>
                 <a-col :span="7">
-                  <a-select v-model="itemp.paramname">
+                  <a-select v-model="itemp.monitorValue" disabled>
                     <a-select-option v-for="(item, index) in kpiOptions" :key="index" :value="item.dictValue">
+                      {{ item.dictLabel }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+                <a-col :span="6">
+                  <a-select v-model="itemp.paramname">
+                    <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
                       {{ item.dictLabel }}
                     </a-select-option>
                   </a-select>
@@ -213,18 +227,25 @@
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
                 <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
-                  <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
-                    {{ item.dictLabel }}
+                  <a-select-option value="and">
+                    并且
+                  </a-select-option>
+                  <a-select-option value="or">
+                    或者
                   </a-select-option>
                 </a-select>
               </span>
               <a-row class="lineContent" :gutter="[16, 16]">
-                <a-col :span="6">
-                  <a-input v-model="formDialog.monitorLabel" disabled> </a-input>
-                </a-col>
                 <a-col :span="7">
-                  <a-select v-model="itemp.paramname">
+                  <a-select v-model="itemp.monitorValue" disabled>
                     <a-select-option v-for="(item, index) in kpiOptions" :key="index" :value="item.dictValue">
+                      {{ item.dictLabel }}
+                    </a-select-option>
+                  </a-select>
+                </a-col>
+                <a-col :span="6">
+                  <a-select v-model="itemp.paramname">
+                    <a-select-option v-for="(item, index) in operatorOptions" :key="index" :value="item.dictValue">
                       {{ item.dictLabel }}
                     </a-select-option>
                   </a-select>
@@ -277,9 +298,10 @@
         kpiOptions: [], //告警指标
         typeOptions: [], //告警类型,监测类型
         dialogTitle: '',
+        monitorVal: '',
         formDialog: {
           taskName: '',
-          dangers: [{ operate: '', paramname: '', paramvalue: '' }],
+          dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
         },
         rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
       };
@@ -312,7 +334,16 @@
     },
     methods: {
       changeType(val) {
-        this.formDialog.monitorLabel = hongtuConfig.formatterselectDictLabel(this.typeOptions, val);
+        this.monitorVal = val;
+        this.formDialog.dangers.forEach((element) => {
+          element.monitorValue = val;
+        });
+        this.formDialog.severitys.forEach((element) => {
+          element.monitorValue = val;
+        });
+        this.formDialog.generals.forEach((element) => {
+          element.monitorValue = val;
+        });
       },
       moment,
       range(start, end) {
@@ -361,9 +392,10 @@
       /* 一般阈值条件 */
       generalsHandleAdd() {
         this.formDialog.generals.push({
-          operate: '',
+          operate: 'and',
           paramname: '',
           paramvalue: '',
+          monitorValue: this.monitorVal,
         });
       },
       generalsHandleDelete(index) {
@@ -372,9 +404,10 @@
       /* 危险阈值条件 */
       dangerHandleAdd() {
         this.formDialog.dangers.push({
-          operate: '',
+          operate: 'and',
           paramname: '',
           paramvalue: '',
+          monitorValue: this.monitorVal,
         });
       },
       dangerHandleDelete(index) {
@@ -383,9 +416,10 @@
       /* 故障阈值条件 */
       severitysHandleAdd() {
         this.formDialog.severitys.push({
-          operate: '',
+          operate: 'and',
           paramname: '',
           paramvalue: '',
+          monitorValue: this.monitorVal,
         });
       },
       severitysHandleDelete(index) {
@@ -396,9 +430,9 @@
         this.dialogTitle = '新增';
         this.formDialog = {
           taskName: '',
-          dangers: [{ operate: '', paramname: '', paramvalue: '' }],
-          severitys: [{ operate: '', paramname: '', paramvalue: '' }],
-          generals: [{ operate: '', paramname: '', paramvalue: '' }],
+          dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
+          severitys: [{ operate: 'and', paramname: '', paramvalue: '' }],
+          generals: [{ operate: 'and', paramname: '', paramvalue: '' }],
         };
         this.visibleModel = true;
       },
