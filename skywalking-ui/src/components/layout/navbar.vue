@@ -87,6 +87,10 @@
 
           <router-link to="/fileMonitoring"> 文件监控</router-link>
         </a-menu-item>
+        <a-menu-item key="/fileMonitoring/directory_account">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/fileMonitoring/directory_account"> 共享目录管理</router-link>
+        </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="sub6">
         <span slot="title"> <span class="iconfont">&#xe640;</span>告警管理</span>

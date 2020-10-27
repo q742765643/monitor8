@@ -5,19 +5,22 @@ import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
 import com.piesat.skywalking.dto.FileStatisticsDto;
-import com.piesat.util.DateExpressionEngine;
-import com.piesat.util.JsonParseUtil;
-import com.piesat.util.OwnException;
-import com.piesat.util.ResultT;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RecordEsDAO;
+import com.piesat.util.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.metrics.ParsedSum;
+import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,21 +49,29 @@ public abstract class FileBaseService {
     protected  String getRegFromDatePattern(String datePattern){
         return  datePattern.replaceAll("[ymdhsYMDHS]", "\\\\d");
     }
+    public abstract void singleFile(FileMonitorDto monitor,List<Map<String,Object>> fileList, ResultT<String> resultT);
     public String repalceRegx(FileMonitorLogDto fileMonitorLogDto, ResultT<String> resultT){
-        String expression= null;
+        String expression= "";
         try {
             String folderRegular= DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getFolderRegular(), fileMonitorLogDto.getTriggerTime());
             String filenameRegular=fileMonitorLogDto.getFilenameRegular();
             Matcher m = PATTERN.matcher(filenameRegular);
-            expression = "";
             while (m.find()){
+                String expression1 = m.group(2);
+                if(expression1.length()>expression.length()){
+                    expression=expression1;
+                }
+                String replaceMent =expression1.replaceAll("[ymdhsYMDHS]", "\\\\d");;
+                filenameRegular=filenameRegular.replace("${"+expression1+"}",replaceMent);
+            }
+            /*while (m.find()){
                 expression = m.group(2);
                 int start = m.start(1);
                 int end = m.end(1);
                 String replaceMent =this.getRegFromDatePattern(expression);
                 String expressionWrapper = fileMonitorLogDto.getFilenameRegular().substring(start, end);
                 filenameRegular= StringUtils.replace(filenameRegular, expressionWrapper, replaceMent);
-            }
+            }*/
             filenameRegular=filenameRegular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
             fileMonitorLogDto.setFolderRegular(folderRegular);
             fileMonitorLogDto.setFilenameRegular(filenameRegular);
@@ -77,7 +88,8 @@ public abstract class FileBaseService {
                 if(m.find()){
                     String timeStr = m.group(0);
                     SimpleDateFormat format=new SimpleDateFormat(dataFilePattern);
-                    return DateUtil.parse(timeStr,format).getTime();
+                    Map<String,String> map= HtDateUtil.getTime(new Date(createTime));
+                    return HtDateUtil.matchingTime(DateUtil.parse(timeStr,format),dataFilePattern,map);
                 }
             }
         } catch (Exception e) {
@@ -105,7 +117,7 @@ public abstract class FileBaseService {
         boolBuilder.must(matchTaskId);
         boolBuilder.must(matchTimeLevel);
         search.query(boolBuilder);
-        search.size(20000);
+        search.size(10000);
         search.fetchSource(new String[]{"full_path"},null);
 
         try {
@@ -126,7 +138,7 @@ public abstract class FileBaseService {
     public void updateFileStatistics(FileMonitorLogDto fileMonitorLogDto,ResultT<String> resultT){
         try {
             FileStatisticsDto fileStatisticsDto=new FileStatisticsDto();
-            fileStatisticsDto.setStatus(4);
+            fileStatisticsDto.setStatus(0);
             fileStatisticsDto.setId(fileMonitorLogDto.getTaskId()+"_"+fileMonitorLogDto.getTriggerTime());
             fileStatisticsDto.setTaskId(fileMonitorLogDto.getTaskId());
             fileStatisticsDto.setFilenameRegular(fileMonitorLogDto.getFilenameRegular());
@@ -156,7 +168,7 @@ public abstract class FileBaseService {
             source.put("status",fileStatisticsDto.getStatus());
             source.put("start_time_a",new Date());
             source.put("end_time_a",new Date());
-            source.put("timestamp",new Date());
+            source.put("@timestamp",new Date());
             String statisticsIndexName= IndexNameConstant.T_MT_FILE_STATISTICS;
             elasticSearch7Client.forceInsert(statisticsIndexName,fileStatisticsDto.getId(),source);
         } catch (Exception e) {
@@ -167,6 +179,71 @@ public abstract class FileBaseService {
     }
     public void  updateLog(FileMonitorLogDto fileMonitorLogDto){
         fileLogService.updateLog(fileMonitorLogDto);
+    }
+
+
+    public void findSum(FileMonitorLogDto fileMonitorLogDto){
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchTaskId = QueryBuilders.matchQuery("task_id", fileMonitorLogDto.getTaskId());
+        MatchQueryBuilder matchTimeLevel = QueryBuilders.matchQuery("time_level", fileMonitorLogDto.getTriggerTime());
+        boolBuilder.must(matchTaskId);
+        boolBuilder.must(matchTimeLevel);
+        search.query(boolBuilder);
+        search.size(0);
+        SumAggregationBuilder sumFileBytes= AggregationBuilders.sum("sumFileBytes").field("file_bytes");
+        SumAggregationBuilder sumOntime=AggregationBuilders.sum("sumOntime").field("ontime");
+        SumAggregationBuilder sumNoOnTime=AggregationBuilders.sum("sumNoOnTime").field("is_ontime");
+        search.aggregation(sumFileBytes);
+        search.aggregation(sumOntime);
+        search.aggregation(sumNoOnTime);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_MONITOR, search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if(aggregations==null){
+                return ;
+            }
+            Map<String, Aggregation> aggregationMap=aggregations.asMap();
+            ParsedSum parsedSumFileBytes= (ParsedSum) aggregationMap.get("sumFileBytes");
+            ParsedSum parsedSumOntime= (ParsedSum) aggregationMap.get("sumOntime");
+            ParsedSum parsedSumNoOnTime= (ParsedSum) aggregationMap.get("sumNoOnTime");
+            fileMonitorLogDto.setRealFileSize(new BigDecimal(parsedSumFileBytes.getValueAsString()).longValue());
+            fileMonitorLogDto.setRealFileNum(new BigDecimal(parsedSumOntime.getValueAsString()).longValue());
+            fileMonitorLogDto.setLateNum(new BigDecimal(parsedSumNoOnTime.getValueAsString()).longValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void  insertFilePath(List<Map<String,Object>> fileList, FileMonitorLogDto fileMonitorLogDto,ResultT<String> resultT){
+
+        String indexName= IndexNameConstant.T_MT_FILE_MONITOR;
+        BulkRequest request = new BulkRequest();
+        String ip= NetUtils.getLocalHost();
+        try {
+            for(int i=0;i<fileList.size();i++){
+                Map<String,Object> source=fileList.get(i);
+                source.put("ip",ip);
+                source.put("time_level",fileMonitorLogDto.getTriggerTime());
+                source.put("task_id",fileMonitorLogDto.getTaskId());
+                source.put("ontime",1l);
+                source.put("no_ontime",0l);
+                if(fileMonitorLogDto.getIsCompensation()==1){
+                    source.put("ontime",0l);
+                    source.put("no_ontime",1l);
+                }
+                source.put("@timestamp",new Date());
+                IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, (String) source.get("full_path")).source(source);
+                request.add(indexRequest);
+            }
+            if(request.requests().size()>0){
+                elasticSearch7Client.bulkEx(request);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultT.setErrorMessage(OwnException.get(e));
+        }
+        this.findSum(fileMonitorLogDto);
     }
 }
 

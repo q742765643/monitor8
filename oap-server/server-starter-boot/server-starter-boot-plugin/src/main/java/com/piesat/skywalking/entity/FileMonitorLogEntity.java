@@ -1,6 +1,7 @@
 package com.piesat.skywalking.entity;
 
 import com.piesat.common.jpa.entity.BaseEntity;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -42,7 +43,18 @@ public class FileMonitorLogEntity extends BaseEntity {
     @Column(name="handle_msg", columnDefinition = "TEXT")
     private String handleMsg;
 
-    @Column(name="elapsed_time")
+    @Column(name="elapsed_time" , length=100)
     private long elapsedTime;
+
+    @Column(name="expression"  , length=100)
+    private String expression;
+    @Column(name="is_ut",length = 1)
+    private Integer isUt;
+    @Column(name="job_cron" , length=100)
+    private String jobCron;
+    @Column(name="task_name", length=255)
+    private String taskName;
+    @Column(name="is_compensation", length=1)
+    private Integer isCompensation;
 }
 

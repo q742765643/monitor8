@@ -23,4 +23,6 @@ public interface FileMonitorService {
 
     public long selectCount(FileMonitorDto fileMonitorDto);
 
+    public boolean regularCheck(FileMonitorDto fileMonitorDto);
+
 }

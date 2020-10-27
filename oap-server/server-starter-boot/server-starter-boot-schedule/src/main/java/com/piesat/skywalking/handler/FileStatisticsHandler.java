@@ -58,6 +58,7 @@ public class FileStatisticsHandler implements BaseShardHandler {
 
         for(FileMonitorDto fileMonitorDto:fileMonitorDtos){
                long nowTime=startTime;
+               int i=0;
                while (nowTime<=endTime){
                    try {
                        Date nextValidTime = new CronExpression(fileMonitorDto.getJobCron()).getNextValidTimeAfter(new Date(nowTime));
@@ -75,7 +76,11 @@ public class FileStatisticsHandler implements BaseShardHandler {
                            fileStatisticsDtos.add(fileStatisticsDto);
                        }
                    } catch (ParseException e) {
+                       i++;
                        e.printStackTrace();
+                       if(i>1){
+                           break;
+                       }
                    }
 
                }
@@ -96,7 +101,7 @@ public class FileStatisticsHandler implements BaseShardHandler {
             source.put("per_file_num",fileStatisticsDto.getPerFileNum());
             source.put("per_file_size",fileStatisticsDto.getPerFileSize());
             source.put("status",fileStatisticsDto.getStatus());
-            source.put("timestamp",new Date());
+            source.put("@timestamp",new Date());
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, fileStatisticsDto.getId()).source(source);
             request.add(indexRequest);
         }

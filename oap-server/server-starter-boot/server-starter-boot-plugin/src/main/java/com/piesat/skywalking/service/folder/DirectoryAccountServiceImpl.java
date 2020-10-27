@@ -52,6 +52,10 @@ public class DirectoryAccountServiceImpl extends BaseService<DirectoryAccountEnt
         return pageBean;
 
     }
+    public List<DirectoryAccountDto> selectAll(){
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        return directoryAccountMapstruct.toDto(this.getAll(sort));
+    }
     @Override
     @Transactional
     public DirectoryAccountDto save(DirectoryAccountDto directoryAccountDto){

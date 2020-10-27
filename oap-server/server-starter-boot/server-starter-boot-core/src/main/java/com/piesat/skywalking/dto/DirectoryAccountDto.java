@@ -1,5 +1,6 @@
 package com.piesat.skywalking.dto;
 
+import com.piesat.util.BaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
  * @Date: 2020-10-24 14:40
  */
 @Data
-public class DirectoryAccountDto {
+public class DirectoryAccountDto extends BaseDto {
     @ApiModelProperty(value = "共享目录名称")
     private String name;
     @ApiModelProperty(value = "共享目录远程ip")

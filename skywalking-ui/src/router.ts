@@ -139,6 +139,10 @@ const router = new Router({
           path: 'job',
           component: () => import('./views/containers/home/right/job/index.vue'),
         },
+        {
+          path: '/fileMonitoring/directory_account',
+          component: () => import('@/page/fileMonitoring/directory_account.vue'),
+        },
       ],
     },
   ],

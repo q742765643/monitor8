@@ -41,7 +41,6 @@
         <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
           <vxe-table-column type="checkbox"></vxe-table-column>
           <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
-          <vxe-table-column field="address" title="调度地址" show-overflow></vxe-table-column>
           <vxe-table-column field="triggerStatus" title="状态" show-overflow>
             <template v-slot="{ row }">
               <span v-if="row.triggerStatus == 0">未启动 </span>
@@ -52,8 +51,8 @@
           <vxe-table-column field="fileSize" title="应到大小" show-overflow></vxe-table-column>
           <vxe-table-column field="isUt" title="时区" show-overflow>
             <template v-slot="{ row }">
-              <span v-if="row.triggerStatus == 0">北京时 </span>
-              <span v-if="row.triggerStatus == 1">世界时 </span>
+              <span v-if="row.isUt == 0">北京时 </span>
+              <span v-if="row.isUt == 1">世界时 </span>
             </template>
           </vxe-table-column>
           <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
@@ -120,14 +119,51 @@
               </a-select>
             </a-form-model-item>
           </a-col>
+        </a-row>
+          <a-row>
+            <a-col :span="12">
+              <a-form-model-item label="扫描方式" prop="scanType">
+                <a-radio-group  v-model="formDialog.scanType">
+                  <a-radio
+                          v-for="dict in scanTypeOptions"
+                          :value="dict.dictValue"
+                  >{{dict.dictLabel}}</a-radio>
+                </a-radio-group>
+              </a-form-model-item>
+            </a-col>
+            <a-col :span="12">
+              <a-form-model-item label="远程目录"  v-if="formDialog.scanType =='1' " prop="acountId">
+                <a-select style="width: 120px"
+                          v-model="formDialog.acountId"
+                          placeholder="远程目录"
+                >
+                  <a-select-option  v-for="dict in accountOptions"
+                                    :value="dict.id">
+                    {{dict.name}}
+                  </a-select-option>
+
+                </a-select>
+              </a-form-model-item>
+            </a-col>
+          </a-row>
+        <a-row>
           <a-col :span="12">
-            <a-form-model-item label="调度地址" prop="address">
-              <a-input v-model="formDialog.address" placeholder="请输入调度地址"> </a-input>
+            <a-form-model-item label="资料文件目录规则" prop="folderRegular">
+              <a-input v-model="formDialog.folderRegular" placeholder="资料文件目录规则"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="文件路径样例" prop="fileSample">
-              <a-input v-model="formDialog.fileSample" placeholder="请输入文件路径样例"> </a-input>
+            <a-form-model-item label="资料文件名规则 " prop="filenameRegular">
+              <a-input v-model="formDialog.filenameRegular" placeholder="资料文件名规则 "> </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="24">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="文件路径样例" prop="fileSample">
+              <a-input-search v-model="formDialog.fileSample" placeholder="请输入文件路径样例" @search="regularCheck">
+                <a-button slot="enterButton">
+                  校验
+                </a-button>
+              </a-input-search>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -157,16 +193,6 @@
               <a-input v-model="formDialog.jobCron" placeholder="corn表达式"> </a-input>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="资料文件名规则 " prop="filenameRegular">
-              <a-input v-model="formDialog.filenameRegular" placeholder="资料文件名规则 "> </a-input>
-            </a-form-model-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-model-item label="资料文件目录规则" prop="folderRegular">
-              <a-input v-model="formDialog.folderRegular" placeholder="资料文件目录规则"> </a-input>
-            </a-form-model-item>
-          </a-col>
           <a-col :span="24">
             <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="任务描述" prop="jobDesc">
               <a-input type="textarea" v-model="formDialog.jobDesc" placeholder="任务描述"> </a-input>
@@ -182,6 +208,8 @@
   import echarts from 'echarts';
   // 接口地址
   import hongtuConfig from '@/utils/services';
+  import request from "@/utils/request";
+
   import moment from 'moment';
   export default {
     data() {
@@ -201,10 +229,16 @@
         formDialog: {
           taskName: '',
         },
+        scanTypeOptions:[],
+        accountOptions:[],
         rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
       };
     },
     created() {
+      this.getDicts("scan_type").then(response => {
+        this.scanTypeOptions = response.data;
+      });
+      this.selectAcount();
       this.queryTable();
     },
     mounted() {
@@ -227,6 +261,27 @@
       onTimeChange(value, dateString) {
         this.queryParams.beginTime = dateString[0];
         this.queryParams.endTime = dateString[1];
+      },
+      selectAcount(){
+        request({
+          url: '/directoryAccount/selectAll',
+          method: 'get'
+        }).then(response => {
+            this.accountOptions=response.data;
+        });
+      },
+      regularCheck(){
+        request({
+          url: '/fileMonitor/regularCheck',
+          method: 'post',
+          data: this.formDialog
+        }).then(response => {
+          if (response.code === 200) {
+            this.msgSuccess("校验成功");
+          } else {
+            this.msgError(response.msg);
+          }
+        });
       },
       /* 查询 */
       handleQuery() {
@@ -265,19 +320,7 @@
         /* 新增 */
         this.dialogTitle = '新增';
         this.formDialog = {
-          taskName: '',
-          hostName: '',
-          ip: '',
-          gateway: '',
-          mask: '',
-          jobCron: '',
-          mac: '',
-          createBy: '',
-          monitoringMethods: '',
-          mediaType: '',
-          area: '',
-          location: '',
-          currentStatus: '',
+          scanType:'1',
         };
         this.visibleModel = true;
       },
@@ -286,6 +329,7 @@
         hongtuConfig.fileMonitorDetail(row.id).then((response) => {
           if (response.code == 200) {
             this.formDialog = response.data;
+            this.formDialog.scanType=this.formDialog.scanType.toString();
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }

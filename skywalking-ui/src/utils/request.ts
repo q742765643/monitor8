@@ -11,7 +11,7 @@ export interface AjaxResponse {
 }
 
 // baseURL根据实际进行定义
-const baseURL = 'http://10.1.100.35:12800';
+const baseURL = '/monitor';
 
 // 创建axios实例
 const service = axios.default.create({
@@ -19,7 +19,7 @@ const service = axios.default.create({
   timeout: 10000, // 请求超时时间
   maxContentLength: 4000,
 });
-/* 
+/*
 let instance = axios.create({
     baseURL: 'http://10.1.100.35:12800',
     timeout: 6000,

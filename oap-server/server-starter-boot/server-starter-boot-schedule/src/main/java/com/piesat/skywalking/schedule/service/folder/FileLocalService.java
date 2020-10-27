@@ -1,5 +1,6 @@
 package com.piesat.skywalking.schedule.service.folder;
 
+import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
 import com.piesat.skywalking.util.HtFileUtil;
@@ -8,12 +9,16 @@ import jcifs.smb1.smb1.NtlmPasswordAuthentication;
 import jcifs.smb1.smb1.SmbException;
 import jcifs.smb1.smb1.SmbFile;
 import jcifs.smb1.smb1.SmbFilenameFilter;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -24,8 +29,9 @@ import java.util.regex.Pattern;
  */
 @Service
 public class FileLocalService extends  FileBaseService{
-
-    public void singleFile(FileMonitorDto monitor, List<File> files, ResultT<String> resultT){
+    long starTime=System.currentTimeMillis();
+    @Override
+    public void singleFile(FileMonitorDto monitor,List<Map<String,Object>> fileList, ResultT<String> resultT){
         FileMonitorLogDto fileMonitorLogDto=this.insertLog(monitor);
         try {
             if(monitor.getFileNum()==1) {
@@ -33,7 +39,7 @@ public class FileLocalService extends  FileBaseService{
                 String filenameRegular = DateExpressionEngine.formatDateExpression(monitor.getFilenameRegular(), monitor.getTriggerLastTime());
                 File file = new File(folderRegular, filenameRegular);
                 if (file.exists()&&file.isFile()&&file.length()>0) {
-                    files.add(file);
+                    this.putFile(file,fileMonitorLogDto,fileList,resultT);
                     fileMonitorLogDto.setFolderRegular(folderRegular);
                     fileMonitorLogDto.setFilenameRegular(filenameRegular);
                     return;
@@ -43,59 +49,123 @@ public class FileLocalService extends  FileBaseService{
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
         }
-        this.multipleFiles(fileMonitorLogDto,monitor.getJobCron(),files,resultT);
-        if(!resultT.isSuccess()){
-            return;
+        try {
+            this.multipleFiles(fileMonitorLogDto,fileList,resultT);
+            if(!resultT.isSuccess()){
+                return;
+            }
+            this.insertFilePath(fileList,fileMonitorLogDto,resultT);
+            if(!resultT.isSuccess()){
+                return;
+            }
+            this.updateFileStatistics(fileMonitorLogDto,resultT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if(!resultT.isSuccess()){
+                fileMonitorLogDto.setHandleCode(2);
+            }else {
+                fileMonitorLogDto.setHandleCode(1);
+            }
+            fileMonitorLogDto.setHandleMsg(resultT.getProcessMsg().toString());
+            long endTime=System.currentTimeMillis();
+            long elapsedTime=(endTime-starTime)/1000;
+            fileMonitorLogDto.setElapsedTime(elapsedTime);
+            this.updateLog(fileMonitorLogDto);
         }
     }
-    public void multipleFiles( FileMonitorLogDto fileMonitorLogDto,String cron,List<File> files, ResultT<String> resultT){
-        FilenameFilter filenameFilter=this.filterFile(fileMonitorLogDto,cron,resultT);
+    public void multipleFiles( FileMonitorLogDto fileMonitorLogDto,List<Map<String,Object>> fileList, ResultT<String> resultT){
+        FileFilter fileFilter=this.filterFile(fileMonitorLogDto,fileList,resultT);
         if(!resultT.isSuccess()){
             return;
         }
         try {
             File file = new File(fileMonitorLogDto.getFolderRegular());
-            HtFileUtil.loopFiles(file,files,filenameFilter);
+            HtFileUtil.loopFiles(file,fileFilter);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
         }
     }
-    public FilenameFilter filterFile(FileMonitorLogDto fileMonitorLogDto,String cron, ResultT<String> resultT){
+    public FileFilter filterFile(FileMonitorLogDto fileMonitorLogDto, List<Map<String,Object>> fileList, ResultT<String> resultT){
         String expression=this.repalceRegx(fileMonitorLogDto,resultT);
         if(!resultT.isSuccess()){
             return null;
         }
         long endTime=fileMonitorLogDto.getTriggerTime();
-        long beginTime= CronUtil.calculateLastTime(cron,endTime);
-        FilenameFilter fileFilter=new FilenameFilter() {
-
-            @Override
-            public boolean accept(File file, String s) {
-                if(StringUtil.isEmpty(fileMonitorLogDto.getFilenameRegular())){
+        long beginTime= CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(),endTime);
+        List<String> fullpaths=this.findExist(fileMonitorLogDto.getTaskId(),fileMonitorLogDto.getTriggerTime());
+        FileFilter fileFilter= null;
+        try {
+            fileFilter = new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    if(fullpaths.contains(file.getPath())){
+                        return false;
+                    }
+                    if(StringUtil.isEmpty(fileMonitorLogDto.getFilenameRegular())){
+                        return true;
+                    }
+                    if(file.isDirectory()){
+                        return true;
+                    }
+                    long size =file.length();
+                    if(size==0){
+                        return false;
+                    }
+                    boolean isMatch= Pattern.matches(fileMonitorLogDto.getFilenameRegular(), file.getName());
+                    if(!isMatch){
+                        return false;
+                    }
+                    if(StringUtil.isEmpty(expression)){
+                        return true;
+                    }
+                    long createTime= HtFileUtil.getCreateTime(file.toPath());
+                    long lastModified=file.lastModified();
+                    if(1==fileMonitorLogDto.getIsUt()){
+                        createTime=createTime+1000*3600*8;
+                        lastModified=lastModified+1000*3600*8;
+                    }
+                    long ddataTime=getDataTime(createTime,file.getName(),expression,resultT);
+                    if(ddataTime<=beginTime||ddataTime>endTime){
+                        return false;
+                    }
+                    String fullpath=file.getPath();
+                    Map<String,Object> source=new HashMap<>();
+                    source.put("last_modified_time",new Date(lastModified));
+                    source.put("create_time",new Date(createTime));
+                    source.put("d_datetime",new Date(ddataTime));
+                    source.put("full_path",fullpath);
+                    source.put("parent_path",file.getParentFile().getPath());
+                    source.put("file_name",file.getName());
+                    source.put("file_bytes",size);
+                    fileList.add(source);
                     return true;
                 }
-                if(file.isDirectory()){
-                    return true;
-                }
-                if(file.length()==0){
-                    return false;
-                }
-                boolean isMatch= Pattern.matches(fileMonitorLogDto.getFilenameRegular(), s);
-                if(!isMatch){
-                    return false;
-                }
-                if(StringUtil.isEmpty(expression)){
-                    return true;
-                }
-                long ddataTime=getDataTime(file.lastModified(),s,expression,resultT);
-                if(ddataTime<=beginTime||ddataTime>endTime){
-                    return false;
-                }
-                return true;
-            }
-        };
+            };
+        } catch (Exception e) {
+           resultT.setErrorMessage(OwnException.get(e));
+        }
         return fileFilter;
     }
-
+    public void putFile(File file,FileMonitorLogDto fileMonitorLogDto,List<Map<String,Object>> fileList, ResultT<String> resultT){
+        String expression=this.repalceRegx(fileMonitorLogDto,resultT);
+        long createTime= HtFileUtil.getCreateTime(file.toPath());
+        long lastModified=file.lastModified();
+        if(1==fileMonitorLogDto.getIsUt()){
+            createTime=createTime+1000*3600*8;
+            lastModified=lastModified+1000*3600*8;
+        }
+        long ddataTime=getDataTime(createTime,file.getName(),expression,resultT);
+        String fullpath=file.getPath();
+        Map<String,Object> source=new HashMap<>();
+        source.put("last_modified_time",new Date(lastModified));
+        source.put("create_time",new Date(createTime));
+        source.put("d_datetime",new Date(ddataTime));
+        source.put("full_path",fullpath);
+        source.put("parent_path",file.getParentFile().getPath());
+        source.put("file_name",file.getName());
+        source.put("file_bytes",file.length());
+        fileList.add(source);
+    }
 }
 

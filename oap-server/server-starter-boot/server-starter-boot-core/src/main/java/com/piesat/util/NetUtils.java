@@ -481,7 +481,6 @@ public class NetUtils {
                         continue;
                     }
                     ipList.add(sIP);
-                    System.out.println(sIP);
                 }
             }
         } catch (Exception e) {

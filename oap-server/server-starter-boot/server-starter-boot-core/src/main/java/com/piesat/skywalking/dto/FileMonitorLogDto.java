@@ -38,8 +38,15 @@ public class FileMonitorLogDto {
 
     @ApiModelProperty(value = "晚到数")
     private long lateNum;
-
-
+    @ApiModelProperty(value = "是否补偿 0否 1是")
+    private Integer isCompensation=0;
+    @ApiModelProperty(value = "提取时间")
     private String expression;
+    @ApiModelProperty(value = "是否世界时")
+    private Integer isUt;
+    @ApiModelProperty(value = "cron表达式")
+    private String jobCron;
+    @ApiModelProperty(value = "任务名称")
+    private String taskName;
 }
 

@@ -21,7 +21,7 @@ public class HtJobInfoDto extends BaseDto {
     private String jobHandler;
     @ApiModelProperty(value = "触发类型 0 普通 1分片调度")
     private Integer triggerType; //0 普通 1分片
-    @ApiModelProperty(value = "时区 0 代表北京时 1代表时间时")
+    @ApiModelProperty(value = "时区 0 代表北京时 1代表世界时")
     private Integer isUt;
     private long delayTime;
     private long triggerTime;

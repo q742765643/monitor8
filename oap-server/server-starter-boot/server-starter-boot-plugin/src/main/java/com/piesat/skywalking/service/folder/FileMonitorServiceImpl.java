@@ -22,10 +22,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.transform.Result;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> implements FileMonitorService {
+    protected static final String REGEX = "(\\$\\{(.*?)\\})";
+    protected static final Pattern PATTERN = Pattern.compile(REGEX);
+
     @Autowired
     private FileMonitorDao fileMonitorDao;
     @Autowired
@@ -151,4 +157,21 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         Specification specification = specificationBuilder.generateSpecification();
         return super.count(specification);
     }
+
+
+    public boolean regularCheck(FileMonitorDto fileMonitorDto){
+        String regular=fileMonitorDto.getFolderRegular()+"/"+fileMonitorDto.getFilenameRegular();
+        Matcher m = PATTERN.matcher(regular);
+        while (m.find()){
+            String expression = m.group(2);
+            String replaceMent =expression.replaceAll("[ymdhsYMDHS]", "\\\\d");;
+            regular=regular.replace("${"+expression+"}",replaceMent);
+        }
+        regular=regular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
+        Pattern pattern = Pattern.compile(regular);
+        Matcher matcher = pattern.matcher(fileMonitorDto.getFileSample());
+        return matcher.matches();
+    }
+
+
 }

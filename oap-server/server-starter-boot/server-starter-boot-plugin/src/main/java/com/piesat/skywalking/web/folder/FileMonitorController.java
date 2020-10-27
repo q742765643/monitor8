@@ -55,4 +55,14 @@ public class FileMonitorController {
         fileMonitorService.deleteByIds(Arrays.asList(ids));
         return resultT;
     }
+    @ApiOperation(value = "文件正则校验", notes = "文件正则校验")
+    @PostMapping("/regularCheck")
+    public ResultT<String> regularCheck(@RequestBody FileMonitorDto fileMonitorDto){
+        ResultT<String> resultT=new ResultT<>();
+        boolean flag=fileMonitorService.regularCheck(fileMonitorDto);
+        if(!flag){
+            resultT.setErrorMessage("正则校验不通过请重新配置");
+        }
+        return resultT;
+    }
 }

@@ -4,6 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.base.BaseHandler;
+import com.piesat.skywalking.schedule.service.folder.BusinessEnum;
+import com.piesat.skywalking.schedule.service.folder.FileBaseService;
 import com.piesat.skywalking.schedule.service.folder.FileSmaService;
 import com.piesat.skywalking.util.HtFileUtil;
 import com.piesat.util.CronUtil;
@@ -25,6 +27,7 @@ import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,22 +40,13 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service("fileMonitorHandler")
 public class FileGuardHandler implements BaseHandler {
-
-    @Autowired
-    private ElasticSearch7Client elasticSearch7Client;
-    @Autowired
-    private FileSmaService fileSmaService;
-
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
         FileMonitorDto monitor= (FileMonitorDto) jobContext.getHtJobInfoDto();
-        List<SmbFile> files=new ArrayList<>();
-        fileSmaService.singleFile(monitor,files,resultT);
+        List<Map<String,Object>> fileList=new ArrayList<>();
+        FileBaseService fileBaseService= BusinessEnum.match(monitor.getScanType()).getBean();
+        fileBaseService.singleFile(monitor,fileList,resultT);
     }
-
-
-
-
 
 }
 

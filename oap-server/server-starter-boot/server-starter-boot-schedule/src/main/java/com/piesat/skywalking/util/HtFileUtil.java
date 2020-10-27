@@ -4,50 +4,57 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import jcifs.smb1.smb1.SmbException;
 import jcifs.smb1.smb1.SmbFile;
-import jcifs.smb1.smb1.SmbFilenameFilter;
+import jcifs.smb1.smb1.SmbFileFilter;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
-import java.util.Map;
 
 public class HtFileUtil extends FileUtil {
-    public static void loopFiles(File file, List<File> fileList, FilenameFilter fileFilter){
+    public static void loopFilesLocal(File file, FileFilter fileFilter){
         if(file.isDirectory()){
             File[] files = file.listFiles(fileFilter);
             if (null!=files&&ArrayUtil.isNotEmpty(files)) {
                 for (File tmp : files) {
-                    loopFiles(tmp,fileList,fileFilter);
+                    loopFiles(tmp,fileFilter);
                 }
             }
         }else {
-            if(file.isFile()){
-                fileList.add(file);
-            }
         }
 
     }
 
-    public static void loopFiles(SmbFile file,List<SmbFile> fileList,SmbFilenameFilter fileFilter){
+    public static void loopFiles(SmbFile file, SmbFileFilter fileFilter){
         try {
             if(file.isDirectory()){
                 SmbFile[] files = file.listFiles(fileFilter);
                 if (null!=files&&ArrayUtil.isNotEmpty(files)) {
                     for (SmbFile tmp : files) {
-                       loopFiles(tmp,fileList,fileFilter);
+                       loopFiles(tmp,fileFilter);
                     }
-                }
-            }else {
-                if(file.isFile()){
-                    fileList.add(file);
                 }
             }
         } catch (SmbException e) {
             e.printStackTrace();
         }
 
+    }
+    public static Long getCreateTime(Path path){
+
+        BasicFileAttributeView basicview = Files.getFileAttributeView(path, BasicFileAttributeView.class,
+                LinkOption.NOFOLLOW_LINKS);
+        BasicFileAttributes attr;
+        try {
+            attr = basicview.readAttributes();
+            return attr.creationTime().toMillis();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0l;
     }
 }

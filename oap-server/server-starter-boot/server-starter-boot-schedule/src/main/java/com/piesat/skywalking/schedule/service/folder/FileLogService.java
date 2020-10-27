@@ -26,6 +26,9 @@ public class FileLogService {
         fileMonitorLogDto.setFolderRegular(fileMonitorDto.getFolderRegular());
         fileMonitorLogDto.setFileNum(fileMonitorDto.getFileNum());
         fileMonitorLogDto.setFileSize(fileMonitorDto.getFileSize());
+        fileMonitorLogDto.setIsUt(fileMonitorDto.getIsUt());
+        fileMonitorLogDto.setJobCron(fileMonitorDto.getJobCron());
+        fileMonitorLogDto.setTaskName(fileMonitorDto.getTaskName());
         return fileMonitorLogService.save(fileMonitorLogDto);
     }
     public void  updateLog(FileMonitorLogDto fileMonitorLogDto){

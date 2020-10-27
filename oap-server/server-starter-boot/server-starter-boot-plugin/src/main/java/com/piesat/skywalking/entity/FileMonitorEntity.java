@@ -32,7 +32,8 @@ public class FileMonitorEntity extends HtJobInfo {
     @Column(name="scan_type", length=1)
     private Integer scanType;
 
-
+    @Column(name="acount_id", length=50)
+    private  String acountId;
 
 
 }
