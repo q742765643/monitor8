@@ -137,10 +137,10 @@ public class FileSmaService extends FileBaseService{
                     }
                     long createTime=smbFile.createTime();
                     long lastModified=smbFile.getLastModified();
-            /*        if(1==fileMonitorLogDto.getIsUt()){
-                        createTime=createTime+1000*3600*8;
-                        lastModified=lastModified+1000*3600*8;
-                    }*/
+                    if(1==fileMonitorLogDto.getIsUt()){
+                        createTime=createTime-1000*3600*8;
+                        lastModified=lastModified-1000*3600*8;
+                    }
                     long ddataTime=getDataTime(createTime,smbFile.getName(),expression,resultT);
                     if(!resultT.isSuccess()){
                         return false;
@@ -173,10 +173,10 @@ public class FileSmaService extends FileBaseService{
             String expression=this.repalceRegx(fileMonitorLogDto,resultT);
             long createTime= file.createTime();
             long lastModified=file.getLastModified();
-       /*     if(1==fileMonitorLogDto.getIsUt()){
-                createTime=createTime+1000*3600*8;
-                lastModified=lastModified+1000*3600*8;
-            }*/
+            if(1==fileMonitorLogDto.getIsUt()){
+                createTime=createTime-1000*3600*8;
+                lastModified=lastModified-1000*3600*8;
+            }
             long ddataTime=getDataTime(createTime,file.getName(),expression,resultT);
             String fullpath=file.getPath();
             Map<String,Object> source=new HashMap<>();

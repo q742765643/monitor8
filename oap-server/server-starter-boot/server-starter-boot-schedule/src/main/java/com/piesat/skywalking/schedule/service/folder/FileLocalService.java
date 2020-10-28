@@ -121,10 +121,10 @@ public class FileLocalService extends  FileBaseService{
                     }
                     long createTime= HtFileUtil.getCreateTime(file.toPath());
                     long lastModified=file.lastModified();
-                /*    if(1==fileMonitorLogDto.getIsUt()){
-                        createTime=createTime+1000*3600*8;
-                        lastModified=lastModified+1000*3600*8;
-                    }*/
+                    if(1==fileMonitorLogDto.getIsUt()){
+                        createTime=createTime-1000*3600*8;
+                        lastModified=lastModified-1000*3600*8;
+                    }
                     long ddataTime=getDataTime(createTime,file.getName(),expression,resultT);
                     if(ddataTime<=beginTime||ddataTime>endTime){
                         return false;
@@ -151,10 +151,10 @@ public class FileLocalService extends  FileBaseService{
         String expression=this.repalceRegx(fileMonitorLogDto,resultT);
         long createTime= HtFileUtil.getCreateTime(file.toPath());
         long lastModified=file.lastModified();
-     /*   if(1==fileMonitorLogDto.getIsUt()){
-            createTime=createTime+1000*3600*8;
-            lastModified=lastModified+1000*3600*8;
-        }*/
+        if(1==fileMonitorLogDto.getIsUt()){
+            createTime=createTime-1000*3600*8;
+            lastModified=lastModified-1000*3600*8;
+        }
         long ddataTime=getDataTime(createTime,file.getName(),expression,resultT);
         String fullpath=file.getPath();
         Map<String,Object> source=new HashMap<>();
