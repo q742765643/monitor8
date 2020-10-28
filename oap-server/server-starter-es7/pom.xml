@@ -69,13 +69,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>2.1.0.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <finalName>skywalking-oap</finalName>
         <plugins>
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.1.0</version>
@@ -85,7 +90,7 @@
                     </outputDirectory>
                     <archive>
                         <manifest>
-                            <!-- 项目启动类 -->
+                            &lt;!&ndash; 项目启动类 &ndash;&gt;
                             <mainClass>org.apache.skywalking.oap.server.starter.OAPServerStartUp</mainClass>
                             <classpathPrefix>./libs</classpathPrefix>
                             <addClasspath>true</addClasspath>
@@ -113,6 +118,18 @@
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.0.4.RELEASE</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -225,22 +225,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.htht</groupId>
-            <artifactId>sod-util</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-annotations</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.7</version>
@@ -355,11 +339,6 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.htht</groupId>
-            <artifactId>XuGuDialect5</artifactId>
-            <version>5.0</version>
         </dependency>
       <!--  <dependency>
             <groupId>org.quartz-scheduler</groupId>
@@ -481,16 +460,16 @@
         </dependency>
 
         <dependency>
-            <groupId>com.htht</groupId>
+            <groupId> org.apache.skywalking</groupId>
             <artifactId>server-starter-ucenter-web</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>8.1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.htht</groupId>
+                    <groupId> org.apache.skywalking</groupId>
                     <artifactId>sod-common</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.htht</groupId>
+                    <groupId> org.apache.skywalking</groupId>
                     <artifactId>sod-project-grpc</artifactId>
                 </exclusion>
             </exclusions>
@@ -498,6 +477,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

@@ -27,3 +27,10 @@ apm/skywalking-ui/node/node.exe
 skywalking-ui/mointor.rar
 skywalking-ui/node/node.exe
 skywalking-ui/src.zip
+oap-server/src/sod_server/logs/server_debug_20201028_0.log
+oap-server/src/sod_server/logs/server_error_20201028_0.log
+oap-server/src/sod_server/logs/server_info_20201028_0.log
+oap-server/src/sod_server/logs/server_warn_20201028_0.log
+*.log
+oap-server/server-starter-boot/server-starter-common/src/main/resources/lib/aspose-words-18.6-jdk16-crack.jar
+oap-server/server-starter-boot/server-starter-common/src/main/resources/font/simsun.ttc

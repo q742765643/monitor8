@@ -11,7 +11,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.Serializable;
 
-import static com.netflix.config.DeploymentContext.ContextKey.appId;
 
 /**
  * @program: sod

@@ -151,7 +151,7 @@ public abstract class FileBaseService {
             fileStatisticsDto.setRealFileNum(fileMonitorLogDto.getRealFileNum());
             fileStatisticsDto.setLateNum(fileMonitorLogDto.getLateNum());
             fileStatisticsDto.setPerFileSize(new BigDecimal(fileMonitorLogDto.getRealFileSize()).divide(new BigDecimal(fileMonitorLogDto.getFileSize()),4,BigDecimal.ROUND_UP).floatValue());
-            fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
+            fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getRealFileNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
             fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum()+fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
             Map<String,Object> source=new HashMap<>();
             source.put("task_id",fileStatisticsDto.getTaskId());

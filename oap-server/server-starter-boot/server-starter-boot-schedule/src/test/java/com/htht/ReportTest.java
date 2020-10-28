@@ -20,7 +20,6 @@ import java.util.Map;
  * @Date: 2020-10-15 10:42
  */
 @RunWith(SpringRunner.class)
-//启动Spring
 @SpringBootTest(classes = ScheduleApplication.class )
 public class ReportTest {
     @Autowired

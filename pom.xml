@@ -552,6 +552,11 @@
                         com/**/*.java,
                         net/**/*.java,
                         com/github/pagehelper/page/*.java,
+                        org/mybatis/*.java,
+                        org/hibernate/**/*.java,
+                        org/apache/ibatis/**/*.java,
+                        org/**/*.java,
+                        io/grpc/**/*.java,
                     </excludes>
                     <propertyExpansion>
                         import.control=${maven.multiModuleProjectDirectory}/apm-checkstyle/importControl.xml
