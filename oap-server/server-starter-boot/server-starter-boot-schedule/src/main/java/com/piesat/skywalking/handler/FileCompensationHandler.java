@@ -91,11 +91,11 @@ public class FileCompensationHandler implements BaseHandler {
         boolBuilder.filter(rangeQueryBuilder);
         search.query(boolBuilder);
 
-        search.size(20000);
+        search.size(10000);
         search.fetchSource(new String[]{"task_id","start_time_l"},null);
 
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_MONITOR, search);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
             SearchHits hits = searchResponse.getHits();
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {

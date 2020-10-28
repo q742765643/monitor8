@@ -29,6 +29,7 @@ public class FileLogService {
         fileMonitorLogDto.setIsUt(fileMonitorDto.getIsUt());
         fileMonitorLogDto.setJobCron(fileMonitorDto.getJobCron());
         fileMonitorLogDto.setTaskName(fileMonitorDto.getTaskName());
+        fileMonitorLogDto.setIsCompensation(fileMonitorDto.getIsCompensation());
         return fileMonitorLogService.save(fileMonitorLogDto);
     }
     public void  updateLog(FileMonitorLogDto fileMonitorLogDto){

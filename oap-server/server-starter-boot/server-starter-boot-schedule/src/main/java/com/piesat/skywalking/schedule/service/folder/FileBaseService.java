@@ -150,8 +150,8 @@ public abstract class FileBaseService {
             fileStatisticsDto.setRealFileNum(fileMonitorLogDto.getRealFileNum());
             fileStatisticsDto.setLateNum(fileMonitorLogDto.getLateNum());
             fileStatisticsDto.setPerFileSize(new BigDecimal(fileMonitorLogDto.getRealFileSize()).divide(new BigDecimal(fileMonitorLogDto.getFileSize()),4,BigDecimal.ROUND_UP).floatValue());
-            fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
-            fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getRealFileNum()+fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
+            fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
+            fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum()+fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
             Map<String,Object> source=new HashMap<>();
             source.put("task_id",fileStatisticsDto.getTaskId());
             source.put("filename_regular",fileStatisticsDto.getFilenameRegular());
@@ -193,7 +193,7 @@ public abstract class FileBaseService {
         search.size(0);
         SumAggregationBuilder sumFileBytes= AggregationBuilders.sum("sumFileBytes").field("file_bytes");
         SumAggregationBuilder sumOntime=AggregationBuilders.sum("sumOntime").field("ontime");
-        SumAggregationBuilder sumNoOnTime=AggregationBuilders.sum("sumNoOnTime").field("is_ontime");
+        SumAggregationBuilder sumNoOnTime=AggregationBuilders.sum("sumNoOnTime").field("no_ontime");
         search.aggregation(sumFileBytes);
         search.aggregation(sumOntime);
         search.aggregation(sumNoOnTime);
