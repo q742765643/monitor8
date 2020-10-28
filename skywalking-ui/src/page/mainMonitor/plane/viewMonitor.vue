@@ -79,8 +79,6 @@
               this.ringList[index].value = element.num;
             }
           });
-        } else {
-          alert('监控总览数据请求失败2');
         }
       });
       this.$nextTick(() => {

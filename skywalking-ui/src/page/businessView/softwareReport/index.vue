@@ -2,17 +2,14 @@
   <!-- 软件报表 -->
   <div id="softwareReport">
     <div class="header">
-      <a-button-group>
-        <a-button>
-          今天
-        </a-button>
-        <a-button>昨天</a-button>
-        <a-button>三天</a-button>
-        <a-button>一周</a-button>
-        <a-button>一月</a-button>
-        <a-button>一年</a-button>
-        <a-button @click="clickTimeGroup('free')">自定义</a-button>
-      </a-button-group>
+      <a-range-picker
+        @change="onTimeChange"
+        :show-time="{
+          hideDisabledOptions: true,
+          defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
+        }"
+        format="YYYY-MM-DD HH:mm:ss"
+      />
       <div class="right">
         <a-button type="primary" icon="file-pdf">
           导出pdf
@@ -65,14 +62,6 @@
         </div>
       </div>
     </div>
-    <a-modal v-model="visibleTime" title="选择查询时间" @ok="handleOk" class="visibleTimeDialog">
-      <a-range-picker
-        format="YYYY-MM-DD HH:mm:ss"
-        :show-time="{
-          defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-        }"
-      />
-    </a-modal>
   </div>
 </template>
 <script>
@@ -82,7 +71,6 @@
   export default {
     data() {
       return {
-        visibleTime: false,
         useageChart: '',
         usageLegend: ['CPU最高使用率', '内存最高使用率', '磁盘最高使用率'],
         downCountData: [],
@@ -206,6 +194,9 @@
       );
     },
     methods: {
+      onTimeChange(value, dateString) {
+        console.log(dateString);
+      },
       moment,
       range(start, end) {
         const result = [];
@@ -214,14 +205,7 @@
         }
         return result;
       },
-      clickTimeGroup(type) {
-        if (type == 'free') {
-          this.visibleTime = true;
-        }
-      },
-      handleOk() {
-        this.visibleTime = false;
-      },
+
       drawChart(id, chart, title, legend, Yaxis, series) {
         chart = echarts.init(document.getElementById(id));
         let options = {

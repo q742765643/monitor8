@@ -35,8 +35,6 @@
               this.peiData[index].value = element.num;
             }
           });
-        } else {
-          alert('监控告警分布请求失败');
         }
       });
       this.$nextTick(function() {
