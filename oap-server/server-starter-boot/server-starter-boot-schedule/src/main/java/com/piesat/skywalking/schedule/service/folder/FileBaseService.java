@@ -141,6 +141,7 @@ public abstract class FileBaseService {
             fileStatisticsDto.setStatus(0);
             fileStatisticsDto.setId(fileMonitorLogDto.getTaskId()+"_"+fileMonitorLogDto.getTriggerTime());
             fileStatisticsDto.setTaskId(fileMonitorLogDto.getTaskId());
+            fileStatisticsDto.setTaskName(fileMonitorLogDto.getTaskName());
             fileStatisticsDto.setFilenameRegular(fileMonitorLogDto.getFilenameRegular());
             fileStatisticsDto.setFileNum(fileMonitorLogDto.getFileNum());
             fileStatisticsDto.setFileSize(fileMonitorLogDto.getFileSize());
@@ -154,6 +155,7 @@ public abstract class FileBaseService {
             fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum()+fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
             Map<String,Object> source=new HashMap<>();
             source.put("task_id",fileStatisticsDto.getTaskId());
+            source.put("task_name",fileStatisticsDto.getTaskName());
             source.put("filename_regular",fileStatisticsDto.getFilenameRegular());
             source.put("file_num",fileStatisticsDto.getFileNum());
             source.put("file_size",fileStatisticsDto.getFileSize());
