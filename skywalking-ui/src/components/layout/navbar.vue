@@ -1,7 +1,13 @@
 <template>
   <a-layout-sider id="slider">
-    <div class="logo">
-      <span class="web_title"> 气象海洋空间天气信息系统综合监控平台 </span>
+    <div class="timeBox">
+      <div class="date">
+        <div class="day">{{ date }}</div>
+        <div class="week">{{ week }}</div>
+      </div>
+      <div class="time">
+        <span>{{ time }}</span>
+      </div>
     </div>
     <a-menu mode="inline" :default-open-keys="['sub1']" id="menu" :selectedKeys="[this.$route.path]">
       <!--   :selectedKeys="[this.$route.path]" -->
@@ -133,10 +139,36 @@
 </template>
 
 <script>
+  import moment from 'moment';
   export default {
     name: 'navbar',
     data() {
-      return {};
+      return {
+        date: '',
+        week: '',
+        time: '',
+        timer: null,
+      };
+    },
+    created() {
+      this.getTime();
+    },
+    mounted() {
+      let data;
+
+      this.timer = setInterval(() => this.getTime(), 1000);
+    },
+    destroyed() {
+      clearInterval(this.timer); // 清除定时器
+      this.timer = null;
+    },
+    methods: {
+      getTime: function() {
+        moment.locale('zh-cn');
+        this.date = moment().format('YYYY-MM-DD');
+        this.week = moment().format('dddd');
+        this.time = moment().format('LTS');
+      },
     },
   };
 </script>
@@ -150,29 +182,40 @@
     max-width: none !important;
     min-width: none !important;
     background: #f1f2f4;
-
-    .logo {
-      padding: 0 0.75rem;
-      width: 100%;
-      height: 2rem;
+    .timeBox {
+      height: 1rem;
+      display: flex;
+      position: relative;
+      justify-content: center;
       &::after {
         content: '';
         height: 1px;
         background: $borderColor;
         width: calc(100% - 0.75rem);
         position: absolute;
-        top: 2rem;
+        bottom: 0;
         left: 0.375rem;
       }
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      .web_title {
-        display: block;
-        font-size: 0.3rem;
-        color: $nav_textColor;
-        font-family: Alibaba-PuHuiTi-Medium;
+      .date {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        .day {
+          font-family: electronicFont;
+          font-size: 0.275rem;
+        }
+        .week {
+          font-family: Alibaba-PuHuiTi-Medium;
+          font-size: 0.225rem;
+        }
+      }
+      .time {
+        font-size: 0.375rem;
+        font-family: electronicFont;
+        margin-left: 0.375rem;
+        //height: 100%;
+        line-height: 1rem;
       }
     }
 

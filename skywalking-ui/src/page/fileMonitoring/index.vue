@@ -120,32 +120,26 @@
             </a-form-model-item>
           </a-col>
         </a-row>
-          <a-row>
-            <a-col :span="12">
-              <a-form-model-item label="扫描方式" prop="scanType">
-                <a-radio-group  v-model="formDialog.scanType">
-                  <a-radio
-                          v-for="dict in scanTypeOptions"
-                          :value="dict.dictValue"
-                  >{{dict.dictLabel}}</a-radio>
-                </a-radio-group>
-              </a-form-model-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-model-item label="远程目录"  v-if="formDialog.scanType =='1' " prop="acountId">
-                <a-select style="width: 120px"
-                          v-model="formDialog.acountId"
-                          placeholder="远程目录"
-                >
-                  <a-select-option  v-for="dict in accountOptions"
-                                    :value="dict.id">
-                    {{dict.name}}
-                  </a-select-option>
-
-                </a-select>
-              </a-form-model-item>
-            </a-col>
-          </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item label="扫描方式" prop="scanType">
+              <a-radio-group v-model="formDialog.scanType">
+                <a-radio v-for="dict in scanTypeOptions" :value="dict.dictValue" :key="dict.dictValue">{{
+                  dict.dictLabel
+                }}</a-radio>
+              </a-radio-group>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="远程目录" v-if="formDialog.scanType == '1'" prop="acountId">
+              <a-select style="width: 120px" v-model="formDialog.acountId" placeholder="远程目录">
+                <a-select-option v-for="dict in accountOptions" :value="dict.id" :key="dict.id">
+                  {{ dict.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="资料文件目录规则" prop="folderRegular">
@@ -158,7 +152,12 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="文件路径样例" prop="fileSample">
+            <a-form-model-item
+              :label-col="{ span: 3 }"
+              :wrapperCol="{ span: 20 }"
+              label="文件路径样例"
+              prop="fileSample"
+            >
               <a-input-search v-model="formDialog.fileSample" placeholder="请输入文件路径样例" @search="regularCheck">
                 <a-button slot="enterButton">
                   校验
@@ -208,7 +207,7 @@
   import echarts from 'echarts';
   // 接口地址
   import hongtuConfig from '@/utils/services';
-  import request from "@/utils/request";
+  import request from '@/utils/request';
 
   import moment from 'moment';
   export default {
@@ -229,13 +228,13 @@
         formDialog: {
           taskName: '',
         },
-        scanTypeOptions:[],
-        accountOptions:[],
+        scanTypeOptions: [],
+        accountOptions: [],
         rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
       };
     },
     created() {
-      this.getDicts("scan_type").then(response => {
+      this.getDicts('scan_type').then((response) => {
         this.scanTypeOptions = response.data;
       });
       this.selectAcount();
@@ -262,22 +261,22 @@
         this.queryParams.beginTime = dateString[0];
         this.queryParams.endTime = dateString[1];
       },
-      selectAcount(){
+      selectAcount() {
         request({
           url: '/directoryAccount/selectAll',
-          method: 'get'
-        }).then(response => {
-            this.accountOptions=response.data;
+          method: 'get',
+        }).then((response) => {
+          this.accountOptions = response.data;
         });
       },
-      regularCheck(){
+      regularCheck() {
         request({
           url: '/fileMonitor/regularCheck',
           method: 'post',
-          data: this.formDialog
-        }).then(response => {
+          data: this.formDialog,
+        }).then((response) => {
           if (response.code === 200) {
-            this.msgSuccess("校验成功");
+            this.msgSuccess('校验成功');
           } else {
             this.msgError(response.msg);
           }
@@ -320,7 +319,7 @@
         /* 新增 */
         this.dialogTitle = '新增';
         this.formDialog = {
-          scanType:'1',
+          scanType: '1',
         };
         this.visibleModel = true;
       },
@@ -329,7 +328,7 @@
         hongtuConfig.fileMonitorDetail(row.id).then((response) => {
           if (response.code == 200) {
             this.formDialog = response.data;
-            this.formDialog.scanType=this.formDialog.scanType.toString();
+            this.formDialog.scanType = this.formDialog.scanType.toString();
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }
