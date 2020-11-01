@@ -1,5 +1,5 @@
 <template>
-  <div id="dataMointor">
+  <div class="dataMointor">
     <commonTitle v-bind="$attrs"></commonTitle>
     <div class="dataView_chart" :id="chartID"></div>
   </div>
@@ -9,18 +9,23 @@
   import commonTitle from '../../commonFull/commonTitle';
   import echarts from 'echarts';
   import { remFontSize } from '@/components/utils/fontSize.js';
+  import request from "@/utils/request";
   export default {
     components: { commonTitle },
     props: ['chartID'],
-
     data() {
       return {
         mixChart: '',
+        timeList:[],
+        lateList:[],
+        shouldList:[],
+        actualList:[]
       };
     },
     mounted() {
+      this.fileLineDiagram();
       this.$nextTick(() => {
-        this.drawChart(this.chartID);
+
       });
 
       window.addEventListener('resize', () => {
@@ -28,16 +33,37 @@
       });
     },
     methods: {
+      fileLineDiagram() {
+        request({
+          url: '/fileQReport/fileLineDiagram',
+          method: 'get',
+          params:{"taskId":this.chartID}
+        }).then(data => {
+          let list = data.data;
+          this.timeList=[];
+          this.lateList=[];
+          this.shouldList=[];
+          this.actualList=[];
+          list.forEach((item, index) => {
+            this.timeList.push(this.parseTime(item.start_time_l,'{h}:{i}:{s}'));
+            this.lateList.push(item.late_num);
+            this.shouldList.push(item.file_num);
+            this.actualList.push(Number(item.late_num)+Number(item.real_file_num));
+          });
+          this.drawChart(this.chartID);
+        });
+      },
       drawChart(id) {
         this.mixChart = echarts.init(document.getElementById(id));
         var colors = ['#5793f3', '#d14a61', '#675bba'];
-
+        let shouldA = this.shouldList.sort((a, b) => a - b)
+        let shouldL=Number(shouldA[shouldA.length-1])+20;
         let options = {
           textStyle: {
             fontFamily: 'Alibaba-PuHuiTi-Regular',
+            color: '#565656'
           },
           color: colors,
-          textStyle: { color: '#565656' },
           tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -51,7 +77,7 @@
           },
 
           legend: {
-            data: ['文件合计个数', '文件合计大小', '文件平均大小'],
+            data: ['文件晚到', '文件应到', '文件实到'],
           },
           xAxis: [
             {
@@ -69,15 +95,15 @@
                 },
               },
 
-              data: ['0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00'],
+              data: this.timeList,
             },
           ],
           yAxis: [
             {
               type: 'value',
-              name: '(KB)',
+              name: '(个)',
               min: 0,
-              max: 250,
+              max: shouldL,
               position: 'right',
               axisTick: {
                 //y轴刻度线
@@ -101,7 +127,7 @@
               type: 'value',
               name: '(个)',
               min: 0,
-              max: 250,
+              max: shouldL,
               position: 'left',
               axisTick: {
                 //y轴刻度线
@@ -122,9 +148,9 @@
             },
             {
               type: 'value',
-              name: '(KB)',
+              name: '(个)',
               min: 0,
-              max: 25,
+              max: shouldL,
               position: 'right',
               offset: 50,
               axisLine: {
@@ -148,10 +174,10 @@
           ],
           series: [
             {
-              name: '文件合计个数',
+              name: '文件晚到',
               type: 'bar',
               barWidth: '35%',
-              data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
+              data: this.lateList,
 
               itemStyle: {
                 barBorderRadius: 5,
@@ -163,35 +189,37 @@
               },
             },
             {
-              name: '文件合计大小',
+              name: '文件应到',
               type: 'line',
               yAxisIndex: 1,
-              data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+              data: this.shouldList,
             },
             {
-              name: '文件平均大小',
-              type: 'line',
+              name: '文件实到',
+              type: 'bar',
               yAxisIndex: 2,
-              data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2],
+              data: this.actualList,
             },
           ],
         };
-
         this.mixChart.setOption(options);
       },
+
+
+
     },
   };
 </script>
 
 <style lang="scss" scoped>
-  #dataMointor {
+  .dataMointor {
     width: 100%;
-    height: 5rem;
+    height: 100%;
     background: white;
 
     .dataView_chart {
       width: 100%;
-      height: calc(5rem - 0.75rem);
+      height: 85%;
     }
   }
 </style>

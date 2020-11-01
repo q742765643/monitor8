@@ -143,6 +143,10 @@ const router = new Router({
           path: '/fileMonitoring/directory_account',
           component: () => import('@/page/fileMonitoring/directory_account.vue'),
         },
+        {
+          path: '/fileMonitoring/file_report',
+          component: () => import('@/page/fileMonitoring/file_report.vue'),
+        },
       ],
     },
   ],

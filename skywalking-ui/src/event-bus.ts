@@ -108,14 +108,14 @@ const $EventBus = {
     vue.prototype.$eventBus = new EventBus(vue);
     vue.mixin({
       deactivated() {
-        (this as VueComponentVM).$eventBus.$offVmEvent(
+     /*   (this as VueComponentVM).$eventBus.$offVmEvent(
           (this as VueComponentVM)._uid,
-        );
+        );*/
       },
       beforeDestroy() {
-        (this as VueComponentVM).$eventBus.$offVmEvent(
+   /*     (this as VueComponentVM).$eventBus.$offVmEvent(
           (this as VueComponentVM)._uid,
-        );
+        );*/
       },
     });
   },

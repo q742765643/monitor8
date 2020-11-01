@@ -67,10 +67,8 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
                 hostConfigDto.setMaxMemoryPct((Float) map.get("max_memory_pct"));
                 hostConfigDto.setMaxFilesystemPct((Float) map.get("max_filesystem_pct"));
                 hostConfigDto.setMaxProcessSize(Float.valueOf((Float) map.get("max_process_size")).longValue());
-                /*hostConfigDto.setAvgPacketPct((Float) map.get("avg_packet_pct"));
-                hostConfigDto.setMaxPacketPct((Float) map.get("max_packet_pct"));*/
-                hostConfigDto.setAvgPacketPct(10);
-                hostConfigDto.setMaxPacketPct(20);
+                hostConfigDto.setAvgPacketPct((Float) map.get("avg_packet_pct"));
+                hostConfigDto.setMaxPacketPct((Float) map.get("max_packet_pct"));
                 hostConfigDto.setMaxUptime(Float.valueOf((Float) map.get("max_uptime")).longValue());
                 hostConfigDto.setAlarmCount((Long) map.get("sum_alarm_count"));
                 hostConfigDto.setDownCount((Long) map.get("sum_down_count"));

@@ -2,7 +2,7 @@
   <div id="fullChart">
     <div id="bigChart">
       <div id="component">
-        <component :is="comList[comIndex].comName" :chartID="chartID" :titleName="changeName" v-bind="$attrs">
+        <component :is="comList[comIndex].comName" :chartID="chartID" :titleName="changeName" v-bind="$attrs" v-if="isReloadData">
         </component>
       </div>
       <slot name="chartInfo" :chartID="chartID"></slot>
@@ -47,6 +47,7 @@
         chartID: '',
         comIndex: 0,
         changeName: '',
+        isReloadData:true,
       };
     },
     components: {
@@ -70,13 +71,34 @@
     created() {
       this.chartID = this.fullChartID;
       this.comList.forEach((item, index) => {
+        let url=this.getFullCanvasDataURL(item.chartID);
         if (item.chartID == this.chartID) {
           this.comIndex = index;
           this.changeName = this.comList[index].titleName;
         }
+        item.url=url;
       });
     },
     methods: {
+      getFullCanvasDataURL(divId){
+        //将第一个画布作为基准。
+        var baseCanvas = $("#"+divId).find("canvas").first()[0];
+        if(!baseCanvas){
+          return false;
+        };
+        var width = baseCanvas.width;
+        var height = baseCanvas.height;
+        var ctx = baseCanvas.getContext("2d");
+        //遍历，将后续的画布添加到在第一个上
+        $("#"+divId).find("canvas").each(function(i,canvasObj){
+          if(i>0){
+            var canvasTmp = $(canvasObj)[0];
+            ctx.drawImage(canvasTmp,0,0,width,height);
+          }
+        });
+        //获取base64位的url
+        return baseCanvas.toDataURL();
+      },
       changeBigChart(index) {
         this.comIndex = index;
         this.chartID = this.comList[index].chartID;
@@ -86,14 +108,20 @@
         this.$emit('switchIndex', this.chartID, this.changeName);
       },
       changeChartSize(id) {
+        this.isReloadData=false;
         this.$nextTick(() => {
-          let el = document.getElementById(id);
+          this.isReloadData=true;
+          let el = document.getElementById(this.chartID);
           let bigChart = document.getElementById('bigChart');
           el.style.height = bigChart.clientHeight - 48 + 'px';
         });
       },
     },
     mounted() {
+      this.isReloadData=false;
+      this.$nextTick(() => {
+        this.isReloadData=true;
+      });
       let el = document.getElementById(this.chartID);
       let bigChart = document.getElementById('bigChart');
       el.style.height = bigChart.clientHeight - 48 + 'px';
@@ -163,7 +191,7 @@
         transform: scale(1); /*开始为原始大小*/
       }
       /*   25% {
-      transform: scale(1.1); 
+      transform: scale(1.1);
     }
     50% {
       transform: scale(1);

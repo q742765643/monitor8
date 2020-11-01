@@ -42,10 +42,10 @@ spring:
       max-file-size: 1000000000
       max-request-size: 1000000000
   redis:
-    host: 10.1.100.33
+    host: 10.1.100.8
     port: 6379
     timeout: 50000
-    password: 111111
+    password:
   datasource:
     #driver-class-name: org.postgresql.Driver
     #url: jdbc:postgresql://10.1.6.42:5432/soddb?currentSchema=usr_sod

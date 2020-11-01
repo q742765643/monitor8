@@ -172,6 +172,20 @@ public abstract class FileBaseService {
             source.put("end_time_a",new Date());
             source.put("@timestamp",new Date());
             String statisticsIndexName= IndexNameConstant.T_MT_FILE_STATISTICS;
+            try {
+                boolean flag=elasticSearch7Client.isExistsIndex(statisticsIndexName);
+                if(!flag){
+                    Map<String, Object> taskId = new HashMap<>();
+                    taskId.put("type", "keyword");
+                    Map<String, Object> properties = new HashMap<>();
+                    properties.put("task_id", taskId);
+                    Map<String, Object> mapping = new HashMap<>();
+                    mapping.put("properties", properties);
+                    elasticSearch7Client.createIndex(statisticsIndexName,new HashMap<>(),mapping);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             elasticSearch7Client.forceInsert(statisticsIndexName,fileStatisticsDto.getId(),source);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));

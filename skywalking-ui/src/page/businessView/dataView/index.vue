@@ -1,58 +1,31 @@
 <template>
   <div id="dataview">
-    <div id="dataview_content" v-if="!showFullType">
-      <div id="left_tree">
-        <planeTitle titleName="数据监视任务列表" />
-        <a-input-search
-          style="margin: 5px 0px;padding:0  10px"
-          placeholder="输入报文名称"
-          v-model="searchStr"
-          @change="onChange"
-          size="small"
-        />
-        <!--  @search="onSearch" -->
-        <a-tree
-          :defaultExpandAll="true"
-          :treeData="treeData"
-          :selectedKeys="selectedKeys"
-          :expandedKeys.sync="expandedKeys"
-          @expand="onExpand"
-          :autoExpandParent="autoExpandParent"
-          @select="onSelect"
-          :replaceFields="replaceFields"
-        >
-          <template slot="title" slot-scope="{ name }">
-            <span
-              v-html="name.replace(new RegExp(searchValue, 'g'), '<span style=color:#f50>' + searchValue + '</span>')"
-            ></span>
-          </template>
-        </a-tree>
-      </div>
+    <div class="dataview_content" v-if="!showFullType">
       <div id="right_comp">
         <div
-          id="com"
-          v-for="item in comList"
-          v-dragging="{ item: item, list: comList, group: 'item' }"
-          :key="item.titleName"
+                id="com"
+                v-for="item in comList"
+                v-dragging="{ item: item, list: comList, group: 'item' }"
+                :key="item.titleName"
         >
           <component
-            :is="item.comName"
-            :titleName="item.titleName"
-            :showFullType="showFullType"
-            :chartID="item.chartID"
-            :titleID="item.chartID"
+                  :is="item.comName"
+                  :titleName="item.titleName"
+                  :showFullType="showFullType"
+                  :chartID="item.chartID"
+                  :titleID="item.chartID"
           ></component>
         </div>
       </div>
     </div>
 
-    <div v-else id="dataview_content">
+    <div v-else class="dataview_content">
       <fullChart
-        :titleName="titleName"
-        :fullChartID="titleID"
-        :titleID="titleID"
-        :showFullType="showFullType"
-        :comList="comList"
+              :titleName="titleName"
+              :fullChartID="titleID"
+              :titleID="titleID"
+              :showFullType="showFullType"
+              :comList="comList"
       ></fullChart>
     </div>
   </div>
@@ -63,6 +36,8 @@
   const chartImg2 = require('../../../assets/imgs/chart/02.png');
   const chartImg3 = require('../../../assets/imgs/chart/03.png');
   const chartImg4 = require('../../../assets/imgs/chart/04.png');
+  import Vue from 'vue';
+  import request from "@/utils/request";
 
   import dataMointor from './chart/dataMointor';
   import reportMointor from './chart/reportMointor';
@@ -80,79 +55,15 @@
         autoExpandParent: false,
         replaceFields: { name: '图表' },
         searchValue: '',
-        treeData: [
-          {
-            name: '绘图报监视',
-            key: '0',
-            scopedSlots: { title: 'title' },
-            children: [
-              {
-                name: 'SN报文监视图图表',
-                key: '0-0',
-                scopedSlots: { title: 'title' },
-              },
-              {
-                name: 'SS报文监视图图表',
-                key: '01',
-                scopedSlots: { title: 'title' },
-              },
-              {
-                name: '35中期预报监视图图表',
-                key: '02',
-                scopedSlots: { title: 'title' },
-              },
-              {
-                name: '35云环境监视图图表',
-                key: '03',
-                scopedSlots: { title: 'title' },
-              },
-              {
-                name: 'SH报文监视图图表',
-                key: '04',
-                scopedSlots: { title: 'title' },
-              },
-              {
-                name: 'UN报文监视图图表',
-                key: '05',
-                scopedSlots: { title: 'title' },
-              },
-            ],
-          },
-        ],
-
-        comList: [
-          {
-            comName: 'dataMointor',
-            titleName: '数据监视任务总览',
-            chartID: 'dataView_sankeyChart',
-            url: chartImg1,
-          },
-          {
-            comName: 'reportMointor',
-            titleName: 'SS报文监视图表',
-            chartID: 'dataView_mixChart',
-            url: chartImg2,
-          },
-          {
-            comName: 'dataAlarm',
-            titleName: '最近数据告警',
-            chartID: 'dataView_pieChart',
-            url: chartImg3,
-          },
-          {
-            comName: 'cloundMointor',
-            titleName: '35云环境预报监视图表',
-            chartID: 'dataView_barChart',
-            url: chartImg4,
-          },
-        ],
+        comList: [],
         showFullType: false,
         titleID: '',
-        titleName: '',
+        titleName: ''
       };
     },
     created() {
       let that = this;
+      this.findHeader();
       eventBus.$on('fullChart', (fullChartType, name, titleID) => {
         that.showFullType = fullChartType;
         that.titleName = name;
@@ -174,6 +85,32 @@
       });
     },
     methods: {
+      findHeader() {
+        request({
+          url: '/fileQReport/findHeader',
+          method: 'get',
+        }).then(data => {
+          let list = data.data;
+          this.comList=[];
+          list.forEach((item, index) => {
+            let com={
+              comName: 'reportMointor',
+              titleName: item.title,
+              chartID: item.taskId,
+              url: chartImg2,
+            }
+            if(index==2){
+              com={
+                comName: 'reportMointor',
+                titleName: item.title,
+                chartID: item.taskId,
+                url: chartImg1,
+              }
+            }
+            this.comList.push(com);
+          });
+        });
+      },
       //树查询
       onChange() {
         var vm = this;
@@ -313,7 +250,7 @@
         }
       }
     }
-    #dataview_content {
+    .dataview_content {
       box-shadow: $plane_shadow;
       width: 100%;
       height: 100%;
@@ -333,7 +270,7 @@
         overflow: auto;
         margin-left: 0.25rem;
         // flex: 4;
-        width: 80%;
+        width: 100%;
         display: flex;
         justify-content: space-between;
         flex-wrap: wrap;

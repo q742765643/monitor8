@@ -60,7 +60,7 @@ public class JsonParseUtil {
                     parseJSON2Map(jsonMap,json2.toString(),fullKey);
                 }*/
             } else if(isNested(v)){
-                parseJSON2Map(jsonMap,v.toString(),fullKey);
+                parseJSON2Map(jsonMap,String.valueOf(v),fullKey);
             }
             else{
                 jsonMap.put(fullKey, v);
@@ -72,7 +72,7 @@ public class JsonParseUtil {
         if(null==jsonObj){
             return false;
         }
-        return jsonObj.toString().contains("{");
+        return jsonObj.toString().startsWith("{")||jsonObj.toString().startsWith("[{");
     }
 
     public static void println(Object str){
