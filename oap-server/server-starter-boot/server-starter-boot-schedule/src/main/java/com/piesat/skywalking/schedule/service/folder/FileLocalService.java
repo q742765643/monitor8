@@ -1,24 +1,18 @@
 package com.piesat.skywalking.schedule.service.folder;
 
-import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
+import com.piesat.skywalking.schedule.service.folder.base.FileBaseService;
 import com.piesat.skywalking.util.HtFileUtil;
 import com.piesat.util.*;
-import jcifs.smb1.smb1.NtlmPasswordAuthentication;
-import jcifs.smb1.smb1.SmbException;
-import jcifs.smb1.smb1.SmbFile;
-import jcifs.smb1.smb1.SmbFilenameFilter;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.index.IndexRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.net.MalformedURLException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -28,17 +22,18 @@ import java.util.regex.Pattern;
  * @Date: 2020-10-24 17:10
  */
 @Service
-public class FileLocalService extends  FileBaseService{
-    long starTime=System.currentTimeMillis();
+public class FileLocalService extends FileBaseService {
+    long starTime = System.currentTimeMillis();
+
     @Override
-    public void singleFile(FileMonitorDto monitor,List<Map<String,Object>> fileList, ResultT<String> resultT){
-        FileMonitorLogDto fileMonitorLogDto=this.insertLog(monitor);
+    public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
+        FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
         try {
-            if(monitor.getFileNum()==1) {
-                String folderRegular= DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
+            if (monitor.getFileNum() == 1) {
+                String folderRegular = DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
                 String filenameRegular = DateExpressionEngine.formatDateExpression(monitor.getFilenameRegular(), monitor.getTriggerLastTime());
                 File file = new File(folderRegular, filenameRegular);
-                if (file.exists()&&file.isFile()&&file.length()>0) {
+                if (file.exists() && file.isFile() && file.length() > 0) {
                     this.putFile(file,fileMonitorLogDto,fileList,resultT);
                     fileMonitorLogDto.setFolderRegular(folderRegular);
                     fileMonitorLogDto.setFilenameRegular(filenameRegular);

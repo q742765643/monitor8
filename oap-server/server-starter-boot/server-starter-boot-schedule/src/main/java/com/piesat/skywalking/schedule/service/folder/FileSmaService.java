@@ -1,28 +1,23 @@
 package com.piesat.skywalking.schedule.service.folder;
 
-import cn.hutool.core.date.DateUtil;
 import com.piesat.common.grpc.annotation.GrpcHthtClient;
-import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.folder.DirectoryAccountService;
 import com.piesat.skywalking.dto.DirectoryAccountDto;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
-import com.piesat.skywalking.dto.FileStatisticsDto;
+import com.piesat.skywalking.schedule.service.folder.base.FileBaseService;
 import com.piesat.skywalking.util.HtFileUtil;
 import com.piesat.util.*;
-import jcifs.smb1.smb1.*;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.index.IndexRequest;
+import jcifs.smb1.smb1.NtlmPasswordAuthentication;
+import jcifs.smb1.smb1.SmbException;
+import jcifs.smb1.smb1.SmbFile;
+import jcifs.smb1.smb1.SmbFileFilter;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -32,16 +27,17 @@ import java.util.regex.Pattern;
  * @Date: 2020-10-24 17:02
  */
 @Service
-public class FileSmaService extends FileBaseService{
+public class FileSmaService extends FileBaseService {
     @GrpcHthtClient
     private DirectoryAccountService directoryAccountService;
+
     @Override
-    public void singleFile(FileMonitorDto monitor,List<Map<String,Object>> fileList, ResultT<String> resultT){
-        FileMonitorLogDto fileMonitorLogDto=this.insertLog(monitor);
-        long starTime=System.currentTimeMillis();
-        DirectoryAccountDto directoryAccountDto=directoryAccountService.findById(monitor.getAcountId());
-        if(monitor.getFileNum()==1) {
-            String folderRegular= DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
+    public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
+        FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
+        long starTime = System.currentTimeMillis();
+        DirectoryAccountDto directoryAccountDto = directoryAccountService.findById(monitor.getAcountId());
+        if (monitor.getFileNum() == 1) {
+            String folderRegular = DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
             String filenameRegular = DateExpressionEngine.formatDateExpression(monitor.getFilenameRegular(), monitor.getTriggerLastTime());
             //NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null,"samba","samba");
             NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null,directoryAccountDto.getUser(),directoryAccountDto.getPass());

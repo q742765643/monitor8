@@ -6,7 +6,6 @@ import com.piesat.skywalking.dto.*;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.AlarmHandler;
 import com.piesat.skywalking.handler.AutoDiscoveryHandler;
-import com.piesat.skywalking.handler.FileMonitorHandler;
 import com.piesat.util.ResultT;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +21,8 @@ import java.util.List;
 //启动Spring
 @SpringBootTest(classes =ScheduleApplication.class )
 public class FileMonitorHandlerTest {
-    @Autowired
-    private FileMonitorHandler fileMonitorHandler;
+    //@Autowired
+    //private FileMonitorHandler fileMonitorHandler;
     @Autowired
     private AutoDiscoveryHandler autoDiscoveryHandler;
     @Autowired
@@ -37,7 +36,7 @@ public class FileMonitorHandlerTest {
         fileMonitorDto.setTriggerLastTime(new Date().getTime());
         JobContext jobContext=new JobContext();
         jobContext.setHtJobInfoDto(fileMonitorDto);
-        fileMonitorHandler.execute(jobContext,new ResultT<>());
+       // fileMonitorHandler.execute(jobContext,new ResultT<>());
     }
     @Test
     public void test1() throws Exception {

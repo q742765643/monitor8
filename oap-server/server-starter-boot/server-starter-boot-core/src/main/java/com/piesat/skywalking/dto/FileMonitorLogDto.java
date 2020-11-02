@@ -1,5 +1,6 @@
 package com.piesat.skywalking.dto;
 
+import com.piesat.util.BaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
  * @Date: 2020-10-26 09:40
  */
 @Data
-public class FileMonitorLogDto {
+public class FileMonitorLogDto extends BaseDto {
     @ApiModelProperty(value = "任务ID")
     private String taskId;
     @ApiModelProperty(value = "文件目录")

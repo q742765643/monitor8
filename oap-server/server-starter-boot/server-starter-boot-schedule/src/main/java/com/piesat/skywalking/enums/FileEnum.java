@@ -1,7 +1,10 @@
-package com.piesat.skywalking.schedule.service.folder;
+package com.piesat.skywalking.enums;
 
 
 import com.piesat.common.grpc.config.SpringUtil;
+import com.piesat.skywalking.schedule.service.folder.FileLocalService;
+import com.piesat.skywalking.schedule.service.folder.FileSmaService;
+import com.piesat.skywalking.schedule.service.folder.base.FileBaseService;
 
 /**
  * @program: SyncMaster
@@ -9,7 +12,7 @@ import com.piesat.common.grpc.config.SpringUtil;
  * @author: zzj
  * @create: 2018-12-25 16:25
  **/
-public enum BusinessEnum {
+public enum FileEnum {
 
     LOCAL(0, SpringUtil.getBean(FileLocalService.class)),
     //DRDS备份逻辑
@@ -18,14 +21,16 @@ public enum BusinessEnum {
     REMOTE(1, SpringUtil.getBean(FileSmaService.class));
     private int title;
     private FileBaseService bean;
-    BusinessEnum(int title, FileBaseService bean) {
-        this.title=title;
-        this.bean=bean;
-    }
-    public static BusinessEnum match(int name) {
 
-        for (BusinessEnum item : BusinessEnum.values()) {
-            if(item.title==name){
+    FileEnum(int title, FileBaseService bean) {
+        this.title = title;
+        this.bean = bean;
+    }
+
+    public static FileEnum match(int name) {
+
+        for (FileEnum item : FileEnum.values()) {
+            if (item.title == name) {
                 return item;
             }
         }

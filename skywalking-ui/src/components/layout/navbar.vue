@@ -101,6 +101,10 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/fileMonitoring/file_report"> 文件报表</router-link>
         </a-menu-item>
+        <a-menu-item key="/fileMonitoring/file_log">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/fileMonitoring/file_log"> 文件调度日志</router-link>
+        </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="sub6">
         <span slot="title"> <span class="iconfont">&#xe640;</span>告警管理</span>

@@ -45,6 +45,7 @@ public class FileMonitorLogServiceImpl  extends BaseService<FileMonitorLogEntity
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
+        pageBean.setPageData(fileMonitorLogMapstruct.toDto(pageBean.getPageData()));
         return pageBean;
 
     }

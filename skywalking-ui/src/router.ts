@@ -147,6 +147,10 @@ const router = new Router({
           path: '/fileMonitoring/file_report',
           component: () => import('@/page/fileMonitoring/file_report.vue'),
         },
+        {
+          path: '/fileMonitoring/file_log',
+          component: () => import('@/page/fileMonitoring/file_log.vue'),
+        },
       ],
     },
   ],
