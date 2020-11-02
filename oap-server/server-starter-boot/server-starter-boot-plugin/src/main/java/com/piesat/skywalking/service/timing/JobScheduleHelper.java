@@ -16,21 +16,20 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class JobScheduleHelper {
+    public static final long PRE_READ_MS = 5000;    // pre read
+    private static final String QUARTZ_HTHT_JOB = "QUARTZ.HTHT.JOB";
+    private static final String QUARTZ_HTHT_JOBDETAIL = "QUARTZ.HTHT.JOBDETAIL";
+    private volatile static Map<Integer, List<HtJobInfoDto>> ringData = new ConcurrentHashMap<>();
     @Autowired
     private RedisUtil redisUtil;
     @Autowired
     private TriggerService triggerService;
-
-    public static final long PRE_READ_MS = 5000;    // pre read
-
     private Thread scheduleThread;
     private Thread ringThread;
     private volatile boolean scheduleThreadToStop = false;
     private volatile boolean ringThreadToStop = false;
-    private volatile static Map<Integer, List<HtJobInfoDto>> ringData = new ConcurrentHashMap<>();
-    private static final String QUARTZ_HTHT_JOB = "QUARTZ.HTHT.JOB";
-    private static final String QUARTZ_HTHT_JOBDETAIL= "QUARTZ.HTHT.JOBDETAIL";
-    public void start(){
+
+    public void start() {
 
         // schedule thread
         scheduleThread = new Thread(new Runnable() {
@@ -38,7 +37,7 @@ public class JobScheduleHelper {
             public void run() {
 
                 try {
-                    TimeUnit.MILLISECONDS.sleep(5000 - System.currentTimeMillis()%1000 );
+                    TimeUnit.MILLISECONDS.sleep(5000 - System.currentTimeMillis() % 1000);
                 } catch (InterruptedException e) {
                     if (!scheduleThreadToStop) {
                         log.error(e.getMessage(), e);
@@ -60,8 +59,8 @@ public class JobScheduleHelper {
                                 for (DefaultTypedTuple typedTuple : scheduleList) {
                                     String jobId = (String) typedTuple.getValue();
                                     HtJobInfoDto jobInfo = (HtJobInfoDto) redisUtil.hget(QUARTZ_HTHT_JOBDETAIL, jobId);
-                                    if(jobInfo==null){
-                                        redisUtil.zsetRemove(QUARTZ_HTHT_JOBDETAIL,jobId);
+                                    if (jobInfo == null) {
+                                        redisUtil.zsetRemove(QUARTZ_HTHT_JOBDETAIL, jobId);
                                         continue;
                                     }
                                     long nextTime = typedTuple.getScore().longValue();
@@ -134,14 +133,14 @@ public class JobScheduleHelper {
                         }
                     }
 
-                    long cost = System.currentTimeMillis()-start;
+                    long cost = System.currentTimeMillis() - start;
 
 
                     // Wait seconds, align second
                     if (cost < 1000) {  // scan-overtime, not wait
                         try {
                             // pre-read period: success > scan each second; fail > skip this period;
-                            TimeUnit.MILLISECONDS.sleep((preReadSuc?1000:PRE_READ_MS) - System.currentTimeMillis()%1000);
+                            TimeUnit.MILLISECONDS.sleep((preReadSuc ? 1000 : PRE_READ_MS) - System.currentTimeMillis() % 1000);
                         } catch (InterruptedException e) {
                             if (!scheduleThreadToStop) {
                                 log.error(e.getMessage(), e);
@@ -166,7 +165,7 @@ public class JobScheduleHelper {
 
                 // align second
                 try {
-                    TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis()%1000 );
+                    TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis() % 1000);
                 } catch (InterruptedException e) {
                     if (!ringThreadToStop) {
                         log.error(e.getMessage(), e);
@@ -180,7 +179,7 @@ public class JobScheduleHelper {
                         List<HtJobInfoDto> ringItemData = new ArrayList<>();
                         int nowSecond = Calendar.getInstance().get(Calendar.SECOND);   // 避免处理耗时太长，跨过刻度，向前校验一个刻度；
                         for (int i = 0; i < 2; i++) {
-                            List<HtJobInfoDto> tmpData = ringData.remove( (nowSecond+60-i)%60 );
+                            List<HtJobInfoDto> tmpData = ringData.remove((nowSecond + 60 - i) % 60);
                             if (tmpData != null) {
                                 ringItemData.addAll(tmpData);
                             }
@@ -188,7 +187,7 @@ public class JobScheduleHelper {
 
                         if (ringItemData.size() > 0) {
                             // do trigger
-                            for (HtJobInfoDto jobInfo: ringItemData) {
+                            for (HtJobInfoDto jobInfo : ringItemData) {
                                 // do trigger
                                 triggerService.trigger(jobInfo);
                             }
@@ -203,7 +202,7 @@ public class JobScheduleHelper {
 
                     // next second, align second
                     try {
-                        TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis()%1000);
+                        TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis() % 1000);
                     } catch (InterruptedException e) {
                         if (!ringThreadToStop) {
                             log.error(e.getMessage(), e);
@@ -218,10 +217,10 @@ public class JobScheduleHelper {
     }
 
     private void refreshNextValidTime(HtJobInfoDto jobInfo, Date fromTime) throws ParseException {
-        Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(new Date(fromTime.getTime()-jobInfo.getDelayTime()));
+        Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(new Date(fromTime.getTime() - jobInfo.getDelayTime()));
         if (nextValidTime != null) {
             jobInfo.setTriggerLastTime(jobInfo.getTriggerNextTime());
-            jobInfo.setTriggerNextTime(nextValidTime.getTime()+jobInfo.getDelayTime());
+            jobInfo.setTriggerNextTime(nextValidTime.getTime() + jobInfo.getDelayTime());
         } else {
             jobInfo.setTriggerStatus(0);
             jobInfo.setTriggerLastTime(0);
@@ -229,7 +228,7 @@ public class JobScheduleHelper {
         }
     }
 
-    private void pushTimeRing(int ringSecond, HtJobInfoDto jobInfo){
+    private void pushTimeRing(int ringSecond, HtJobInfoDto jobInfo) {
         // push async ring
         List<HtJobInfoDto> ringItemData = ringData.get(ringSecond);
         if (ringItemData == null) {

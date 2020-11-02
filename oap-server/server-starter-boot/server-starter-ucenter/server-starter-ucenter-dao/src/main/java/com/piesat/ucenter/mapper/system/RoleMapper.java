@@ -20,6 +20,7 @@ public interface RoleMapper {
      * @return 角色数据集合信息
      */
     public List<RoleEntity> selectRoleList(RoleEntity role);
+
     /**
      * 根据用户ID查询角色
      *

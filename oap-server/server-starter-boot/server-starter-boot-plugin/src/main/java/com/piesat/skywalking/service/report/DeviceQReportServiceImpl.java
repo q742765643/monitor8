@@ -12,7 +12,6 @@ import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -21,7 +20,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.*;
-import org.elasticsearch.search.aggregations.pipeline.MaxBucketPipelineAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,20 +45,20 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
     @Autowired
     private HostConfigMapstruct hostConfigMapstruct;
 
-    public PageBean getSystemReport(PageForm<HostConfigDto> pageForm){
-        HostConfigEntity host=hostConfigMapstruct.toEntity(pageForm.getT());
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+    public PageBean getSystemReport(PageForm<HostConfigDto> pageForm) {
+        HostConfigEntity host = hostConfigMapstruct.toEntity(pageForm.getT());
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         systemQueryDto.setStartTime((String) host.getParamt().get("beginTime"));
         systemQueryDto.setEndTime((String) host.getParamt().get("endTime"));
-        Map<String, Map<String,Object>> ipMap=this.getSystemReportEs(systemQueryDto);
+        Map<String, Map<String, Object>> ipMap = this.getSystemReportEs(systemQueryDto);
         pageForm.getT().setParams(null);
-        PageBean pageBean=hostConfigService.selectPageList(pageForm);
-        List<HostConfigDto> hostConfigDtos=pageBean.getPageData();
-        for(int i=0;i<hostConfigDtos.size();i++){
-            HostConfigDto hostConfigDto=hostConfigDtos.get(i);
-            String ip=hostConfigDto.getIp();
-            Map<String,Object> map=ipMap.get(ip);
-            if(map!=null){
+        PageBean pageBean = hostConfigService.selectPageList(pageForm);
+        List<HostConfigDto> hostConfigDtos = pageBean.getPageData();
+        for (int i = 0; i < hostConfigDtos.size(); i++) {
+            HostConfigDto hostConfigDto = hostConfigDtos.get(i);
+            String ip = hostConfigDto.getIp();
+            Map<String, Object> map = ipMap.get(ip);
+            if (map != null) {
                 hostConfigDto.setAvgCpuPct((Float) map.get("avg_cpu_pct"));
                 hostConfigDto.setMaxCpuPct((Float) map.get("max_cpu_pct"));
                 hostConfigDto.setAvgMemoryPct((Float) map.get("avg_memory_pct"));
@@ -80,9 +78,9 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
         return pageBean;
     }
 
-    public Map<String, Map<String,Object>> getSystemReportEs(SystemQueryDto systemQueryDto){
-        Map<String, Map<String,Object>> ipMap=new HashMap<>();
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto);
+    public Map<String, Map<String, Object>> getSystemReportEs(SystemQueryDto systemQueryDto) {
+        Map<String, Map<String, Object>> ipMap = new HashMap<>();
+        SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         AvgAggregationBuilder avgCpuPct = AggregationBuilders.avg("avg_cpu_pct").field("avg.cpu.pct").format("0.0000");
         MaxAggregationBuilder maxCpuPct = AggregationBuilders.max("max_cpu_pct").field("max.cpu.pct").format("0.0000");
         AvgAggregationBuilder avgMemoryPct = AggregationBuilders.avg("avg_memory_pct").field("avg.memory.pct").format("0.0000");
@@ -95,7 +93,7 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
         SumAggregationBuilder sumAlarmCount = AggregationBuilders.sum("sum_alarm_count").field("alarm.num");
         SumAggregationBuilder sumDownTime = AggregationBuilders.sum("sum_down_time").field("down.time");
         SumAggregationBuilder sumDownCount = AggregationBuilders.sum("sum_down_count").field("down.num");
-        TermsAggregationBuilder groupByIp=AggregationBuilders.terms("groupby_ip").field("ip").size(10000);
+        TermsAggregationBuilder groupByIp = AggregationBuilders.terms("groupby_ip").field("ip").size(10000);
         groupByIp.subAggregation(avgCpuPct);
         groupByIp.subAggregation(maxCpuPct);
         groupByIp.subAggregation(avgMemoryPct);
@@ -113,14 +111,14 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_MEDIA_REPORT, search);
             Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
+            if (aggregations == null) {
                 return ipMap;
             }
-            ParsedStringTerms terms=aggregations.get("groupby_ip");
+            ParsedStringTerms terms = aggregations.get("groupby_ip");
             List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for(int i=0;i<buckets.size();i++){
-                Terms.Bucket bucket=buckets.get(i);
-                String ip=bucket.getKeyAsString();
+            for (int i = 0; i < buckets.size(); i++) {
+                Terms.Bucket bucket = buckets.get(i);
+                String ip = bucket.getKeyAsString();
                 ParsedAvg parsedCpuAvg = bucket.getAggregations().get("avg_cpu_pct");
                 ParsedMax parsedCpuMax = bucket.getAggregations().get("max_cpu_pct");
                 ParsedAvg parsedMemoryAvg = bucket.getAggregations().get("avg_memory_pct");
@@ -133,29 +131,30 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
                 ParsedSum parsedSumAlarmCount = bucket.getAggregations().get("sum_alarm_count");
                 ParsedSum parsedSumDownTime = bucket.getAggregations().get("sum_down_time");
                 ParsedSum parsedSumDownCount = bucket.getAggregations().get("sum_down_count");
-                Map<String,Object> map=new HashMap<>();
-                map.put("avg_cpu_pct",new BigDecimal(parsedCpuAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("max_cpu_pct",new BigDecimal(parsedCpuMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("avg_memory_pct",new BigDecimal(parsedMemoryAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("max_memory_pct",new BigDecimal(parsedMemoryMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("max_filesystem_pct",new BigDecimal(parsedFilesystemMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("max_process_size",new BigDecimal(parsedProcessMax.getValueAsString()).floatValue());
-                map.put("avg_packet_pct",new BigDecimal(parsedPacketAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("max_packet_pct",new BigDecimal(parsedPacketMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("sum_alarm_count",new BigDecimal(parsedSumAlarmCount.getValueAsString()).longValue());
-                map.put("sum_down_time",new BigDecimal(parsedSumDownTime.getValueAsString()).divide(new BigDecimal(1000 * 60 * 60),2,BigDecimal.ROUND_HALF_UP).floatValue());
-                map.put("sum_down_count",new BigDecimal(parsedSumDownCount.getValueAsString()).longValue());
-                float hours = new BigDecimal(parsedUptimeMax.getValueAsString()).divide(new BigDecimal(1000 * 60 * 60),2,BigDecimal.ROUND_HALF_UP).floatValue();
-                map.put("max_uptime",hours);
-                ipMap.put(ip,map);
+                Map<String, Object> map = new HashMap<>();
+                map.put("avg_cpu_pct", new BigDecimal(parsedCpuAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("max_cpu_pct", new BigDecimal(parsedCpuMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("avg_memory_pct", new BigDecimal(parsedMemoryAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("max_memory_pct", new BigDecimal(parsedMemoryMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("max_filesystem_pct", new BigDecimal(parsedFilesystemMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("max_process_size", new BigDecimal(parsedProcessMax.getValueAsString()).floatValue());
+                map.put("avg_packet_pct", new BigDecimal(parsedPacketAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("max_packet_pct", new BigDecimal(parsedPacketMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("sum_alarm_count", new BigDecimal(parsedSumAlarmCount.getValueAsString()).longValue());
+                map.put("sum_down_time", new BigDecimal(parsedSumDownTime.getValueAsString()).divide(new BigDecimal(1000 * 60 * 60), 2, BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("sum_down_count", new BigDecimal(parsedSumDownCount.getValueAsString()).longValue());
+                float hours = new BigDecimal(parsedUptimeMax.getValueAsString()).divide(new BigDecimal(1000 * 60 * 60), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                map.put("max_uptime", hours);
+                ipMap.put(ip, map);
 
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return  ipMap;
+        return ipMap;
     }
-    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto){
+
+    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");

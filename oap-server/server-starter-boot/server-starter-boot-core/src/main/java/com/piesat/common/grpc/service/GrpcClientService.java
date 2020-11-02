@@ -11,7 +11,6 @@ import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.util.StringUtil;
 import io.grpc.Channel;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,40 +26,41 @@ public class GrpcClientService {
 
     @Autowired
     private SerializeService defaultSerializeService;
-    public GrpcResponse handle(SerializeType serializeType, GrpcRequest grpcRequest,String serverName) {
-        if(serverName==null){
-            log.error("通道为null{},{}",grpcRequest.getClazz(),grpcRequest.getMethod());
+
+    public GrpcResponse handle(SerializeType serializeType, GrpcRequest grpcRequest, String serverName) {
+        if (serverName == null) {
+            log.error("通道为null{},{}", grpcRequest.getClazz(), grpcRequest.getMethod());
         }
-        ChannelUtil channelUtil=ChannelUtil.getInstance();
-        Object[] args=grpcRequest.getArgs();
-        HtJobInfoDto htJobInfoDto=null;
-        if(args.length>0&&args[0] instanceof JobContext){
-            JobContext jobContext= (JobContext) args[0];
-            htJobInfoDto= (HtJobInfoDto) jobContext.getHtJobInfoDto();
+        ChannelUtil channelUtil = ChannelUtil.getInstance();
+        Object[] args = grpcRequest.getArgs();
+        HtJobInfoDto htJobInfoDto = null;
+        if (args.length > 0 && args[0] instanceof JobContext) {
+            JobContext jobContext = (JobContext) args[0];
+            htJobInfoDto = (HtJobInfoDto) jobContext.getHtJobInfoDto();
         }
-        Channel channel=null;
+        Channel channel = null;
         try {
-            if(null!=htJobInfoDto&&!StringUtil.isEmpty(htJobInfoDto.getAddress())){
-                channel=channelUtil.selectChannel(serverName,htJobInfoDto.getAddress());
-            }else {
-                channel=channelUtil.selectChannel(serverName);
+            if (null != htJobInfoDto && !StringUtil.isEmpty(htJobInfoDto.getAddress())) {
+                channel = channelUtil.selectChannel(serverName, htJobInfoDto.getAddress());
+            } else {
+                channel = channelUtil.selectChannel(serverName);
             }
         } catch (Exception e) {
-            log.error("通道为null{},{}",grpcRequest.getClazz(),grpcRequest.getMethod());
-            GrpcResponse response=new GrpcResponse();
+            log.error("通道为null{},{}", grpcRequest.getClazz(), grpcRequest.getMethod());
+            GrpcResponse response = new GrpcResponse();
             response.setStatus(-2);
             response.setMessage("grpc无服务异常");
             return response;
         }
-        CommonServiceGrpc.CommonServiceBlockingStub blockingStub=CommonServiceGrpc.newBlockingStub(channel);
+        CommonServiceGrpc.CommonServiceBlockingStub blockingStub = CommonServiceGrpc.newBlockingStub(channel);
         SerializeService serializeService = SerializeUtils.getSerializeService(serializeType, this.defaultSerializeService);
         ByteString bytes = serializeService.serialize(grpcRequest);
         int value = (serializeType == null ? -1 : serializeType.getValue());
         GrpcGeneral.Request request = GrpcGeneral.Request.newBuilder().setSerialize(value).setRequest(bytes).build();
         GrpcGeneral.Response response = null;
-        try{
+        try {
             response = blockingStub.handle(request);
-        }catch (Exception exception){
+        } catch (Exception exception) {
             log.error("rpc exception: {}", exception.getMessage());
             throw new RuntimeException(exception.getMessage());
         }

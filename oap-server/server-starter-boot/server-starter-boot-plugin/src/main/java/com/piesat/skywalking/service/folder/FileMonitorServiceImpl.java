@@ -7,13 +7,10 @@ import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.dao.FileMonitorDao;
-import com.piesat.skywalking.dto.AutoDiscoveryDto;
 import com.piesat.skywalking.dto.FileMonitorDto;
-import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.entity.FileMonitorEntity;
 import com.piesat.skywalking.mapstruct.FileMonitorMapstruct;
 import com.piesat.skywalking.service.quartz.timing.FileMonitorQuartzService;
-import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.transform.Result;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,8 +40,8 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         return fileMonitorDao;
     }
 
-    public PageBean selectPageList(PageForm<FileMonitorDto> pageForm){
-       FileMonitorEntity file=fileMonitorMapstruct.toEntity(pageForm.getT());
+    public PageBean selectPageList(PageForm<FileMonitorDto> pageForm) {
+        FileMonitorEntity file = fileMonitorMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(file.getFolderRegular())) {
             specificationBuilder.addOr("folderRegular", SpecificationOperator.Operator.likeAll.name(), file.getFolderRegular());
@@ -62,7 +58,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         if (StringUtils.isNotNullString((String) file.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) file.getParamt().get("endTime"));
         }
-        if (null!=file.getTriggerStatus()){
+        if (null != file.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), file.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
@@ -72,8 +68,8 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
 
     }
 
-    public List<FileMonitorDto> selectBySpecification(FileMonitorDto fileMonitorDto){
-        FileMonitorEntity file=fileMonitorMapstruct.toEntity(fileMonitorDto);
+    public List<FileMonitorDto> selectBySpecification(FileMonitorDto fileMonitorDto) {
+        FileMonitorEntity file = fileMonitorMapstruct.toEntity(fileMonitorDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(file.getFolderRegular())) {
             specificationBuilder.addOr("folderRegular", SpecificationOperator.Operator.likeAll.name(), file.getFolderRegular());
@@ -90,34 +86,34 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         if (StringUtils.isNotNullString((String) file.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) file.getParamt().get("endTime"));
         }
-        if (null!=file.getTriggerStatus()){
+        if (null != file.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), file.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
-        List<FileMonitorEntity> fileMonitorEntities=this.getAll(specification);
+        List<FileMonitorEntity> fileMonitorEntities = this.getAll(specification);
         return fileMonitorMapstruct.toDto(fileMonitorEntities);
     }
 
     @Override
     @Transactional
-    public FileMonitorDto save(FileMonitorDto fileMonitorDto){
-        if(fileMonitorDto.getTriggerType()==null){
+    public FileMonitorDto save(FileMonitorDto fileMonitorDto) {
+        if (fileMonitorDto.getTriggerType() == null) {
             fileMonitorDto.setTriggerType(0);
         }
-        if(fileMonitorDto.getTriggerStatus()==null){
+        if (fileMonitorDto.getTriggerStatus() == null) {
             fileMonitorDto.setTriggerStatus(0);
         }
-        if(fileMonitorDto.getIsUt()==null){
+        if (fileMonitorDto.getIsUt() == null) {
             fileMonitorDto.setIsUt(0);
         }
-        if(fileMonitorDto.getIsUt()==1){
-            fileMonitorDto.setDelayTime(8*60*60*1000);
-        }else {
+        if (fileMonitorDto.getIsUt() == 1) {
+            fileMonitorDto.setDelayTime(8 * 60 * 60 * 1000);
+        } else {
             fileMonitorDto.setDelayTime(0);
         }
         fileMonitorDto.setJobHandler("fileMonitorHandler");
-        FileMonitorEntity fileMonitorEntity=fileMonitorMapstruct.toEntity(fileMonitorDto);
-        fileMonitorEntity=super.saveNotNull(fileMonitorEntity);
+        FileMonitorEntity fileMonitorEntity = fileMonitorMapstruct.toEntity(fileMonitorDto);
+        fileMonitorEntity = super.saveNotNull(fileMonitorEntity);
         fileMonitorQuartzService.handleJob(fileMonitorMapstruct.toDto(fileMonitorEntity));
         return fileMonitorDto;
     }
@@ -133,8 +129,8 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         fileMonitorQuartzService.deleteJob(ids);
     }
 
-    public long selectCount(FileMonitorDto fileMonitorDto){
-        FileMonitorEntity file=fileMonitorMapstruct.toEntity(fileMonitorDto);
+    public long selectCount(FileMonitorDto fileMonitorDto) {
+        FileMonitorEntity file = fileMonitorMapstruct.toEntity(fileMonitorDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(file.getFolderRegular())) {
             specificationBuilder.addOr("folderRegular", SpecificationOperator.Operator.likeAll.name(), file.getFolderRegular());
@@ -151,7 +147,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         if (StringUtils.isNotNullString((String) file.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) file.getParamt().get("endTime"));
         }
-        if (null!=file.getTriggerStatus()){
+        if (null != file.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), file.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
@@ -159,15 +155,16 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     }
 
 
-    public boolean regularCheck(FileMonitorDto fileMonitorDto){
-        String regular=fileMonitorDto.getFolderRegular()+"/"+fileMonitorDto.getFilenameRegular();
+    public boolean regularCheck(FileMonitorDto fileMonitorDto) {
+        String regular = fileMonitorDto.getFolderRegular() + "/" + fileMonitorDto.getFilenameRegular();
         Matcher m = PATTERN.matcher(regular);
-        while (m.find()){
+        while (m.find()) {
             String expression = m.group(2);
-            String replaceMent =expression.replaceAll("[ymdhsYMDHS]", "\\\\d");;
-            regular=regular.replace("${"+expression+"}",replaceMent);
+            String replaceMent = expression.replaceAll("[ymdhsYMDHS]", "\\\\d");
+            ;
+            regular = regular.replace("${" + expression + "}", replaceMent);
         }
-        regular=regular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
+        regular = regular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
         Pattern pattern = Pattern.compile(regular);
         Matcher matcher = pattern.matcher(fileMonitorDto.getFileSample());
         return matcher.matches();

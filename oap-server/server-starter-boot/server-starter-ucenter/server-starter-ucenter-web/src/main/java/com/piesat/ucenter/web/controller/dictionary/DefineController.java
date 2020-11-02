@@ -2,7 +2,6 @@ package com.piesat.ucenter.web.controller.dictionary;
 
 import com.piesat.ucenter.rpc.api.dictionary.DefineService;
 import com.piesat.ucenter.rpc.dto.dictionary.DefineDto;
-import com.piesat.ucenter.rpc.dto.dictionary.LevelDto;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -30,6 +29,7 @@ public class DefineController {
 
     /**
      * 获取分页数据接口
+     *
      * @param defineDto
      * @param pageNum
      * @param pageSize
@@ -38,15 +38,16 @@ public class DefineController {
     @GetMapping("/list")
     @ApiOperation(value = "条件分页查询", notes = "条件分页查询")
     public ResultT<PageBean> list(DefineDto defineDto, int pageNum, int pageSize) {
-        ResultT<PageBean> resultT=new ResultT<>();
-        PageForm<DefineDto> pageForm=new PageForm<>(pageNum,pageSize,defineDto);
-        PageBean pageBean=defineService.selectDefineList(pageForm);
+        ResultT<PageBean> resultT = new ResultT<>();
+        PageForm<DefineDto> pageForm = new PageForm<>(pageNum, pageSize, defineDto);
+        PageBean pageBean = defineService.selectDefineList(pageForm);
         resultT.setData(pageBean);
         return resultT;
     }
 
     /**
      * 添加
+     *
      * @param defineDto
      * @return
      */
@@ -64,35 +65,33 @@ public class DefineController {
 
     /**
      * 批量删除
+     *
      * @param defineIds
      * @return
      */
     @DeleteMapping("/{defineIds}")
-    public ResultT<String> remove(@PathVariable String[] defineIds)
-    {
-        ResultT<String> resultT=new ResultT<>();
-        List<String> list=new ArrayList();
-        if(defineIds.length>0){
-            list= Arrays.asList(defineIds);
+    public ResultT<String> remove(@PathVariable String[] defineIds) {
+        ResultT<String> resultT = new ResultT<>();
+        List<String> list = new ArrayList();
+        if (defineIds.length > 0) {
+            list = Arrays.asList(defineIds);
             defineService.deleteDefineByIds(list);
         }
         return resultT;
     }
 
     @PutMapping("/edit")
-    public ResultT<DefineDto> edit(@RequestBody DefineDto defineDto)
-    {
-        ResultT<DefineDto> resultT=new ResultT<>();
-        defineDto=defineService.updateDefine(defineDto);
+    public ResultT<DefineDto> edit(@RequestBody DefineDto defineDto) {
+        ResultT<DefineDto> resultT = new ResultT<>();
+        defineDto = defineService.updateDefine(defineDto);
         resultT.setData(defineDto);
         return resultT;
     }
 
     @GetMapping(value = "/{defineId}")
-    public ResultT<DefineDto> getDefineById(@PathVariable String defineId)
-    {
-        ResultT<DefineDto> resultT=new ResultT<>();
-        DefineDto defineDto=defineService.getDotById(defineId);
+    public ResultT<DefineDto> getDefineById(@PathVariable String defineId) {
+        ResultT<DefineDto> resultT = new ResultT<>();
+        DefineDto defineDto = defineService.getDotById(defineId);
         resultT.setData(defineDto);
         return resultT;
     }
@@ -113,7 +112,7 @@ public class DefineController {
     @ApiOperation(value = "区域类别管理导出")
     @RequiresPermissions("dictionary:define:exportTable")
     @GetMapping("/exportTable")
-    public void exportExcel(DefineDto defineDto){
+    public void exportExcel(DefineDto defineDto) {
         defineService.exportExcel(defineDto);
     }
 }

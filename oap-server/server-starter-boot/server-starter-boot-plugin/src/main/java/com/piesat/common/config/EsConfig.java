@@ -28,18 +28,24 @@ public class EsConfig {
     @Value("${storage.elasticsearch7.trustStorePass}")
     private String trustStorePass;
 
+    public static List<IndexNameConverter> indexNameConverters(String namespace) {
+        List<IndexNameConverter> converters = new ArrayList<>();
+        converters.add(new NamespaceConverter(namespace));
+        return converters;
+    }
+
     @Bean
-    public ElasticSearch7Client elasticSearch7Client(){
-        if(null==StorageModuleElasticsearch7Provider.ESMAP.get("es")){
-            clusterNodes=clusterNodes.replaceAll("\"","");
-            protocol=protocol.replaceAll("\"","");
-            trustStorePath=trustStorePath.replaceAll("\"","");
-            trustStorePass=trustStorePass.replaceAll("\"","");
-            user=user.replaceAll("\"","");
-            password=password.replaceAll("\"","");
-            nameSpace=nameSpace.replaceAll("\"","");
-            ElasticSearch7Client elasticSearchClient =new ElasticSearch7Client(
-                    clusterNodes, protocol, trustStorePath, trustStorePass,user, password,
+    public ElasticSearch7Client elasticSearch7Client() {
+        if (null == StorageModuleElasticsearch7Provider.ESMAP.get("es")) {
+            clusterNodes = clusterNodes.replaceAll("\"", "");
+            protocol = protocol.replaceAll("\"", "");
+            trustStorePath = trustStorePath.replaceAll("\"", "");
+            trustStorePass = trustStorePass.replaceAll("\"", "");
+            user = user.replaceAll("\"", "");
+            password = password.replaceAll("\"", "");
+            nameSpace = nameSpace.replaceAll("\"", "");
+            ElasticSearch7Client elasticSearchClient = new ElasticSearch7Client(
+                    clusterNodes, protocol, trustStorePath, trustStorePass, user, password,
                     indexNameConverters(nameSpace)
             );
             try {
@@ -50,11 +56,6 @@ public class EsConfig {
             return elasticSearchClient;
         }
         return StorageModuleElasticsearch7Provider.ESMAP.get("es");
-    }
-    public static List<IndexNameConverter> indexNameConverters(String namespace) {
-        List<IndexNameConverter> converters = new ArrayList<>();
-        converters.add(new NamespaceConverter(namespace));
-        return converters;
     }
 
     private static class NamespaceConverter implements IndexNameConverter {

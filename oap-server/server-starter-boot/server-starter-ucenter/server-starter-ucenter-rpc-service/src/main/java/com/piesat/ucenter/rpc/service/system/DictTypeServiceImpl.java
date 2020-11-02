@@ -8,15 +8,11 @@ import com.piesat.common.utils.StringUtils;
 import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.ucenter.common.constant.UserConstants;
 import com.piesat.ucenter.dao.system.DictTypeDao;
-import com.piesat.ucenter.entity.system.DictDataEntity;
 import com.piesat.ucenter.entity.system.DictTypeEntity;
-import com.piesat.ucenter.entity.system.UserEntity;
 import com.piesat.ucenter.mapper.system.DictDataMapper;
 import com.piesat.ucenter.mapper.system.DictTypeMapper;
 import com.piesat.ucenter.rpc.api.system.DictTypeService;
-import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.ucenter.rpc.dto.system.DictTypeDto;
-import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.ucenter.rpc.mapstruct.system.DictTypeMapstruct;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -42,10 +38,12 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
     private DictTypeMapstruct dictTypeMapstruct;
     @Autowired
     private DictDataMapper dictDataMapper;
+
     @Override
     public BaseDao<DictTypeEntity> getBaseDao() {
         return dictTypeDao;
     }
+
     /**
      * 根据条件分页查询字典类型
      *
@@ -53,14 +51,13 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 字典类型集合信息
      */
     @Override
-    public PageBean selectDictTypeList(PageForm<DictTypeDto> pageForm)
-    {
-        DictTypeEntity dictType=dictTypeMapstruct.toEntity(pageForm.getT());
-        PageHelper.startPage(pageForm.getCurrentPage(),pageForm.getPageSize());
-        List<DictTypeEntity> dictTypeEntities=dictTypeMapper.selectDictTypeList(dictType);
+    public PageBean selectDictTypeList(PageForm<DictTypeDto> pageForm) {
+        DictTypeEntity dictType = dictTypeMapstruct.toEntity(pageForm.getT());
+        PageHelper.startPage(pageForm.getCurrentPage(), pageForm.getPageSize());
+        List<DictTypeEntity> dictTypeEntities = dictTypeMapper.selectDictTypeList(dictType);
         PageInfo<DictTypeEntity> pageInfo = new PageInfo<>(dictTypeEntities);
-        List<DictTypeDto> dictTypeDtos= dictTypeMapstruct.toDto(pageInfo.getList());
-        PageBean pageBean=new PageBean(pageInfo.getTotal(),pageInfo.getPages(),dictTypeDtos);
+        List<DictTypeDto> dictTypeDtos = dictTypeMapstruct.toDto(pageInfo.getList());
+        PageBean pageBean = new PageBean(pageInfo.getTotal(), pageInfo.getPages(), dictTypeDtos);
         return pageBean;
     }
 
@@ -70,9 +67,8 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 字典类型集合信息
      */
     @Override
-    public List<DictTypeDto> selectDictTypeAll()
-    {
-        List<DictTypeEntity> dictTypeEntities=this.getAll();
+    public List<DictTypeDto> selectDictTypeAll() {
+        List<DictTypeEntity> dictTypeEntities = this.getAll();
         return dictTypeMapstruct.toDto(dictTypeEntities);
     }
 
@@ -83,9 +79,8 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 字典类型
      */
     @Override
-    public DictTypeDto selectDictTypeById(String dictId)
-    {
-        DictTypeEntity dictTypeEntity=this.getById(dictId);
+    public DictTypeDto selectDictTypeById(String dictId) {
+        DictTypeEntity dictTypeEntity = this.getById(dictId);
         return dictTypeMapstruct.toDto(dictTypeEntity);
     }
 
@@ -95,10 +90,10 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @param dictType 字典类型
      * @return 字典类型
      */
-    public DictTypeDto selectDictTypeByType(String dictType)
-    {
-        DictTypeEntity dictTypeEntity=dictTypeDao.findByDictType(dictType);
-        return dictTypeMapstruct.toDto(dictTypeEntity);    }
+    public DictTypeDto selectDictTypeByType(String dictType) {
+        DictTypeEntity dictTypeEntity = dictTypeDao.findByDictType(dictType);
+        return dictTypeMapstruct.toDto(dictTypeEntity);
+    }
 
     /**
      * 通过字典ID删除字典信息
@@ -107,9 +102,8 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 结果
      */
     @Override
-    public void deleteDictTypeById(String dictId)
-    {
-       this.delete(dictId);
+    public void deleteDictTypeById(String dictId) {
+        this.delete(dictId);
     }
 
     /**
@@ -119,8 +113,7 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 结果
      */
     @Override
-    public void deleteDictTypeByIds(List<String> dictIds)
-    {
+    public void deleteDictTypeByIds(List<String> dictIds) {
         this.deleteByIds(dictIds);
     }
 
@@ -131,9 +124,8 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 结果
      */
     @Override
-    public DictTypeDto insertDictType(DictTypeDto dictType)
-    {
-        DictTypeEntity dictTypeEntity=dictTypeMapstruct.toEntity(dictType);
+    public DictTypeDto insertDictType(DictTypeDto dictType) {
+        DictTypeEntity dictTypeEntity = dictTypeMapstruct.toEntity(dictType);
         return dictTypeMapstruct.toDto(this.saveNotNull(dictTypeEntity));
     }
 
@@ -145,11 +137,10 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      */
     @Override
     @Transactional
-    public DictTypeDto updateDictType(DictTypeDto dictType)
-    {
+    public DictTypeDto updateDictType(DictTypeDto dictType) {
         DictTypeEntity oldDict = this.getById(dictType.getId());
         dictDataMapper.updateDictDataType(oldDict.getDictType(), dictType.getDictType());
-        DictTypeEntity newDict=this.saveNotNull(dictTypeMapstruct.toEntity(dictType));
+        DictTypeEntity newDict = this.saveNotNull(dictTypeMapstruct.toEntity(dictType));
         return dictTypeMapstruct.toDto(newDict);
     }
 
@@ -160,22 +151,20 @@ public class DictTypeServiceImpl extends BaseService<DictTypeEntity> implements 
      * @return 结果
      */
     @Override
-    public String checkDictTypeUnique(DictTypeDto dict)
-    {
+    public String checkDictTypeUnique(DictTypeDto dict) {
         DictTypeEntity dictType = dictTypeDao.findByDictType(dict.getDictType());
-        if (StringUtils.isNotNull(dictType))
-        {
+        if (StringUtils.isNotNull(dictType)) {
             return UserConstants.NOT_UNIQUE;
         }
         return UserConstants.UNIQUE;
     }
 
     @Override
-    public void exportExcel(DictTypeDto dictType){
-        DictTypeEntity dictTypeEntity=dictTypeMapstruct.toEntity(dictType);
-        List<DictTypeEntity> entities=dictTypeMapper.selectDictTypeList(dictTypeEntity);
-        ExcelUtil<DictTypeEntity> util=new ExcelUtil(DictTypeEntity.class);
-        util.exportExcel(entities,"字典类型信息");
+    public void exportExcel(DictTypeDto dictType) {
+        DictTypeEntity dictTypeEntity = dictTypeMapstruct.toEntity(dictType);
+        List<DictTypeEntity> entities = dictTypeMapper.selectDictTypeList(dictTypeEntity);
+        ExcelUtil<DictTypeEntity> util = new ExcelUtil(DictTypeEntity.class);
+        util.exportExcel(entities, "字典类型信息");
     }
 
 }

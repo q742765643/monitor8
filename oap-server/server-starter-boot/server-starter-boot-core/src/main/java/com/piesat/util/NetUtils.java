@@ -22,26 +22,21 @@ import java.util.regex.Pattern;
 @SuppressWarnings("all")
 public class NetUtils {
 
+    public static final int MAX_PORT = 65535;
     private static final String ANYHOST_VALUE = "0.0.0.0";
     private static final String LOCALHOST_KEY = "localhost";
     private static final String LOCALHOST_VALUE = "127.0.0.1";
-
     // returned port range is [30000, 39999]
     private static final int RND_PORT_START = 30000;
     private static final int RND_PORT_RANGE = 10000;
-
     // valid port range is (0, 65535]
     private static final int MIN_PORT = 0;
-    public static final int MAX_PORT = 65535;
-
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("^\\d{1,3}(\\.\\d{1,3}){3}\\:\\d{1,5}$");
     private static final Pattern LOCAL_IP_PATTERN = Pattern.compile("127(\\.\\d{1,3}){3}$");
     private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3,5}$");
-
-    private static volatile InetAddress LOCAL_ADDRESS = null;
-
     private static final String SPLIT_IPV4_CHARECTER = "\\.";
     private static final String SPLIT_IPV6_CHARECTER = ":";
+    private static volatile InetAddress LOCAL_ADDRESS = null;
 
     public static int getRandomPort() {
         return RND_PORT_START + ThreadLocalRandom.current().nextInt(RND_PORT_RANGE);
@@ -160,6 +155,7 @@ public class NetUtils {
 
     /**
      * 获取本机 IP 地址
+     *
      * @return 本机IP地址
      */
     public static String getLocalHost() {
@@ -169,6 +165,7 @@ public class NetUtils {
 
     /**
      * Find first valid IP from local network card
+     *
      * @return first valid local IP
      */
     public static InetAddress getLocalAddress() {
@@ -222,7 +219,7 @@ public class NetUtils {
                             Optional<InetAddress> addressOp = toValidAddress(addresses.nextElement());
                             if (addressOp.isPresent()) {
                                 try {
-                                    if(addressOp.get().isReachable(100)){
+                                    if (addressOp.get().isReachable(100)) {
                                         return addressOp.get();
                                     }
                                 } catch (IOException e) {
@@ -261,6 +258,7 @@ public class NetUtils {
 
     /**
      * getIpByHost
+     *
      * @param hostName hostName
      * @return ip address or hostName if UnknownHostException
      */
@@ -317,7 +315,7 @@ public class NetUtils {
                 InetAddress address = (InetAddress) addresses.nextElement();
                 if (preferIpv6 && address instanceof Inet6Address) {
                     try {
-                        if(address.isReachable(100)){
+                        if (address.isReachable(100)) {
                             multicastSocket.setInterface(address);
                             interfaceSet = true;
                             break;
@@ -327,7 +325,7 @@ public class NetUtils {
                     }
                 } else if (!preferIpv6 && address instanceof Inet4Address) {
                     try {
-                        if(address.isReachable(100)){
+                        if (address.isReachable(100)) {
                             multicastSocket.setInterface(address);
                             interfaceSet = true;
                             break;
@@ -454,6 +452,7 @@ public class NetUtils {
         }
         return Integer.parseInt(ipSegment, 16);
     }
+
     /**
      * @return 获取本机IP
      * @throws SocketException
@@ -474,10 +473,10 @@ public class NetUtils {
                     }
 
                     String sIP = ip.getHostAddress();
-                    if("127.0.0.1".equals(sIP)||sIP.indexOf("192.168") > -1){
+                    if ("127.0.0.1".equals(sIP) || sIP.indexOf("192.168") > -1) {
                         continue;
                     }
-                    if(sIP == null || sIP.indexOf(":") > -1) {
+                    if (sIP == null || sIP.indexOf(":") > -1) {
                         continue;
                     }
                     ipList.add(sIP);
@@ -486,13 +485,13 @@ public class NetUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(ipList.size()==0){
+        if (ipList.size() == 0) {
             ipList.add(getLocalHost());
         }
         return ipList;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         try {
             System.out.println(JSON.toJSONString(getLocalIP()));
         } catch (Exception e) {

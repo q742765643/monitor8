@@ -20,6 +20,7 @@ public interface MenuMapper {
      * @return 菜单列表
      */
     public List<MenuEntity> selectMenuList(MenuEntity menu);
+
     /**
      * 根据用户ID查询权限
      *

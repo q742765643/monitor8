@@ -17,8 +17,7 @@ import java.io.Serializable;
  **/
 @Data
 @MappedSuperclass
-public class UUIDEntity implements Serializable
-{
+public class UUIDEntity implements Serializable {
     @Id
     @Column(length = 50)
     @GeneratedValue(generator = "htht.uuid")

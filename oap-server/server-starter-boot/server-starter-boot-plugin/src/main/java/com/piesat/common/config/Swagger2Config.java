@@ -17,7 +17,6 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -44,10 +43,12 @@ public class Swagger2Config {
                 .securitySchemes(securitySchemes())
                 .securityContexts(securityContexts());
     }
+
     private List<ApiKey> securitySchemes() {
         return newArrayList(
                 new ApiKey("Authorization", "Authorization", "header"));
     }
+
     private List<SecurityContext> securityContexts() {
         return newArrayList(
                 SecurityContext.builder()
@@ -56,6 +57,7 @@ public class Swagger2Config {
                         .build()
         );
     }
+
     private List<SecurityReference> defaultAuth() {
         AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
@@ -63,6 +65,7 @@ public class Swagger2Config {
         return newArrayList(
                 new SecurityReference("Authorization", authorizationScopes));
     }
+
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("springboot利用swagger构建api文档")

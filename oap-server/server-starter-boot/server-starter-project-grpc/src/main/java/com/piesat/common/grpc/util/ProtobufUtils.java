@@ -15,8 +15,8 @@ public class ProtobufUtils {
     /**
      * 根据获取相应类型的schema方法
      */
-    @SuppressWarnings({ "unchecked", "unused" })
-    private static  <T> RuntimeSchema<T> getSchema(Class<T> clazz) {
+    @SuppressWarnings({"unchecked", "unused"})
+    private static <T> RuntimeSchema<T> getSchema(Class<T> clazz) {
         RuntimeSchema<T> schema = (RuntimeSchema<T>) cachedSchema.get(clazz);
         if (schema == null) {
             schema = RuntimeSchema.createFrom(clazz);

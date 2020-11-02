@@ -15,7 +15,7 @@ import java.util.List;
  * @author: zzj
  * @create: 2019-12-16 15:34
  **/
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface OperLogService {
     /**
      * 新增操作日志

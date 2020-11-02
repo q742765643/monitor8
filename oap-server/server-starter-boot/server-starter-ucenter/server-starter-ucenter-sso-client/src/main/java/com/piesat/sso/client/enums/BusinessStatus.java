@@ -6,8 +6,7 @@ package com.piesat.sso.client.enums;
  * @author: zzj
  * @create: 2019-12-16 14:14
  **/
-public enum BusinessStatus
-{
+public enum BusinessStatus {
     /**
      * 成功
      */

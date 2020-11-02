@@ -7,15 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider.indexNameConverters;
 
 @Configuration
 public class EsConfig {
@@ -33,10 +26,17 @@ public class EsConfig {
     private String trustStorePath;
     @Value("${storage.elasticsearch.trustStorePass}")
     private String trustStorePass;
+
+    public static List<IndexNameConverter> indexNameConverters(String namespace) {
+        List<IndexNameConverter> converters = new ArrayList<>();
+        converters.add(new NamespaceConverter(namespace));
+        return converters;
+    }
+
     @Bean
-    public ElasticSearch7Client elasticSearch7Client(){
-        ElasticSearch7Client elasticSearchClient =new ElasticSearch7Client(
-                clusterNodes, protocol, trustStorePath, trustStorePass,user, password,
+    public ElasticSearch7Client elasticSearch7Client() {
+        ElasticSearch7Client elasticSearchClient = new ElasticSearch7Client(
+                clusterNodes, protocol, trustStorePath, trustStorePass, user, password,
                 indexNameConverters(nameSpace)
         );
         try {
@@ -45,11 +45,6 @@ public class EsConfig {
             e.printStackTrace();
         }
         return elasticSearchClient;
-    }
-    public static List<IndexNameConverter> indexNameConverters(String namespace) {
-        List<IndexNameConverter> converters = new ArrayList<>();
-        converters.add(new NamespaceConverter(namespace));
-        return converters;
     }
 
     private static class NamespaceConverter implements IndexNameConverter {

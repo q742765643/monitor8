@@ -29,12 +29,12 @@ public enum SerializeType {
 
     private Class clazz;
 
-    SerializeType(int value, Class clazz){
+    SerializeType(int value, Class clazz) {
         this.clazz = clazz;
         this.value = value;
     }
 
-    public static SerializeType getSerializeTypeByValue(int value){
+    public static SerializeType getSerializeTypeByValue(int value) {
         return enumMap.get(value);
     }
 

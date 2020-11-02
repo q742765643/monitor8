@@ -6,14 +6,11 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
-import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.api.alarm.AlarmConfigService;
 import com.piesat.skywalking.dao.AlarmConfigDao;
 import com.piesat.skywalking.dto.AlarmConfigDto;
-import com.piesat.skywalking.dto.AutoDiscoveryDto;
 import com.piesat.skywalking.dto.ConditionDto;
 import com.piesat.skywalking.entity.AlarmConfigEntity;
-import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.mapstruct.AlarmConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.AlarmConfigQuartzService;
 import com.piesat.util.page.PageBean;
@@ -35,14 +32,16 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     private AlarmConfigMapstruct alarmConfigMapstruct;
     @Autowired
     private AlarmConfigQuartzService alarmConfigQuartzService;
+
     @Override
     public BaseDao<AlarmConfigEntity> getBaseDao() {
         return alarmConfigDao;
     }
+
     public PageBean selectPageList(PageForm<AlarmConfigDto> pageForm) {
-        AlarmConfigEntity alarmConfig=alarmConfigMapstruct.toEntity(pageForm.getT());
+        AlarmConfigEntity alarmConfig = alarmConfigMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        if (null!=alarmConfig.getMonitorType()&&alarmConfig.getMonitorType()>-1) {
+        if (null != alarmConfig.getMonitorType() && alarmConfig.getMonitorType() > -1) {
             specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
         }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
@@ -54,7 +53,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         if (StringUtils.isNotNullString((String) alarmConfig.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) alarmConfig.getParamt().get("endTime"));
         }
-        if (null!=alarmConfig.getTriggerStatus()){
+        if (null != alarmConfig.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), alarmConfig.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
@@ -64,10 +63,10 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
 
     }
 
-    public List<AlarmConfigDto> selectBySpecification(AlarmConfigDto alarmConfigDto){
-        AlarmConfigEntity alarmConfig=alarmConfigMapstruct.toEntity(alarmConfigDto);
+    public List<AlarmConfigDto> selectBySpecification(AlarmConfigDto alarmConfigDto) {
+        AlarmConfigEntity alarmConfig = alarmConfigMapstruct.toEntity(alarmConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        if (null!=alarmConfig.getMonitorType()&&alarmConfig.getMonitorType()>-1) {
+        if (null != alarmConfig.getMonitorType() && alarmConfig.getMonitorType() > -1) {
             specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
         }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
@@ -79,14 +78,14 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         if (StringUtils.isNotNullString((String) alarmConfig.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) alarmConfig.getParamt().get("endTime"));
         }
-        if (null!=alarmConfig.getTriggerStatus()){
+        if (null != alarmConfig.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), alarmConfig.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
-        List<AlarmConfigEntity> alarmConfigEntities=this.getAll(specification);
-        List<AlarmConfigDto> alarmConfigDtos=new ArrayList<>();
-        for(AlarmConfigEntity alarmConfigEntity:alarmConfigEntities){
-            AlarmConfigDto alarmConfigDto1=alarmConfigMapstruct.toDto(alarmConfigEntity);
+        List<AlarmConfigEntity> alarmConfigEntities = this.getAll(specification);
+        List<AlarmConfigDto> alarmConfigDtos = new ArrayList<>();
+        for (AlarmConfigEntity alarmConfigEntity : alarmConfigEntities) {
+            AlarmConfigDto alarmConfigDto1 = alarmConfigMapstruct.toDto(alarmConfigEntity);
             alarmConfigDto1.setGenerals(JSON.parseArray(alarmConfigEntity.getGeneral(), ConditionDto.class));
             alarmConfigDto1.setDangers(JSON.parseArray(alarmConfigEntity.getDanger(), ConditionDto.class));
             alarmConfigDto1.setSeveritys(JSON.parseArray(alarmConfigEntity.getSeverity(), ConditionDto.class));
@@ -97,11 +96,11 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
 
     @Override
     @Transactional
-    public AlarmConfigDto save(AlarmConfigDto alarmConfigDto){
-        if(alarmConfigDto.getTriggerType()==null){
+    public AlarmConfigDto save(AlarmConfigDto alarmConfigDto) {
+        if (alarmConfigDto.getTriggerType() == null) {
             alarmConfigDto.setTriggerType(1);
         }
-        if(alarmConfigDto.getTriggerStatus()==null){
+        if (alarmConfigDto.getTriggerStatus() == null) {
             alarmConfigDto.setTriggerStatus(0);
         }
  /*       if(MonitorTypeEnum.FILE_REACH==MonitorTypeEnum.match(alarmConfigDto.getMonitorType())){
@@ -110,23 +109,23 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         alarmConfigDto.setIsUt(0);
         alarmConfigDto.setDelayTime(0);
         alarmConfigDto.setJobHandler("alarmHandler");
-        AlarmConfigEntity alarmConfigEntity=alarmConfigMapstruct.toEntity(alarmConfigDto);
+        AlarmConfigEntity alarmConfigEntity = alarmConfigMapstruct.toEntity(alarmConfigDto);
         //alarmConfigEntity.setId(MonitorTypeEnum.match(alarmConfigEntity.getMonitorType()).getValue().toString());
         alarmConfigEntity.setGeneral(JSON.toJSONString(alarmConfigDto.getGenerals()));
         alarmConfigEntity.setDanger(JSON.toJSONString(alarmConfigDto.getDangers()));
         alarmConfigEntity.setSeverity(JSON.toJSONString(alarmConfigDto.getSeveritys()));
-        alarmConfigEntity=super.saveNotNull(alarmConfigEntity);
+        alarmConfigEntity = super.saveNotNull(alarmConfigEntity);
         alarmConfigQuartzService.handleJob(alarmConfigMapstruct.toDto(alarmConfigEntity));
         return alarmConfigDto;
     }
 
     @Override
     public AlarmConfigDto findById(String id) {
-        AlarmConfigEntity alarmConfig=super.getById(id);
-        if(alarmConfig==null){
+        AlarmConfigEntity alarmConfig = super.getById(id);
+        if (alarmConfig == null) {
             return null;
         }
-        AlarmConfigDto alarmConfigDto=alarmConfigMapstruct.toDto(alarmConfig);
+        AlarmConfigDto alarmConfigDto = alarmConfigMapstruct.toDto(alarmConfig);
         alarmConfigDto.setGenerals(JSON.parseArray(alarmConfig.getGeneral(), ConditionDto.class));
         alarmConfigDto.setDangers(JSON.parseArray(alarmConfig.getDanger(), ConditionDto.class));
         alarmConfigDto.setSeveritys(JSON.parseArray(alarmConfig.getSeverity(), ConditionDto.class));

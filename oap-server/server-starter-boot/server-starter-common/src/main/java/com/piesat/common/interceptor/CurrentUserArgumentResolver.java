@@ -23,14 +23,14 @@ import java.util.Map;
  * @创建时间 2019/11/15 17:40
  */
 @Component
-public class CurrentUserArgumentResolver  implements HandlerMethodArgumentResolver {
+public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        RequestParam ann = (RequestParam)methodParameter.getParameterAnnotation(RequestParam.class);
-        HtParam htParam = (HtParam)methodParameter.getParameterAnnotation(HtParam.class);
-        if(ann==null||htParam==null){
+        RequestParam ann = (RequestParam) methodParameter.getParameterAnnotation(RequestParam.class);
+        HtParam htParam = (HtParam) methodParameter.getParameterAnnotation(HtParam.class);
+        if (ann == null || htParam == null) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -45,13 +45,13 @@ public class CurrentUserArgumentResolver  implements HandlerMethodArgumentResolv
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         Map<String, String[]> paramMap = (Map<String, String[]>) request
                 .getAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME");
-        if(null==paramMap||paramMap.size()==0){
+        if (null == paramMap || paramMap.size() == 0) {
             return null;
         }
         Object arg = paramMap.get(parameter.getParameterName());
-        String typeName=parameter.getParameterType().getName();
-        if(typeName.toUpperCase().indexOf("DTO")!=-1||typeName.toUpperCase().indexOf("VO")!=-1){
-            arg=null;
+        String typeName = parameter.getParameterType().getName();
+        if (typeName.toUpperCase().indexOf("DTO") != -1 || typeName.toUpperCase().indexOf("VO") != -1) {
+            arg = null;
         }
         if (arg != null) {
             // 生成参数绑定器，第一个参数为request请求对象，第二个参数为需要绑定的目标对象，第三个参数为需要绑定的目标对象名

@@ -52,26 +52,26 @@ public class SNMPConstants {
     //可用内存
     public static final String MEMTOTALFREE = ".1.3.6.1.4.1.2021.4.11.0";
     //内存大小
-    public static final String HRMEMORYSIZE =".1.3.6.1.2.1.25.2.2.0";
+    public static final String HRMEMORYSIZE = ".1.3.6.1.2.1.25.2.2.0";
 
-    public static final String MEMSHARED =".1.3.6.1.4.1.2021.4.13.0";
+    public static final String MEMSHARED = ".1.3.6.1.4.1.2021.4.13.0";
     //内存buffer
-    public static final String MEMBUFFER =".1.3.6.1.4.1.2021.4.14.0";
+    public static final String MEMBUFFER = ".1.3.6.1.4.1.2021.4.14.0";
     //内存缓存
-    public static final String MEMCACHED =".1.3.6.1.4.1.2021.4.15.0";
+    public static final String MEMCACHED = ".1.3.6.1.4.1.2021.4.15.0";
 
     //磁盘安装路径
-    public static final String DSKPATH ="1.3.6.1.4.1.2021.9.1.2";
+    public static final String DSKPATH = "1.3.6.1.4.1.2021.9.1.2";
     //分区设备的路径
-    public static final String DSKDEVICE ="1.3.6.1.4.1.2021.9.1.3";
+    public static final String DSKDEVICE = "1.3.6.1.4.1.2021.9.1.3";
     //磁盘/分区的总大小（千字节）
-    public static final String DSKTOTAL ="1.3.6.1.4.1.2021.9.1.6";
+    public static final String DSKTOTAL = "1.3.6.1.4.1.2021.9.1.6";
     //磁盘上的可用空间
-    public static final String DSKAVAIL ="1.3.6.1.4.1.2021.9.1.7";
+    public static final String DSKAVAIL = "1.3.6.1.4.1.2021.9.1.7";
     //磁盘上的已用空间
-    public static final String DSKUSED ="1.3.6.1.4.1.2021.9.1.8";
+    public static final String DSKUSED = "1.3.6.1.4.1.2021.9.1.8";
     //磁盘上已使用空间的百分比
-    public static final String DSKPERCENT ="1.3.6.1.4.1.2021.9.1.9";
+    public static final String DSKPERCENT = "1.3.6.1.4.1.2021.9.1.9";
     //磁盘上使用的inode百分比
-    public static final String DSKPERCENTNODE ="1.3.6.1.4.1.2021.9.1.10";
+    public static final String DSKPERCENTNODE = "1.3.6.1.4.1.2021.9.1.10";
 }

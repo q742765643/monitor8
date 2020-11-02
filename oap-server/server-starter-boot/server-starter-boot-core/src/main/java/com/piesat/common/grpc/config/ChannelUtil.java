@@ -1,7 +1,6 @@
 package com.piesat.common.grpc.config;
 
 import com.piesat.common.grpc.annotation.GrpcHthtService;
-import com.piesat.rpc.CommonServiceGrpc;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -24,27 +23,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class ChannelUtil {
-    private ConcurrentHashMap<String,Object> grpcServices=new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, String> grpcServerName=new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String,ConcurrentHashMap<String, ManagedChannel>>  channel=new ConcurrentHashMap<>();
-    private volatile static  ChannelUtil instance=null;
-
-    public synchronized ConcurrentHashMap<String, Object> getGrpcServices() {
-        return grpcServices;
-    }
-
-    public synchronized ConcurrentHashMap<String, String> getGrpcServerName() {
-        return grpcServerName;
-    }
-
-    public  ConcurrentHashMap<String, ConcurrentHashMap<String,ManagedChannel>> getChannel() {
-        return channel;
-    }
-
-
+    private volatile static ChannelUtil instance = null;
+    private ConcurrentHashMap<String, Object> grpcServices = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, String> grpcServerName = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, ManagedChannel>> channel = new ConcurrentHashMap<>();
+    private GrpcChannelFactory channelFactory = null;
 
     //私有的默认构造函数
-    public ChannelUtil(){}
+    public ChannelUtil() {
+    }
+
     public static ChannelUtil getInstance() {
         if (instance == null) {
             synchronized (ChannelUtil.class) {
@@ -56,34 +44,46 @@ public class ChannelUtil {
         return instance;
     }
 
-    private GrpcChannelFactory channelFactory = null;
+    public synchronized ConcurrentHashMap<String, Object> getGrpcServices() {
+        return grpcServices;
+    }
 
-    public synchronized void getgrpcChannel(String className, GrpcHthtService annotation,ApplicationContext applicationContext){
-        String name=annotation.server();
-        if("".equals(name)||null==name){
+    public synchronized ConcurrentHashMap<String, String> getGrpcServerName() {
+        return grpcServerName;
+    }
+
+    public ConcurrentHashMap<String, ConcurrentHashMap<String, ManagedChannel>> getChannel() {
+        return channel;
+    }
+
+    public synchronized void getgrpcChannel(String className, GrpcHthtService annotation, ApplicationContext applicationContext) {
+        String name = annotation.server();
+        if ("".equals(name) || null == name) {
             return;
         }
-        grpcServerName.put(className,name);
+        grpcServerName.put(className, name);
 
     }
-    public  synchronized  void getgrpcChannel(String serviceName, String host,int port){
-        Channel channel=null;
-            channel = ManagedChannelBuilder.forAddress(host, port)
-                    .defaultLoadBalancingPolicy("round_robin")
-                    .nameResolverFactory(new DnsNameResolverProvider())
-                    .usePlaintext().build();
 
-            //blockingStub.put(serviceName,CommonServiceGrpc.newBlockingStub(channel));
+    public synchronized void getgrpcChannel(String serviceName, String host, int port) {
+        Channel channel = null;
+        channel = ManagedChannelBuilder.forAddress(host, port)
+                .defaultLoadBalancingPolicy("round_robin")
+                .nameResolverFactory(new DnsNameResolverProvider())
+                .usePlaintext().build();
+
+        //blockingStub.put(serviceName,CommonServiceGrpc.newBlockingStub(channel));
 
 
     }
+
     protected <T> T processInjectionPoint(final Member injectionTarget, final Class<T> injectionType,
-                                          final GrpcHthtService annotation,ApplicationContext applicationContext) {
-        final List<ClientInterceptor> interceptors =new ArrayList<>();
+                                          final GrpcHthtService annotation, ApplicationContext applicationContext) {
+        final List<ClientInterceptor> interceptors = new ArrayList<>();
         final String name = annotation.server();
         final Channel channel;
         try {
-            channel = getChannelFactory(applicationContext).createChannel(name, interceptors,false);
+            channel = getChannelFactory(applicationContext).createChannel(name, interceptors, false);
             if (channel == null) {
                 throw new IllegalStateException("Channel factory created a null channel for " + name);
             }
@@ -108,6 +108,7 @@ public class ChannelUtil {
         }
         return this.channelFactory;
     }
+
     protected <T> T valueForMember(final String name, final Member injectionTarget, final Class<T> injectionType,
                                    final Channel channel) throws BeansException {
         if (Channel.class.equals(injectionType)) {
@@ -115,15 +116,16 @@ public class ChannelUtil {
         }
         return null;
     }
-    public Channel selectChannel(String name,String addresss){
-        List<String> addressList=new ArrayList<>();
+
+    public Channel selectChannel(String name, String addresss) {
+        List<String> addressList = new ArrayList<>();
         addressList.addAll(Arrays.asList(addresss.split(";")));
-        Map<String,ManagedChannel> map=channel.get(name);
+        Map<String, ManagedChannel> map = channel.get(name);
         //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題
-        Map<String,Integer> serverMap  = new HashMap<String,Integer>();
-        map.forEach((k,v)->{
-            if(addressList.contains(k)){
-                serverMap.put(k,1);
+        Map<String, Integer> serverMap = new HashMap<String, Integer>();
+        map.forEach((k, v) -> {
+            if (addressList.contains(k)) {
+                serverMap.put(k, 1);
             }
 
         });
@@ -146,12 +148,13 @@ public class ChannelUtil {
         String server = serverList.get(randomPos);
         return map.get(server);
     }
-    public Channel selectChannel(String name){
-        Map<String,ManagedChannel> map=channel.get(name);
+
+    public Channel selectChannel(String name) {
+        Map<String, ManagedChannel> map = channel.get(name);
         //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題
-        Map<String,Integer> serverMap  = new HashMap<String,Integer>();
-        map.forEach((k,v)->{
-            serverMap.put(k,1);
+        Map<String, Integer> serverMap = new HashMap<String, Integer>();
+        map.forEach((k, v) -> {
+            serverMap.put(k, 1);
         });
         //獲取ip列表list
         Set<String> keySet = serverMap.keySet();

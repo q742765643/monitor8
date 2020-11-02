@@ -18,13 +18,14 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class ThreadPoolConfig {
     @Bean
-    public ExecutorService executorService(){
+    public ExecutorService executorService() {
         return new ThreadPoolExecutor(20, 20,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("insert-oper-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
     }
+
     @Bean
-    public ExecutorService executorTriggerService(){
+    public ExecutorService executorTriggerService() {
         return new ThreadPoolExecutor(200, 200,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("trigger-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());

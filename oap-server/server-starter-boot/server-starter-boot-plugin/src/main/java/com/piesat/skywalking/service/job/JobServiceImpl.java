@@ -4,25 +4,16 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.piesat.common.jpa.BaseDao;
 import com.piesat.common.jpa.BaseService;
-import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
-import com.piesat.common.jpa.specification.SpecificationOperator;
-import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.dao.JobInfoDao;
-import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
-import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.mapper.JobInfoMapper;
 import com.piesat.skywalking.mapstruct.HtJobInfoMapstruct;
 import com.piesat.skywalking.model.HtJobInfo;
 import com.piesat.skywalking.service.quartz.timing.JobInfoQuartzService;
 import com.piesat.skywalking.service.timing.JobInfoService;
-import com.piesat.ucenter.entity.monitor.OperLogEntity;
-import com.piesat.ucenter.rpc.dto.monitor.OperLogDto;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,38 +35,41 @@ public class JobServiceImpl extends BaseService<HtJobInfo> implements JobInfoSer
     private JobInfoQuartzService jobInfoQuartzService;
     @Autowired
     private JobInfoMapper jobInfoMapper;
+
     @Override
     public BaseDao<HtJobInfo> getBaseDao() {
         return jobInfoDao;
     }
+
     public PageBean selectPageList(PageForm<HtJobInfoDto> pageForm) {
-        HtJobInfo htJobInfo=htJobInfoMapstruct.toEntity(pageForm.getT());
-        PageHelper.startPage(pageForm.getCurrentPage(),pageForm.getPageSize());
-        List<HtJobInfo> htJobInfos=jobInfoMapper.selectList(htJobInfo);
+        HtJobInfo htJobInfo = htJobInfoMapstruct.toEntity(pageForm.getT());
+        PageHelper.startPage(pageForm.getCurrentPage(), pageForm.getPageSize());
+        List<HtJobInfo> htJobInfos = jobInfoMapper.selectList(htJobInfo);
         PageInfo<HtJobInfo> pageInfo = new PageInfo<>(htJobInfos);
-        List<HtJobInfoDto> htJobInfoDtos= htJobInfoMapstruct.toDto(pageInfo.getList());
-        PageBean pageBean=new PageBean(pageInfo.getTotal(),pageInfo.getPages(),htJobInfoDtos);
+        List<HtJobInfoDto> htJobInfoDtos = htJobInfoMapstruct.toDto(pageInfo.getList());
+        PageBean pageBean = new PageBean(pageInfo.getTotal(), pageInfo.getPages(), htJobInfoDtos);
         return pageBean;
 
     }
 
-    public List<HtJobInfoDto> selectBySpecification(HtJobInfoDto htJobInfoDto){
-        HtJobInfo htJobInfo=htJobInfoMapstruct.toEntity(htJobInfoDto);
-        List<HtJobInfo> htJobInfos=jobInfoMapper.selectList(htJobInfo);
+    public List<HtJobInfoDto> selectBySpecification(HtJobInfoDto htJobInfoDto) {
+        HtJobInfo htJobInfo = htJobInfoMapstruct.toEntity(htJobInfoDto);
+        List<HtJobInfo> htJobInfos = jobInfoMapper.selectList(htJobInfo);
         return htJobInfoMapstruct.toDto(htJobInfos);
     }
+
     @Transactional
-    public HtJobInfoDto save(HtJobInfoDto htJobInfoDto){
-        if(htJobInfoDto.getTriggerType()==null){
+    public HtJobInfoDto save(HtJobInfoDto htJobInfoDto) {
+        if (htJobInfoDto.getTriggerType() == null) {
             htJobInfoDto.setTriggerType(0);
         }
-        if(htJobInfoDto.getTriggerStatus()==null){
+        if (htJobInfoDto.getTriggerStatus() == null) {
             htJobInfoDto.setTriggerStatus(1);
         }
         htJobInfoDto.setIsUt(0);
         htJobInfoDto.setDelayTime(0);
         HtJobInfo htJobInfo = htJobInfoMapstruct.toEntity(htJobInfoDto);
-        htJobInfo=super.saveNotNull(htJobInfo);
+        htJobInfo = super.saveNotNull(htJobInfo);
         jobInfoQuartzService.handleJob(htJobInfoMapstruct.toDto(htJobInfo));
         return htJobInfoMapstruct.toDto(htJobInfo);
     }

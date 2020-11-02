@@ -16,7 +16,6 @@ import com.piesat.util.NullUtil;
 import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
-import net.sf.saxon.trans.SymbolicName;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -26,11 +25,9 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ParsedValueCount;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -54,60 +51,60 @@ public class MainService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
 
-    public List<MonitorViewVo> getMonitorViewVo(){
-        List<MonitorViewVo> monitorViewVos=new ArrayList<>();
+    public List<MonitorViewVo> getMonitorViewVo() {
+        List<MonitorViewVo> monitorViewVos = new ArrayList<>();
 
-        HostConfigDto hostConfigDto=new HostConfigDto();
+        HostConfigDto hostConfigDto = new HostConfigDto();
         NullUtil.changeToNull(hostConfigDto);
-        List<Integer> types=new ArrayList<>();
+        List<Integer> types = new ArrayList<>();
         types.add(2);
         types.add(3);
         types.add(4);
         hostConfigDto.setMediaTypes(types);
-        long link=hostConfigService.selectCount(hostConfigDto);
-        MonitorViewVo linkView=new MonitorViewVo();
+        long link = hostConfigService.selectCount(hostConfigDto);
+        MonitorViewVo linkView = new MonitorViewVo();
         linkView.setClassify("链路设备");
         linkView.setNum(link);
         monitorViewVos.add(linkView);
 
 
-        List<Integer> typeServer=new ArrayList<>();
+        List<Integer> typeServer = new ArrayList<>();
         typeServer.add(0);
         typeServer.add(1);
         NullUtil.changeToNull(hostConfigDto);
         hostConfigDto.setMediaTypes(typeServer);
-        long host=hostConfigService.selectCount(hostConfigDto);
-        MonitorViewVo hostView=new MonitorViewVo();
+        long host = hostConfigService.selectCount(hostConfigDto);
+        MonitorViewVo hostView = new MonitorViewVo();
         hostView.setClassify("主机设备");
         hostView.setNum(host);
         monitorViewVos.add(hostView);
 
-        FileMonitorDto fileMonitorDto=new FileMonitorDto();
+        FileMonitorDto fileMonitorDto = new FileMonitorDto();
         fileMonitorDto.setTriggerStatus(null);
-        long files=fileMonitorService.selectCount(fileMonitorDto);
-        MonitorViewVo fileView=new MonitorViewVo();
+        long files = fileMonitorService.selectCount(fileMonitorDto);
+        MonitorViewVo fileView = new MonitorViewVo();
         fileView.setClassify("数据任务");
         fileView.setNum(files);
         monitorViewVos.add(fileView);
 
-        ProcessConfigDto processConfigDto=new ProcessConfigDto();
-        long process=processConfigService.selectCount(processConfigDto);
-        MonitorViewVo processView=new MonitorViewVo();
+        ProcessConfigDto processConfigDto = new ProcessConfigDto();
+        long process = processConfigService.selectCount(processConfigDto);
+        MonitorViewVo processView = new MonitorViewVo();
         processView.setClassify("进程任务");
         processView.setNum(process);
         monitorViewVos.add(processView);
         return monitorViewVos;
     }
 
-    public List<HostConfigDto> getDeviceStatus(HostConfigDto hostConfigdto){
+    public List<HostConfigDto> getDeviceStatus(HostConfigDto hostConfigdto) {
         return hostConfigService.selectBySpecification(hostConfigdto);
     }
 
-    public PageBean getAlarm(PageForm<AlarmLogDto> pageForm){
+    public PageBean getAlarm(PageForm<AlarmLogDto> pageForm) {
         return alarmEsLogService.selectPageList(pageForm);
     }
 
-    public  List<AlarmDistributionVo> getAlarmDistribution(AlarmLogDto alarmLogDto){
+    public List<AlarmDistributionVo> getAlarmDistribution(AlarmLogDto alarmLogDto) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         Map<String, Object> paramt = new HashMap<>();
@@ -131,32 +128,32 @@ public class MainService {
         searchSourceBuilder.aggregation(gourpByType);
         searchSourceBuilder.query(boolBuilder);
         searchSourceBuilder.size(0);
-        List<AlarmDistributionVo> list=new ArrayList<>();
+        List<AlarmDistributionVo> list = new ArrayList<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG+"-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG + "-*", searchSourceBuilder);
             Aggregations aggregations = searchResponse.getAggregations();
-            ParsedLongTerms parsedLongTerms=aggregations.get("device_type");
-            if(parsedLongTerms==null){
+            ParsedLongTerms parsedLongTerms = aggregations.get("device_type");
+            if (parsedLongTerms == null) {
                 return null;
             }
             List<? extends Terms.Bucket> buckets = parsedLongTerms.getBuckets();
             if (buckets.size() > 0) {
                 for (int i = 0; i < buckets.size(); i++) {
-                    AlarmDistributionVo alarmDistributionVo=new AlarmDistributionVo();
-                    Terms.Bucket bucket=buckets.get(i);
-                    Long key= Long.parseLong(String.valueOf(bucket.getKey()));
-                    ParsedValueCount parsedValueCount=bucket.getAggregations().get("count");
-                    Long count=parsedValueCount.getValue();
-                    if(key==0){
+                    AlarmDistributionVo alarmDistributionVo = new AlarmDistributionVo();
+                    Terms.Bucket bucket = buckets.get(i);
+                    Long key = Long.parseLong(String.valueOf(bucket.getKey()));
+                    ParsedValueCount parsedValueCount = bucket.getAggregations().get("count");
+                    Long count = parsedValueCount.getValue();
+                    if (key == 0) {
                         alarmDistributionVo.setClassify("主机设备");
                     }
-                    if(key==1){
+                    if (key == 1) {
                         alarmDistributionVo.setClassify("链路设备");
                     }
-                    if(key==2){
+                    if (key == 2) {
                         alarmDistributionVo.setClassify("进程任务");
                     }
-                    if(key==3){
+                    if (key == 3) {
                         alarmDistributionVo.setClassify("数据任务");
                     }
                     alarmDistributionVo.setNum(count);
@@ -172,20 +169,20 @@ public class MainService {
     }
 
 
-    public List<FileStatisticsDto> getFileStatus(){
-        List<FileStatisticsDto> list=new ArrayList<>();
+    public List<FileStatisticsDto> getFileStatus() {
+        List<FileStatisticsDto> list = new ArrayList<>();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        String indexName= IndexNameUtil.getIndexName(IndexNameConstant.T_MT_FILE_STATISTICS,new Date());
+        String indexName = IndexNameUtil.getIndexName(IndexNameConstant.T_MT_FILE_STATISTICS, new Date());
         try {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date());
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND,0);
-            long startTime=calendar.getTime().getTime();
-            long endTime=startTime+86400*1000;
-            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            calendar.set(Calendar.MILLISECOND, 0);
+            long startTime = calendar.getTime().getTime();
+            long endTime = startTime + 86400 * 1000;
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
             RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("start_time_s");
             rangeQueryBuilder.gte(format.format(startTime));
@@ -197,11 +194,11 @@ public class MainService {
             searchSourceBuilder.query(boolBuilder);
             SearchResponse response = elasticSearch7Client.search(indexName, searchSourceBuilder);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
-            long count=hits.getTotalHits().value;
+            long count = hits.getTotalHits().value;
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {
-                Map<String,Object> source=hit.getSourceAsMap();
-                FileStatisticsDto fileStatisticsDto=new FileStatisticsDto();
+                Map<String, Object> source = hit.getSourceAsMap();
+                FileStatisticsDto fileStatisticsDto = new FileStatisticsDto();
                 fileStatisticsDto.setTaskId((String) source.get("task_id"));
                 fileStatisticsDto.setFilenameRegular((String) source.get("filename_regular"));
                 fileStatisticsDto.setFileNum(Long.parseLong(String.valueOf(source.get("file_num"))));

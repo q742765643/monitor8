@@ -21,5 +21,5 @@ public class FileMonitorDto extends HtJobInfoDto {
     @ApiModelProperty(value = "是否补偿 0本地 1远程")
     private Integer scanType;
     @ApiModelProperty(value = "账号ID")
-    private  String acountId;
+    private String acountId;
 }

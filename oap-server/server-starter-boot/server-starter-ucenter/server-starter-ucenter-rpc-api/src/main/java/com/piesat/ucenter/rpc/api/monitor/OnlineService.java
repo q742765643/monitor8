@@ -11,8 +11,9 @@ import com.piesat.util.page.PageBean;
  * @创建人 zzj
  * @创建时间 2019/12/9 14:46
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface OnlineService {
     public PageBean list(String ipaddr, String userName, int pageNum, int pageSize);
+
     public void forceLogout(String tokenId);
 }

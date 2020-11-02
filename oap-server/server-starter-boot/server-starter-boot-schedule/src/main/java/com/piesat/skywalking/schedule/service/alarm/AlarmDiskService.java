@@ -33,59 +33,59 @@ import java.util.Map;
 public class AlarmDiskService extends AlarmBaseService {
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
-        AlarmConfigDto alarmConfigDto= (AlarmConfigDto) jobContext.getHtJobInfoDto();
-        List<HostConfigDto> hostConfigDtos=this.selectAvailable();
-        Map<String,Float> map=this.findMemoryAvg();
-        for(int i=0;i<hostConfigDtos.size();i++){
-            AlarmLogDto alarmLogDto=new AlarmLogDto();
-            HostConfigDto hostConfigDto=hostConfigDtos.get(i);
-            if(0!=hostConfigDto.getDeviceType()){
-               continue;
+        AlarmConfigDto alarmConfigDto = (AlarmConfigDto) jobContext.getHtJobInfoDto();
+        List<HostConfigDto> hostConfigDtos = this.selectAvailable();
+        Map<String, Float> map = this.findMemoryAvg();
+        for (int i = 0; i < hostConfigDtos.size(); i++) {
+            AlarmLogDto alarmLogDto = new AlarmLogDto();
+            HostConfigDto hostConfigDto = hostConfigDtos.get(i);
+            if (0 != hostConfigDto.getDeviceType()) {
+                continue;
             }
-            alarmLogDto.setUsage(this.getMap(hostConfigDto.getIp(),map));
-            this.toAlarm(alarmLogDto,alarmConfigDto,hostConfigDto);
+            alarmLogDto.setUsage(this.getMap(hostConfigDto.getIp(), map));
+            this.toAlarm(alarmLogDto, alarmConfigDto, hostConfigDto);
         }
     }
 
-    public void toAlarm(AlarmLogDto alarmLogDto,AlarmConfigDto alarmConfigDto,HostConfigDto hostConfigDto){
+    public void toAlarm(AlarmLogDto alarmLogDto, AlarmConfigDto alarmConfigDto, HostConfigDto hostConfigDto) {
         alarmLogDto.setIp(hostConfigDto.getIp());
         alarmLogDto.setRelatedId(hostConfigDto.getId());
         alarmLogDto.setMediaType(hostConfigDto.getMediaType());
         alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
-        this.fitAlarmLog(alarmConfigDto,alarmLogDto);
+        this.fitAlarmLog(alarmConfigDto, alarmLogDto);
         this.judgeAlarm(alarmLogDto);
-        if(alarmLogDto.isAlarm()){
-            String message="未采集到磁盘使用率,请检查环境";
-            if(alarmLogDto.getUsage()>0){
-                message="磁盘使用率到达"+alarmLogDto.getUsage()*100+"%";
+        if (alarmLogDto.isAlarm()) {
+            String message = "未采集到磁盘使用率,请检查环境";
+            if (alarmLogDto.getUsage() > 0) {
+                message = "磁盘使用率到达" + alarmLogDto.getUsage() * 100 + "%";
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
         }
     }
 
-    public Map<String,Float> findMemoryAvg(){
-        Map<String,Float> map=new HashMap<>();
-        SearchSourceBuilder search=this.buildWhere("memory");
+    public Map<String, Float> findMemoryAvg() {
+        Map<String, Float> map = new HashMap<>();
+        SearchSourceBuilder search = this.buildWhere("memory");
         AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_memory_pct").field("system.memory.used.pct").format("0.0000");
-        TermsAggregationBuilder groupByIp=AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
+        TermsAggregationBuilder groupByIp = AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
         groupByIp.subAggregation(avgPct);
         search.aggregation(groupByIp);
         search.size(0);
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", search);
             Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
+            if (aggregations == null) {
                 return map;
             }
-            ParsedStringTerms terms=aggregations.get("groupby_ip");
+            ParsedStringTerms terms = aggregations.get("groupby_ip");
             List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for(int i=0;i<buckets.size();i++){
-                Terms.Bucket bucket=buckets.get(i);
-                String ip=bucket.getKeyAsString();
+            for (int i = 0; i < buckets.size(); i++) {
+                Terms.Bucket bucket = buckets.get(i);
+                String ip = bucket.getKeyAsString();
                 ParsedAvg parsedAvg = bucket.getAggregations().get("avg_memory_pct");
-                float avgMemoryPct=Float.parseFloat(parsedAvg.getValueAsString());
-                map.put(ip,avgMemoryPct);
+                float avgMemoryPct = Float.parseFloat(parsedAvg.getValueAsString());
+                map.put(ip, avgMemoryPct);
             }
         } catch (IOException e) {
             e.printStackTrace();

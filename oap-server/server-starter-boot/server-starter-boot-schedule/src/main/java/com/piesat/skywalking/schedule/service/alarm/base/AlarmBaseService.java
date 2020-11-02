@@ -12,7 +12,6 @@ import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.util.IdUtils;
 import com.piesat.sso.client.util.mq.MsgPublisher;
 import com.piesat.util.CompareUtil;
-import com.piesat.util.IndexNameUtil;
 import com.piesat.util.ResultT;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -35,30 +34,30 @@ import java.util.*;
  */
 @Service
 public abstract class AlarmBaseService {
-    @GrpcHthtClient
-    private HostConfigService hostConfigService;
     @Autowired
     protected ElasticSearch7Client elasticSearch7Client;
+    @GrpcHthtClient
+    private HostConfigService hostConfigService;
     @Autowired
     private MsgPublisher msgPublisher;
 
     public abstract void execute(JobContext jobContext, ResultT<String> resultT);
 
-    public List<HostConfigDto> selectAvailable(){
+    public List<HostConfigDto> selectAvailable() {
         return hostConfigService.selectAvailable();
     }
 
     public SearchSourceBuilder buildWhere(String type) {
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
-        String endTime=format.format(date);
+        String endTime = format.format(date);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, -5);
-        String beginTime=format.format(calendar.getTime());
+        String beginTime = format.format(calendar.getTime());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system."+type);
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system." + type);
         //MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", ip);
         boolBuilder.must(matchEvent);
         //boolBuilder.must(matchIp);
@@ -71,7 +70,8 @@ public abstract class AlarmBaseService {
         searchSourceBuilder.query(boolBuilder);
         return searchSourceBuilder;
     }
-    public void fitAlarmLog(AlarmConfigDto alarmConfigDto, AlarmLogDto alarmLogDto){
+
+    public void fitAlarmLog(AlarmConfigDto alarmConfigDto, AlarmLogDto alarmLogDto) {
         alarmLogDto.setMonitorType(alarmConfigDto.getMonitorType());
         alarmLogDto.setAlarmKpi(alarmConfigDto.getMonitorType());
         alarmLogDto.setTimestamp(new Date());
@@ -81,7 +81,7 @@ public abstract class AlarmBaseService {
         alarmLogDto.setStatus(3);
     }
 
-    public void judgeAlarm(AlarmLogDto alarmLogDto){
+    public void judgeAlarm(AlarmLogDto alarmLogDto) {
         boolean isAlarm = false;
         List<ConditionDto> severitys = alarmLogDto.getSeveritys();
         isAlarm = CompareUtil.compare(severitys, alarmLogDto.getUsage());
@@ -106,8 +106,8 @@ public abstract class AlarmBaseService {
         }
     }
 
-    public Float getMap(String key,Map<String,Float> map){
-        if(null!=map.get(key)){
+    public Float getMap(String key, Map<String, Float> map) {
+        if (null != map.get(key)) {
             return map.get(key);
         }
         return -1f;

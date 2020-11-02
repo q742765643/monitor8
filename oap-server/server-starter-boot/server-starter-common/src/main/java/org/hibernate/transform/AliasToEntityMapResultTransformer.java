@@ -20,12 +20,12 @@ public class AliasToEntityMapResultTransformer extends AliasedTupleSubsetResultT
     public Object transformTuple(Object[] tuple, String[] aliases) {
         Map result = new HashMap(tuple.length);
 
-        for(int i = 0; i < tuple.length; ++i) {
+        for (int i = 0; i < tuple.length; ++i) {
             String alias = aliases[i];
-            if(alias != null) {
-                if("postgresql".equals(DatabseType.type)){
+            if (alias != null) {
+                if ("postgresql".equals(DatabseType.type)) {
                     result.put(alias.toUpperCase(), tuple[i]);
-                }else{
+                } else {
                     result.put(alias, tuple[i]);
                 }
 

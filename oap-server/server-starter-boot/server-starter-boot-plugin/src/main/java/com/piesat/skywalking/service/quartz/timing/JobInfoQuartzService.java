@@ -1,6 +1,5 @@
 package com.piesat.skywalking.service.quartz.timing;
 
-import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
 import com.piesat.skywalking.service.timing.JobInfoService;
 import com.piesat.skywalking.service.timing.ScheduleService;
@@ -17,16 +16,16 @@ import java.util.List;
  * @Date: 2020-10-15 18:10
  */
 @Service
-public class JobInfoQuartzService  extends ScheduleService {
+public class JobInfoQuartzService extends ScheduleService {
     @Autowired
     private JobInfoService jobInfoService;
 
     public void initJob() {
-        HtJobInfoDto htJobInfoDto=new HtJobInfoDto();
+        HtJobInfoDto htJobInfoDto = new HtJobInfoDto();
         NullUtil.changeToNull(htJobInfoDto);
-        List<HtJobInfoDto> htJobInfoDtos=jobInfoService.selectBySpecification(htJobInfoDto);
-        if(null!=htJobInfoDtos&&!htJobInfoDtos.isEmpty()){
-            for(HtJobInfoDto o:htJobInfoDtos){
+        List<HtJobInfoDto> htJobInfoDtos = jobInfoService.selectBySpecification(htJobInfoDto);
+        if (null != htJobInfoDtos && !htJobInfoDtos.isEmpty()) {
+            for (HtJobInfoDto o : htJobInfoDtos) {
                 this.handleJob(o);
             }
         }

@@ -10,6 +10,6 @@ import java.util.List;
  * Created by zzj on 2019/12/16.
  */
 @Repository
-public interface OperLogDao extends BaseDao<OperLogEntity>{
-    List<OperLogEntity> findByOperNameAndTitle(String operName,String title);
+public interface OperLogDao extends BaseDao<OperLogEntity> {
+    List<OperLogEntity> findByOperNameAndTitle(String operName, String title);
 }

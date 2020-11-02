@@ -1,6 +1,5 @@
 package com.piesat.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,56 +44,56 @@ public class HtDateUtil {
 
     public static void main(String[] args) {
         System.out.println(getTimeString());
-        System.out.println("返回日期年份:"+getYear(new Date()));
-        System.out.println("返回月份："+getMonth(new Date()));
-        System.out.println("返回当天日份"+getDay(new Date()));
-        System.out.println("返回当天小时"+getHour(new Date()));
-        System.out.println("返回当天分"+getMinute(new Date()));
-        System.out.println("返回当天秒"+getSecond(new Date()));
-        System.out.println("返回当天毫秒"+getMillis(new Date()));
+        System.out.println("返回日期年份:" + getYear(new Date()));
+        System.out.println("返回月份：" + getMonth(new Date()));
+        System.out.println("返回当天日份" + getDay(new Date()));
+        System.out.println("返回当天小时" + getHour(new Date()));
+        System.out.println("返回当天分" + getMinute(new Date()));
+        System.out.println("返回当天秒" + getSecond(new Date()));
+        System.out.println("返回当天毫秒" + getMillis(new Date()));
         getTime(new Date());
 
     }
-    public static Map<String,String> getTime(Date date){
-        Map<String,String> map=new HashMap<>();
+
+    public static Map<String, String> getTime(Date date) {
+        Map<String, String> map = new HashMap<>();
         SimpleDateFormat df = new SimpleDateFormat(FORMAT_FULL_);
-        String str=df.format(date);
-        map.put("year",str.substring(0,4));
-        map.put("month",str.substring(4,6));
-        map.put("day",str.substring(6,8));
-        map.put("hour",str.substring(8,10));
-        map.put("minute",str.substring(10,12));
-        map.put("second",str.substring(12,14));
+        String str = df.format(date);
+        map.put("year", str.substring(0, 4));
+        map.put("month", str.substring(4, 6));
+        map.put("day", str.substring(6, 8));
+        map.put("hour", str.substring(8, 10));
+        map.put("minute", str.substring(10, 12));
+        map.put("second", str.substring(12, 14));
         return map;
     }
 
-    public static long matchingTime(Date date,String format,Map<String,String> map) throws Exception {
+    public static long matchingTime(Date date, String format, Map<String, String> map) throws Exception {
         SimpleDateFormat df = new SimpleDateFormat(FORMAT_FULL_);
-        String str=df.format(date);
-        format=format.toUpperCase();
-        if(format.indexOf("Y")!=-1){
-            map.put("year",str.substring(0,4));
+        String str = df.format(date);
+        format = format.toUpperCase();
+        if (format.indexOf("Y") != -1) {
+            map.put("year", str.substring(0, 4));
         }
-        if(format.indexOf("M")!=-1){
-            map.put("month",str.substring(4,6));
+        if (format.indexOf("M") != -1) {
+            map.put("month", str.substring(4, 6));
         }
-        if(format.indexOf("D")!=-1){
-            map.put("day",str.substring(6,8));
+        if (format.indexOf("D") != -1) {
+            map.put("day", str.substring(6, 8));
         }
-        if(format.indexOf("H")!=-1){
-            map.put("hour",str.substring(8,10));
+        if (format.indexOf("H") != -1) {
+            map.put("hour", str.substring(8, 10));
         }
-        if(format.indexOf("M")!=-1){
-            map.put("minute",str.substring(10,12));
+        if (format.indexOf("M") != -1) {
+            map.put("minute", str.substring(10, 12));
         }
-        if(format.indexOf("S")!=-1){
-            map.put("second",str.substring(12,14));
+        if (format.indexOf("S") != -1) {
+            map.put("second", str.substring(12, 14));
         }
-        String realStr=map.get("year")+map.get("month")+map.get("day")+map.get("hour")+map.get("minute")+map.get("second");
-        long time=df.parse(realStr).getTime();
+        String realStr = map.get("year") + map.get("month") + map.get("day") + map.get("hour") + map.get("minute") + map.get("second");
+        long time = df.parse(realStr).getTime();
         return time;
     }
-
 
 
     /**
@@ -108,6 +107,7 @@ public class HtDateUtil {
 
     /**
      * 获取日期年份
+     *
      * @param date 日期
      * @return
      */
@@ -115,11 +115,11 @@ public class HtDateUtil {
         SimpleDateFormat df = new SimpleDateFormat(FORMAT_FULL);
         return df.format(date).substring(0, 4);
     }
+
     /**
      * 功能描述：返回月
      *
-     * @param date
-     *            Date 日期
+     * @param date Date 日期
      * @return 返回月份
      */
     public static int getMonth(Date date) {
@@ -131,8 +131,7 @@ public class HtDateUtil {
     /**
      * 功能描述：返回日期
      *
-     * @param date
-     *            Date 日期
+     * @param date Date 日期
      * @return 返回日份
      */
     public static int getDay(Date date) {
@@ -144,8 +143,7 @@ public class HtDateUtil {
     /**
      * 功能描述：返回小时
      *
-     * @param date
-     *            日期
+     * @param date 日期
      * @return 返回小时
      */
     public static int getHour(Date date) {
@@ -157,8 +155,7 @@ public class HtDateUtil {
     /**
      * 功能描述：返回分
      *
-     * @param date
-     *            日期
+     * @param date 日期
      * @return 返回分钟
      */
     public static int getMinute(Date date) {
@@ -170,8 +167,7 @@ public class HtDateUtil {
     /**
      * 返回秒钟
      *
-     * @param date
-     *            Date 日期
+     * @param date Date 日期
      * @return 返回秒钟
      */
     public static int getSecond(Date date) {
@@ -183,8 +179,7 @@ public class HtDateUtil {
     /**
      * 功能描述：返回毫
      *
-     * @param date
-     *            日期
+     * @param date 日期
      * @return 返回毫
      */
     public static long getMillis(Date date) {

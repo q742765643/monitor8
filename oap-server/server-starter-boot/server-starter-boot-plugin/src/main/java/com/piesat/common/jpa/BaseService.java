@@ -9,8 +9,7 @@ import com.piesat.common.jpa.service.GenericServiceImpl;
  * @author: zzj
  * @create: 2019-11-17 19:00
  **/
-public abstract class BaseService<T> extends GenericServiceImpl<T, String>
-{
+public abstract class BaseService<T> extends GenericServiceImpl<T, String> {
     @Override
     public GenericDao<T, String> getGenericDao() {
         return this.getBaseDao();

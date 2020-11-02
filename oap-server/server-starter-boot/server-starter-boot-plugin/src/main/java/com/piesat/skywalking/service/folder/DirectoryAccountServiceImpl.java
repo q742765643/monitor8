@@ -8,9 +8,7 @@ import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.api.folder.DirectoryAccountService;
 import com.piesat.skywalking.dao.DirectoryAccountDao;
 import com.piesat.skywalking.dto.DirectoryAccountDto;
-import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.entity.DirectoryAccountEntity;
-import com.piesat.skywalking.entity.FileMonitorEntity;
 import com.piesat.skywalking.mapstruct.DirectoryAccountMapstruct;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -34,16 +32,17 @@ public class DirectoryAccountServiceImpl extends BaseService<DirectoryAccountEnt
     private DirectoryAccountDao directoryAccountDao;
     @Autowired
     private DirectoryAccountMapstruct directoryAccountMapstruct;
+
     @Override
     public BaseDao<DirectoryAccountEntity> getBaseDao() {
         return directoryAccountDao;
     }
 
-    public PageBean selectPageList(PageForm<DirectoryAccountDto> pageForm){
-        DirectoryAccountEntity directoryAccountEntity=directoryAccountMapstruct.toEntity(pageForm.getT());
+    public PageBean selectPageList(PageForm<DirectoryAccountDto> pageForm) {
+        DirectoryAccountEntity directoryAccountEntity = directoryAccountMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(directoryAccountEntity.getName())) {
-            specificationBuilder.add("name", SpecificationOperator.Operator.likeAll.name(),directoryAccountEntity.getName());
+            specificationBuilder.add("name", SpecificationOperator.Operator.likeAll.name(), directoryAccountEntity.getName());
         }
 
         Specification specification = specificationBuilder.generateSpecification();
@@ -52,16 +51,18 @@ public class DirectoryAccountServiceImpl extends BaseService<DirectoryAccountEnt
         return pageBean;
 
     }
-    public List<DirectoryAccountDto> selectAll(){
+
+    public List<DirectoryAccountDto> selectAll() {
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         return directoryAccountMapstruct.toDto(this.getAll(sort));
     }
+
     @Override
     @Transactional
-    public DirectoryAccountDto save(DirectoryAccountDto directoryAccountDto){
+    public DirectoryAccountDto save(DirectoryAccountDto directoryAccountDto) {
 
-        DirectoryAccountEntity directoryAccountEntity=directoryAccountMapstruct.toEntity(directoryAccountDto);
-        directoryAccountEntity=super.saveNotNull(directoryAccountEntity);
+        DirectoryAccountEntity directoryAccountEntity = directoryAccountMapstruct.toEntity(directoryAccountDto);
+        directoryAccountEntity = super.saveNotNull(directoryAccountEntity);
         return directoryAccountMapstruct.toDto(directoryAccountEntity);
     }
 

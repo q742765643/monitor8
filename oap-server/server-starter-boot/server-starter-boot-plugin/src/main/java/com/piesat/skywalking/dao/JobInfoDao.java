@@ -1,7 +1,6 @@
 package com.piesat.skywalking.dao;
 
 import com.piesat.common.jpa.BaseDao;
-import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.model.HtJobInfo;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +11,6 @@ import org.springframework.stereotype.Repository;
  * @Date: 2020-10-15 18:02
  */
 @Repository
-public interface JobInfoDao  extends BaseDao<HtJobInfo> {
+public interface JobInfoDao extends BaseDao<HtJobInfo> {
 }
 

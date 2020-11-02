@@ -62,11 +62,11 @@ public class SimpleSpecification<T> implements Specification<T> {
         } else if (SpecificationOperator.Operator.ges.name().equalsIgnoreCase(op.getOper())) {
             return criteriaBuilder.greaterThanOrEqualTo(root.get(op.getKey()).as(String.class), String.valueOf(op.getValue()));
         } else if (SpecificationOperator.Operator.les.name().equalsIgnoreCase(op.getOper())) {
-            return criteriaBuilder.lessThanOrEqualTo(root.get(op.getKey()).as(String.class),  String.valueOf(op.getValue()));
+            return criteriaBuilder.lessThanOrEqualTo(root.get(op.getKey()).as(String.class), String.valueOf(op.getValue()));
         } else if (SpecificationOperator.Operator.gts.name().equalsIgnoreCase(op.getOper())) {
-            return criteriaBuilder.greaterThan(root.get(op.getKey()).as(String.class),String.valueOf(op.getValue()));
+            return criteriaBuilder.greaterThan(root.get(op.getKey()).as(String.class), String.valueOf(op.getValue()));
         } else if (SpecificationOperator.Operator.lts.name().equalsIgnoreCase(op.getOper())) {
-            return criteriaBuilder.lessThan(root.get(op.getKey()).as(String.class), String.valueOf( op.getValue()));
+            return criteriaBuilder.lessThan(root.get(op.getKey()).as(String.class), String.valueOf(op.getValue()));
         } else if (SpecificationOperator.Operator.likeAll.name().equalsIgnoreCase(op.getOper())) {
             return criteriaBuilder.like(criteriaBuilder.lower(root.get(op.getKey()).as(String.class)), "%" + op.getValue().toString().toLowerCase() + "%");
         } else if (SpecificationOperator.Operator.likeL.name().equalsIgnoreCase(op.getOper())) {

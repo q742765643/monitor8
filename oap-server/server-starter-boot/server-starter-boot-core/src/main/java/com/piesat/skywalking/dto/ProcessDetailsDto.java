@@ -3,8 +3,6 @@ package com.piesat.skywalking.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class ProcessDetailsDto {
     @ApiModelProperty(value = "进程pid")

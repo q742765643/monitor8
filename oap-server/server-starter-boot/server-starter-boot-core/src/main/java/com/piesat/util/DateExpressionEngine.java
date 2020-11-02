@@ -9,7 +9,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,10 +22,32 @@ import java.util.regex.Pattern;
  **/
 public class DateExpressionEngine {
 
-    public static String formatDateExpression(String needProcessString, long dateValue){
-        SimpleDateFormat format=new SimpleDateFormat("yyyyMMddHHmm");
-        return formatDateExpression(needProcessString,format.format(dateValue));
+    //private static final String REGEX = "(\\$\\{([^s].*?)\\})";
+    private static final String REGEX = "(\\$\\{(.*?)\\})";
+    private static final Pattern PATTERN = Pattern.compile(REGEX);
+    private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{8,}$");
+    private static final String FIRST_STRING = "F";
+    private static final String END_STRING = "E";
+    private static final String YEAR_STRING = "y";
+    private static final String QUARTR_STRING = "Q";
+    private static final String MONTH_STRING = "M";
+    private static final String WEEK_STRING = "w";
+    private static final String DAY_STRING = "d";
+    private static final String HOUR_STRING = "H";
+    private static final String MINUTE_STRING = "m";
+    private static final String OFFSET_REGEX = "^(-?\\d+?)?([y,Y,M,w,W,d,D,H,h,m])$";
+    private static final Pattern OFFSET_PATTERN = Pattern.compile(OFFSET_REGEX);
+    private static final String OFFSET_SPECIAL_REGEX = "^([F,f,E,e])([M,w,W,q,Q])$";
+    private static final Pattern OFFSET_SPECIAL_PATTERN = Pattern.compile(OFFSET_SPECIAL_REGEX);
+    private static final String CONST_DATE_STRING = "yyyyMMdd";
+    private static final String CONST_HOUR_STRING = "yyyyMMddHH";
+    private static final String CONST_MINUTE_STRING = "yyyyMMddHHmm";
+
+    public static String formatDateExpression(String needProcessString, long dateValue) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
+        return formatDateExpression(needProcessString, format.format(dateValue));
     }
+
     /**
      * <pre>
      * @param needProcessString 需要处理的字符串
@@ -177,11 +198,11 @@ public class DateExpressionEngine {
             if (YEAR_STRING.equalsIgnoreCase(unit)) {
                 // IgnoreCase
                 rs = dateTime.plusYears(num);
-                rs=rs.dayOfYear().withMinimumValue();
+                rs = rs.dayOfYear().withMinimumValue();
                 return rs.toString(format);
             } else if (MONTH_STRING.equals(unit)) {
                 rs = dateTime.plusMonths(num);
-                rs=rs.dayOfMonth().withMinimumValue();
+                rs = rs.dayOfMonth().withMinimumValue();
                 return rs.toString(format);
             } else if (WEEK_STRING.equalsIgnoreCase(unit)) {
                 // IgnoreCase
@@ -441,27 +462,5 @@ public class DateExpressionEngine {
         DateTime dateTime = DateTime.parse(dataVersionNo, formatter);
         return dateTime;
     }
-
-
-    //private static final String REGEX = "(\\$\\{([^s].*?)\\})";
-    private static final String REGEX = "(\\$\\{(.*?)\\})";
-    private static final Pattern PATTERN = Pattern.compile(REGEX);
-    private static final Pattern DATE_PATTERN = Pattern.compile("^\\d{8,}$");
-    private static final String FIRST_STRING = "F";
-    private static final String END_STRING = "E";
-    private static final String YEAR_STRING = "y";
-    private static final String QUARTR_STRING = "Q";
-    private static final String MONTH_STRING = "M";
-    private static final String WEEK_STRING = "w";
-    private static final String DAY_STRING = "d";
-    private static final String HOUR_STRING = "H";
-    private static final String MINUTE_STRING = "m";
-    private static final String OFFSET_REGEX = "^(-?\\d+?)?([y,Y,M,w,W,d,D,H,h,m])$";
-    private static final Pattern OFFSET_PATTERN = Pattern.compile(OFFSET_REGEX);
-    private static final String OFFSET_SPECIAL_REGEX = "^([F,f,E,e])([M,w,W,q,Q])$";
-    private static final Pattern OFFSET_SPECIAL_PATTERN = Pattern.compile(OFFSET_SPECIAL_REGEX);
-    private static final String CONST_DATE_STRING = "yyyyMMdd";
-    private static final String CONST_HOUR_STRING = "yyyyMMddHH";
-    private static final String CONST_MINUTE_STRING = "yyyyMMddHHmm";
 }
 

@@ -5,10 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @program: sod
@@ -17,10 +15,9 @@ import java.util.Map;
  * @create: 2019-11-17 18:43
  **/
 @NoRepositoryBean
-public interface GenericDao<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T>
-{
+public interface GenericDao<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
     public T saveNotNull(T entity);
 
-    public  List<T> saveNotNullAll(Iterable<T> entities);
+    public List<T> saveNotNullAll(Iterable<T> entities);
 }
 

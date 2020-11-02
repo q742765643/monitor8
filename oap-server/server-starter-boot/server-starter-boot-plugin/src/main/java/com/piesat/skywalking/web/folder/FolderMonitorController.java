@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Api(value="文件监控测试接口",tags = {"文件监控测试接口"})
+@Api(value = "文件监控测试接口", tags = {"文件监控测试接口"})
 @RequestMapping("/folderMonitor")
 public class FolderMonitorController {
     @Autowired
@@ -18,8 +18,8 @@ public class FolderMonitorController {
 
     @ApiOperation(value = "文件监控启动", notes = "文件监控启动")
     @GetMapping("/start")
-    public ResultT<String> start(String path){
-        ResultT<String> resultT=new ResultT<>();
+    public ResultT<String> start(String path) {
+        ResultT<String> resultT = new ResultT<>();
         folderMonitorService.start(path);
         return resultT;
     }

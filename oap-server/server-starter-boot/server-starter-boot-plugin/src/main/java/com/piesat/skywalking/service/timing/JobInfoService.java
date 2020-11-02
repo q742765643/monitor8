@@ -3,7 +3,6 @@ package com.piesat.skywalking.service.timing;
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

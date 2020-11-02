@@ -15,7 +15,7 @@ import java.util.Map;
  * @create: 2020-05-13 16:51
  **/
 public class EsSqlDialect extends AbstractHelperDialect {
-    public EsSqlDialect(){
+    public EsSqlDialect() {
 
     }
 
@@ -30,9 +30,9 @@ public class EsSqlDialect extends AbstractHelperDialect {
         StringBuilder sqlBuilder = new StringBuilder(sql.length() + 14);
         sqlBuilder.append(sql);
         if (page.getStartRow() == 0) {
-            sqlBuilder.append(" LIMIT "+page.getTotal());
+            sqlBuilder.append(" LIMIT " + page.getTotal());
         } else {
-            sqlBuilder.append(" LIMIT "+page.getStartRow()+","+page.getPageSize());
+            sqlBuilder.append(" LIMIT " + page.getStartRow() + "," + page.getPageSize());
         }
 
         return sqlBuilder.toString();

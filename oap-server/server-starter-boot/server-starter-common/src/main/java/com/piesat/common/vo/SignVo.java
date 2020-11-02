@@ -10,8 +10,8 @@ import lombok.Data;
  **/
 @Data
 public class SignVo {
-   private long timestampHt;
-   private String uuidHt;
-   private String appIdHt;
+    private long timestampHt;
+    private String uuidHt;
+    private String appIdHt;
 }
 

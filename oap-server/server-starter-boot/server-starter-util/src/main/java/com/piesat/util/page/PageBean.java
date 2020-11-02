@@ -25,12 +25,14 @@ public class PageBean<T> {
     private long totalCount;
 
     private Integer totalPage;
-    public PageBean(long totalCount,Integer totalPage,List<T> pageData){
-        this.totalCount=totalCount;
-        this.totalPage=totalPage;
-        this.pageData=pageData;
+
+    public PageBean(long totalCount, Integer totalPage, List<T> pageData) {
+        this.totalCount = totalCount;
+        this.totalPage = totalPage;
+        this.pageData = pageData;
     }
-    public PageBean(){
+
+    public PageBean() {
 
     }
 

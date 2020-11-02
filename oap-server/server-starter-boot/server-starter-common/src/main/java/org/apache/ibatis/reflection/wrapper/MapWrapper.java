@@ -5,13 +5,14 @@
 
 package org.apache.ibatis.reflection.wrapper;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MapWrapper extends BaseWrapper {
     private final Map<String, Object> map;
@@ -22,7 +23,7 @@ public class MapWrapper extends BaseWrapper {
     }
 
     public Object get(PropertyTokenizer prop) {
-        if(prop.getIndex() != null) {
+        if (prop.getIndex() != null) {
             Object collection = this.resolveCollection(prop, this.map);
             return this.getCollectionValue(prop, collection);
         } else {
@@ -31,7 +32,7 @@ public class MapWrapper extends BaseWrapper {
     }
 
     public void set(PropertyTokenizer prop, Object value) {
-        if(prop.getIndex() != null) {
+        if (prop.getIndex() != null) {
             Object collection = this.resolveCollection(prop, this.map);
             this.setCollectionValue(prop, collection, value);
         } else {
@@ -41,34 +42,34 @@ public class MapWrapper extends BaseWrapper {
     }
 
     public String findProperty(String name, boolean useCamelCaseMapping) {
-        return name==null?"":name.toUpperCase() ;
+        return name == null ? "" : name.toUpperCase();
     }
 
     public String[] getGetterNames() {
-        return (String[])this.map.keySet().toArray(new String[this.map.keySet().size()]);
+        return (String[]) this.map.keySet().toArray(new String[this.map.keySet().size()]);
     }
 
     public String[] getSetterNames() {
-        return (String[])this.map.keySet().toArray(new String[this.map.keySet().size()]);
+        return (String[]) this.map.keySet().toArray(new String[this.map.keySet().size()]);
     }
 
     public Class<?> getSetterType(String name) {
         PropertyTokenizer prop = new PropertyTokenizer(name);
-        if(prop.hasNext()) {
+        if (prop.hasNext()) {
             MetaObject metaValue = this.metaObject.metaObjectForProperty(prop.getIndexedName());
-            return metaValue == SystemMetaObject.NULL_META_OBJECT?Object.class:metaValue.getSetterType(prop.getChildren());
+            return metaValue == SystemMetaObject.NULL_META_OBJECT ? Object.class : metaValue.getSetterType(prop.getChildren());
         } else {
-            return this.map.get(name) != null?this.map.get(name).getClass():Object.class;
+            return this.map.get(name) != null ? this.map.get(name).getClass() : Object.class;
         }
     }
 
     public Class<?> getGetterType(String name) {
         PropertyTokenizer prop = new PropertyTokenizer(name);
-        if(prop.hasNext()) {
+        if (prop.hasNext()) {
             MetaObject metaValue = this.metaObject.metaObjectForProperty(prop.getIndexedName());
-            return metaValue == SystemMetaObject.NULL_META_OBJECT?Object.class:metaValue.getGetterType(prop.getChildren());
+            return metaValue == SystemMetaObject.NULL_META_OBJECT ? Object.class : metaValue.getGetterType(prop.getChildren());
         } else {
-            return this.map.get(name) != null?this.map.get(name).getClass():Object.class;
+            return this.map.get(name) != null ? this.map.get(name).getClass() : Object.class;
         }
     }
 
@@ -78,10 +79,10 @@ public class MapWrapper extends BaseWrapper {
 
     public boolean hasGetter(String name) {
         PropertyTokenizer prop = new PropertyTokenizer(name);
-        if(prop.hasNext()) {
-            if(this.map.containsKey(prop.getIndexedName())) {
+        if (prop.hasNext()) {
+            if (this.map.containsKey(prop.getIndexedName())) {
                 MetaObject metaValue = this.metaObject.metaObjectForProperty(prop.getIndexedName());
-                return metaValue == SystemMetaObject.NULL_META_OBJECT?true:metaValue.hasGetter(prop.getChildren());
+                return metaValue == SystemMetaObject.NULL_META_OBJECT ? true : metaValue.hasGetter(prop.getChildren());
             } else {
                 return false;
             }

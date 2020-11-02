@@ -13,29 +13,28 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 
 public class HtFileUtil extends FileUtil {
-    public static void loopFilesLocal(File file, FileFilter fileFilter){
-        if(file.isDirectory()){
+    public static void loopFilesLocal(File file, FileFilter fileFilter) {
+        if (file.isDirectory()) {
             File[] files = file.listFiles(fileFilter);
-            if (null!=files&&ArrayUtil.isNotEmpty(files)) {
+            if (null != files && ArrayUtil.isNotEmpty(files)) {
                 for (File tmp : files) {
-                    loopFiles(tmp,fileFilter);
+                    loopFiles(tmp, fileFilter);
                 }
             }
-        }else {
+        } else {
         }
 
     }
 
-    public static void loopFiles(SmbFile file, SmbFileFilter fileFilter){
+    public static void loopFiles(SmbFile file, SmbFileFilter fileFilter) {
         try {
-            if(file.isDirectory()){
+            if (file.isDirectory()) {
                 SmbFile[] files = file.listFiles(fileFilter);
-                if (null!=files&&ArrayUtil.isNotEmpty(files)) {
+                if (null != files && ArrayUtil.isNotEmpty(files)) {
                     for (SmbFile tmp : files) {
-                       loopFiles(tmp,fileFilter);
+                        loopFiles(tmp, fileFilter);
                     }
                 }
             }
@@ -44,7 +43,8 @@ public class HtFileUtil extends FileUtil {
         }
 
     }
-    public static Long getCreateTime(Path path){
+
+    public static Long getCreateTime(Path path) {
 
         BasicFileAttributeView basicview = Files.getFileAttributeView(path, BasicFileAttributeView.class,
                 LinkOption.NOFOLLOW_LINKS);

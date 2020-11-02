@@ -2,10 +2,7 @@ package com.piesat.ucenter.dao.system;
 
 import com.piesat.common.jpa.BaseDao;
 import com.piesat.ucenter.entity.system.BizUserEntity;
-import com.piesat.ucenter.entity.system.DeptEntity;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
  * 业务注册用户
@@ -15,6 +12,7 @@ import java.util.List;
  */
 @Repository
 public interface BizUserDao extends BaseDao<BizUserEntity> {
-    BizUserEntity findByBizUserIdAndChecked(String userId,String check);
+    BizUserEntity findByBizUserIdAndChecked(String userId, String check);
+
     BizUserEntity findByBizUserId(String id);
 }

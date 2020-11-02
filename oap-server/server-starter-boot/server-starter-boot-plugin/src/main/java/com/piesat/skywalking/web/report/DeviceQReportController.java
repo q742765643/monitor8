@@ -19,18 +19,18 @@ import org.springframework.web.bind.annotation.RestController;
  * @Date: 2020-10-19 10:36
  */
 @RestController
-@Api(value="设备报表",tags = {"设备报表"})
+@Api(value = "设备报表", tags = {"设备报表"})
 @RequestMapping("/report")
 public class DeviceQReportController {
     @Autowired
     private DeviceQReportService deviceQReportService;
+
     @ApiOperation(value = "分页查询设备报表", notes = "分页查询设备报表")
     @GetMapping("/list")
-    public ResultT<PageBean<HostConfigDto>> list(HostConfigDto hostConfigDto, int pageNum, int pageSize)
-    {
-        ResultT<PageBean<HostConfigDto>> resultT=new ResultT<>();
-        PageForm<HostConfigDto> pageForm=new PageForm<>(pageNum,pageSize,hostConfigDto);
-        PageBean pageBean=deviceQReportService.getSystemReport(pageForm);
+    public ResultT<PageBean<HostConfigDto>> list(HostConfigDto hostConfigDto, int pageNum, int pageSize) {
+        ResultT<PageBean<HostConfigDto>> resultT = new ResultT<>();
+        PageForm<HostConfigDto> pageForm = new PageForm<>(pageNum, pageSize, hostConfigDto);
+        PageBean pageBean = deviceQReportService.getSystemReport(pageForm);
         resultT.setData(pageBean);
         return resultT;
     }

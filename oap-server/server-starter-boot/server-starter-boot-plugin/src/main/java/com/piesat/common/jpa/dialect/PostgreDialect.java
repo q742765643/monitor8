@@ -17,7 +17,7 @@ public class PostgreDialect extends PostgreSQLDialect {
             String[] primaryKey,
             boolean referencesPrimaryKey) {
 //      设置foreignkey对应的列值可以为空
-        return " alter "+ foreignKey[0] +" set default null " ;
+        return " alter " + foreignKey[0] + " set default null ";
     }
 }
 

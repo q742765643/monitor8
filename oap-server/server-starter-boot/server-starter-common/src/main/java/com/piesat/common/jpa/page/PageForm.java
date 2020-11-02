@@ -12,7 +12,11 @@ import org.springframework.data.domain.Sort;
  * @description:
  * @author: zzj
  * @create: 2019-11-18 22:27
- **//*
+ * <p>
+ * 当前页
+ * <p>
+ * 分页大小
+ *//*
 
 @Data
 public class PageForm<T> {
@@ -20,15 +24,15 @@ public class PageForm<T> {
     private T t;
     */
 /**
-     * 当前页
-     *//*
+ * 当前页
+ *//*
 
     private int currentPage = 1;
 
     */
 /**
-     * 分页大小
-     *//*
+ * 分页大小
+ *//*
 
     private int pageSize = 10;
 

@@ -3,13 +3,7 @@ package com.piesat.sso.client.shiro;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
-import org.crazycake.shiro.IRedisManager;
-import org.crazycake.shiro.RedisSessionDAO;
 import org.crazycake.shiro.SessionInMemory;
-import org.crazycake.shiro.exception.SerializationException;
-import org.crazycake.shiro.serializer.ObjectSerializer;
-import org.crazycake.shiro.serializer.RedisSerializer;
-import org.crazycake.shiro.serializer.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,24 +17,26 @@ import java.util.*;
  * @create: 2019-12-18 11:31
  **/
 public class HtRedisSessionDAO extends AbstractSessionDAO {
-    private static Logger logger = LoggerFactory.getLogger(HtRedisSessionDAO.class);
     private static final String DEFAULT_SESSION_KEY_PREFIX = "shiro:session:";
-    private String keyPrefix = "shiro:session:";
     private static final long DEFAULT_SESSION_IN_MEMORY_TIMEOUT = 1000L;
-    private long sessionInMemoryTimeout = 1000L;
     private static final int DEFAULT_EXPIRE = -2;
     private static final int NO_EXPIRE = -1;
-    private int expire = -2;
     private static final int MILLISECONDS_IN_A_SECOND = 1000;
-    private HtRedisManager redisManager;
+    private static Logger logger = LoggerFactory.getLogger(HtRedisSessionDAO.class);
     private static ThreadLocal sessionsInThread = new ThreadLocal();
+    private String keyPrefix = "shiro:session:";
+    private long sessionInMemoryTimeout = 1000L;
+    private int expire = -2;
+    private HtRedisManager redisManager;
 
     public HtRedisSessionDAO() {
     }
+
     @Override
     public void update(Session session) throws UnknownSessionException {
         this.saveSession(session);
     }
+
     private void saveSession(Session session) throws UnknownSessionException {
         if (session != null && session.getId() != null) {
             String key;
@@ -60,13 +56,14 @@ public class HtRedisSessionDAO extends AbstractSessionDAO {
                     logger.warn("Redis session expire time: " + this.expire * 1000 + " is less than Session timeout: " + session.getTimeout() + " . It may cause some problems.");
                 }
 
-                this.redisManager.set(key, value, this.expire/1000L);
+                this.redisManager.set(key, value, this.expire / 1000L);
             }
         } else {
             logger.error("session or session id is null");
             throw new UnknownSessionException("session or session id is null");
         }
     }
+
     @Override
     public void delete(Session session) {
         if (session != null && session.getId() != null) {
@@ -80,6 +77,7 @@ public class HtRedisSessionDAO extends AbstractSessionDAO {
             logger.error("session or session id is null");
         }
     }
+
     @Override
     public Collection<Session> getActiveSessions() {
         HashSet sessions = new HashSet();
@@ -101,6 +99,7 @@ public class HtRedisSessionDAO extends AbstractSessionDAO {
 
         return sessions;
     }
+
     @Override
     protected Serializable doCreate(Session session) {
         if (session == null) {
@@ -113,6 +112,7 @@ public class HtRedisSessionDAO extends AbstractSessionDAO {
             return sessionId;
         }
     }
+
     @Override
     protected Session doReadSession(Serializable sessionId) {
         if (sessionId == null) {

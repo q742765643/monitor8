@@ -4,9 +4,6 @@ package com.piesat.skywalking.enums;
 import com.piesat.common.grpc.config.SpringUtil;
 import com.piesat.skywalking.schedule.service.alarm.*;
 import com.piesat.skywalking.schedule.service.alarm.base.AlarmBaseService;
-import com.piesat.skywalking.schedule.service.folder.FileLocalService;
-import com.piesat.skywalking.schedule.service.folder.FileSmaService;
-import com.piesat.skywalking.schedule.service.folder.base.FileBaseService;
 
 /**
  * @program: SyncMaster

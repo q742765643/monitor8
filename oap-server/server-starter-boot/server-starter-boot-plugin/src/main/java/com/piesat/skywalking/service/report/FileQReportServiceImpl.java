@@ -35,9 +35,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -52,26 +50,27 @@ public class FileQReportServiceImpl implements FileQReportService {
     private ElasticSearch7Client elasticSearch7Client;
     @Autowired
     private FileMonitorService fileMonitorService;
-    public List<Map<String,String>> findHeader(){
-        List<Map<String,String>> list=new ArrayList<>();
-        FileMonitorDto fileMonitorDto=new FileMonitorDto();
+
+    public List<Map<String, String>> findHeader() {
+        List<Map<String, String>> list = new ArrayList<>();
+        FileMonitorDto fileMonitorDto = new FileMonitorDto();
         NullUtil.changeToNull(fileMonitorDto);
-        List<FileMonitorDto> fileMonitorDtos=fileMonitorService.selectBySpecification(fileMonitorDto);
-        for(int i=0;i<fileMonitorDtos.size();i++){
-            FileMonitorDto file=fileMonitorDtos.get(i);
-            Map<String,String> map=new HashMap<>();
-            map.put("taskId",file.getId());
-            map.put("title",file.getTaskName());
+        List<FileMonitorDto> fileMonitorDtos = fileMonitorService.selectBySpecification(fileMonitorDto);
+        for (int i = 0; i < fileMonitorDtos.size(); i++) {
+            FileMonitorDto file = fileMonitorDtos.get(i);
+            Map<String, String> map = new HashMap<>();
+            map.put("taskId", file.getId());
+            map.put("title", file.getTaskName());
             list.add(map);
         }
         return list;
     }
 
-    public List<Map<String,Object>> fileLineDiagram(String taskId){
-        List<Map<String,Object>> list=new ArrayList<>();
+    public List<Map<String, Object>> fileLineDiagram(String taskId) {
+        List<Map<String, Object>> list = new ArrayList<>();
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        MatchQueryBuilder matchTaskId=QueryBuilders.matchQuery("task_id",taskId);
+        MatchQueryBuilder matchTaskId = QueryBuilders.matchQuery("task_id", taskId);
         boolBuilder.must(matchTaskId);
         search.query(boolBuilder).sort("@timestamp", SortOrder.DESC);
         search.size(10);
@@ -82,7 +81,7 @@ public class FileQReportServiceImpl implements FileQReportService {
             for (SearchHit hit : searchHits) {
                 Map jsonMap = new LinkedHashMap();
                 JsonParseUtil.parseJSON2Map(jsonMap, hit.getSourceAsString(), null);
-                jsonMap.put("late_num",1);
+                jsonMap.put("late_num", 1);
                 list.add(jsonMap);
             }
         } catch (IOException e) {
@@ -93,13 +92,12 @@ public class FileQReportServiceImpl implements FileQReportService {
     }
 
 
-
-    public List<Map<String,Object>> findFileReport(SystemQueryDto systemQueryDto){
-        SearchSourceBuilder search=this.buildWhere(systemQueryDto);
+    public List<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto) {
+        SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("@timestamp");
         dateHis.dateHistogramInterval(DateHistogramInterval.hours(1));
-        TermsAggregationBuilder groupByTaskId=AggregationBuilders.terms("groupByTaskId").field("task_id").size(10000);
+        TermsAggregationBuilder groupByTaskId = AggregationBuilders.terms("groupByTaskId").field("task_id").size(10000);
         SumAggregationBuilder sumRealFileSize = AggregationBuilders.sum("sumRealFileSize").field("real_file_size").format("0.0000");
         SumAggregationBuilder sumRealFileNum = AggregationBuilders.sum("sumRealFileNum").field("real_file_num").format("0.0000");
         SumAggregationBuilder sumLateNum = AggregationBuilders.sum("sumLateNum").field("late_num").format("0.0000");
@@ -110,7 +108,7 @@ public class FileQReportServiceImpl implements FileQReportService {
         groupByTaskId.subAggregation(sumFileNum);
         dateHis.subAggregation(groupByTaskId);
         search.aggregation(dateHis);
-        List<Map<String,Object>> list=new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
             Aggregations aggregations = searchResponse.getAggregations();
@@ -118,33 +116,33 @@ public class FileQReportServiceImpl implements FileQReportService {
             List<? extends Histogram.Bucket> buckets = parsedDateHistogram.getBuckets();
             if (buckets.size() > 0) {
                 for (int i = 0; i < buckets.size(); i++) {
-                    Histogram.Bucket bucket=buckets.get(i);
+                    Histogram.Bucket bucket = buckets.get(i);
                     ZonedDateTime date = (ZonedDateTime) bucket.getKey();
-                    long time= Timestamp.from(date.toInstant()).getTime();
-                    Map<String, Aggregation> agg=bucket.getAggregations().asMap();
-                    ParsedStringTerms parsedStringTerms= (ParsedStringTerms) agg.get("groupByTaskId");
+                    long time = Timestamp.from(date.toInstant()).getTime();
+                    Map<String, Aggregation> agg = bucket.getAggregations().asMap();
+                    ParsedStringTerms parsedStringTerms = (ParsedStringTerms) agg.get("groupByTaskId");
                     List<? extends Terms.Bucket> bucketSum = parsedStringTerms.getBuckets();
-                    Map<String,Object> map=new HashMap<>();
-                    map.put("timestamp",time);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("timestamp", time);
                     for (int j = 0; j < bucketSum.size(); j++) {
-                        Terms.Bucket bucketV=bucketSum.get(j);
-                        String taskId=bucketV.getKeyAsString();
+                        Terms.Bucket bucketV = bucketSum.get(j);
+                        String taskId = bucketV.getKeyAsString();
                         ParsedSum sumRealFileNumV = bucketV.getAggregations().get("sumRealFileNum");
                         ParsedSum sumLateNumV = bucketV.getAggregations().get("sumLateNum");
                         ParsedSum sumRealFileSizeV = bucketV.getAggregations().get("sumRealFileSize");
                         ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
-                        long sumRealFileNumL=new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
-                        long sumLateNumL=new BigDecimal(sumLateNumV.getValueAsString()).longValue();
-                        long sumRealFileSizeL=new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024),0,BigDecimal.ROUND_UP).longValue();
-                        long sumFileNumL=new BigDecimal(sumFileNumV.getValueAsString()).longValue();
-                        if(sumFileNumL>0){
-                            float toQuoteRate=new BigDecimal(sumRealFileNumL+sumLateNumL).divide(new BigDecimal(sumFileNumL),2,BigDecimal.ROUND_UP).floatValue();
-                            map.put(taskId+"_toQuoteRate",toQuoteRate);
+                        long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
+                        long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
+                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
+                        long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
+                        if (sumFileNumL > 0) {
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_UP).floatValue();
+                            map.put(taskId + "_toQuoteRate", toQuoteRate);
                         }
-                        map.put(taskId+"_sumRealFileNum",sumRealFileNumL);
-                        map.put(taskId+"_sumLateNum",sumLateNumL);
-                        map.put(taskId+"_sumRealFileSize",sumRealFileSizeL);
-                        map.put(taskId+"_sumFileNum",sumFileNumL);
+                        map.put(taskId + "_sumRealFileNum", sumRealFileNumL);
+                        map.put(taskId + "_sumLateNum", sumLateNumL);
+                        map.put(taskId + "_sumRealFileSize", sumRealFileSizeL);
+                        map.put(taskId + "_sumFileNum", sumFileNumL);
                     }
                     list.add(map);
                 }
@@ -156,7 +154,7 @@ public class FileQReportServiceImpl implements FileQReportService {
 
     }
 
-    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto){
+    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");

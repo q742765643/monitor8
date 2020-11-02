@@ -10,8 +10,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @create: 2019-11-17 18:59
  **/
 @NoRepositoryBean
-public interface BaseDao<T> extends GenericDao<T, String>
-{
+public interface BaseDao<T> extends GenericDao<T, String> {
 }
 
 

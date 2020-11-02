@@ -31,9 +31,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
     private Map<Class, Object> serviceBeanMap = new ConcurrentHashMap<>();
     @Autowired
-    private  AbstractApplicationContext applicationContext;
+    private AbstractApplicationContext applicationContext;
     @Autowired
-    private  SerializeService defaultSerializationService;
+    private SerializeService defaultSerializationService;
 
 
     @Override
@@ -86,8 +86,8 @@ public class CommonService extends CommonServiceGrpc.CommonServiceImplBase {
     /**
      * 获取参数类型
      */
-    private Class[] getParameterTypes(Object[] parameters){
-        if (parameters == null){
+    private Class[] getParameterTypes(Object[] parameters) {
+        if (parameters == null) {
             return null;
         }
         Class[] clazzArray = new Class[parameters.length];

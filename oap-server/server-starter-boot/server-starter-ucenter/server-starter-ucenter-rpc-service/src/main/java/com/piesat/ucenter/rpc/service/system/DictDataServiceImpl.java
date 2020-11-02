@@ -7,14 +7,9 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.ucenter.dao.system.DictDataDao;
 import com.piesat.ucenter.entity.system.DictDataEntity;
-import com.piesat.ucenter.entity.system.RoleEntity;
-import com.piesat.ucenter.entity.system.UserEntity;
 import com.piesat.ucenter.mapper.system.DictDataMapper;
-import com.piesat.ucenter.mapper.system.DictTypeMapper;
 import com.piesat.ucenter.rpc.api.system.DictDataService;
 import com.piesat.ucenter.rpc.dto.system.DictDataDto;
-import com.piesat.ucenter.rpc.dto.system.RoleDto;
-import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.ucenter.rpc.mapstruct.system.DictDataMapstruct;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -37,6 +32,7 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
     private DictDataMapstruct dictDataMapstruct;
     @Autowired
     private DictDataMapper dictDataMapper;
+
     @Override
     public BaseDao<DictDataEntity> getBaseDao() {
         return dictDataDao;
@@ -49,16 +45,16 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 字典数据集合信息
      */
     @Override
-    public PageBean selectDictDataList(PageForm<DictDataDto> pageForm)
-    {
-        DictDataEntity dictDataEntity=dictDataMapstruct.toEntity(pageForm.getT());
-        PageHelper.startPage(pageForm.getCurrentPage(),pageForm.getPageSize());
-        List<DictDataEntity> dictDataEntities=dictDataMapper.selectDictDataList(dictDataEntity);
+    public PageBean selectDictDataList(PageForm<DictDataDto> pageForm) {
+        DictDataEntity dictDataEntity = dictDataMapstruct.toEntity(pageForm.getT());
+        PageHelper.startPage(pageForm.getCurrentPage(), pageForm.getPageSize());
+        List<DictDataEntity> dictDataEntities = dictDataMapper.selectDictDataList(dictDataEntity);
         PageInfo<DictDataEntity> pageInfo = new PageInfo<>(dictDataEntities);
-        List<DictDataDto> userDtos= dictDataMapstruct.toDto(pageInfo.getList());
-        PageBean pageBean=new PageBean(pageInfo.getTotal(),pageInfo.getPages(),userDtos);
+        List<DictDataDto> userDtos = dictDataMapstruct.toDto(pageInfo.getList());
+        PageBean pageBean = new PageBean(pageInfo.getTotal(), pageInfo.getPages(), userDtos);
         return pageBean;
     }
+
     /**
      * 根据字典数据ID查询信息
      *
@@ -66,9 +62,8 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 字典数据
      */
     @Override
-    public DictDataDto selectDictDataById(String dictCode)
-    {
-        DictDataEntity dictDataEntity=this.getById(dictCode);
+    public DictDataDto selectDictDataById(String dictCode) {
+        DictDataEntity dictDataEntity = this.getById(dictCode);
         return dictDataMapstruct.toDto(dictDataEntity);
     }
 
@@ -79,9 +74,8 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 字典数据集合信息
      */
     @Override
-    public List<DictDataDto> selectDictDataByType(String dictType)
-    {
-        List<DictDataEntity> dictDataEntities=dictDataDao.findByDictTypeAndStatusOrderByDictSortAsc(dictType,"0");
+    public List<DictDataDto> selectDictDataByType(String dictType) {
+        List<DictDataEntity> dictDataEntities = dictDataDao.findByDictTypeAndStatusOrderByDictSortAsc(dictType, "0");
         return dictDataMapstruct.toDto(dictDataEntities);
     }
 
@@ -93,8 +87,7 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 结果
      */
     @Override
-    public void deleteDictDataById(String dictCode)
-    {
+    public void deleteDictDataById(String dictCode) {
         this.delete(dictCode);
     }
 
@@ -105,8 +98,7 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 结果
      */
     @Override
-    public void deleteDictDataByIds(List<String> dictCodes)
-    {
+    public void deleteDictDataByIds(List<String> dictCodes) {
         this.deleteByIds(dictCodes);
     }
 
@@ -117,10 +109,9 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 结果
      */
     @Override
-    public DictDataDto insertDictData(DictDataDto dictData)
-    {
-        DictDataEntity dictDataEntity=dictDataMapstruct.toEntity(dictData);
-        dictDataEntity=this.saveNotNull(dictDataEntity);
+    public DictDataDto insertDictData(DictDataDto dictData) {
+        DictDataEntity dictDataEntity = dictDataMapstruct.toEntity(dictData);
+        dictDataEntity = this.saveNotNull(dictDataEntity);
         return dictDataMapstruct.toDto(dictDataEntity);
     }
 
@@ -131,22 +122,22 @@ public class DictDataServiceImpl extends BaseService<DictDataEntity> implements 
      * @return 结果
      */
     @Override
-    public DictDataDto updateDictData(DictDataDto dictData)
-    {
-        DictDataEntity dictDataEntity=dictDataMapstruct.toEntity(dictData);
-        dictDataEntity=this.saveNotNull(dictDataEntity);
+    public DictDataDto updateDictData(DictDataDto dictData) {
+        DictDataEntity dictDataEntity = dictDataMapstruct.toEntity(dictData);
+        dictDataEntity = this.saveNotNull(dictDataEntity);
         return dictDataMapstruct.toDto(dictDataEntity);
     }
 
     @Override
     public DictDataDto findByDictTypeAndDictValue(String dictType, String dictValue) {
-        return dictDataMapstruct.toDto(this.dictDataDao.findByDictTypeAndDictValue(dictType,dictValue));
+        return dictDataMapstruct.toDto(this.dictDataDao.findByDictTypeAndDictValue(dictType, dictValue));
     }
+
     @Override
-    public void exportExcel(DictDataDto dictData){
-        DictDataEntity dictDataEntity=dictDataMapstruct.toEntity(dictData);
-        List<DictDataEntity> entities=dictDataMapper.selectDictDataList(dictDataEntity);
-        ExcelUtil<DictDataEntity> util=new ExcelUtil(DictDataEntity.class);
-        util.exportExcel(entities,"字典数据信息");
+    public void exportExcel(DictDataDto dictData) {
+        DictDataEntity dictDataEntity = dictDataMapstruct.toEntity(dictData);
+        List<DictDataEntity> entities = dictDataMapper.selectDictDataList(dictDataEntity);
+        ExcelUtil<DictDataEntity> util = new ExcelUtil(DictDataEntity.class);
+        util.exportExcel(entities, "字典数据信息");
     }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
 public class SqlUtil {
 
     public static MappedStatement copyFromMappedStatement(MappedStatement ms,
-                                                    SqlSource newSqlSource) {
+                                                          SqlSource newSqlSource) {
         MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(),
                 ms.getId(), newSqlSource, ms.getSqlCommandType());
         builder.resource(ms.getResource());
@@ -38,23 +38,10 @@ public class SqlUtil {
         return builder.build();
     }
 
-    public static class BoundSqlSqlSource implements SqlSource {
-        BoundSql boundSql;
-
-        public BoundSqlSqlSource(BoundSql boundSql) {
-            this.boundSql = boundSql;
-        }
-
-        @Override
-        public BoundSql getBoundSql(Object parameterObject) {
-            return boundSql;
-        }
-    }
-
     public static String resetSql(String param, SelectBody selectBody, List<ResultMap> resultMaps) {
-        List<SelectItem> selectItems =((PlainSelect) selectBody).getSelectItems();
-        StringBuilder addSql=new StringBuilder();
-        List<ResultMapping> resultMappings= resultMaps.get(0).getResultMappings();
+        List<SelectItem> selectItems = ((PlainSelect) selectBody).getSelectItems();
+        StringBuilder addSql = new StringBuilder();
+        List<ResultMapping> resultMappings = resultMaps.get(0).getResultMappings();
         try {
             if (null == param || !com.piesat.common.utils.StringUtils.isNotNullString(param)) {
                 return "";
@@ -66,12 +53,12 @@ public class SqlUtil {
                 return "";
 
             }
-            mapList.forEach((k,v)-> {
-                String name =k.trim();
-                if(name.indexOf(".")!=-1){
-                    name=name.substring(name.lastIndexOf(".")+1);
+            mapList.forEach((k, v) -> {
+                String name = k.trim();
+                if (name.indexOf(".") != -1) {
+                    name = name.substring(name.lastIndexOf(".") + 1);
                 }
-                if(null != resultMappings && !resultMappings.isEmpty()){
+                if (null != resultMappings && !resultMappings.isEmpty()) {
                     for (ResultMapping resultMapping : resultMappings) {
                         if (name.toUpperCase().equals(resultMapping.getProperty().toUpperCase())) {
                             name = resultMapping.getColumn();
@@ -79,27 +66,28 @@ public class SqlUtil {
                         }
                     }
                 }
-                if(null!=selectItems&&!selectItems.isEmpty()){
-                    for(SelectItem selectItem:selectItems){
-                        SelectExpressionItem selectExpressionItem= (SelectExpressionItem) selectItem;
-                        String sitem=selectExpressionItem.getExpression().toString().toUpperCase();
-                        sitem=sitem.replaceAll("_","");
-                        String vname=name.toUpperCase().replaceAll("_","");
-                        if(sitem.indexOf(vname)!=-1){
-                            name=selectExpressionItem.getExpression().toString();
+                if (null != selectItems && !selectItems.isEmpty()) {
+                    for (SelectItem selectItem : selectItems) {
+                        SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+                        String sitem = selectExpressionItem.getExpression().toString().toUpperCase();
+                        sitem = sitem.replaceAll("_", "");
+                        String vname = name.toUpperCase().replaceAll("_", "");
+                        if (sitem.indexOf(vname) != -1) {
+                            name = selectExpressionItem.getExpression().toString();
                             break;
                         }
                     }
                 }
                 addSql.append(name).append(" ").append(v).append(",");
             });
-            String sql=addSql.toString();
-            return sql.substring(0,sql.length()-1);
+            String sql = addSql.toString();
+            return sql.substring(0, sql.length() - 1);
         } catch (Exception e) {
         }
         return "";
 
     }
+
     public static String replace(String string, String toReplace, String replacement) {
 //        int pos = string.lastIndexOf(toReplace);
         int pos = string.indexOf(toReplace);
@@ -109,6 +97,19 @@ public class SqlUtil {
                     + string.substring(pos + toReplace.length(), string.length());
         } else {
             return string;
+        }
+    }
+
+    public static class BoundSqlSqlSource implements SqlSource {
+        BoundSql boundSql;
+
+        public BoundSqlSqlSource(BoundSql boundSql) {
+            this.boundSql = boundSql;
+        }
+
+        @Override
+        public BoundSql getBoundSql(Object parameterObject) {
+            return boundSql;
         }
     }
 

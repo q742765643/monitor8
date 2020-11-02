@@ -14,6 +14,7 @@ import java.util.List;
 public interface DefineMapper {
     /**
      * 根据条件分页查询
+     *
      * @param defineEntity
      * @return
      */

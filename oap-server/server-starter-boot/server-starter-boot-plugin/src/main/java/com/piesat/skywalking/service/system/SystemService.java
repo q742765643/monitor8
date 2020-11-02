@@ -6,7 +6,6 @@ import com.piesat.skywalking.vo.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
-
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.script.Script;
@@ -19,14 +18,15 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggre
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.ParsedDateHistogram;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.*;
+import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.ParsedAvg;
+import org.elasticsearch.search.aggregations.metrics.ParsedMax;
 import org.elasticsearch.search.aggregations.pipeline.BucketScriptPipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.BucketSelectorPipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.DerivativePipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.ParsedSimpleValue;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.hibernate.type.BigDecimalType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,10 @@ import java.math.RoundingMode;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -104,7 +107,7 @@ public class SystemService {
         searchSourceBuilder.size(0);
         List<NetworkVo> networkVos = new ArrayList<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
 
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -196,12 +199,11 @@ public class SystemService {
         dateHis.subAggregation(bucketScriptWrite);
 
 
-
         searchSourceBuilder.aggregation(dateHis);
         searchSourceBuilder.size(0);
         List<DiskioVo> diskioVos = new ArrayList<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
 
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -265,7 +267,7 @@ public class SystemService {
         searchSourceBuilder.aggregation(dateHis);
         searchSourceBuilder.size(0);
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
 
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -326,7 +328,7 @@ public class SystemService {
         searchSourceBuilder.aggregation(dateHis);
         searchSourceBuilder.size(0);
 
-        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
 
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
@@ -370,7 +372,7 @@ public class SystemService {
         maxTime.field("@timestamp");
         searchSourceBuilder.aggregation(maxTime);
 
-        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedMax parsedMax = aggregations.get("@timestamp");
         if (parsedMax != null) {
@@ -389,7 +391,7 @@ public class SystemService {
             String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct"};
             fileSearch.fetchSource(fields, null);
             fileSearch.size(1000);
-            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", fileSearch);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", fileSearch);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {
@@ -431,7 +433,7 @@ public class SystemService {
         maxTime.field("@timestamp");
         searchSourceBuilder.aggregation(maxTime);
 
-        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+        SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedMax parsedMax = aggregations.get("@timestamp");
         if (parsedMax != null) {
@@ -446,7 +448,7 @@ public class SystemService {
             String[] fields = new String[]{"process.name", "system.process.cmdline"};
             prcessSearch.fetchSource(fields, null);
             prcessSearch.size(1000);
-            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", prcessSearch);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", prcessSearch);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {

@@ -42,17 +42,17 @@ public class DefineServiceImpl extends BaseService<DefineEntity> implements Defi
 
     @Override
     public PageBean selectDefineList(PageForm<DefineDto> pageForm) {
-        DefineEntity defineEntity=defineMapstruct.toEntity(pageForm.getT());
-        PageHelper.startPage(pageForm.getCurrentPage(),pageForm.getPageSize());
+        DefineEntity defineEntity = defineMapstruct.toEntity(pageForm.getT());
+        PageHelper.startPage(pageForm.getCurrentPage(), pageForm.getPageSize());
         //根据条件查询当前分页所有
-        if(StringUtils.isNotBlank(defineEntity.getAreaId())){
-            defineEntity.setAreaId("%"+defineEntity.getAreaId()+"%");
+        if (StringUtils.isNotBlank(defineEntity.getAreaId())) {
+            defineEntity.setAreaId("%" + defineEntity.getAreaId() + "%");
         }
-        List<DefineEntity> defineEntities=defineMapper.selectDefineList(defineEntity);
+        List<DefineEntity> defineEntities = defineMapper.selectDefineList(defineEntity);
         PageInfo<DefineEntity> pageInfo = new PageInfo<>(defineEntities);
         //获取当前页数据
-        List<DefineDto> levelDtos= defineMapstruct.toDto(pageInfo.getList());
-        PageBean pageBean=new PageBean(pageInfo.getTotal(),pageInfo.getPages(),levelDtos);
+        List<DefineDto> levelDtos = defineMapstruct.toDto(pageInfo.getList());
+        PageBean pageBean = new PageBean(pageInfo.getTotal(), pageInfo.getPages(), levelDtos);
         return pageBean;
     }
 
@@ -90,16 +90,16 @@ public class DefineServiceImpl extends BaseService<DefineEntity> implements Defi
     @Override
     public void exportExcel(DefineDto defineDto) {
         List<DefineDto> dtoList = this.findByParam(defineDto);
-        List<DefineEntity> entities=defineMapstruct.toEntity(dtoList);
-        ExcelUtil<DefineEntity> util=new ExcelUtil(DefineEntity.class);
-        util.exportExcel(entities,"区域类别管理");
+        List<DefineEntity> entities = defineMapstruct.toEntity(dtoList);
+        ExcelUtil<DefineEntity> util = new ExcelUtil(DefineEntity.class);
+        util.exportExcel(entities, "区域类别管理");
     }
 
     @Override
     public List<DefineDto> findByParam(DefineDto defineDto) {
-        SimpleSpecificationBuilder specificationBuilder=new SimpleSpecificationBuilder();
-        if(com.piesat.common.utils.StringUtils.isNotNullString(defineDto.getAreaId())){
-            specificationBuilder.add("areaId", SpecificationOperator.Operator.eq.name(),defineDto.getAreaId());
+        SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if (com.piesat.common.utils.StringUtils.isNotNullString(defineDto.getAreaId())) {
+            specificationBuilder.add("areaId", SpecificationOperator.Operator.eq.name(), defineDto.getAreaId());
         }
         List<DefineEntity> defineEntities = this.getAll(specificationBuilder.generateSpecification());
         List<DefineDto> defineDtos = this.defineMapstruct.toDto(defineEntities);

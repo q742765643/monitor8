@@ -16,29 +16,10 @@
 
 package org.springframework.boot.web.embedded.jetty;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.channels.ReadableByteChannel;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.starter.OAPServerBootstrap;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.server.AbstractConnector;
-import org.eclipse.jetty.server.ConnectionFactory;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.session.DefaultSessionCache;
@@ -55,7 +36,6 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
-
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.boot.web.server.MimeMappings;
 import org.springframework.boot.web.server.WebServer;
@@ -66,6 +46,19 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.ReadableByteChannel;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link ServletWebServerFactory} that can be used to create a {@link JettyWebServer}.
@@ -82,10 +75,10 @@ import org.springframework.util.StringUtils;
  * @author Eddú Meléndez
  * @author Venil Noronha
  * @author Henri Kerola
- * @since 2.0.0
  * @see #setPort(int)
  * @see #setConfigurations(Collection)
  * @see JettyWebServer
+ * @since 2.0.0
  */
 public class JettyServletWebServerFactory extends AbstractServletWebServerFactory
         implements ConfigurableJettyWebServerFactory, ResourceLoaderAware {
@@ -119,6 +112,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     /**
      * Create a new {@link JettyServletWebServerFactory} that listens for requests using
      * the specified port.
+     *
      * @param port the port to listen on
      */
     public JettyServletWebServerFactory(int port) {
@@ -128,8 +122,9 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     /**
      * Create a new {@link JettyServletWebServerFactory} with the specified context path
      * and port.
+     *
      * @param contextPath the root context path
-     * @param port the port to listen on
+     * @param port        the port to listen on
      */
     public JettyServletWebServerFactory(String contextPath, int port) {
         super(contextPath, port);
@@ -142,7 +137,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
         InetSocketAddress address = new InetSocketAddress(getAddress(), port);
         Server server = createServer(address);
         configureWebAppContext(context, initializers);
-        ServletContextHandler servletContextHandler= (ServletContextHandler) this.addHandlerWrappers(context);
+        ServletContextHandler servletContextHandler = (ServletContextHandler) this.addHandlerWrappers(context);
         server.setHandler(servletContextHandler);
         CoreModuleProvider.CONTEXTHANDLER = servletContextHandler;
         OAPServerBootstrap.start();
@@ -150,8 +145,8 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
                 .getServletMappings() != null) {
             for (ServletMapping servletMapping : servletContextHandler.getServletHandler()
                     .getServletMappings()) {
-                System.out.println("jetty servlet mappings: "+servletMapping.getPathSpecs()+" register by "+servletMapping
-                        .getServletName()+"");
+                System.out.println("jetty servlet mappings: " + servletMapping.getPathSpecs() + " register by " + servletMapping
+                        .getServletName() + "");
             }
         }
         this.logger.info("Server initialized with port: " + port);
@@ -169,7 +164,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     private Server createServer(InetSocketAddress address) {
         Server server = new Server(getThreadPool());
-        server.setConnectors(new Connector[] { createConnector(address, server) });
+        server.setConnectors(new Connector[]{createConnector(address, server)});
         return server;
     }
 
@@ -207,7 +202,8 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     /**
      * Configure the given Jetty {@link WebAppContext} for use.
-     * @param context the context to configure
+     *
+     * @param context      the context to configure
      * @param initializers the set of initializers to apply
      */
     protected final void configureWebAppContext(WebAppContext context, ServletContextInitializer... initializers) {
@@ -278,8 +274,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
                 }
             }
             handler.setBaseResource(new ResourceCollection(resources.toArray(new Resource[0])));
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
     }
@@ -296,6 +291,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     /**
      * Add Jetty's {@code DefaultServlet} to the given {@link WebAppContext}.
+     *
      * @param context the jetty {@link WebAppContext}
      */
     protected final void addDefaultServlet(WebAppContext context) {
@@ -311,6 +307,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     /**
      * Add Jetty's {@code JspServlet} to the given {@link WebAppContext}.
+     *
      * @param context the jetty {@link WebAppContext}
      */
     protected final void addJspServlet(WebAppContext context) {
@@ -324,14 +321,15 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
         context.getServletHandler().addServlet(holder);
         ServletMapping mapping = new ServletMapping();
         mapping.setServletName("jsp");
-        mapping.setPathSpecs(new String[] { "*.jsp", "*.jspx" });
+        mapping.setPathSpecs(new String[]{"*.jsp", "*.jspx"});
         context.getServletHandler().addServletMapping(mapping);
     }
 
     /**
      * Return the Jetty {@link Configuration}s that should be applied to the server.
+     *
      * @param webAppContext the Jetty {@link WebAppContext}
-     * @param initializers the {@link ServletContextInitializer}s to apply
+     * @param initializers  the {@link ServletContextInitializer}s to apply
      * @return configurations to apply
      */
     protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext,
@@ -346,6 +344,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     /**
      * Create a configuration object that adds error handlers.
+     *
      * @return a configuration object for adding error pages
      */
     private Configuration getErrorPageConfiguration() {
@@ -363,6 +362,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     /**
      * Create a configuration object that adds mime type mappings.
+     *
      * @return a configuration object for adding mime type mappings
      */
     private Configuration getMimeTypeConfiguration() {
@@ -383,8 +383,9 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
      * Return a Jetty {@link Configuration} that will invoke the specified
      * {@link ServletContextInitializer}s. By default this method will return a
      * {@link ServletContextInitializerConfiguration}.
+     *
      * @param webAppContext the Jetty {@link WebAppContext}
-     * @param initializers the {@link ServletContextInitializer}s to apply
+     * @param initializers  the {@link ServletContextInitializer}s to apply
      * @return the {@link Configuration} instance
      */
     protected Configuration getServletContextInitializerConfiguration(WebAppContext webAppContext,
@@ -396,6 +397,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
      * Post process the Jetty {@link WebAppContext} before it's used with the Jetty
      * Server. Subclasses can override this method to apply additional processing to the
      * {@link WebAppContext}.
+     *
      * @param webAppContext the Jetty {@link WebAppContext}
      */
     protected void postProcessWebAppContext(WebAppContext webAppContext) {
@@ -405,6 +407,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
      * Factory method called to create the {@link JettyWebServer}. Subclasses can override
      * this method to return a different {@link JettyWebServer} or apply additional
      * processing to the Jetty server.
+     *
      * @param server the Jetty server.
      * @return a new {@link JettyWebServer} instance
      */
@@ -433,22 +436,24 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     }
 
     /**
+     * Returns a mutable collection of Jetty {@link JettyServerCustomizer}s that will be
+     * applied to the {@link Server} before the it is created.
+     *
+     * @return the {@link JettyServerCustomizer}s
+     */
+    public Collection<JettyServerCustomizer> getServerCustomizers() {
+        return this.jettyServerCustomizers;
+    }
+
+    /**
      * Sets {@link JettyServerCustomizer}s that will be applied to the {@link Server}
      * before it is started. Calling this method will replace any existing customizers.
+     *
      * @param customizers the Jetty customizers to apply
      */
     public void setServerCustomizers(Collection<? extends JettyServerCustomizer> customizers) {
         Assert.notNull(customizers, "Customizers must not be null");
         this.jettyServerCustomizers = new ArrayList<>(customizers);
-    }
-
-    /**
-     * Returns a mutable collection of Jetty {@link JettyServerCustomizer}s that will be
-     * applied to the {@link Server} before the it is created.
-     * @return the {@link JettyServerCustomizer}s
-     */
-    public Collection<JettyServerCustomizer> getServerCustomizers() {
-        return this.jettyServerCustomizers;
     }
 
     @Override
@@ -458,9 +463,20 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     }
 
     /**
+     * Returns a mutable collection of Jetty {@link Configuration}s that will be applied
+     * to the {@link WebAppContext} before the server is created.
+     *
+     * @return the Jetty {@link Configuration}s
+     */
+    public Collection<Configuration> getConfigurations() {
+        return this.configurations;
+    }
+
+    /**
      * Sets Jetty {@link Configuration}s that will be applied to the {@link WebAppContext}
      * before the server is created. Calling this method will replace any existing
      * configurations.
+     *
      * @param configurations the Jetty configurations to apply
      */
     public void setConfigurations(Collection<? extends Configuration> configurations) {
@@ -469,17 +485,9 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     }
 
     /**
-     * Returns a mutable collection of Jetty {@link Configuration}s that will be applied
-     * to the {@link WebAppContext} before the server is created.
-     * @return the Jetty {@link Configuration}s
-     */
-    public Collection<Configuration> getConfigurations() {
-        return this.configurations;
-    }
-
-    /**
      * Add {@link Configuration}s that will be applied to the {@link WebAppContext} before
      * the server is started.
+     *
      * @param configurations the configurations to add
      */
     public void addConfigurations(Configuration... configurations) {
@@ -489,6 +497,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
     /**
      * Returns a Jetty {@link ThreadPool} that should be used by the {@link Server}.
+     *
      * @return a Jetty {@link ThreadPool} or {@code null}
      */
     public ThreadPool getThreadPool() {
@@ -498,6 +507,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     /**
      * Set a Jetty {@link ThreadPool} that should be used by the {@link Server}. If set to
      * {@code null} (default), the {@link Server} creates a {@link ThreadPool} implicitly.
+     *
      * @param threadPool a Jetty ThreadPool to be used
      */
     public void setThreadPool(ThreadPool threadPool) {
@@ -510,12 +520,10 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
             for (ErrorPage errorPage : errorPages) {
                 if (errorPage.isGlobal()) {
                     handler.addErrorPage(ErrorPageErrorHandler.GLOBAL_ERROR_PAGE, errorPage.getPath());
-                }
-                else {
+                } else {
                     if (errorPage.getExceptionName() != null) {
                         handler.addErrorPage(errorPage.getExceptionName(), errorPage.getPath());
-                    }
-                    else {
+                    } else {
                         handler.addErrorPage(errorPage.getStatusCode(), errorPage.getPath());
                     }
                 }

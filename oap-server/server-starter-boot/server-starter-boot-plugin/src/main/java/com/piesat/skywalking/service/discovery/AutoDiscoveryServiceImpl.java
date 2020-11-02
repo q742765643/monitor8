@@ -13,7 +13,6 @@ import com.piesat.skywalking.mapstruct.AutoDiscoveryMapstruct;
 import com.piesat.skywalking.service.quartz.timing.AutoDiscoveryQuartzService;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
-import jdk.internal.dynalink.support.AutoDiscovery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,12 +29,14 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
     private AutoDiscoveryQuartzService autoDiscoveryQuartzService;
     @Autowired
     private AutoDiscoveryMapstruct autoDiscoveryMapstruct;
+
     @Override
     public BaseDao<AutoDiscoveryEntity> getBaseDao() {
         return autoDiscoveryDao;
     }
+
     public PageBean selectPageList(PageForm<AutoDiscoveryDto> pageForm) {
-        AutoDiscoveryEntity discovery=autoDiscoveryMapstruct.toEntity(pageForm.getT());
+        AutoDiscoveryEntity discovery = autoDiscoveryMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(discovery.getIpRange())) {
             specificationBuilder.addOr("ipRange", SpecificationOperator.Operator.likeAll.name(), discovery.getIpRange());
@@ -49,7 +50,7 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
         if (StringUtils.isNotNullString((String) discovery.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) discovery.getParamt().get("endTime"));
         }
-        if (null!=discovery.getTriggerStatus()){
+        if (null != discovery.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), discovery.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
@@ -59,8 +60,8 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
 
     }
 
-    public List<AutoDiscoveryDto> selectBySpecification(AutoDiscoveryDto autoDiscoveryDto){
-        AutoDiscoveryEntity autoDiscoveryEntity=autoDiscoveryMapstruct.toEntity(autoDiscoveryDto);
+    public List<AutoDiscoveryDto> selectBySpecification(AutoDiscoveryDto autoDiscoveryDto) {
+        AutoDiscoveryEntity autoDiscoveryEntity = autoDiscoveryMapstruct.toEntity(autoDiscoveryDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(autoDiscoveryEntity.getIpRange())) {
             specificationBuilder.addOr("ipRange", SpecificationOperator.Operator.likeAll.name(), autoDiscoveryEntity.getIpRange());
@@ -74,28 +75,28 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
         if (StringUtils.isNotNullString((String) autoDiscoveryEntity.getParamt().get("endTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) autoDiscoveryEntity.getParamt().get("endTime"));
         }
-        if (null!=autoDiscoveryEntity.getTriggerStatus()){
+        if (null != autoDiscoveryEntity.getTriggerStatus()) {
             specificationBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), autoDiscoveryEntity.getTriggerStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
-        List<AutoDiscoveryEntity> discoveryEntities=this.getAll(specification);
+        List<AutoDiscoveryEntity> discoveryEntities = this.getAll(specification);
         return autoDiscoveryMapstruct.toDto(discoveryEntities);
     }
 
     @Override
     @Transactional
-    public AutoDiscoveryDto save(AutoDiscoveryDto autoDiscoveryDto){
-        if(autoDiscoveryDto.getTriggerType()==null){
+    public AutoDiscoveryDto save(AutoDiscoveryDto autoDiscoveryDto) {
+        if (autoDiscoveryDto.getTriggerType() == null) {
             autoDiscoveryDto.setTriggerType(1);
         }
-        if(autoDiscoveryDto.getTriggerStatus()==null){
+        if (autoDiscoveryDto.getTriggerStatus() == null) {
             autoDiscoveryDto.setTriggerStatus(0);
         }
         autoDiscoveryDto.setIsUt(0);
         autoDiscoveryDto.setDelayTime(0);
         autoDiscoveryDto.setJobHandler("autoDiscoveryHandler");
-        AutoDiscoveryEntity autoDiscoveryEntity=autoDiscoveryMapstruct.toEntity(autoDiscoveryDto);
-        autoDiscoveryEntity=super.saveNotNull(autoDiscoveryEntity);
+        AutoDiscoveryEntity autoDiscoveryEntity = autoDiscoveryMapstruct.toEntity(autoDiscoveryDto);
+        autoDiscoveryEntity = super.saveNotNull(autoDiscoveryEntity);
         autoDiscoveryQuartzService.handleJob(autoDiscoveryMapstruct.toDto(autoDiscoveryEntity));
         return autoDiscoveryDto;
     }
@@ -107,7 +108,7 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
 
     @Override
     public void deleteByIds(List<String> ids) {
-       super.deleteByIds(ids);
-       autoDiscoveryQuartzService.deleteJob(ids);
+        super.deleteByIds(ids);
+        autoDiscoveryQuartzService.deleteJob(ids);
     }
 }

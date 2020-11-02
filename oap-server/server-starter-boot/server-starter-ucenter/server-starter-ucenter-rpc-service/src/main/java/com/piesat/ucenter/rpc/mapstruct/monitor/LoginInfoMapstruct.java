@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface LoginInfoMapstruct extends BaseMapper<LoginInfoDto,LoginInfoEntity>{
+public interface LoginInfoMapstruct extends BaseMapper<LoginInfoDto, LoginInfoEntity> {
 }
 

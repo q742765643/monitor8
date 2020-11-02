@@ -3,13 +3,9 @@ package com.piesat.skywalking.service.folder;
 import com.piesat.common.jpa.BaseDao;
 import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
-import com.piesat.common.jpa.specification.SpecificationOperator;
-import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.api.folder.FileMonitorLogService;
 import com.piesat.skywalking.dao.FileMonitorLogDao;
-import com.piesat.skywalking.dto.DirectoryAccountDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
-import com.piesat.skywalking.entity.DirectoryAccountEntity;
 import com.piesat.skywalking.entity.FileMonitorLogEntity;
 import com.piesat.skywalking.mapstruct.FileMonitorLogMapstruct;
 import com.piesat.util.page.PageBean;
@@ -29,18 +25,19 @@ import java.util.List;
  * @Date: 2020-10-26 09:52
  */
 @Service
-public class FileMonitorLogServiceImpl  extends BaseService<FileMonitorLogEntity> implements FileMonitorLogService {
+public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity> implements FileMonitorLogService {
     @Autowired
     private FileMonitorLogDao fileMonitorLogDao;
     @Autowired
     private FileMonitorLogMapstruct fileMonitorLogMapstruct;
+
     @Override
     public BaseDao<FileMonitorLogEntity> getBaseDao() {
         return fileMonitorLogDao;
     }
 
-    public PageBean selectPageList(PageForm<FileMonitorLogDto> pageForm){
-        FileMonitorLogEntity fileMonitorLogEntity=fileMonitorLogMapstruct.toEntity(pageForm.getT());
+    public PageBean selectPageList(PageForm<FileMonitorLogDto> pageForm) {
+        FileMonitorLogEntity fileMonitorLogEntity = fileMonitorLogMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
@@ -49,12 +46,13 @@ public class FileMonitorLogServiceImpl  extends BaseService<FileMonitorLogEntity
         return pageBean;
 
     }
+
     @Override
     @Transactional
-    public FileMonitorLogDto save(FileMonitorLogDto fileMonitorLogDto){
+    public FileMonitorLogDto save(FileMonitorLogDto fileMonitorLogDto) {
 
-        FileMonitorLogEntity fileMonitorLogEntity=fileMonitorLogMapstruct.toEntity(fileMonitorLogDto);
-        fileMonitorLogEntity=super.saveNotNull(fileMonitorLogEntity);
+        FileMonitorLogEntity fileMonitorLogEntity = fileMonitorLogMapstruct.toEntity(fileMonitorLogDto);
+        fileMonitorLogEntity = super.saveNotNull(fileMonitorLogEntity);
         return fileMonitorLogMapstruct.toDto(fileMonitorLogEntity);
     }
 

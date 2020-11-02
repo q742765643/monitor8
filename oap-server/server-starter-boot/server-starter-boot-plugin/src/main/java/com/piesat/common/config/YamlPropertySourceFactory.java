@@ -19,7 +19,7 @@ import java.util.Properties;
 public class YamlPropertySourceFactory implements PropertySourceFactory {
 
     @Override
-    public PropertySource< ? > createPropertySource(String name, EncodedResource resource) throws IOException {
+    public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
         Properties propertiesFromYaml = loadYamlIntoProperties(resource);
         String sourceName = name != null ? name : resource.getResource().getFilename();
         return new PropertiesPropertySource(sourceName, propertiesFromYaml);

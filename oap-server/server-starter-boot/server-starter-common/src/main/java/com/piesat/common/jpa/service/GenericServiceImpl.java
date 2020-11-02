@@ -38,13 +38,13 @@ import java.util.Optional;
  **/
 //@Transactional(readOnly = true)
 @Service
-public abstract class GenericServiceImpl<T, ID extends Serializable> implements GenericService<T, ID>
-{
+public abstract class GenericServiceImpl<T, ID extends Serializable> implements GenericService<T, ID> {
     protected Logger logger;
     @PersistenceContext
     private EntityManager em;
+
     public GenericServiceImpl() {
-        this.logger = LoggerFactory.getLogger((Class)this.getClass());
+        this.logger = LoggerFactory.getLogger((Class) this.getClass());
     }
 
     public abstract GenericDao<T, ID> getGenericDao();
@@ -52,15 +52,15 @@ public abstract class GenericServiceImpl<T, ID extends Serializable> implements 
     @Override
     public Class<T> getEntityClass() {
         final Type genType = this.getClass().getGenericSuperclass();
-        final Type[] params = ((ParameterizedType)genType).getActualTypeArguments();
-        return (Class<T>)params[0];
+        final Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
+        return (Class<T>) params[0];
     }
 
     @Override
     public PageBean getPage(final Specification<T> specification, PageForm pageForm, Sort sort) {
-        PageBean pageBean=new PageBean();
-        sort=this.getSort(pageForm,sort);
-        Page<T> page=this.getGenericDao().findAll(specification,this.buildPageRequest(pageForm,sort));
+        PageBean pageBean = new PageBean();
+        sort = this.getSort(pageForm, sort);
+        Page<T> page = this.getGenericDao().findAll(specification, this.buildPageRequest(pageForm, sort));
         pageBean.setPageData(page.getContent());
         pageBean.setTotalPage(page.getTotalPages());
         pageBean.setTotalCount(page.getTotalElements());
@@ -70,13 +70,13 @@ public abstract class GenericServiceImpl<T, ID extends Serializable> implements 
     @Override
     public T getById(final ID id) {
         Optional<T> optionalT = this.getGenericDao().findById(id);
-        return optionalT.isPresent() ? optionalT.get(): null;
+        return optionalT.isPresent() ? optionalT.get() : null;
     }
 
     @Override
     public T getBySpecification(final Specification<T> specification) {
         Optional<T> optionalT = this.getGenericDao().findOne(specification);
-        return optionalT.isPresent() ? optionalT.get(): null;
+        return optionalT.isPresent() ? optionalT.get() : null;
     }
 
     @Override
@@ -105,10 +105,10 @@ public abstract class GenericServiceImpl<T, ID extends Serializable> implements 
     }
 
     @Override
-    public PageBean getAll(final PageForm pageForm,Sort sort) {
-        PageBean pageBean=new PageBean();
-        sort=this.getSort(pageForm,sort);
-        Page<T> page=this.getGenericDao().findAll(this.buildPageRequest(pageForm,sort));
+    public PageBean getAll(final PageForm pageForm, Sort sort) {
+        PageBean pageBean = new PageBean();
+        sort = this.getSort(pageForm, sort);
+        Page<T> page = this.getGenericDao().findAll(this.buildPageRequest(pageForm, sort));
         pageBean.setPageData(page.getContent());
         pageBean.setTotalPage(page.getTotalPages());
         pageBean.setTotalCount(page.getTotalElements());
@@ -192,115 +192,124 @@ public abstract class GenericServiceImpl<T, ID extends Serializable> implements 
     public void deleteAllInBatch() {
         this.getGenericDao().deleteAllInBatch();
     }
+
     /**
      * 执行原生SQL查询
+     *
      * @param sql
      * @param params sql参数
      * @return 结果集并影射成Map
      */
     @Override
-    public List<Map<String,Object>> queryByNativeSQL(String sql, Map<String,Object> params){
-        Query query=em.createNativeQuery(sql);
-        if(params!=null&&params.size()>0){
-            for(String param:params.keySet() ){
-                query.setParameter(param,params.get(param));
+    public List<Map<String, Object>> queryByNativeSQL(String sql, Map<String, Object> params) {
+        Query query = em.createNativeQuery(sql);
+        if (params != null && params.size() > 0) {
+            for (String param : params.keySet()) {
+                query.setParameter(param, params.get(param));
             }
         }
         query.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
     }
+
     /**
      * 执行原生SQL查询
+     *
      * @param sql
      * @param params sql参数
      * @return 结果集并影射成Map
      */
     @Override
-    public List<Map<String,Object>> queryByNativeSQL(String sql, Object... params){
-        Query query=em.createNativeQuery(sql);
-        if(params!=null&&params.length>0){
-            for(int i=0;i< params.length;i++){
-                query.setParameter(i,params[i]);
+    public List<Map<String, Object>> queryByNativeSQL(String sql, Object... params) {
+        Query query = em.createNativeQuery(sql);
+        if (params != null && params.length > 0) {
+            for (int i = 0; i < params.length; i++) {
+                query.setParameter(i, params[i]);
             }
         }
         query.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
     }
+
     /**
      * 执行原生SQL查询
+     *
      * @param sql
      * @param entityClass 结果转换实体类
-     * @param params sql参数
+     * @param params      sql参数
      * @return 结果集并影射成entityClass
      */
     @Override
-    public List<?> queryByNativeSQL(String sql, Class entityClass, Map<String,Object> params){
-        Query query=em.createNativeQuery(sql,entityClass);
-        if(params!=null&&params.size()>0){
-            for(String param:params.keySet() ){
-                query.setParameter(param,params.get(param));
+    public List<?> queryByNativeSQL(String sql, Class entityClass, Map<String, Object> params) {
+        Query query = em.createNativeQuery(sql, entityClass);
+        if (params != null && params.size() > 0) {
+            for (String param : params.keySet()) {
+                query.setParameter(param, params.get(param));
             }
         }
         return query.getResultList();
     }
 
     @Override
-    public PageBean queryByNativeSQLPageList(String sql, Class entityClass, Map<String,Object> params, PageForm pageForm){
-        PageRequest pageRequest=this.buildPageRequest(pageForm,null);
-        String newSql="select * from ("+sql+") limit "+pageRequest.getOffset()+","+pageRequest.getPageSize();        Query query=em.createNativeQuery(newSql,entityClass);
-        if(params!=null&&params.size()>0){
-            for(String param:params.keySet() ){
-                query.setParameter(param,params.get(param));
+    public PageBean queryByNativeSQLPageList(String sql, Class entityClass, Map<String, Object> params, PageForm pageForm) {
+        PageRequest pageRequest = this.buildPageRequest(pageForm, null);
+        String newSql = "select * from (" + sql + ") limit " + pageRequest.getOffset() + "," + pageRequest.getPageSize();
+        Query query = em.createNativeQuery(newSql, entityClass);
+        if (params != null && params.size() > 0) {
+            for (String param : params.keySet()) {
+                query.setParameter(param, params.get(param));
             }
         }
-        List<T> list=query.getResultList();
-        long total=this.queryByNativeSQLCount(sql,params);
-        PageBean pageBean=new PageBean();
-        pageBean.setTotalCount(total);
-        pageBean.setPageData(list);
-        return pageBean;
-    }
-    @Override
-    public PageBean queryByNativeSQLPageMap(String sql, Map<String,Object> params, PageForm pageForm){
-        PageRequest pageRequest=this.buildPageRequest(pageForm,null);
-        String newSql="select * from ("+sql+") limit "+pageRequest.getOffset()+","+pageRequest.getPageSize();
-        Query query=em.createNativeQuery(newSql);
-        if(params!=null&&params.size()>0){
-            for(String param:params.keySet() ){
-                query.setParameter(param,params.get(param));
-            }
-        }
-        List<Map<String,Object>> list=query.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP).getResultList();
-        long total=this.queryByNativeSQLCount(sql,params);
-        PageBean pageBean=new PageBean();
+        List<T> list = query.getResultList();
+        long total = this.queryByNativeSQLCount(sql, params);
+        PageBean pageBean = new PageBean();
         pageBean.setTotalCount(total);
         pageBean.setPageData(list);
         return pageBean;
     }
 
-    public long queryByNativeSQLCount(String sql, Map<String,Object> params){
-        String newSql="select count(*) from ("+sql+")";
-        Query query=em.createNativeQuery(newSql);
-        if(params!=null&&params.size()>0){
-            for(String param:params.keySet() ){
-                query.setParameter(param,params.get(param));
+    @Override
+    public PageBean queryByNativeSQLPageMap(String sql, Map<String, Object> params, PageForm pageForm) {
+        PageRequest pageRequest = this.buildPageRequest(pageForm, null);
+        String newSql = "select * from (" + sql + ") limit " + pageRequest.getOffset() + "," + pageRequest.getPageSize();
+        Query query = em.createNativeQuery(newSql);
+        if (params != null && params.size() > 0) {
+            for (String param : params.keySet()) {
+                query.setParameter(param, params.get(param));
             }
         }
-        BigDecimal bigDecimal= (BigDecimal) query.getSingleResult();
+        List<Map<String, Object>> list = query.unwrap(SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP).getResultList();
+        long total = this.queryByNativeSQLCount(sql, params);
+        PageBean pageBean = new PageBean();
+        pageBean.setTotalCount(total);
+        pageBean.setPageData(list);
+        return pageBean;
+    }
+
+    public long queryByNativeSQLCount(String sql, Map<String, Object> params) {
+        String newSql = "select count(*) from (" + sql + ")";
+        Query query = em.createNativeQuery(newSql);
+        if (params != null && params.size() > 0) {
+            for (String param : params.keySet()) {
+                query.setParameter(param, params.get(param));
+            }
+        }
+        BigDecimal bigDecimal = (BigDecimal) query.getSingleResult();
         return bigDecimal.longValue();
     }
-    public PageRequest buildPageRequest(PageForm pageForm,Sort sort) {
-        if(sort==null){
-            sort=Sort.unsorted();
+
+    public PageRequest buildPageRequest(PageForm pageForm, Sort sort) {
+        if (sort == null) {
+            sort = Sort.unsorted();
         }
-        return PageRequest.of(pageForm.getCurrentPage()-1, pageForm.getPageSize(),sort);
+        return PageRequest.of(pageForm.getCurrentPage() - 1, pageForm.getPageSize(), sort);
     }
 
-    public Sort getSort(PageForm pageForm,Sort sort){
-        Object obj=pageForm.getT();
-        if(obj instanceof BaseDto){
-            BaseDto baseDto= (BaseDto) obj;
-            String  param=baseDto.getParams();
+    public Sort getSort(PageForm pageForm, Sort sort) {
+        Object obj = pageForm.getT();
+        if (obj instanceof BaseDto) {
+            BaseDto baseDto = (BaseDto) obj;
+            String param = baseDto.getParams();
             if (null == param || !com.piesat.common.utils.StringUtils.isNotNullString(param)) {
                 return sort;
             }
@@ -309,34 +318,34 @@ public abstract class GenericServiceImpl<T, ID extends Serializable> implements 
             if (null == mapList || mapList.isEmpty()) {
                 return sort;
             }
-            List<Sort.Order> orders=new ArrayList<Sort.Order>();
-            mapList.forEach((k,v)-> {
-                String name =k.trim();
-                String sortT =v;
-                orders.add( new Sort.Order(Sort.Direction.fromString(sortT), name));
-            });
-            if(!orders.isEmpty()){
-                sort=Sort.by(orders);
-            }
-        }else if(obj instanceof BaseEntity){
-            BaseEntity baseEntity= (BaseEntity) obj;
-            String  param=baseEntity.getParams();
-            if (null == param || !com.piesat.common.utils.StringUtils.isNotNullString(param)) {
-                return sort;
-            }
-            Map<String, Object> map = JSON.parseObject(param, Map.class);
-            Map<String, String> mapList = (Map<String, String>) map.get("orderBy");
-            if (null == mapList || mapList.isEmpty()) {
-                return sort;
-            }
-            List<Sort.Order> orders=new ArrayList<Sort.Order>();
-            mapList.forEach((k,v)-> {
+            List<Sort.Order> orders = new ArrayList<Sort.Order>();
+            mapList.forEach((k, v) -> {
                 String name = k.trim();
                 String sortT = v;
-                orders.add( new Sort.Order(Sort.Direction.fromString(sortT), name));
+                orders.add(new Sort.Order(Sort.Direction.fromString(sortT), name));
             });
-            if(!orders.isEmpty()){
-                sort=Sort.by(orders);
+            if (!orders.isEmpty()) {
+                sort = Sort.by(orders);
+            }
+        } else if (obj instanceof BaseEntity) {
+            BaseEntity baseEntity = (BaseEntity) obj;
+            String param = baseEntity.getParams();
+            if (null == param || !com.piesat.common.utils.StringUtils.isNotNullString(param)) {
+                return sort;
+            }
+            Map<String, Object> map = JSON.parseObject(param, Map.class);
+            Map<String, String> mapList = (Map<String, String>) map.get("orderBy");
+            if (null == mapList || mapList.isEmpty()) {
+                return sort;
+            }
+            List<Sort.Order> orders = new ArrayList<Sort.Order>();
+            mapList.forEach((k, v) -> {
+                String name = k.trim();
+                String sortT = v;
+                orders.add(new Sort.Order(Sort.Direction.fromString(sortT), name));
+            });
+            if (!orders.isEmpty()) {
+                sort = Sort.by(orders);
             }
         }
 

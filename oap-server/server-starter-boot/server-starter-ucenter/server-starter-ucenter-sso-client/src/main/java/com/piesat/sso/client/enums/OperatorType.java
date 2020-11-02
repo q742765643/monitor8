@@ -6,8 +6,7 @@ package com.piesat.sso.client.enums;
  * @author: zzj
  * @create: 2019-12-16 11:48
  **/
-public enum OperatorType
-{
+public enum OperatorType {
     /**
      * 其它
      */

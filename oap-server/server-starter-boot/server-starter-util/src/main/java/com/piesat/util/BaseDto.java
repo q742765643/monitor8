@@ -1,7 +1,6 @@
 package com.piesat.util;
 
 
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,7 +19,7 @@ public class BaseDto implements Serializable {
     private Date updateTime;
 
 
-    private String delFlag="0";
+    private String delFlag = "0";
 
     private String createBy;
 

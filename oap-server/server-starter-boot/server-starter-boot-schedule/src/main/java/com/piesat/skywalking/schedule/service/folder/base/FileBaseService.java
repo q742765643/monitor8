@@ -47,23 +47,27 @@ public abstract class FileBaseService {
     protected FileLogService fileLogService;
     @Autowired
     protected ElasticSearch7Client elasticSearch7Client;
-    protected  String getRegFromDatePattern(String datePattern){
-        return  datePattern.replaceAll("[ymdhsYMDHS]", "\\\\d");
+
+    protected String getRegFromDatePattern(String datePattern) {
+        return datePattern.replaceAll("[ymdhsYMDHS]", "\\\\d");
     }
-    public abstract void singleFile(FileMonitorDto monitor,List<Map<String,Object>> fileList, ResultT<String> resultT);
-    public String repalceRegx(FileMonitorLogDto fileMonitorLogDto, ResultT<String> resultT){
-        String expression= "";
+
+    public abstract void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT);
+
+    public String repalceRegx(FileMonitorLogDto fileMonitorLogDto, ResultT<String> resultT) {
+        String expression = "";
         try {
-            String folderRegular= DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getFolderRegular(), fileMonitorLogDto.getTriggerTime());
-            String filenameRegular=fileMonitorLogDto.getFilenameRegular();
+            String folderRegular = DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getFolderRegular(), fileMonitorLogDto.getTriggerTime());
+            String filenameRegular = fileMonitorLogDto.getFilenameRegular();
             Matcher m = PATTERN.matcher(filenameRegular);
-            while (m.find()){
+            while (m.find()) {
                 String expression1 = m.group(2);
-                if(expression1.length()>expression.length()){
-                    expression=expression1;
+                if (expression1.length() > expression.length()) {
+                    expression = expression1;
                 }
-                String replaceMent =expression1.replaceAll("[ymdhsYMDHS]", "\\\\d");;
-                filenameRegular=filenameRegular.replace("${"+expression1+"}",replaceMent);
+                String replaceMent = expression1.replaceAll("[ymdhsYMDHS]", "\\\\d");
+                ;
+                filenameRegular = filenameRegular.replace("${" + expression1 + "}", replaceMent);
             }
             /*while (m.find()){
                 expression = m.group(2);
@@ -73,7 +77,7 @@ public abstract class FileBaseService {
                 String expressionWrapper = fileMonitorLogDto.getFilenameRegular().substring(start, end);
                 filenameRegular= StringUtils.replace(filenameRegular, expressionWrapper, replaceMent);
             }*/
-            filenameRegular=filenameRegular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
+            filenameRegular = filenameRegular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
             fileMonitorLogDto.setFolderRegular(folderRegular);
             fileMonitorLogDto.setFilenameRegular(filenameRegular);
         } catch (Exception e) {
@@ -81,16 +85,17 @@ public abstract class FileBaseService {
         }
         return expression;
     }
-    public long getDataTime(long createTime,String fileName,String dataFilePattern,ResultT<String> resultT){
+
+    public long getDataTime(long createTime, String fileName, String dataFilePattern, ResultT<String> resultT) {
         try {
-            if(dataFilePattern != null && !"".equals(dataFilePattern)){
+            if (dataFilePattern != null && !"".equals(dataFilePattern)) {
                 Pattern p = Pattern.compile(getRegFromDatePattern(dataFilePattern));
                 Matcher m = p.matcher(fileName);
-                if(m.find()){
+                if (m.find()) {
                     String timeStr = m.group(0);
-                    SimpleDateFormat format=new SimpleDateFormat(dataFilePattern);
-                    Map<String,String> map= HtDateUtil.getTime(new Date(createTime));
-                    return HtDateUtil.matchingTime(DateUtil.parse(timeStr,format),dataFilePattern,map);
+                    SimpleDateFormat format = new SimpleDateFormat(dataFilePattern);
+                    Map<String, String> map = HtDateUtil.getTime(new Date(createTime));
+                    return HtDateUtil.matchingTime(DateUtil.parse(timeStr, format), dataFilePattern, map);
                 }
             }
         } catch (Exception e) {
@@ -98,19 +103,21 @@ public abstract class FileBaseService {
         }
         return createTime;
     }
-    public  long bytes2kb(long bytes) {
+
+    public long bytes2kb(long bytes) {
         BigDecimal filesize = new BigDecimal(bytes);
         BigDecimal kilobyte = new BigDecimal(1024);
         long returnValue = filesize.divide(kilobyte, 2, BigDecimal.ROUND_UP)
                 .longValue();
         return returnValue;
     }
-    public FileMonitorLogDto insertLog(FileMonitorDto fileMonitorDto){
+
+    public FileMonitorLogDto insertLog(FileMonitorDto fileMonitorDto) {
         return fileLogService.insertLog(fileMonitorDto);
     }
 
-    public List<String> findExist(String taskId,long timeLevel){
-        List<String> paths=new ArrayList<>();
+    public List<String> findExist(String taskId, long timeLevel) {
+        List<String> paths = new ArrayList<>();
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchTaskId = QueryBuilders.matchQuery("task_id", taskId);
@@ -119,7 +126,7 @@ public abstract class FileBaseService {
         boolBuilder.must(matchTimeLevel);
         search.query(boolBuilder);
         search.size(10000);
-        search.fetchSource(new String[]{"full_path"},null);
+        search.fetchSource(new String[]{"full_path"}, null);
 
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_MONITOR, search);
@@ -134,13 +141,14 @@ public abstract class FileBaseService {
             e.printStackTrace();
         }
 
-        return  paths;
+        return paths;
     }
-    public void updateFileStatistics(FileMonitorLogDto fileMonitorLogDto,ResultT<String> resultT){
+
+    public void updateFileStatistics(FileMonitorLogDto fileMonitorLogDto, ResultT<String> resultT) {
         try {
-            FileStatisticsDto fileStatisticsDto=new FileStatisticsDto();
+            FileStatisticsDto fileStatisticsDto = new FileStatisticsDto();
             fileStatisticsDto.setStatus(0);
-            fileStatisticsDto.setId(fileMonitorLogDto.getTaskId()+"_"+fileMonitorLogDto.getTriggerTime());
+            fileStatisticsDto.setId(fileMonitorLogDto.getTaskId() + "_" + fileMonitorLogDto.getTriggerTime());
             fileStatisticsDto.setTaskId(fileMonitorLogDto.getTaskId());
             fileStatisticsDto.setTaskName(fileMonitorLogDto.getTaskName());
             fileStatisticsDto.setFilenameRegular(fileMonitorLogDto.getFilenameRegular());
@@ -151,55 +159,56 @@ public abstract class FileBaseService {
             fileStatisticsDto.setRealFileSize(fileMonitorLogDto.getRealFileSize());
             fileStatisticsDto.setRealFileNum(fileMonitorLogDto.getRealFileNum());
             fileStatisticsDto.setLateNum(fileMonitorLogDto.getLateNum());
-            fileStatisticsDto.setPerFileSize(new BigDecimal(fileMonitorLogDto.getRealFileSize()).divide(new BigDecimal(fileMonitorLogDto.getFileSize()),4,BigDecimal.ROUND_UP).floatValue());
-            fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getRealFileNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
-            fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum()+fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()),4,BigDecimal.ROUND_UP).floatValue());
-            Map<String,Object> source=new HashMap<>();
-            source.put("task_id",fileStatisticsDto.getTaskId());
-            source.put("task_name",fileStatisticsDto.getTaskName());
-            source.put("filename_regular",fileStatisticsDto.getFilenameRegular());
-            source.put("file_num",fileStatisticsDto.getFileNum());
-            source.put("file_size",fileStatisticsDto.getFileSize());
-            source.put("start_time_l",fileStatisticsDto.getStartTimeL());
-            source.put("start_time_s",fileStatisticsDto.getStartTimeS());
-            source.put("real_file_num",fileStatisticsDto.getRealFileNum());
-            source.put("real_file_size",fileStatisticsDto.getRealFileSize());
-            source.put("per_file_num",fileStatisticsDto.getPerFileNum());
-            source.put("per_file_size",fileStatisticsDto.getPerFileSize());
-            source.put("late_num",fileStatisticsDto.getLateNum());
-            source.put("timeliness_rate",fileStatisticsDto.getTimelinessRate());
-            source.put("status",fileStatisticsDto.getStatus());
-            source.put("start_time_a",new Date());
-            source.put("end_time_a",new Date());
-            source.put("@timestamp",new Date());
-            String statisticsIndexName= IndexNameConstant.T_MT_FILE_STATISTICS;
+            fileStatisticsDto.setPerFileSize(new BigDecimal(fileMonitorLogDto.getRealFileSize()).divide(new BigDecimal(fileMonitorLogDto.getFileSize()), 4, BigDecimal.ROUND_UP).floatValue());
+            fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getRealFileNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()), 4, BigDecimal.ROUND_UP).floatValue());
+            fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum() + fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()), 4, BigDecimal.ROUND_UP).floatValue());
+            Map<String, Object> source = new HashMap<>();
+            source.put("task_id", fileStatisticsDto.getTaskId());
+            source.put("task_name", fileStatisticsDto.getTaskName());
+            source.put("filename_regular", fileStatisticsDto.getFilenameRegular());
+            source.put("file_num", fileStatisticsDto.getFileNum());
+            source.put("file_size", fileStatisticsDto.getFileSize());
+            source.put("start_time_l", fileStatisticsDto.getStartTimeL());
+            source.put("start_time_s", fileStatisticsDto.getStartTimeS());
+            source.put("real_file_num", fileStatisticsDto.getRealFileNum());
+            source.put("real_file_size", fileStatisticsDto.getRealFileSize());
+            source.put("per_file_num", fileStatisticsDto.getPerFileNum());
+            source.put("per_file_size", fileStatisticsDto.getPerFileSize());
+            source.put("late_num", fileStatisticsDto.getLateNum());
+            source.put("timeliness_rate", fileStatisticsDto.getTimelinessRate());
+            source.put("status", fileStatisticsDto.getStatus());
+            source.put("start_time_a", new Date());
+            source.put("end_time_a", new Date());
+            source.put("@timestamp", new Date());
+            String statisticsIndexName = IndexNameConstant.T_MT_FILE_STATISTICS;
             try {
-                boolean flag=elasticSearch7Client.isExistsIndex(statisticsIndexName);
-                if(!flag){
+                boolean flag = elasticSearch7Client.isExistsIndex(statisticsIndexName);
+                if (!flag) {
                     Map<String, Object> taskId = new HashMap<>();
                     taskId.put("type", "keyword");
                     Map<String, Object> properties = new HashMap<>();
                     properties.put("task_id", taskId);
                     Map<String, Object> mapping = new HashMap<>();
                     mapping.put("properties", properties);
-                    elasticSearch7Client.createIndex(statisticsIndexName,new HashMap<>(),mapping);
+                    elasticSearch7Client.createIndex(statisticsIndexName, new HashMap<>(), mapping);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            elasticSearch7Client.forceInsert(statisticsIndexName,fileStatisticsDto.getId(),source);
+            elasticSearch7Client.forceInsert(statisticsIndexName, fileStatisticsDto.getId(), source);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
         }
 
 
     }
-    public void  updateLog(FileMonitorLogDto fileMonitorLogDto){
+
+    public void updateLog(FileMonitorLogDto fileMonitorLogDto) {
         fileLogService.updateLog(fileMonitorLogDto);
     }
 
 
-    public void findSum(FileMonitorLogDto fileMonitorLogDto){
+    public void findSum(FileMonitorLogDto fileMonitorLogDto) {
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchTaskId = QueryBuilders.matchQuery("task_id", fileMonitorLogDto.getTaskId());
@@ -208,22 +217,22 @@ public abstract class FileBaseService {
         boolBuilder.must(matchTimeLevel);
         search.query(boolBuilder);
         search.size(0);
-        SumAggregationBuilder sumFileBytes= AggregationBuilders.sum("sumFileBytes").field("file_bytes");
-        SumAggregationBuilder sumOntime=AggregationBuilders.sum("sumOntime").field("ontime");
-        SumAggregationBuilder sumNoOnTime=AggregationBuilders.sum("sumNoOnTime").field("no_ontime");
+        SumAggregationBuilder sumFileBytes = AggregationBuilders.sum("sumFileBytes").field("file_bytes");
+        SumAggregationBuilder sumOntime = AggregationBuilders.sum("sumOntime").field("ontime");
+        SumAggregationBuilder sumNoOnTime = AggregationBuilders.sum("sumNoOnTime").field("no_ontime");
         search.aggregation(sumFileBytes);
         search.aggregation(sumOntime);
         search.aggregation(sumNoOnTime);
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_MONITOR, search);
             Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
-                return ;
+            if (aggregations == null) {
+                return;
             }
-            Map<String, Aggregation> aggregationMap=aggregations.asMap();
-            ParsedSum parsedSumFileBytes= (ParsedSum) aggregationMap.get("sumFileBytes");
-            ParsedSum parsedSumOntime= (ParsedSum) aggregationMap.get("sumOntime");
-            ParsedSum parsedSumNoOnTime= (ParsedSum) aggregationMap.get("sumNoOnTime");
+            Map<String, Aggregation> aggregationMap = aggregations.asMap();
+            ParsedSum parsedSumFileBytes = (ParsedSum) aggregationMap.get("sumFileBytes");
+            ParsedSum parsedSumOntime = (ParsedSum) aggregationMap.get("sumOntime");
+            ParsedSum parsedSumNoOnTime = (ParsedSum) aggregationMap.get("sumNoOnTime");
             fileMonitorLogDto.setRealFileSize(new BigDecimal(parsedSumFileBytes.getValueAsString()).longValue());
             fileMonitorLogDto.setRealFileNum(new BigDecimal(parsedSumOntime.getValueAsString()).longValue());
             fileMonitorLogDto.setLateNum(new BigDecimal(parsedSumNoOnTime.getValueAsString()).longValue());
@@ -232,28 +241,28 @@ public abstract class FileBaseService {
         }
     }
 
-    public void  insertFilePath(List<Map<String,Object>> fileList, FileMonitorLogDto fileMonitorLogDto,ResultT<String> resultT){
+    public void insertFilePath(List<Map<String, Object>> fileList, FileMonitorLogDto fileMonitorLogDto, ResultT<String> resultT) {
 
-        String indexName= IndexNameConstant.T_MT_FILE_MONITOR;
+        String indexName = IndexNameConstant.T_MT_FILE_MONITOR;
         BulkRequest request = new BulkRequest();
-        String ip= NetUtils.getLocalHost();
+        String ip = NetUtils.getLocalHost();
         try {
-            for(int i=0;i<fileList.size();i++){
-                Map<String,Object> source=fileList.get(i);
-                source.put("ip",ip);
-                source.put("time_level",fileMonitorLogDto.getTriggerTime());
-                source.put("task_id",fileMonitorLogDto.getTaskId());
-                source.put("ontime",1l);
-                source.put("no_ontime",0l);
-                if(fileMonitorLogDto.getIsCompensation()==1){
-                    source.put("ontime",0l);
-                    source.put("no_ontime",1l);
+            for (int i = 0; i < fileList.size(); i++) {
+                Map<String, Object> source = fileList.get(i);
+                source.put("ip", ip);
+                source.put("time_level", fileMonitorLogDto.getTriggerTime());
+                source.put("task_id", fileMonitorLogDto.getTaskId());
+                source.put("ontime", 1l);
+                source.put("no_ontime", 0l);
+                if (fileMonitorLogDto.getIsCompensation() == 1) {
+                    source.put("ontime", 0l);
+                    source.put("no_ontime", 1l);
                 }
-                source.put("@timestamp",new Date());
+                source.put("@timestamp", new Date());
                 IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, (String) source.get("full_path")).source(source);
                 request.add(indexRequest);
             }
-            if(request.requests().size()>0){
+            if (request.requests().size() > 0) {
                 elasticSearch7Client.bulkEx(request);
             }
         } catch (Exception e) {

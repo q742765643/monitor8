@@ -14,6 +14,7 @@ import java.util.List;
 public interface LevelMapper {
     /**
      * 根据条件分页查询
+     *
      * @param levelEntity
      * @return
      */

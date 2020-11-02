@@ -23,7 +23,7 @@ public class UUIDStringGenerator extends UUIDGenerator {
         final Serializable serializable = org.hibernate.id.UUIDGenerator.buildSessionFactoryUniqueIdentifierGenerator().generate(sharedSessionContractImplementor, o);
         final String uuid = serializable.toString().replaceAll("-", "");
         if (o != null && o instanceof UUIDEntity) {
-            final UUIDEntity entity = (UUIDEntity)o;
+            final UUIDEntity entity = (UUIDEntity) o;
             return this.isBlank(entity.getId()) ? uuid : entity.getId();
         }
         return uuid;

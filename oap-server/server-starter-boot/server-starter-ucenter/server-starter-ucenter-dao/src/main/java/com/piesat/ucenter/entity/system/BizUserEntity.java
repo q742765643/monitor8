@@ -1,9 +1,11 @@
 package com.piesat.ucenter.entity.system;
 
 import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -14,110 +16,110 @@ import java.util.Date;
  */
 @Entity
 @Data
-@Table(name="T_SOD_BIZ_USER")
+@Table(name = "T_SOD_BIZ_USER")
 public class BizUserEntity {
 
     /**
      * 业务用户id
      */
     @Id
-    @Column(name="BIZ_USERID", length = 36)
+    @Column(name = "BIZ_USERID", length = 36)
     private String bizUserId;
 
     /**
      * web用户id
      */
-    @Column(name="WEB_USERID", length = 36)
+    @Column(name = "WEB_USERID", length = 36)
     private String webUserId;
 
     /**
      * 密码
      */
-    @Column(name="PASSWORD", length = 312)
+    @Column(name = "PASSWORD", length = 312)
     private String password;
 
     /**
      * 业务类型
      */
-    @Column(name="BIZ_TYPE", length = 36)
+    @Column(name = "BIZ_TYPE", length = 36)
     private String bizType;
 
     /**
      * 绑定ip
      */
-    @Column(name="BIZ_IP", length = 200)
+    @Column(name = "BIZ_IP", length = 200)
     private String bizIp;
 
     /**
-     *有效时间
+     * 有效时间
      */
-    @Column(name="VALID_TIME")
+    @Column(name = "VALID_TIME")
     private Date validTime;
 
     /**
      * 备注
      */
-    @Column(name="REMARK", length = 200)
+    @Column(name = "REMARK", length = 200)
     private String remark;
 
     /**
      * 责任人姓名
      */
-    @Column(name="WEB_USERNAME", length = 30)
+    @Column(name = "WEB_USERNAME", length = 30)
     private String webUsername;
 
     /**
      * 系统名称
      */
-    @Column(name="APP_NAME", length = 50)
+    @Column(name = "APP_NAME", length = 50)
     private String appName;
 
     /**
      * 单位名称
      */
-    @Column(name="LEGAL_UNITS", length = 100)
+    @Column(name = "LEGAL_UNITS", length = 100)
     private String legalUnits;
 
     /**
      * 部门名称
      */
-    @Column(name="DEPT_NAME", length = 100)
+    @Column(name = "DEPT_NAME", length = 100)
     private String deptName;
 
     /**
      * 联系电话
      */
-    @Column(name="PHONE", length = 20)
+    @Column(name = "PHONE", length = 20)
     private String phone;
 
     /**
      * 指导老师姓名
      */
-    @Column(name="TUTOR_NAME", length = 30)
+    @Column(name = "TUTOR_NAME", length = 30)
     private String tutorName;
 
     /**
      * 指导老师电话
      */
-    @Column(name="TUTOR_PHONE", length = 20)
+    @Column(name = "TUTOR_PHONE", length = 20)
     private String tutorPhone;
 
     /**
      * 申请材料
      */
-    @Column(name="APPLY_PAPER", length = 200)
+    @Column(name = "APPLY_PAPER", length = 200)
     private String applyPaper;
 
     /**
      * 申请时间
      */
-    @Column(name="APPLY_TIME")
+    @Column(name = "APPLY_TIME")
     private Date applyTime;
 
     /**
      * 最后编辑时间
      */
-    @Column(name="LAST_EDIT_TIME")
+    @Column(name = "LAST_EDIT_TIME")
     private Date lastEditTime;
 
     /**
@@ -128,7 +130,7 @@ public class BizUserEntity {
      * 3：激活
      * 4：注销
      */
-    @Column(name="CHECKED", length = 1)
+    @Column(name = "CHECKED", length = 1)
     private String checked;
 
 }

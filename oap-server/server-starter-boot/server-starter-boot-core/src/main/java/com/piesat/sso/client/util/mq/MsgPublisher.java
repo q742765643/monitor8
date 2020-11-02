@@ -5,7 +5,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Calendar;
 
 @Component
 public class MsgPublisher {
@@ -14,7 +13,7 @@ public class MsgPublisher {
     @Resource
     private ChannelTopic topic;
 
-    public void sendMsg(String msg){
-        redisTemplate.convertAndSend( topic.getTopic(), msg);
+    public void sendMsg(String msg) {
+        redisTemplate.convertAndSend(topic.getTopic(), msg);
     }
 }

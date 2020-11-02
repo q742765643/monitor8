@@ -1,7 +1,6 @@
 package com.piesat.ucenter.mapper.system;
 
 import com.piesat.ucenter.entity.system.DictTypeEntity;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

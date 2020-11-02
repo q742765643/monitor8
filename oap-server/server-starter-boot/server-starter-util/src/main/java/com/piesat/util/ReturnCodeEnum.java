@@ -42,10 +42,6 @@ public enum ReturnCodeEnum {
     ReturnCodeEnum_601_ERROR(601, "表结构管理存在异常,查询失败");
 
 
-
-
-
-
     private int key;
     private String value;
 
@@ -62,6 +58,7 @@ public enum ReturnCodeEnum {
         }
         return "";
     }
+
     public int getKey() {
         return key;
     }

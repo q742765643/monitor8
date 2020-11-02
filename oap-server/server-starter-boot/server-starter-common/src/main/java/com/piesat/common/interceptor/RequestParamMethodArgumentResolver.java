@@ -7,17 +7,13 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ValueConstants;
-import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.method.support.UriComponentsContributor;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +24,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @program: sod
@@ -42,7 +41,6 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
     private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
     private final boolean useDefaultResolution;
-
 
 
     public RequestParamMethodArgumentResolver(boolean useDefaultResolution) {
@@ -74,23 +72,19 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
             if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
                 HtParam requestParam = parameter.getParameterAnnotation(HtParam.class);
                 return (requestParam != null && StringUtils.hasText(requestParam.name()));
-            }
-            else {
+            } else {
                 return true;
             }
-        }
-        else {
+        } else {
             if (parameter.hasParameterAnnotation(RequestPart.class)) {
                 return false;
             }
             parameter = parameter.nestedIfOptional();
             if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
                 return true;
-            }
-            else if (this.useDefaultResolution) {
+            } else if (this.useDefaultResolution) {
                 return BeanUtils.isSimpleProperty(parameter.getNestedParameterType());
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -126,8 +120,8 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
             String[] paramValues = request.getParameterValues(name);
             Map<String, String[]> paramMap = (Map<String, String[]>) servletRequest
                     .getAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME");
-            if(paramValues==null&&null!=paramMap){
-                paramValues=paramMap.get(name);
+            if (paramValues == null && null != paramMap) {
+                paramValues = paramMap.get(name);
             }
             if (paramValues != null) {
                 arg = (paramValues.length == 1 ? paramValues[0] : paramValues);
@@ -144,12 +138,10 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
         if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
             if (servletRequest == null || !MultipartResolutionDelegate.isMultipartRequest(servletRequest)) {
                 throw new MultipartException("Current request is not a multipart request");
-            }
-            else {
+            } else {
                 throw new MissingServletRequestPartException(name);
             }
-        }
-        else {
+        } else {
             throw new MissingServletRequestParameterException(name,
                     parameter.getNestedParameterType().getSimpleName());
         }
@@ -180,14 +172,12 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
                 return;
             }
             builder.queryParam(name);
-        }
-        else if (value instanceof Collection) {
+        } else if (value instanceof Collection) {
             for (Object element : (Collection<?>) value) {
                 element = formatUriValue(conversionService, TypeDescriptor.nested(parameter, 1), element);
                 builder.queryParam(name, element);
             }
-        }
-        else {
+        } else {
             builder.queryParam(name, formatUriValue(conversionService, new TypeDescriptor(parameter), value));
         }
     }
@@ -198,14 +188,11 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethod
 
         if (value == null) {
             return null;
-        }
-        else if (value instanceof String) {
+        } else if (value instanceof String) {
             return (String) value;
-        }
-        else if (cs != null) {
+        } else if (cs != null) {
             return (String) cs.convert(value, sourceType, STRING_TYPE_DESCRIPTOR);
-        }
-        else {
+        } else {
             return value.toString();
         }
     }

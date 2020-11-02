@@ -28,21 +28,21 @@ import java.util.Map;
  */
 @Slf4j
 public class DecryptUtil {
-    public static void decrypt(HttpServletRequest request, HttpServletResponse response, Object o){
-        boolean shouldDecrypt=true;
+    public static void decrypt(HttpServletRequest request, HttpServletResponse response, Object o) {
+        boolean shouldDecrypt = true;
         /*****===========1.判断token判断是否需要解密=================*****/
        /* String token = request.getHeader("authorization");
         if(StringUtils.isNotNull(token)&&token.equals("88888888")){
             shouldDecrypt=false;
         }*/
         /*****===========2.判断注解判断是否需要解密=================*****/
-        if(o instanceof ResourceHttpRequestHandler){
+        if (o instanceof ResourceHttpRequestHandler) {
             return;
         }
-        HandlerMethod h = (HandlerMethod)o;
-        DecryptRequest decryptRequest=h.getMethod().getAnnotation(DecryptRequest.class);
-        if(decryptRequest!=null&&decryptRequest.value()==false){
-            shouldDecrypt=false;
+        HandlerMethod h = (HandlerMethod) o;
+        DecryptRequest decryptRequest = h.getMethod().getAnnotation(DecryptRequest.class);
+        if (decryptRequest != null && decryptRequest.value() == false) {
+            shouldDecrypt = false;
         }
         /*****===========3.判断是否有参数需要解密=================*****/
         Map<String, String[]> param = new HashMap<>(8);
@@ -51,59 +51,59 @@ public class DecryptUtil {
             String name = parameterNames.nextElement();
             param.put(name, request.getParameterValues(name));
         }
-        if(param.size()==0){
-            shouldDecrypt=false;
+        if (param.size() == 0) {
+            shouldDecrypt = false;
         }
-        if(null==param.get("data")){
-            shouldDecrypt=false;
+        if (null == param.get("data")) {
+            shouldDecrypt = false;
         }
         /*****===========4.进行解密类参数是否为空=================*****/
-        String requestBody="";
-        if(shouldDecrypt){
-             requestBody=param.get("data")[0];
-             if(StringUtils.isNull(requestBody)||"".equals(requestBody)){
-                 shouldDecrypt=false;
-                 request.setAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME",null);
-                 return;
-             }
+        String requestBody = "";
+        if (shouldDecrypt) {
+            requestBody = param.get("data")[0];
+            if (StringUtils.isNull(requestBody) || "".equals(requestBody)) {
+                shouldDecrypt = false;
+                request.setAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME", null);
+                return;
+            }
         }
         /*****===========5.进行解密=================*****/
-        if(shouldDecrypt){
-            String data= AESUtil.aesDecrypt(requestBody).replace(" ","");
+        if (shouldDecrypt) {
+            String data = AESUtil.aesDecrypt(requestBody).replace(" ", "");
             log.info(request.getRequestURI());
-            Map<String,Object> map= JSON.parseObject(data,Map.class);
-            Map<String,String[]> parameterMap=new HashMap<>();
+            Map<String, Object> map = JSON.parseObject(data, Map.class);
+            Map<String, String[]> parameterMap = new HashMap<>();
 
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                Object oo=entry.getValue();
+                Object oo = entry.getValue();
 
-                if(oo instanceof JSONArray){
-                    String parmFit="";
-                    JSONArray jsonArray= (JSONArray) oo;
-                    for(int i=0;i<jsonArray.size();i++){
-                        parmFit+=String.valueOf(jsonArray.get(i))+"&&&";
+                if (oo instanceof JSONArray) {
+                    String parmFit = "";
+                    JSONArray jsonArray = (JSONArray) oo;
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        parmFit += String.valueOf(jsonArray.get(i)) + "&&&";
                     }
-                    parameterMap.put(entry.getKey(),parmFit.split("&&&"));
-                }else if(null == oo) {
-                	parameterMap.put(entry.getKey(), null);
-                }else{
-                    String parmFit=String.valueOf(oo) ;
-                    parameterMap.put(entry.getKey(),parmFit.split("&&&"));
+                    parameterMap.put(entry.getKey(), parmFit.split("&&&"));
+                } else if (null == oo) {
+                    parameterMap.put(entry.getKey(), null);
+                } else {
+                    String parmFit = String.valueOf(oo);
+                    parameterMap.put(entry.getKey(), parmFit.split("&&&"));
                 }
             }
 
-            request.setAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME",parameterMap);
-        }else{
+            request.setAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME", parameterMap);
+        } else {
             /*****===========5.不解密=================*****/
-            request.setAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME",param);
+            request.setAttribute("REQUEST_RESOLVER_PARAM_MAP_NAME", param);
 
         }
 
 
     }
 
-    public static boolean decrypt(HttpInputMessage inputMessage, MethodParameter parameter,Map<String, ByteArrayInputStream> map){
-        boolean shouldDecrypt=true;
+    public static boolean decrypt(HttpInputMessage inputMessage, MethodParameter parameter, Map<String, ByteArrayInputStream> map) {
+        boolean shouldDecrypt = true;
         /*****===========1.判断token判断是否需要解密=================*****/
         /*List<String> tokens=inputMessage.getHeaders().get("authorization");
         if(null==tokens||tokens.size()==0){
@@ -114,22 +114,22 @@ public class DecryptUtil {
             shouldDecrypt=false;
             return shouldDecrypt;
         }*/
-        DecryptRequest decryptRequest=parameter.getMethod().getAnnotation(DecryptRequest.class);
-        if(decryptRequest!=null&&decryptRequest.value()==false){
-            shouldDecrypt=false;
+        DecryptRequest decryptRequest = parameter.getMethod().getAnnotation(DecryptRequest.class);
+        if (decryptRequest != null && decryptRequest.value() == false) {
+            shouldDecrypt = false;
             return shouldDecrypt;
         }
         try {
             String data = StreamUtils.copyToString(inputMessage.getBody(), Charset.forName("UTF-8"));
-            HttpReq httpReq= JSON.parseObject(data, HttpReq.class);
-            ByteArrayInputStream inputStream=null;
-            if(null==httpReq.getData()||"".equals(httpReq.getData())){
-                shouldDecrypt=false;
-                inputStream= new ByteArrayInputStream(data.getBytes(Charset.forName("UTF-8")));
-            }else{
+            HttpReq httpReq = JSON.parseObject(data, HttpReq.class);
+            ByteArrayInputStream inputStream = null;
+            if (null == httpReq.getData() || "".equals(httpReq.getData())) {
+                shouldDecrypt = false;
+                inputStream = new ByteArrayInputStream(data.getBytes(Charset.forName("UTF-8")));
+            } else {
                 inputStream = new ByteArrayInputStream(AESUtil.aesDecrypt(httpReq.getData()).getBytes(Charset.forName("UTF-8")));
             }
-            map.put("REQUEST_RESOLVER_PARAM_MAP_NAME",inputStream);
+            map.put("REQUEST_RESOLVER_PARAM_MAP_NAME", inputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

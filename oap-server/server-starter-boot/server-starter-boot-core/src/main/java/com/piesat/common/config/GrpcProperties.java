@@ -10,7 +10,7 @@ import java.util.Map;
 @Component
 @ConfigurationProperties("grpc")
 public class GrpcProperties {
-     private Map<String,String> server;
-     private Map<String,Map<String,Object>> client;
-     private Map<String,String> hosts;
+    private Map<String, String> server;
+    private Map<String, Map<String, Object>> client;
+    private Map<String, String> hosts;
 }

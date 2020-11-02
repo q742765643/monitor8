@@ -73,11 +73,12 @@ public class SNMPSessionUtil {
             if (null != event && event.getResponse() != null) {
                 Vector<VariableBinding> vector = (Vector<VariableBinding>) event.getResponse().getVariableBindings();
                 VariableBinding vec = vector.elementAt(0);
-                list.add(i,vector.elementAt(0).getVariable().toString());
+                list.add(i, vector.elementAt(0).getVariable().toString());
             }
         }
         return list;
     }
+
     public ArrayList<Long> getSnmpGetV(Integer type, String... oid) throws Exception {
         ResponseEvent event = null;
         ArrayList<Long> list = new ArrayList<Long>();
@@ -90,12 +91,13 @@ public class SNMPSessionUtil {
             if (null != event && event.getResponse() != null) {
                 Vector<VariableBinding> vector = (Vector<VariableBinding>) event.getResponse().getVariableBindings();
                 VariableBinding vec = vector.elementAt(0);
-                TimeTicks timeTicks= (TimeTicks) vec.getVariable();
-                list.add(i,timeTicks.toMilliseconds());
+                TimeTicks timeTicks = (TimeTicks) vec.getVariable();
+                list.add(i, timeTicks.toMilliseconds());
             }
         }
         return list;
     }
+
     // 单个获取方式
     public ArrayList<String> getIsSnmpGet(Integer type, String... oid) throws Exception {
         ResponseEvent event = null;
@@ -107,9 +109,9 @@ public class SNMPSessionUtil {
             pdu.setType(type);
             event = snmp.send(pdu, communityTarget);
             if (null == event || event.getResponse() == null) {
-                list.add(0,"-1");
-            }else {
-                list.add(0,"success connection!");
+                list.add(0, "-1");
+            } else {
+                list.add(0, "success connection!");
             }
         }
         return list;
@@ -152,15 +154,16 @@ public class SNMPSessionUtil {
             if (vb != null) {
                 for (int j = 0; j < vb.length; j++) {
 //                    SystemInfo.out.println(vb[j].toString().substring(vb[j].toString().lastIndexOf("=")).replace("=",""));
-                    mapList.add(j,vb[j].toString());
+                    mapList.add(j, vb[j].toString());
                 }
             } else {
-                System.out.println(this.hostComputer+"网络不通或者配置有误！");
+                System.out.println(this.hostComputer + "网络不通或者配置有误！");
 //                throw new NullPointerException("被监控系统的网络不通或IP或其它相关配置错识！");
             }
         }
         return mapList;
     }
+
     // 遍历请求
     public List<TableEvent> snmpWalk(String oids[]) {
         // 设置TableUtil的工具
@@ -175,8 +178,8 @@ public class SNMPSessionUtil {
         return list;
     }
 
-    public void close(){
-        if(null!=snmp){
+    public void close() {
+        if (null != snmp) {
             try {
                 snmp.close();
             } catch (IOException e) {

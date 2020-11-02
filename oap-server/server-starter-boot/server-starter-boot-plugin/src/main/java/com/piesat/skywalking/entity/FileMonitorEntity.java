@@ -10,30 +10,30 @@ import javax.persistence.Table;
 
 @Entity
 @Data
-@Table(name="T_MT_FILE_MONITOR")
+@Table(name = "T_MT_FILE_MONITOR")
 @DiscriminatorValue("FILEMONITOR")
 public class FileMonitorEntity extends HtJobInfo {
 
-    @Column(name="folder_regular", length=255)
+    @Column(name = "folder_regular", length = 255)
     private String folderRegular;
 
-    @Column(name="filename_regular", length=255)
+    @Column(name = "filename_regular", length = 255)
     private String filenameRegular;
 
-    @Column(name="file_sample", length=255)
+    @Column(name = "file_sample", length = 255)
     private String fileSample;
 
-    @Column(name="file_num", length=255)
+    @Column(name = "file_num", length = 255)
     private long fileNum;
 
-    @Column(name="file_size", length=255)
+    @Column(name = "file_size", length = 255)
     private long fileSize;
 
-    @Column(name="scan_type", length=1)
+    @Column(name = "scan_type", length = 1)
     private Integer scanType;
 
-    @Column(name="acount_id", length=50)
-    private  String acountId;
+    @Column(name = "acount_id", length = 50)
+    private String acountId;
 
 
 }

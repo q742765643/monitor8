@@ -25,8 +25,8 @@ public class MybatisAutoConfiguration {
 
     @PostConstruct
     public void addMyInterceptor() {
-        PageInterceptor pageInterceptor=new PageInterceptor();
-                MybatisInterceptor mybatisInterceptor=new MybatisInterceptor();
+        PageInterceptor pageInterceptor = new PageInterceptor();
+        MybatisInterceptor mybatisInterceptor = new MybatisInterceptor();
         for (SqlSessionFactory sqlSessionFactory : sqlSessionFactoryList) {
             sqlSessionFactory.getConfiguration().addInterceptor(mybatisInterceptor);
         }

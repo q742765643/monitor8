@@ -15,6 +15,6 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface OperLogMapstruct extends BaseMapper<OperLogDto,OperLogEntity> {
+public interface OperLogMapstruct extends BaseMapper<OperLogDto, OperLogEntity> {
 }
 

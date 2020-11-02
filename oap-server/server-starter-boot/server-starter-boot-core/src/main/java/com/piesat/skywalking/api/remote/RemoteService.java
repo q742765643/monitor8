@@ -8,9 +8,10 @@ import com.piesat.util.constant.GrpcConstant;
 
 import java.util.List;
 
-@GrpcHthtService(server = GrpcConstant.SCHEDULE_CLIENT_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.SCHEDULE_CLIENT_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface RemoteService {
 
     public List<?> sharding(JobContext jobContext, ResultT<String> resultT);
+
     public void execute(JobContext jobContext, ResultT<String> resultT);
 }

@@ -1,28 +1,18 @@
 package com.piesat.common.filter;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.piesat.common.annotation.DecryptRequest;
-import com.piesat.common.utils.AESUtil;
-import com.piesat.common.vo.HttpReq;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -52,7 +42,7 @@ public class MyFormHttpMessageConverter implements HttpMessageConverter<Object> 
 
     @Override
     public boolean canWrite(Class<?> clazz, MediaType mediaType) {
-        return  mediaTypes.contains(mediaType);
+        return mediaTypes.contains(mediaType);
     }
 
     @Override
@@ -63,7 +53,7 @@ public class MyFormHttpMessageConverter implements HttpMessageConverter<Object> 
     @Override
     public Object read(Class<?> clazz, HttpInputMessage inputMessage) throws
             IOException, HttpMessageNotReadableException {
-        if (null!=clazz) {
+        if (null != clazz) {
             String content = StreamUtils.copyToString(inputMessage.getBody(), Charset.forName("UTF-8"));
             return content;
         } else {

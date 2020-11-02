@@ -14,7 +14,7 @@ import java.util.List;
  * @创建人 zzj
  * @创建时间 2019/12/3 9:42
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface DeptService {
     /**
      * 查询部门管理数据
@@ -25,11 +25,11 @@ public interface DeptService {
     public List<DeptDto> selectDeptList(DeptDto deptDto);
 
     /**
-     *@描述 获取部门下拉树列表
-     *@参数 [deptDto]
-     *@返回值 java.util.List<com.piesat.ucenter.rpc.util.TreeSelect>
-     *@author zzj
-     *@创建时间 2019/12/3 10:43
+     * @描述 获取部门下拉树列表
+     * @参数 [deptDto]
+     * @返回值 java.util.List<com.piesat.ucenter.rpc.util.TreeSelect>
+     * @author zzj
+     * @创建时间 2019/12/3 10:43
      **/
     public List<TreeSelect> getTreeSelectDept(DeptDto deptDto);
 

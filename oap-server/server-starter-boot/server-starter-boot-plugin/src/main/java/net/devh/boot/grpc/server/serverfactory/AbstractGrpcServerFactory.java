@@ -17,19 +17,8 @@
 
 package net.devh.boot.grpc.server.serverfactory;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.List;
-
-import io.grpc.BindableService;
-import io.grpc.ServerServiceDefinition;
-import org.apache.skywalking.oap.server.core.CoreModuleProvider;
-import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.unit.DataSize;
-
 import com.google.common.collect.Lists;
-
+import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.health.v1.HealthCheckResponse;
@@ -38,6 +27,13 @@ import io.grpc.services.HealthStatusManager;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.config.GrpcServerProperties;
 import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
+import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.unit.DataSize;
+
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Abstract factory for grpc servers.
@@ -50,22 +46,20 @@ import net.devh.boot.grpc.server.service.GrpcServiceDefinition;
 @Slf4j
 public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> implements GrpcServerFactory {
 
-    private final List<GrpcServiceDefinition> serviceList = Lists.newLinkedList();
-
     protected final GrpcServerProperties properties;
     protected final List<GrpcServerConfigurer> serverConfigurers;
-
+    private final List<GrpcServiceDefinition> serviceList = Lists.newLinkedList();
     @Autowired
     private HealthStatusManager healthStatusManager;
 
     /**
      * Creates a new server factory with the given properties.
      *
-     * @param properties The properties used to configure the server.
+     * @param properties        The properties used to configure the server.
      * @param serverConfigurers The server configurers to use. Can be empty.
      */
     public AbstractGrpcServerFactory(final GrpcServerProperties properties,
-            final List<GrpcServerConfigurer> serverConfigurers) {
+                                     final List<GrpcServerConfigurer> serverConfigurers) {
         this.properties = requireNonNull(properties, "properties");
         this.serverConfigurers = requireNonNull(serverConfigurers, "serverConfigurers");
     }
@@ -121,8 +115,8 @@ public abstract class AbstractGrpcServerFactory<T extends ServerBuilder<T>> impl
             builder.addService(service.getDefinition());
             this.healthStatusManager.setStatus(serviceName, HealthCheckResponse.ServingStatus.SERVING);
         }
-        if(GRPCServer.GRPCSERVICES.size()>0){
-            for(BindableService service:GRPCServer.GRPCSERVICES){
+        if (GRPCServer.GRPCSERVICES.size() > 0) {
+            for (BindableService service : GRPCServer.GRPCSERVICES) {
                 builder.addService(service);
             }
         }

@@ -15,10 +15,10 @@ import java.util.*;
  */
 public class WrapperedRequest extends HttpServletRequestWrapper {
 
-    private String requestBody = null;
-    private HttpServletRequest req = null;
     private final Map<String, String> customHeaders;
     private final Map<String, String[]> parameterMap; // 所有参数的Map集合
+    private String requestBody = null;
+    private HttpServletRequest req = null;
 
     public WrapperedRequest(HttpServletRequest request) {
         super(request);
@@ -35,24 +35,27 @@ public class WrapperedRequest extends HttpServletRequestWrapper {
         this.customHeaders = new HashMap<>();
 
     }
-    public void putHeader(String name, String value){
+
+    public void putHeader(String name, String value) {
         this.customHeaders.put(name, value);
     }
-    public void putParameterMap(Map<String, String[]> map){
+
+    public void putParameterMap(Map<String, String[]> map) {
         this.parameterMap.putAll(map);
     }
+
     @Override
     public Enumeration<String> getParameterNames() {
         Vector<String> vector = new Vector<String>(parameterMap.keySet());
         return vector.elements();
     }
+
     @Override
     public String getParameter(String name) {
         String[] results = parameterMap.get(name);
-        if (results == null || results.length <= 0){
+        if (results == null || results.length <= 0) {
             return null;
-        }
-        else {
+        } else {
             return results[0];
         }
     }
@@ -60,18 +63,19 @@ public class WrapperedRequest extends HttpServletRequestWrapper {
     @Override
     public String[] getParameterValues(String name) {
         String[] results = parameterMap.get(name);
-        if (results == null || results.length <= 0){
+        if (results == null || results.length <= 0) {
             return null;
         }
 
         return results;
     }
+
     @Override
     public String getHeader(String name) {
         // check the custom headers first
         String headerValue = customHeaders.get(name);
 
-        if (headerValue != null){
+        if (headerValue != null) {
             return headerValue;
         }
         // else return from into the original wrapped object
@@ -116,20 +120,24 @@ public class WrapperedRequest extends HttpServletRequestWrapper {
         return new ServletInputStream() {
             private InputStream in = new ByteArrayInputStream(
                     requestBody.getBytes(req.getCharacterEncoding()));
+
             @Override
             public int read() throws IOException {
                 return in.read();
             }
+
             @Override
             public boolean isFinished() {
                 // TODO Auto-generated method stub
                 return false;
             }
+
             @Override
             public boolean isReady() {
                 // TODO Auto-generated method stub
                 return false;
             }
+
             @Override
             public void setReadListener(ReadListener readListener) {
                 // TODO Auto-generated method stub

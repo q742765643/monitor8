@@ -17,8 +17,8 @@ public class FileLogService {
     @GrpcHthtClient
     private FileMonitorLogService fileMonitorLogService;
 
-    public FileMonitorLogDto  insertLog(FileMonitorDto fileMonitorDto){
-        FileMonitorLogDto fileMonitorLogDto=new FileMonitorLogDto();
+    public FileMonitorLogDto insertLog(FileMonitorDto fileMonitorDto) {
+        FileMonitorLogDto fileMonitorLogDto = new FileMonitorLogDto();
         fileMonitorLogDto.setHandleCode(0);
         fileMonitorLogDto.setTaskId(fileMonitorDto.getId());
         fileMonitorLogDto.setTriggerTime(fileMonitorDto.getTriggerLastTime());
@@ -32,8 +32,9 @@ public class FileLogService {
         fileMonitorLogDto.setIsCompensation(fileMonitorDto.getIsCompensation());
         return fileMonitorLogService.save(fileMonitorLogDto);
     }
-    public void  updateLog(FileMonitorLogDto fileMonitorLogDto){
-         fileMonitorLogService.save(fileMonitorLogDto);
+
+    public void updateLog(FileMonitorLogDto fileMonitorLogDto) {
+        fileMonitorLogService.save(fileMonitorLogDto);
     }
 }
 

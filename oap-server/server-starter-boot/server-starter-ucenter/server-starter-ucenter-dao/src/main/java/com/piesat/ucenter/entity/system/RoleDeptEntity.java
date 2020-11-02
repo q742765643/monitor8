@@ -6,7 +6,6 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 /**
  * @program: sod
@@ -16,13 +15,17 @@ import java.io.Serializable;
  */
 @Entity
 @Data
-@Table(name="T_SOD_ROLE_DEPT")
-public class RoleDeptEntity  extends UUIDEntity {
-    /** 角色ID */
-    @Column(name="ROLE_ID", length=32)
+@Table(name = "T_SOD_ROLE_DEPT")
+public class RoleDeptEntity extends UUIDEntity {
+    /**
+     * 角色ID
+     */
+    @Column(name = "ROLE_ID", length = 32)
     private Long roleId;
 
-    /** 部门ID */
-    @Column(name="DEPT_ID", length=32)
+    /**
+     * 部门ID
+     */
+    @Column(name = "DEPT_ID", length = 32)
     private Long deptId;
 }

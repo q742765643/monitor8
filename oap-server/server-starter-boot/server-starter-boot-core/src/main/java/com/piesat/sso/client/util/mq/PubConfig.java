@@ -9,10 +9,11 @@ public class PubConfig {
 
     /**
      * 订阅发布的主题
+     *
      * @return
      */
     @Bean
     ChannelTopic topic() {
-        return new ChannelTopic( "PUBSUB.WEBSOCKET" );
+        return new ChannelTopic("PUBSUB.WEBSOCKET");
     }
 }

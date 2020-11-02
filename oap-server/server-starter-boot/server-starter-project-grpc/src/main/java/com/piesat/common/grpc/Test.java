@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class Test {
-    public void test(){
+    public void test() {
         System.out.println(11);
     }
 }

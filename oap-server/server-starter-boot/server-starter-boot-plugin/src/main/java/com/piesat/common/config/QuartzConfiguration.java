@@ -19,7 +19,12 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  * @description:
  * @author: zzj
  * @create: 2019-12-19 11:44
- **//*
+ * <p>
+ * 当触发器触发时，与之关联的任务被Scheduler中配置的JobFactory实例化，也就是每触发一次，就会创建一个任务的实例化对象
+ * (如果缺省)则调用Job类的newInstance方法生成一个实例
+ * (这里选择自定义)并将创建的Job实例化交给IoC管理
+ * @return
+ *//*
 
 
 @Configuration
@@ -32,11 +37,11 @@ public class QuartzConfiguration {
 
     */
 /**
-     * 当触发器触发时，与之关联的任务被Scheduler中配置的JobFactory实例化，也就是每触发一次，就会创建一个任务的实例化对象
-     * (如果缺省)则调用Job类的newInstance方法生成一个实例
-     * (这里选择自定义)并将创建的Job实例化交给IoC管理
-     * @return
-     *//*
+ * 当触发器触发时，与之关联的任务被Scheduler中配置的JobFactory实例化，也就是每触发一次，就会创建一个任务的实例化对象
+ * (如果缺省)则调用Job类的newInstance方法生成一个实例
+ * (这里选择自定义)并将创建的Job实例化交给IoC管理
+ * @return
+ *//*
 
 
     @Bean

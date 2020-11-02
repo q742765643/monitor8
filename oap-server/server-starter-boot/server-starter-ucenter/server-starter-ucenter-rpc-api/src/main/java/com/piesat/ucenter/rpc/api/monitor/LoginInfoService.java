@@ -10,7 +10,7 @@ import com.piesat.util.page.PageForm;
 /**
  * Created by zzj on 2019/12/17.
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface LoginInfoService {
     /**
      * 新增系统登录日志

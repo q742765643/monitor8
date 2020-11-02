@@ -40,7 +40,7 @@ public class FileMonitorLogDto extends BaseDto {
     @ApiModelProperty(value = "晚到数")
     private long lateNum;
     @ApiModelProperty(value = "是否补偿 0否 1是")
-    private Integer isCompensation=0;
+    private Integer isCompensation = 0;
     @ApiModelProperty(value = "提取时间")
     private String expression;
     @ApiModelProperty(value = "是否世界时")

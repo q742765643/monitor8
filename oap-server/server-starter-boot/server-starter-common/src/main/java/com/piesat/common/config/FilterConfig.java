@@ -2,10 +2,8 @@ package com.piesat.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.piesat.common.filter.DataFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * @program: sod
@@ -18,7 +16,7 @@ public class FilterConfig {
     @Bean
     public FilterRegistrationBean<DataFilter> registerDataFilter(ObjectMapper objectMapper) {
         FilterRegistrationBean<DataFilter> registration = new FilterRegistrationBean<>(new DataFilter(objectMapper));
-       // registration.setFilter(new DataFilter(objectMapper));
+        // registration.setFilter(new DataFilter(objectMapper));
         registration.addUrlPatterns("/api/*");
         //registration.addInitParameter("exclusions","/swagger-ui.html");
         registration.setName("DataFilter");

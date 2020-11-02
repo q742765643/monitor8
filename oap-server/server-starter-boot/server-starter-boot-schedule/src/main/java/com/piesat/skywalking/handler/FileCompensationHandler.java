@@ -4,7 +4,6 @@ import com.piesat.common.grpc.annotation.GrpcHthtClient;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.dto.FileMonitorDto;
-import com.piesat.skywalking.dto.FileMonitorLogDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.base.BaseHandler;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -48,24 +46,24 @@ public class FileCompensationHandler implements BaseHandler {
 
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
-        long time=System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
-        String endTime= dateFormat.format(time);
-        String starTime= dateFormat.format(time-1000*86400*3);
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        String endTime = dateFormat.format(time);
+        String starTime = dateFormat.format(time - 1000 * 86400 * 3);
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         systemQueryDto.setStartTime(starTime);
         systemQueryDto.setEndTime(endTime);
-        List<Map> maps=this.findProcessed(systemQueryDto);
-        for(int i=0;i<maps.size();i++){
+        List<Map> maps = this.findProcessed(systemQueryDto);
+        for (int i = 0; i < maps.size(); i++) {
             try {
-                long triggerTime=new BigDecimal(String.valueOf(maps.get(i).get("start_time_l"))).longValue();
-                String taskId= (String) maps.get(i).get("task_id");
-                FileMonitorDto fileMonitorDto=fileMonitorService.findById(taskId);
+                long triggerTime = new BigDecimal(String.valueOf(maps.get(i).get("start_time_l"))).longValue();
+                String taskId = (String) maps.get(i).get("task_id");
+                FileMonitorDto fileMonitorDto = fileMonitorService.findById(taskId);
                 fileMonitorDto.setTriggerLastTime(triggerTime);
                 fileMonitorDto.setIsCompensation(1);
-                JobContext job=new JobContext();
+                JobContext job = new JobContext();
                 job.setHtJobInfoDto(fileMonitorDto);
-                fileGuardHandler.execute(job,new ResultT<String>());
+                fileGuardHandler.execute(job, new ResultT<String>());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -73,8 +71,8 @@ public class FileCompensationHandler implements BaseHandler {
         }
     }
 
-    public List<Map> findProcessed(SystemQueryDto systemQueryDto){
-        List<Map> maps=new ArrayList<>();
+    public List<Map> findProcessed(SystemQueryDto systemQueryDto) {
+        List<Map> maps = new ArrayList<>();
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
 
@@ -87,12 +85,12 @@ public class FileCompensationHandler implements BaseHandler {
         rangeQueryBuilder.timeZone("+08:00");
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
         boolBuilder.must(perPct);
-        boolBuilder.mustNot(QueryBuilders.matchQuery("status",4));
+        boolBuilder.mustNot(QueryBuilders.matchQuery("status", 4));
         boolBuilder.filter(rangeQueryBuilder);
         search.query(boolBuilder);
 
         search.size(10000);
-        search.fetchSource(new String[]{"task_id","start_time_l"},null);
+        search.fetchSource(new String[]{"task_id", "start_time_l"}, null);
 
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);

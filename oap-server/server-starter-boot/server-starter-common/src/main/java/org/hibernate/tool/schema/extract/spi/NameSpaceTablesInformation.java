@@ -6,36 +6,36 @@
  */
 package org.hibernate.tool.schema.extract.spi;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.hibernate.engine.jdbc.env.spi.IdentifierHelper;
 import org.hibernate.mapping.Table;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Andrea Boriero
  */
 public class NameSpaceTablesInformation {
-	private final IdentifierHelper identifierHelper;
-	private Map<String, TableInformation> tables = new HashMap<>();
+    private final IdentifierHelper identifierHelper;
+    private Map<String, TableInformation> tables = new HashMap<>();
 
-	public NameSpaceTablesInformation(IdentifierHelper identifierHelper) {
-		this.identifierHelper = identifierHelper;
-	}
+    public NameSpaceTablesInformation(IdentifierHelper identifierHelper) {
+        this.identifierHelper = identifierHelper;
+    }
 
-	public void addTableInformation(TableInformation tableInformation) {
-		tables.put( tableInformation.getName().getTableName().getText(), tableInformation );
-	}
+    public void addTableInformation(TableInformation tableInformation) {
+        tables.put(tableInformation.getName().getTableName().getText(), tableInformation);
+    }
 
-	public TableInformation getTableInformation(Table table) {
-		return tables.get( identifierHelper.toMetaDataObjectName( table.getQualifiedTableName().getTableName() ) );
-	}
+    public TableInformation getTableInformation(Table table) {
+        return tables.get(identifierHelper.toMetaDataObjectName(table.getQualifiedTableName().getTableName()));
+    }
 
-	public Map<String, TableInformation> getTables() {
-		return tables;
-	}
+    public Map<String, TableInformation> getTables() {
+        return tables;
+    }
 
-	public TableInformation getTableInformation(String tableName) {
-		return tables.get( tableName );
-	}
+    public TableInformation getTableInformation(String tableName) {
+        return tables.get(tableName);
+    }
 }

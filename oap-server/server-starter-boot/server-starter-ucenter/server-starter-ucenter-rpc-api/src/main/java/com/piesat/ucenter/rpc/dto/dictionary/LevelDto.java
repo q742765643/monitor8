@@ -3,8 +3,6 @@ package com.piesat.ucenter.rpc.dto.dictionary;
 import com.piesat.util.BaseDto;
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
  * @author yaya
  * @description

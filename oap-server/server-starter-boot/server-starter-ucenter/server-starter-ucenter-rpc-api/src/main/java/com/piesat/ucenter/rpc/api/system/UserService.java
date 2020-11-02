@@ -2,13 +2,11 @@ package com.piesat.ucenter.rpc.api.system;
 
 import com.piesat.common.grpc.annotation.GrpcHthtService;
 import com.piesat.common.grpc.constant.SerializeType;
-import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.util.ResultT;
 import com.piesat.util.constant.GrpcConstant;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
-import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +17,7 @@ import java.util.Map;
  * @创建人 zzj
  * @创建时间 2019/11/21 17:10
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface UserService {
     public UserDto saveUserDto(UserDto userDto);
 
@@ -33,11 +31,11 @@ public interface UserService {
     public UserDto selectUserByUserName(String userName);
 
     /**
-     *@描述 根据appId查找用户
-     *@参数 [appId]
-     *@返回值 com.piesat.ucenter.rpc.dto.system.UserDto
-     *@author zzj
-     *@创建时间 2019/11/28 16:38
+     * @描述 根据appId查找用户
+     * @参数 [appId]
+     * @返回值 com.piesat.ucenter.rpc.dto.system.UserDto
+     * @author zzj
+     * @创建时间 2019/11/28 16:38
      **/
     public UserDto selectUserByAppId(String appId);
 
@@ -89,7 +87,7 @@ public interface UserService {
      */
     public UserDto selectUserById(String userId);
 
-     String selectUserRoleGroup(String userName);
+    String selectUserRoleGroup(String userName);
 
     public UserDto updateProfile(UserDto user);
 

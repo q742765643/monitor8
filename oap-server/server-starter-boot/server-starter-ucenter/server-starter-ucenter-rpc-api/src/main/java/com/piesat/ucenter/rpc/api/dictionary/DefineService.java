@@ -14,11 +14,12 @@ import java.util.List;
  * @description TODO
  * @date 2019/12/26 16:53
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface DefineService {
 
     /**
      * 根据条件分页查询
+     *
      * @param pageForm
      * @return
      */
@@ -26,6 +27,7 @@ public interface DefineService {
 
     /**
      * 添加区域类别
+     *
      * @param defineDto
      * @return
      */
@@ -33,12 +35,14 @@ public interface DefineService {
 
     /**
      * 批量删除
+     *
      * @param defineIds
      */
     public void deleteDefineByIds(List<String> defineIds);
 
     /**
      * 修改
+     *
      * @param defineDto
      * @return
      */
@@ -46,6 +50,7 @@ public interface DefineService {
 
     /**
      * 根据ID获取
+     *
      * @param id
      * @return
      */

@@ -1,7 +1,6 @@
 package com.piesat.util.page;
 
 
-
 /**
  * @program: sod
  * @description:
@@ -17,23 +16,26 @@ public class PageForm<T> {
     private int currentPage = 1;
 
     private String orderBy;
+    private int pageSize = 10;
 
     /**
      * 分页大小
      */
-    public  PageForm(){
+    public PageForm() {
 
     }
-    private int pageSize = 10;
-    public PageForm(int currentPage,int pageSize,T t){
-        this.currentPage=currentPage;
-        this.pageSize=pageSize;
-        this.t=t;
+
+    public PageForm(int currentPage, int pageSize, T t) {
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
+        this.t = t;
     }
-    public PageForm(int currentPage,int pageSize){
-        this.currentPage=currentPage;
-        this.pageSize=pageSize;
+
+    public PageForm(int currentPage, int pageSize) {
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
     }
+
     public T getT() {
         return t;
     }

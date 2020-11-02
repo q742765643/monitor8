@@ -21,21 +21,21 @@ import org.springframework.stereotype.Service;
 public class DeviceReportHandler implements BaseHandler {
     @Autowired
     private DeviceReportService deviceReportService;
+
+    public static void main(String[] args) {
+        long time = System.currentTimeMillis();
+        String starTime = DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,-0d}", time);
+        System.out.println(starTime);
+    }
+
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
-        long time=System.currentTimeMillis();
-        String starTime= DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,-0d}",time);
-        String endTime= DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,1d}",time);
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        long time = System.currentTimeMillis();
+        String starTime = DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,-0d}", time);
+        String endTime = DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,1d}", time);
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         systemQueryDto.setStartTime(starTime);
         systemQueryDto.setEndTime(endTime);
         deviceReportService.getSystem(systemQueryDto);
-    }
-
-
-    public static void main(String[] args){
-        long time=System.currentTimeMillis();
-        String starTime= DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,-0d}",time);
-        System.out.println(starTime);
     }
 }

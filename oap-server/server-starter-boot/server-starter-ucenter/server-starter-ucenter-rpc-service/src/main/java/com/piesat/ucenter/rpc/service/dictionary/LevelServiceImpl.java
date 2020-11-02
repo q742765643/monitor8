@@ -6,7 +6,6 @@ import com.piesat.common.jpa.BaseDao;
 import com.piesat.common.jpa.BaseService;
 import com.piesat.ucenter.dao.dictionary.LevelDao;
 import com.piesat.ucenter.entity.dictionary.LevelEntity;
-import com.piesat.ucenter.entity.system.DeptEntity;
 import com.piesat.ucenter.mapper.dictionary.LevelMapper;
 import com.piesat.ucenter.rpc.api.dictionary.LevelService;
 import com.piesat.ucenter.rpc.dto.dictionary.LevelDto;
@@ -19,10 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- *@description 层次属性管理
- *@author wangyajuan
- *@date 2019年12月23日下午6:13:37
- *
+ * @author wangyajuan
+ * @description 层次属性管理
+ * @date 2019年12月23日下午6:13:37
  */
 @Service
 public class LevelServiceImpl extends BaseService<LevelEntity> implements LevelService {
@@ -40,22 +38,22 @@ public class LevelServiceImpl extends BaseService<LevelEntity> implements LevelS
 
     @Override
     public PageBean selectLevelList(PageForm<LevelDto> pageForm) {
-        LevelEntity levelEntity=levelMapstruct.toEntity(pageForm.getT());
-        PageHelper.startPage(pageForm.getCurrentPage(),pageForm.getPageSize());
+        LevelEntity levelEntity = levelMapstruct.toEntity(pageForm.getT());
+        PageHelper.startPage(pageForm.getCurrentPage(), pageForm.getPageSize());
         //根据条件查询当前分页所有
-        List<LevelEntity> levelEntities=levelMapper.selectLevelList(levelEntity);
+        List<LevelEntity> levelEntities = levelMapper.selectLevelList(levelEntity);
         PageInfo<LevelEntity> pageInfo = new PageInfo<>(levelEntities);
         //获取当前页数据
-        List<LevelDto> levelDtos= levelMapstruct.toDto(pageInfo.getList());
-        PageBean pageBean=new PageBean(pageInfo.getTotal(),pageInfo.getPages(),levelDtos);
+        List<LevelDto> levelDtos = levelMapstruct.toDto(pageInfo.getList());
+        PageBean pageBean = new PageBean(pageInfo.getTotal(), pageInfo.getPages(), levelDtos);
         return pageBean;
     }
 
     @Override
     public LevelDto saveDto(LevelDto levelDto) {
         LevelEntity levelEntity = this.levelMapstruct.toEntity(levelDto);
-        List<LevelEntity> deptEntities=levelMapper.selectLevelList(levelEntity);
-        if(deptEntities.isEmpty()){
+        List<LevelEntity> deptEntities = levelMapper.selectLevelList(levelEntity);
+        if (deptEntities.isEmpty()) {
             levelEntity = this.saveNotNull(levelEntity);
         }
         return this.levelMapstruct.toDto(levelEntity);

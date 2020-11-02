@@ -1,9 +1,7 @@
-
 package com.piesat.common.grpc.config;
 
 import com.google.common.collect.Lists;
 import com.piesat.common.grpc.annotation.GrpcHthtClient;
-import com.piesat.rpc.CommonServiceGrpc;
 import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.AbstractStub;
@@ -43,21 +41,22 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
     private ApplicationContext applicationContext;
     private GrpcChannelFactory channelFactory = null;
     private List<StubTransformer> stubTransformers = null;
+
     @Override
     public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
         Class<?> targeClass = bean.getClass();
         Field[] fields = targeClass.getDeclaredFields();
-        for (Field field: fields ) {
+        for (Field field : fields) {
             final GrpcHthtClient annotation = AnnotationUtils.findAnnotation(field, GrpcHthtClient.class);
-            if (null!=annotation) {  //判断属性是否是自定义注解@MyAnnotation
-                if(!field.getType().isInterface()) {  //加自定义注解的属性必须是接口类型（这样才可能出现多个不同的实例bean)
+            if (null != annotation) {  //判断属性是否是自定义注解@MyAnnotation
+                if (!field.getType().isInterface()) {  //加自定义注解的属性必须是接口类型（这样才可能出现多个不同的实例bean)
                     throw new BeanCreationException("GrpcHthtClient field must be declared an interface");
                 } else {
                     try {
                         this.hanldGrpcHthtClient(field, bean, field.getType());
                         final String name = annotation.value();
-                        if(null!=name&&!"".equals(name)){
-                            this.getgrpcChannel(field.getType().getName(),annotation);
+                        if (null != name && !"".equals(name)) {
+                            this.getgrpcChannel(field.getType().getName(), annotation);
                         }
 
                     } catch (Exception e) {
@@ -66,8 +65,8 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
                 }
             }
         }
-        if(bean==null){
-            log.error("grpc接口初始化失败{}",targeClass.getCanonicalName());
+        if (bean == null) {
+            log.error("grpc接口初始化失败{}", targeClass.getCanonicalName());
         }
         return bean;
     }
@@ -101,13 +100,14 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
         return bean;
     }
 */
+
     /**
      * Processes the given injection point and computes the appropriate value for the injection.
      *
-     * @param <T> The type of the value to be injected.
+     * @param <T>             The type of the value to be injected.
      * @param injectionTarget The target of the injection.
-     * @param injectionType The class that will be used to compute injection.
-     * @param annotation The annotation on the target with the metadata for the injection.
+     * @param injectionType   The class that will be used to compute injection.
+     * @param annotation      The annotation on the target with the metadata for the injection.
      * @return The value to be injected for the given injection point.
      */
     protected <T> T processInjectionPoint(final Member injectionTarget, final Class<T> injectionType,
@@ -197,11 +197,11 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
     /**
      * Creates the instance to be injected for the given member.
      *
-     * @param name The name that was used to create the channel.
-     * @param <T> The type of the instance to be injected.
+     * @param name            The name that was used to create the channel.
+     * @param <T>             The type of the instance to be injected.
      * @param injectionTarget The target member for the injection.
-     * @param injectionType The class that should injected.
-     * @param channel The channel that should be used to create the instance.
+     * @param injectionType   The class that should injected.
+     * @param channel         The channel that should be used to create the instance.
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
@@ -211,8 +211,7 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
             return injectionType.cast(channel);
         } else if (AbstractStub.class.isAssignableFrom(injectionType)) {
             try {
-                @SuppressWarnings("unchecked")
-                final Class<? extends AbstractStub<?>> stubClass =
+                @SuppressWarnings("unchecked") final Class<? extends AbstractStub<?>> stubClass =
                         (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class);
                 final Constructor<? extends AbstractStub<?>> constructor =
                         ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
@@ -231,39 +230,41 @@ public class ServiceInjectProcessor implements BeanPostProcessor {
                     "Unsupported type " + injectionType.getName());
         }
     }
+
     private void hanldGrpcHthtClient(Field field, Object bean, Class type) throws IllegalAccessException {
         //获取所有该属性接口的实例bean
-        Object o=null;
-        Object springObj=null;
-        ChannelUtil channelUtil=ChannelUtil.getInstance();
+        Object o = null;
+        Object springObj = null;
+        ChannelUtil channelUtil = ChannelUtil.getInstance();
         try {
-            springObj=applicationContext.getBean(field.getType());
+            springObj = applicationContext.getBean(field.getType());
         } catch (BeansException e) {
             //e.printStackTrace();
         }
-        if(null==springObj){
-             o= channelUtil.getGrpcServices().get(field.getType().getName());
-        }else{
-             o=springObj;
+        if (null == springObj) {
+            o = channelUtil.getGrpcServices().get(field.getType().getName());
+        } else {
+            o = springObj;
         }
         //设置该域可设置修改
         field.setAccessible(true);
         //获取注解@MyAnnotation中配置的value值
         //String injectVal = field.getAnnotation(GrpcHthtClient.class).;
         //将找到的实例赋值给属性域
-        field.set(bean,o);
+        field.set(bean, o);
     }
-    private synchronized void getgrpcChannel(String className,GrpcHthtClient annotation){
-        String name=annotation.value();
-        ChannelUtil channelUtil=ChannelUtil.getInstance();
-        channelUtil.getGrpcServerName().put(className,name);
-        if(null==channelUtil.getGrpcChannel().get(name)){
-            Channel channel= processInjectionPoint(null, Channel.class, annotation);
-            if(null!=channel){
-                channelUtil.getGrpcChannel().put(name,channel);
+
+    private synchronized void getgrpcChannel(String className, GrpcHthtClient annotation) {
+        String name = annotation.value();
+        ChannelUtil channelUtil = ChannelUtil.getInstance();
+        channelUtil.getGrpcServerName().put(className, name);
+        if (null == channelUtil.getGrpcChannel().get(name)) {
+            Channel channel = processInjectionPoint(null, Channel.class, annotation);
+            if (null != channel) {
+                channelUtil.getGrpcChannel().put(name, channel);
                 //channelUtil.getBlockingStub().put(name, CommonServiceGrpc.newBlockingStub(channel));
-            }else {
-                log.error("通道初始化失败{}",name);
+            } else {
+                log.error("通道初始化失败{}", name);
             }
         }
     }

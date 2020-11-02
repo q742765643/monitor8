@@ -7,7 +7,8 @@ option java_multiple_files = false;
 // 定义通用的 Grpc 服务
 service CommonService {
     // 处理请求
-    rpc handle ( Request ) returns ( Response ) {}
+    rpc handle (Request) returns (Response) {
+    }
 }
 
 // 定义通用的 Grpc 请求体

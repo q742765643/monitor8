@@ -9,7 +9,7 @@ public class FolderMonitorService {
     @GrpcHthtClient
     private FileWatchService fileWatchService;
 
-    public void start(String path){
+    public void start(String path) {
         fileWatchService.start(path);
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>server-starter-boot</artifactId>
@@ -340,16 +340,16 @@
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>
         </dependency>
-      <!--  <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>${quartz-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz-jobs</artifactId>
-            <version>${quartz-version}</version>
-        </dependency>-->
+        <!--  <dependency>
+              <groupId>org.quartz-scheduler</groupId>
+              <artifactId>quartz</artifactId>
+              <version>${quartz-version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.quartz-scheduler</groupId>
+              <artifactId>quartz-jobs</artifactId>
+              <version>${quartz-version}</version>
+          </dependency>-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
@@ -460,16 +460,16 @@
         </dependency>
 
         <dependency>
-            <groupId> org.apache.skywalking</groupId>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>server-starter-ucenter-web</artifactId>
             <version>8.1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
-                    <groupId> org.apache.skywalking</groupId>
+                    <groupId>org.apache.skywalking</groupId>
                     <artifactId>sod-common</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId> org.apache.skywalking</groupId>
+                    <groupId>org.apache.skywalking</groupId>
                     <artifactId>sod-project-grpc</artifactId>
                 </exclusion>
             </exclusions>

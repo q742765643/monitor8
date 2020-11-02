@@ -18,7 +18,6 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ParsedSum;
@@ -30,7 +29,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName : OverviewServiceImpl
@@ -42,52 +44,53 @@ import java.util.*;
 public class OverviewQServiceImpl implements OverviewQService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
-    public List<OverviewDto> getOverview(){
-        long time=System.currentTimeMillis();
+
+    public List<OverviewDto> getOverview() {
+        long time = System.currentTimeMillis();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
-        String endTime= dateFormat.format(time);
-        String starTime= dateFormat.format(time-6000000);
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        String endTime = dateFormat.format(time);
+        String starTime = dateFormat.format(time - 6000000);
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         systemQueryDto.setStartTime(starTime);
         systemQueryDto.setEndTime(endTime);
-        List<OverviewDto> overviewDtos=this.getOverviewEs(systemQueryDto);
+        List<OverviewDto> overviewDtos = this.getOverviewEs(systemQueryDto);
         return overviewDtos;
     }
 
-    public OverviewNodeDto getNodes(){
-        OverviewNodeDto overviewNodeDto=new OverviewNodeDto();
-        long time=System.currentTimeMillis();
+    public OverviewNodeDto getNodes() {
+        OverviewNodeDto overviewNodeDto = new OverviewNodeDto();
+        long time = System.currentTimeMillis();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
-        String endTime= dateFormat.format(time);
-        String starTime= dateFormat.format(time-6000000);
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        String endTime = dateFormat.format(time);
+        String starTime = dateFormat.format(time - 6000000);
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         systemQueryDto.setStartTime(starTime);
         systemQueryDto.setEndTime(endTime);
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
 
-        TermsAggregationBuilder groupbyIp= AggregationBuilders.terms("groupby_online").field("online").size(10000);
+        TermsAggregationBuilder groupbyIp = AggregationBuilders.terms("groupby_online").field("online").size(10000);
         search.aggregation(groupbyIp);
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_MEDIA_OVERVIEW, search);
             Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
+            if (aggregations == null) {
                 return overviewNodeDto;
             }
-            Map<String, Aggregation> aggregationMap=aggregations.asMap();
-            ParsedLongTerms terms= (ParsedLongTerms) aggregationMap.get("groupby_online");
+            Map<String, Aggregation> aggregationMap = aggregations.asMap();
+            ParsedLongTerms terms = (ParsedLongTerms) aggregationMap.get("groupby_online");
             List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for(int i=0;i<buckets.size();i++){
-                Terms.Bucket bucket=buckets.get(i);
-                long count=bucket.getDocCount();
-                if("1".equals(bucket.getKeyAsString())){
+            for (int i = 0; i < buckets.size(); i++) {
+                Terms.Bucket bucket = buckets.get(i);
+                long count = bucket.getDocCount();
+                if ("1".equals(bucket.getKeyAsString())) {
                     overviewNodeDto.setReady(count);
-                }else {
+                } else {
                     overviewNodeDto.setDown(count);
                 }
             }
-            overviewNodeDto.setTotal(overviewNodeDto.getDown()+overviewNodeDto.getReady());
-            if(overviewNodeDto.getTotal()>0){
-                BigDecimal use=new BigDecimal(overviewNodeDto.getReady()).divide(new BigDecimal(overviewNodeDto.getTotal()),2,BigDecimal.ROUND_HALF_UP);
+            overviewNodeDto.setTotal(overviewNodeDto.getDown() + overviewNodeDto.getReady());
+            if (overviewNodeDto.getTotal() > 0) {
+                BigDecimal use = new BigDecimal(overviewNodeDto.getReady()).divide(new BigDecimal(overviewNodeDto.getTotal()), 2, BigDecimal.ROUND_HALF_UP);
                 overviewNodeDto.setUse(use.floatValue());
             }
         } catch (IOException e) {
@@ -95,21 +98,22 @@ public class OverviewQServiceImpl implements OverviewQService {
         }
         return overviewNodeDto;
     }
-    public NodeStatusDto getNodesStatus(){
-        NodeStatusDto nodeStatusDto=new NodeStatusDto();
 
-        long time=System.currentTimeMillis();
+    public NodeStatusDto getNodesStatus() {
+        NodeStatusDto nodeStatusDto = new NodeStatusDto();
+
+        long time = System.currentTimeMillis();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
-        String endTime= dateFormat.format(time);
-        String starTime= dateFormat.format(time-6000000);
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        String endTime = dateFormat.format(time);
+        String starTime = dateFormat.format(time - 6000000);
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         systemQueryDto.setStartTime(starTime);
         systemQueryDto.setEndTime(endTime);
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
-        SumAggregationBuilder sumCpuUse=AggregationBuilders.sum("sumCpuUse").field("cpu.use").format("0.0000");
-        SumAggregationBuilder sumMemoryUse=AggregationBuilders.sum("sumMemoryUse").field("memory.use").format("0.0000");
-        SumAggregationBuilder sumCpu=AggregationBuilders.sum("sumCpu").field("cpu.cores").format("0.0000");
-        SumAggregationBuilder sumMemory=AggregationBuilders.sum("sumMemory").field("memory.total").format("0.0000");
+        SumAggregationBuilder sumCpuUse = AggregationBuilders.sum("sumCpuUse").field("cpu.use").format("0.0000");
+        SumAggregationBuilder sumMemoryUse = AggregationBuilders.sum("sumMemoryUse").field("memory.use").format("0.0000");
+        SumAggregationBuilder sumCpu = AggregationBuilders.sum("sumCpu").field("cpu.cores").format("0.0000");
+        SumAggregationBuilder sumMemory = AggregationBuilders.sum("sumMemory").field("memory.total").format("0.0000");
         search.aggregation(sumCpuUse);
         search.aggregation(sumMemoryUse);
         search.aggregation(sumCpu);
@@ -117,18 +121,18 @@ public class OverviewQServiceImpl implements OverviewQService {
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_MEDIA_OVERVIEW, search);
             Aggregations aggregations = searchResponse.getAggregations();
-            if(aggregations==null){
+            if (aggregations == null) {
                 return nodeStatusDto;
             }
-            Map<String, Aggregation> aggregationMap=aggregations.asMap();
-            ParsedSum parsedSumCpuUse= (ParsedSum) aggregationMap.get("sumCpuUse");
-            ParsedSum parsedSumCpu= (ParsedSum) aggregationMap.get("sumCpu");
-            ParsedSum parsedSumMemoryUse= (ParsedSum) aggregationMap.get("sumMemoryUse");
-            ParsedSum parsedSumMemory= (ParsedSum) aggregationMap.get("sumMemory");
+            Map<String, Aggregation> aggregationMap = aggregations.asMap();
+            ParsedSum parsedSumCpuUse = (ParsedSum) aggregationMap.get("sumCpuUse");
+            ParsedSum parsedSumCpu = (ParsedSum) aggregationMap.get("sumCpu");
+            ParsedSum parsedSumMemoryUse = (ParsedSum) aggregationMap.get("sumMemoryUse");
+            ParsedSum parsedSumMemory = (ParsedSum) aggregationMap.get("sumMemory");
             nodeStatusDto.setCpuUse(new BigDecimal(parsedSumCpuUse.getValueAsString()).floatValue());
             nodeStatusDto.setCpuCores(new BigDecimal(parsedSumCpu.getValueAsString()).floatValue());
-            nodeStatusDto.setMemoryUse(new BigDecimal(parsedSumMemoryUse.getValueAsString()).divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
-            nodeStatusDto.setMemoryTotal(new BigDecimal(parsedSumMemory.getValueAsString()).divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
+            nodeStatusDto.setMemoryUse(new BigDecimal(parsedSumMemoryUse.getValueAsString()).divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
+            nodeStatusDto.setMemoryTotal(new BigDecimal(parsedSumMemory.getValueAsString()).divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -137,7 +141,7 @@ public class OverviewQServiceImpl implements OverviewQService {
     }
 
     public List<OverviewDto> getOverviewEs(SystemQueryDto systemQueryDto) {
-        List<OverviewDto> overviewDtos=new ArrayList<>();
+        List<OverviewDto> overviewDtos = new ArrayList<>();
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         search.size(10000);
         try {
@@ -147,30 +151,30 @@ public class OverviewQServiceImpl implements OverviewQService {
             for (SearchHit hit : searchHits) {
                 Map jsonMap = new LinkedHashMap();
                 JsonParseUtil.parseJSON2Map(jsonMap, hit.getSourceAsString(), null);
-                OverviewDto overviewDto=new OverviewDto();
-                BigDecimal avgCpuPct=new BigDecimal(String.valueOf(jsonMap.get("avg.cpu.pct")));
-                BigDecimal avgmemoryPct=new BigDecimal(String.valueOf(jsonMap.get("avg.memory.pct")));
-                BigDecimal filesystemPct=new BigDecimal(String.valueOf(jsonMap.get("filesystem.pct")));
+                OverviewDto overviewDto = new OverviewDto();
+                BigDecimal avgCpuPct = new BigDecimal(String.valueOf(jsonMap.get("avg.cpu.pct")));
+                BigDecimal avgmemoryPct = new BigDecimal(String.valueOf(jsonMap.get("avg.memory.pct")));
+                BigDecimal filesystemPct = new BigDecimal(String.valueOf(jsonMap.get("filesystem.pct")));
                 overviewDto.setAvgCpuPct(avgCpuPct.floatValue());
                 overviewDto.setAvgMemoryPct(avgmemoryPct.floatValue());
                 overviewDto.setFilesystemPct(filesystemPct.floatValue());
-                BigDecimal filesystemSize= new BigDecimal(String.valueOf(jsonMap.get("filesystem.size"))) ;
-                BigDecimal cpuCores= new BigDecimal(String.valueOf(jsonMap.get("cpu.cores")));
-                BigDecimal memoryTotal= new BigDecimal(String.valueOf(jsonMap.get("memory.total")));
-                BigDecimal processSize= new BigDecimal(String.valueOf(jsonMap.get("process.size")));
-                BigDecimal filesystemUse= new BigDecimal(String.valueOf(jsonMap.get("filesystem.use.size")));
-                BigDecimal cpuUse=new BigDecimal(String.valueOf(jsonMap.get("cpu.use")));
-                BigDecimal memoryUse=new BigDecimal(String.valueOf(jsonMap.get("memory.use")));
-                overviewDto.setFilesystemSize(filesystemSize.divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
+                BigDecimal filesystemSize = new BigDecimal(String.valueOf(jsonMap.get("filesystem.size")));
+                BigDecimal cpuCores = new BigDecimal(String.valueOf(jsonMap.get("cpu.cores")));
+                BigDecimal memoryTotal = new BigDecimal(String.valueOf(jsonMap.get("memory.total")));
+                BigDecimal processSize = new BigDecimal(String.valueOf(jsonMap.get("process.size")));
+                BigDecimal filesystemUse = new BigDecimal(String.valueOf(jsonMap.get("filesystem.use.size")));
+                BigDecimal cpuUse = new BigDecimal(String.valueOf(jsonMap.get("cpu.use")));
+                BigDecimal memoryUse = new BigDecimal(String.valueOf(jsonMap.get("memory.use")));
+                overviewDto.setFilesystemSize(filesystemSize.divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
                 overviewDto.setCpuCores(cpuCores.intValue());
                 overviewDto.setOnline(Integer.parseInt(String.valueOf(jsonMap.get("online"))));
                 overviewDto.setIp(String.valueOf(jsonMap.get("ip")));
-                overviewDto.setMemoryTotal(memoryTotal.divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
+                overviewDto.setMemoryTotal(memoryTotal.divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
                 overviewDto.setProcessSize(processSize.intValue());
-                overviewDto.setFilesystemUse(filesystemUse.divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
-                overviewDto.setFilesystemSize(filesystemSize.divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
-                overviewDto.setCpuUse(cpuUse.setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
-                overviewDto.setMemoryUse(memoryUse.divide(new BigDecimal(1024*1024*1024),2,BigDecimal.ROUND_HALF_UP).floatValue());
+                overviewDto.setFilesystemUse(filesystemUse.divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
+                overviewDto.setFilesystemSize(filesystemSize.divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
+                overviewDto.setCpuUse(cpuUse.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
+                overviewDto.setMemoryUse(memoryUse.divide(new BigDecimal(1024 * 1024 * 1024), 2, BigDecimal.ROUND_HALF_UP).floatValue());
 
                 overviewDtos.add(overviewDto);
 
@@ -180,7 +184,8 @@ public class OverviewQServiceImpl implements OverviewQService {
         }
         return overviewDtos;
     }
-    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto){
+
+    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");

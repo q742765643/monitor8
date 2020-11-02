@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.piesat.ucenter.mapper.dictionary.DefineMapper">
-    <resultMap id="BaseResultMap" type="com.piesat.ucenter.entity.dictionary.DefineEntity" >
-        <id column="ID" jdbcType="VARCHAR" property="id" />
-        <result column="CREATE_BY" jdbcType="VARCHAR" property="createBy" />
-        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
-        <result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
-        <result column="UPDATE_BY" jdbcType="VARCHAR" property="updateBy" />
-        <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime" />
-        <result column="VERSION" jdbcType="INTEGER" property="version" />
-        <result column="AREA_ID" jdbcType="VARCHAR" property="areaId" />
-        <result column="START_LAT" jdbcType="DOUBLE" property="startLat" />
-        <result column="END_LAT" jdbcType="DOUBLE" property="endLat" />
-        <result column="START_LON" jdbcType="DOUBLE" property="startLon" />
-        <result column="END_LON" jdbcType="DOUBLE" property="endLon" />
-        <result column="AREA_DESC" jdbcType="VARCHAR" property="areaDesc" />
+    <resultMap id="BaseResultMap" type="com.piesat.ucenter.entity.dictionary.DefineEntity">
+        <id column="ID" jdbcType="VARCHAR" property="id"/>
+        <result column="CREATE_BY" jdbcType="VARCHAR" property="createBy"/>
+        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag"/>
+        <result column="UPDATE_BY" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="VERSION" jdbcType="INTEGER" property="version"/>
+        <result column="AREA_ID" jdbcType="VARCHAR" property="areaId"/>
+        <result column="START_LAT" jdbcType="DOUBLE" property="startLat"/>
+        <result column="END_LAT" jdbcType="DOUBLE" property="endLat"/>
+        <result column="START_LON" jdbcType="DOUBLE" property="startLon"/>
+        <result column="END_LON" jdbcType="DOUBLE" property="endLon"/>
+        <result column="AREA_DESC" jdbcType="VARCHAR" property="areaDesc"/>
     </resultMap>
     <sql id="selectDefineVo">
         select
             d.ID, d.CREATE_BY, d.CREATE_TIME, d.DEL_FLAG, d.UPDATE_BY, d.UPDATE_TIME, d.VERSION, d.AREA_ID, d.START_LAT, d.END_LAT, d.START_LON, d.END_LON, d.AREA_DESC
         from T_SOD_GRID_AREA_DEFINE d
     </sql>
-    <select id="selectDefineList" parameterType="com.piesat.ucenter.entity.dictionary.DefineEntity" resultMap="BaseResultMap">
+    <select id="selectDefineList" parameterType="com.piesat.ucenter.entity.dictionary.DefineEntity"
+            resultMap="BaseResultMap">
         <include refid="selectDefineVo"/>
         where 1=1
         <if test="areaId != null and areaId != ''">

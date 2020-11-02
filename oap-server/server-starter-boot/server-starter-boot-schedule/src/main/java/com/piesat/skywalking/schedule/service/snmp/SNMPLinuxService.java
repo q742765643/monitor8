@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 
 @Service
 public class SNMPLinuxService extends SNMPService {
@@ -45,7 +42,7 @@ public class SNMPLinuxService extends SNMPService {
         this.processMap(snmp, basicInfo, esList);
         this.loadMap(snmp, basicInfo, esList);
         this.diskioMap(snmp, basicInfo, esList);
-        this.uptimeMap(snmp,basicInfo,esList);
+        this.uptimeMap(snmp, basicInfo, esList);
         String indexName = IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT, date);
         for (Map<String, Object> source : esList) {
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, IdUtils.fastUUID()).source(source);
@@ -87,8 +84,8 @@ public class SNMPLinuxService extends SNMPService {
         Map<String, Object> systemM = new HashMap<>();
         Map<String, Object> cpu = new HashMap<>();
         cpu.put("cores", 0f);
-        if(null!=basicInfo.get("cores")){
-            cpu.put("cores",basicInfo.get("cores"));
+        if (null != basicInfo.get("cores")) {
+            cpu.put("cores", basicInfo.get("cores"));
         }
         Map<String, Object> idleEs = new HashMap<>();
         Map<String, Object> idleNorm = new HashMap<>();

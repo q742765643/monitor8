@@ -17,38 +17,31 @@
 
 package net.devh.boot.grpc.client.inject;
 
-import static java.util.Objects.requireNonNull;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import com.piesat.common.grpc.annotation.GrpcHthtClient;
+import com.google.common.collect.Lists;
 import com.piesat.common.grpc.config.ChannelUtil;
-import com.piesat.common.grpc.config.GrpcAutoConfiguration;
-import com.piesat.rpc.CommonServiceGrpc;
+import io.grpc.Channel;
+import io.grpc.ClientInterceptor;
+import io.grpc.stub.AbstractStub;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ReflectionUtils;
 
-import com.google.common.collect.Lists;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import io.grpc.Channel;
-import io.grpc.ClientInterceptor;
-import io.grpc.stub.AbstractStub;
-import net.devh.boot.grpc.client.channelfactory.GrpcChannelFactory;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This {@link BeanPostProcessor} searches for fields and methods in beans that are annotated with {@link GrpcClient}
@@ -72,7 +65,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
      * Creates a new GrpcClientBeanPostProcessor with the given ApplicationContext.
      *
      * @param applicationContext The application context that will be used to get lazy access to the
-     *        {@link GrpcChannelFactory} and {@link StubTransformer}s.
+     *                           {@link GrpcChannelFactory} and {@link StubTransformer}s.
      */
     public GrpcClientBeanPostProcessor(final ApplicationContext applicationContext) {
         this.applicationContext = requireNonNull(applicationContext, "applicationContext");
@@ -82,15 +75,15 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
         Class<?> targeClass = bean.getClass();
         Field[] fields = targeClass.getDeclaredFields();
-        for (Field field: fields ) {
+        for (Field field : fields) {
             final GrpcClient annotation = AnnotationUtils.findAnnotation(field, GrpcClient.class);
-            if (null!=annotation) {  //判断属性是否是自定义注解@MyAnnotation
-                if(!field.getType().isInterface()) {  //加自定义注解的属性必须是接口类型（这样才可能出现多个不同的实例bean)
+            if (null != annotation) {  //判断属性是否是自定义注解@MyAnnotation
+                if (!field.getType().isInterface()) {  //加自定义注解的属性必须是接口类型（这样才可能出现多个不同的实例bean)
                     throw new BeanCreationException("GrpcHthtClient field must be declared an interface");
                 } else {
                     try {
                         this.hanldGrpcHthtClient(field, bean, field.getType());
-                        this.getgrpcChannel(field.getType().getName(),annotation);
+                        this.getgrpcChannel(field.getType().getName(), annotation);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -98,8 +91,8 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                 }
             }
         }
-        if(bean==null){
-           log.error("grpc接口初始化失败{}",targeClass.getCanonicalName());
+        if (bean == null) {
+            log.error("grpc接口初始化失败{}", targeClass.getCanonicalName());
         }
         return bean;
     }
@@ -107,10 +100,10 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     /**
      * Processes the given injection point and computes the appropriate value for the injection.
      *
-     * @param <T> The type of the value to be injected.
+     * @param <T>             The type of the value to be injected.
      * @param injectionTarget The target of the injection.
-     * @param injectionType The class that will be used to compute injection.
-     * @param annotation The annotation on the target with the metadata for the injection.
+     * @param injectionType   The class that will be used to compute injection.
+     * @param annotation      The annotation on the target with the metadata for the injection.
      * @return The value to be injected for the given injection point.
      */
     protected <T> T processInjectionPoint(final Member injectionTarget, final Class<T> injectionType,
@@ -200,11 +193,11 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
     /**
      * Creates the instance to be injected for the given member.
      *
-     * @param name The name that was used to create the channel.
-     * @param <T> The type of the instance to be injected.
+     * @param name            The name that was used to create the channel.
+     * @param <T>             The type of the instance to be injected.
      * @param injectionTarget The target member for the injection.
-     * @param injectionType The class that should injected.
-     * @param channel The channel that should be used to create the instance.
+     * @param injectionType   The class that should injected.
+     * @param channel         The channel that should be used to create the instance.
      * @return The value that matches the type of the given field.
      * @throws BeansException If the value of the field could not be created or the type of the field is unsupported.
      */
@@ -214,8 +207,7 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
             return injectionType.cast(channel);
         } else if (AbstractStub.class.isAssignableFrom(injectionType)) {
             try {
-                @SuppressWarnings("unchecked")
-                final Class<? extends AbstractStub<?>> stubClass =
+                @SuppressWarnings("unchecked") final Class<? extends AbstractStub<?>> stubClass =
                         (Class<? extends AbstractStub<?>>) injectionType.asSubclass(AbstractStub.class);
                 final Constructor<? extends AbstractStub<?>> constructor =
                         ReflectionUtils.accessibleConstructor(stubClass, Channel.class);
@@ -234,29 +226,31 @@ public class GrpcClientBeanPostProcessor implements BeanPostProcessor {
                     "Unsupported type " + injectionType.getName());
         }
     }
+
     private void hanldGrpcHthtClient(Field field, Object bean, Class type) throws IllegalAccessException {
         //获取所有该属性接口的实例bean
-        ChannelUtil channelUtil=ChannelUtil.getInstance();
-        Object o= channelUtil.getGrpcServices().get(field.getType().getName());
+        ChannelUtil channelUtil = ChannelUtil.getInstance();
+        Object o = channelUtil.getGrpcServices().get(field.getType().getName());
         //设置该域可设置修改
         field.setAccessible(true);
         //获取注解@MyAnnotation中配置的value值
         //String injectVal = field.getAnnotation(GrpcHthtClient.class).;
         //将找到的实例赋值给属性域
-        field.set(bean,o);
+        field.set(bean, o);
     }
-    private synchronized void getgrpcChannel(String className,GrpcClient annotation){
-        ChannelUtil channelUtil=ChannelUtil.getInstance();
-        String name=annotation.value();
-        channelUtil.getGrpcServerName().put(className,name);
-        if(null==channelUtil.getGrpcChannel().get(name)){
-            Channel channel= processInjectionPoint(null, Channel.class, annotation);
-            if(null!=channel){
-                channelUtil.getGrpcChannel().put(name,channel);
+
+    private synchronized void getgrpcChannel(String className, GrpcClient annotation) {
+        ChannelUtil channelUtil = ChannelUtil.getInstance();
+        String name = annotation.value();
+        channelUtil.getGrpcServerName().put(className, name);
+        if (null == channelUtil.getGrpcChannel().get(name)) {
+            Channel channel = processInjectionPoint(null, Channel.class, annotation);
+            if (null != channel) {
+                channelUtil.getGrpcChannel().put(name, channel);
                 //channelUtil.getBlockingStub().put(name, CommonServiceGrpc.newBlockingStub(channel));
 
-            }else {
-                log.error("通道初始化失败{}",name);
+            } else {
+                log.error("通道初始化失败{}", name);
             }
         }
     }

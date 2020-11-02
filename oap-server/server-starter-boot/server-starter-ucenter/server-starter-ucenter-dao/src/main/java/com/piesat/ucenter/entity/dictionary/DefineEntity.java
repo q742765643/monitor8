@@ -22,42 +22,42 @@ public class DefineEntity extends BaseEntity {
      * 区域标识
      */
     @Excel(name = "区域标识")
-    @Column(name="area_id", length = 10)
+    @Column(name = "area_id", length = 10)
     private String areaId;
 
     /**
      * 开始纬度
      */
     @Excel(name = "开始纬度")
-    @Column(name="start_lat")
+    @Column(name = "start_lat")
     private Double startLat;
 
     /**
      * 结束纬度
      */
     @Excel(name = "结束纬度")
-    @Column(name="end_lat")
+    @Column(name = "end_lat")
     private Double endLat;
 
     /**
      * 开始经度
      */
     @Excel(name = "开始经度")
-    @Column(name="start_lon")
+    @Column(name = "start_lon")
     private Double startLon;
 
     /**
      * 结束经度
      */
     @Excel(name = "结束经度")
-    @Column(name="end_lon")
+    @Column(name = "end_lon")
     private Double endLon;
 
     /**
      * 备注
      */
     @Excel(name = "备注")
-    @Column(name="area_desc" ,length = 30)
+    @Column(name = "area_desc", length = 30)
     private String areaDesc;
 
 }

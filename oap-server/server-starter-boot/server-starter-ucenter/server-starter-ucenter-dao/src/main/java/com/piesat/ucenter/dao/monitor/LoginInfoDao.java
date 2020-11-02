@@ -1,7 +1,6 @@
 package com.piesat.ucenter.dao.monitor;
 
 import com.piesat.common.jpa.BaseDao;
-import com.piesat.common.jpa.entity.BaseEntity;
 import com.piesat.ucenter.entity.monitor.LoginInfoEntity;
 import org.springframework.stereotype.Repository;
 

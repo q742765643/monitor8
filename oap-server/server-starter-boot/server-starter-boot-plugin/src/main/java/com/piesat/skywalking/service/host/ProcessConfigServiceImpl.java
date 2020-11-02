@@ -8,10 +8,8 @@ import com.piesat.common.utils.StringUtils;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.host.ProcessConfigService;
 import com.piesat.skywalking.dao.ProcessConfigDao;
-import com.piesat.skywalking.dto.AutoDiscoveryDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessDetailsDto;
-import com.piesat.skywalking.entity.AutoDiscoveryEntity;
 import com.piesat.skywalking.entity.ProcessConfigEntity;
 import com.piesat.skywalking.mapstruct.ProcessConfigMapstruct;
 import com.piesat.util.JsonParseUtil;
@@ -35,7 +33,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -52,8 +49,9 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
     public BaseDao<ProcessConfigEntity> getBaseDao() {
         return processConfigDao;
     }
+
     public PageBean selectPageList(PageForm<ProcessConfigDto> pageForm) {
-        ProcessConfigEntity process=processConfigMapstruct.toEntity(pageForm.getT());
+        ProcessConfigEntity process = processConfigMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(process.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
@@ -70,7 +68,7 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         if (StringUtil.isNotEmpty(process.getHostId())) {
             specificationBuilder.add("hostId", SpecificationOperator.Operator.eq.name(), process.getHostId());
         }
-        if (null!=process.getCurrentStatus()&&process.getCurrentStatus()>-1) {
+        if (null != process.getCurrentStatus() && process.getCurrentStatus() > -1) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), process.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
@@ -80,8 +78,8 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
 
     }
 
-    public List<ProcessConfigDto> selectBySpecification(ProcessConfigDto processConfigDto){
-        ProcessConfigEntity process=processConfigMapstruct.toEntity(processConfigDto);
+    public List<ProcessConfigDto> selectBySpecification(ProcessConfigDto processConfigDto) {
+        ProcessConfigEntity process = processConfigMapstruct.toEntity(processConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(process.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
@@ -98,20 +96,20 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         if (StringUtil.isNotEmpty(process.getHostId())) {
             specificationBuilder.add("hostId", SpecificationOperator.Operator.eq.name(), process.getHostId());
         }
-        if (null!=process.getCurrentStatus()&&process.getCurrentStatus()>-1) {
+        if (null != process.getCurrentStatus() && process.getCurrentStatus() > -1) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), process.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();
-        List<ProcessConfigEntity> processConfigEntities=this.getAll(specification);
+        List<ProcessConfigEntity> processConfigEntities = this.getAll(specification);
         return processConfigMapstruct.toDto(processConfigEntities);
     }
 
     @Override
     @Transactional
-    public ProcessConfigDto save(ProcessConfigDto processConfigDto){
+    public ProcessConfigDto save(ProcessConfigDto processConfigDto) {
 
-        ProcessConfigEntity processConfigEntity=processConfigMapstruct.toEntity(processConfigDto);
-        processConfigEntity=super.saveNotNull(processConfigEntity);
+        ProcessConfigEntity processConfigEntity = processConfigMapstruct.toEntity(processConfigDto);
+        processConfigEntity = super.saveNotNull(processConfigEntity);
         return processConfigDto;
     }
 
@@ -125,21 +123,21 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         super.deleteByIds(ids);
     }
 
-    public ProcessDetailsDto getDetail(ProcessConfigDto processConfigDto){
+    public ProcessDetailsDto getDetail(ProcessConfigDto processConfigDto) {
 
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
-        String endTime=format.format(date);
+        String endTime = format.format(date);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, -5);
-        String beginTime=format.format(calendar.getTime());
+        String beginTime = format.format(calendar.getTime());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder agentType = QueryBuilders.matchQuery("agent.type", "metricbeat");
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.process");
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
-        WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
+        WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*" + processConfigDto.getProcessName() + "*");
         boolBuilder.must(wild);
         boolBuilder.must(agentType);
         boolBuilder.must(matchEvent);
@@ -156,23 +154,23 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         searchSourceBuilder.sort("@timestamp", SortOrder.DESC);
 
         try {
-            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
             SearchHits hits = response.getHits();
             SearchHit[] searchHits = hits.getHits();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Shanghai"));
 
-            if(searchHits.length>0){
-                ProcessDetailsDto processDetailsDto=new ProcessDetailsDto();
+            if (searchHits.length > 0) {
+                ProcessDetailsDto processDetailsDto = new ProcessDetailsDto();
                 Map jsonMap = new LinkedHashMap();
-                JsonParseUtil.parseJSON2Map(jsonMap,searchHits[0].getSourceAsString(),null);
+                JsonParseUtil.parseJSON2Map(jsonMap, searchHits[0].getSourceAsString(), null);
                 processDetailsDto.setPid(String.valueOf(jsonMap.get("process.pid")));
                 processDetailsDto.setWorkingDirectory(String.valueOf(jsonMap.get("process.working_directory")));
                 processDetailsDto.setCmdline(String.valueOf(jsonMap.get("system.process.cmdline")));
-                processDetailsDto.setStartTime( JsonParseUtil.formateDate((String) jsonMap.get("system.process.cpu.start_time")));
+                processDetailsDto.setStartTime(JsonParseUtil.formateDate((String) jsonMap.get("system.process.cpu.start_time")));
                 processDetailsDto.setCpuTime(new BigDecimal(String.valueOf(jsonMap.get("system.process.cpu.total.value"))).longValue());
-                processDetailsDto.setCpuUsage(new BigDecimal(String.valueOf(jsonMap.get("system.process.cpu.total.norm.pct"))).floatValue()*100);
+                processDetailsDto.setCpuUsage(new BigDecimal(String.valueOf(jsonMap.get("system.process.cpu.total.norm.pct"))).floatValue() * 100);
                 processDetailsDto.setMemoryBytes(new BigDecimal(String.valueOf(jsonMap.get("system.process.memory.rss.bytes"))).longValue());
-                processDetailsDto.setMemoryUsage(new BigDecimal(String.valueOf(jsonMap.get("system.process.memory.rss.pct"))).floatValue()*100);
+                processDetailsDto.setMemoryUsage(new BigDecimal(String.valueOf(jsonMap.get("system.process.memory.rss.pct"))).floatValue() * 100);
                 processDetailsDto.setUserName(String.valueOf(jsonMap.get("user.name")));
                 return processDetailsDto;
             }
@@ -184,8 +182,8 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
 
     }
 
-    public long selectCount(ProcessConfigDto processConfigDto){
-        ProcessConfigEntity process=processConfigMapstruct.toEntity(processConfigDto);
+    public long selectCount(ProcessConfigDto processConfigDto) {
+        ProcessConfigEntity process = processConfigMapstruct.toEntity(processConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(process.getIp())) {
             specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
@@ -202,7 +200,7 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         if (StringUtil.isNotEmpty(process.getHostId())) {
             specificationBuilder.add("hostId", SpecificationOperator.Operator.eq.name(), process.getHostId());
         }
-        if (null!=process.getCurrentStatus()&&process.getCurrentStatus()>-1) {
+        if (null != process.getCurrentStatus() && process.getCurrentStatus() > -1) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), process.getCurrentStatus());
         }
         Specification specification = specificationBuilder.generateSpecification();

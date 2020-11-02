@@ -15,8 +15,10 @@ import java.util.List;
 @Repository
 public interface DeptDao extends BaseDao<DeptEntity> {
 
-     int countByIdAndDelFlag(String id,String delFlag);
-     int countByParentIdAndDelFlag(String id,String delFlag);
-     List<DeptEntity> findByAncestorsLike(String ancestors);
+    int countByIdAndDelFlag(String id, String delFlag);
+
+    int countByParentIdAndDelFlag(String id, String delFlag);
+
+    List<DeptEntity> findByAncestorsLike(String ancestors);
 
 }

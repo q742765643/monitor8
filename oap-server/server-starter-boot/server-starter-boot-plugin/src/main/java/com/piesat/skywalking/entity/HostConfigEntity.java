@@ -1,9 +1,7 @@
 package com.piesat.skywalking.entity;
 
 import com.piesat.common.annotation.Excel;
-import com.piesat.common.jpa.entity.BaseEntity;
 import com.piesat.skywalking.model.HtJobInfo;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -11,24 +9,24 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name="T_MT_HOST_CONFIG")
+@Table(name = "T_MT_HOST_CONFIG")
 @DiscriminatorValue("HOSTCONFIG")
-public class  HostConfigEntity extends HtJobInfo {
+public class HostConfigEntity extends HtJobInfo {
     @Excel(name = "主机ip")
-    @Column(name="ip", length=50)
+    @Column(name = "ip", length = 50)
     private String ip;
 
     @Excel(name = "主机hostName")
-    @Column(name="host_name", length=100)
+    @Column(name = "host_name", length = 100)
     private String hostName;
 
-    @Column(name="media_type", length=100)
+    @Column(name = "media_type", length = 100)
     private Integer mediaType;
 
-    @Column(name="device_type", length=225)
+    @Column(name = "device_type", length = 225)
     private Integer deviceType;
 
-    @Column(name="monitoring_methods", length=2)
+    @Column(name = "monitoring_methods", length = 2)
     private Integer monitoringMethods;
 
 /*    @Excel(name = "是否开启snmp")
@@ -44,7 +42,7 @@ public class  HostConfigEntity extends HtJobInfo {
     private String isSsh;*/
 
     @Excel(name = "操作系统类型")
-    @Column(name="os", length=255)
+    @Column(name = "os", length = 255)
     private String os;
 
    /* @Excel(name = "ssh端口")
@@ -59,26 +57,26 @@ public class  HostConfigEntity extends HtJobInfo {
     @Column(name="ssh_password", length=50)
     private String sshPassWord;*/
 
-    @Column(name="current_status", length=10)
-    private Integer currentStatus=-1;
+    @Column(name = "current_status", length = 10)
+    private Integer currentStatus = -1;
 
-    @Column(name="packet_loss", length=10)
+    @Column(name = "packet_loss", length = 10)
     private float packetLoss;
 
-    @Column(name="area", length=50)
+    @Column(name = "area", length = 50)
     private Integer area;
 
-    @Column(name="location", length=255)
+    @Column(name = "location", length = 255)
     private String location;
 
-    @Column(name="mac", length=255)
+    @Column(name = "mac", length = 255)
     private String mac;
-    @Column(name="mask", length=255)
+    @Column(name = "mask", length = 255)
     private String mask;
 
-    @Column(name="gateway", length=255)
+    @Column(name = "gateway", length = 255)
     private String gateway;
-    @Column(name="is_host", length=255)
+    @Column(name = "is_host", length = 255)
     private Integer isHost;
 
     @Transient

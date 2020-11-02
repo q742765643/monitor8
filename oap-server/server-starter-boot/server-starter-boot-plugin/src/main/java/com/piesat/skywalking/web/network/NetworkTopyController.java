@@ -2,9 +2,7 @@ package com.piesat.skywalking.web.network;
 
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dto.HostConfigDto;
-import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
-import com.piesat.skywalking.service.host.HostConfigServiceImpl;
 import com.piesat.ucenter.rpc.api.system.DictDataService;
 import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.util.ResultT;
@@ -39,17 +37,17 @@ public class NetworkTopyController {
         Sort sort = Sort.by("ip");
         List<HostConfigDto> list = hostConfigService.selectAll();
         List<String> ipList = new ArrayList<>();
-        List<DictDataDto> dictDataDtoList=dictDataService.selectDictDataByType("media_area");
-        int x=100;
-        int y=100;
-        Set<String> areaIds=new HashSet<>();
+        List<DictDataDto> dictDataDtoList = dictDataService.selectDictDataByType("media_area");
+        int x = 100;
+        int y = 100;
+        Set<String> areaIds = new HashSet<>();
         for (int i = 1; i <= list.size(); i++) {
-            HostConfigDto hostConfig = list.get(i-1);
+            HostConfigDto hostConfig = list.get(i - 1);
             Map<String, Object> node = new HashMap<>();
             areaIds.add(String.valueOf(hostConfig.getArea()));
             node.put("id", hostConfig.getIp());
             node.put("ip", hostConfig.getIp());
-            if(!"null".equals(String.valueOf(hostConfig.getArea()))) {
+            if (!"null".equals(String.valueOf(hostConfig.getArea()))) {
                 node.put("comboId", String.valueOf(hostConfig.getArea()));
                 node.put("cluster", String.valueOf(hostConfig.getArea()));
             }
@@ -61,20 +59,20 @@ public class NetworkTopyController {
             nodeList.add(node);
             ipList.add(hostConfig.getIp());
         }
-        for (int i=0;i<dictDataDtoList.size();i++){
-            DictDataDto dictDataDto=dictDataDtoList.get(i);
+        for (int i = 0; i < dictDataDtoList.size(); i++) {
+            DictDataDto dictDataDto = dictDataDtoList.get(i);
             Map<String, Object> group = new HashMap<>();
-            if(!areaIds.contains(dictDataDto.getDictValue())){
+            if (!areaIds.contains(dictDataDto.getDictValue())) {
                 continue;
             }
-            group.put("id",String.valueOf(dictDataDto.getDictValue()));
-            group.put("title",dictDataDto.getDictLabel());
+            group.put("id", String.valueOf(dictDataDto.getDictValue()));
+            group.put("title", dictDataDto.getDictLabel());
             groupList.add(group);
         }
         String[] arpIp = {"1.3.6.1.2.1.4.22.1.3"};
         for (int i = 0; i < list.size(); i++) {
             HostConfigDto hostConfig = list.get(i);
-            if (null != hostConfig.getMediaType() && (hostConfig.getMediaType()==2||hostConfig.getMediaType()==3)) {
+            if (null != hostConfig.getMediaType() && (hostConfig.getMediaType() == 2 || hostConfig.getMediaType() == 3)) {
                 SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                 try {
                     if ("-1".equals(dv.getIsSnmpGet(PDU.GET, ".1.3.6.1.2.1.1.5").get(0))) {
@@ -97,7 +95,7 @@ public class NetworkTopyController {
                 }
                 dv.close();
             }
-            if (null != hostConfig.getMediaType() &&hostConfig.getMediaType()==4) {
+            if (null != hostConfig.getMediaType() && hostConfig.getMediaType() == 4) {
                 SNMPSessionUtil dv = new SNMPSessionUtil(hostConfig.getIp(), "161", "public", "2");
                 try {
                     String[] ipRouteNextHop = {".1.3.6.1.2.1.4.21.1.7"};//ipRouteNextHop

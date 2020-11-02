@@ -24,8 +24,8 @@ public class Ping {
     public static boolean ping(String ipAddress) throws Exception {
         int timeOut = 3000;  //超时应该在3钞以上
         boolean status = InetAddress.getByName(ipAddress).isReachable(timeOut);
-        if(status){
-            System.out.println(ipAddress+":网络可达");
+        if (status) {
+            System.out.println(ipAddress + ":网络可达");
         }
         return status;
     }
@@ -102,17 +102,17 @@ public class Ping {
     }
 
     /**
-     * @param destHost 目标网段的任意ip
-     * @param   //目标网段的掩码
+     * @param destHost  目标网段的任意ip
+     * @param //目标网段的掩码
      * @return java.util.List<java.lang.String>
      * @Description //得到能够ping通的ip
      * @Date 2020/4/4 14:58
      **/
     public static List<String> GetPingSuccess(String destHost) throws Exception {
-        List<String> strings =new ArrayList<>();
-        if(destHost.indexOf("-")!=-1){
+        List<String> strings = new ArrayList<>();
+        if (destHost.indexOf("-") != -1) {
             strings = GetRangeIpUtil.GetIpListWithMask(destHost);
-        }else{
+        } else {
             strings = GetRangeIpUtil.GetIpListWithMask(destHost, 24);
         }
         ArrayList<String> list = new ArrayList<>();
@@ -148,9 +148,9 @@ public class Ping {
             in = new BufferedReader(new InputStreamReader(p.getInputStream(), Charset.forName("GBK")));   // 逐行检查输出,计算类似出现=23ms TTL=62字样的次数
             int connectedCount = 0;
             String line = null;
-            String con ="";
+            String con = "";
             while ((line = in.readLine()) != null) {
-                con+=line;
+                con += line;
             }   // 如果出现类似=23ms TTL=62这样的字样,出现的次数=测试次数则返回真
             return con;
         } catch (Exception ex) {

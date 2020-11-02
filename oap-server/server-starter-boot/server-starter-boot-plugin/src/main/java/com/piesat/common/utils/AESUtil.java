@@ -1,18 +1,8 @@
 package com.piesat.common.utils;
 
-import org.springframework.util.StringUtils;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-import javax.crypto.*;
+import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
@@ -30,9 +20,10 @@ public class AESUtil {
 
     /**
      * 加密方法
-     * @param data  要加密的数据
-     * @param key 加密key
-     * @param iv 加密iv
+     *
+     * @param data 要加密的数据
+     * @param key  加密key
+     * @param iv   加密iv
      * @return 加密的结果
      * @throws Exception
      */
@@ -66,15 +57,16 @@ public class AESUtil {
 
     /**
      * 解密方法
+     *
      * @param data 要解密的数据
      * @param key  解密key
-     * @param iv 解密iv
+     * @param iv   解密iv
      * @return 解密的结果
      * @throws Exception
      */
-    public static String desEncrypt(String data, String key, String iv)  {
+    public static String desEncrypt(String data, String key, String iv) {
         try {
-            byte[] encrypted1 =Base64.getDecoder().decode(data);
+            byte[] encrypted1 = Base64.getDecoder().decode(data);
 
             Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
             SecretKeySpec keyspec = new SecretKeySpec(key.getBytes(), "AES");
@@ -93,6 +85,7 @@ public class AESUtil {
 
     /**
      * 使用默认的key和iv加密
+     *
      * @param data
      * @return
      * @throws Exception
@@ -103,14 +96,14 @@ public class AESUtil {
 
     /**
      * 使用默认的key和iv解密
+     *
      * @param data
      * @return
      * @throws Exception
      */
-    public static String aesDecrypt(String data)  {
+    public static String aesDecrypt(String data) {
         return desEncrypt(data, KEY, IV);
     }
-
 
 
     /**
@@ -119,16 +112,16 @@ public class AESUtil {
     public static void main(String args[]) throws Exception {
 
         String test1 = "Pnmic_qwe123";
-        String test =new String(test1.getBytes(),"UTF-8");
+        String test = new String(test1.getBytes(), "UTF-8");
         String data = null;
-        String key =  KEY;
+        String key = KEY;
         String iv = IV;
         // /g2wzfqvMOeazgtsUVbq1kmJawROa6mcRAzwG1/GeJ4=
         data = aesEncrypt(test);
-        System.out.println("数据："+test);
-        System.out.println("加密："+data);
-        String jiemi =aesDecrypt(data).trim();
-        System.out.println("解密："+jiemi);
+        System.out.println("数据：" + test);
+        System.out.println("加密：" + data);
+        String jiemi = aesDecrypt(data).trim();
+        System.out.println("解密：" + jiemi);
 
 
     }

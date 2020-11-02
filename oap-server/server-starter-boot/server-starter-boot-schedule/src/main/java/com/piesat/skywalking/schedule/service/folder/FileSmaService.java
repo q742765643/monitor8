@@ -40,12 +40,12 @@ public class FileSmaService extends FileBaseService {
             String folderRegular = DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
             String filenameRegular = DateExpressionEngine.formatDateExpression(monitor.getFilenameRegular(), monitor.getTriggerLastTime());
             //NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null,"samba","samba");
-            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null,directoryAccountDto.getUser(),directoryAccountDto.getPass());
-            String remotePath="smb://"+directoryAccountDto.getIp()+folderRegular+"/"+filenameRegular;
+            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
+            String remotePath = "smb://" + directoryAccountDto.getIp() + folderRegular + "/" + filenameRegular;
             try {
                 SmbFile file = new SmbFile(remotePath, auth);
-                if (file.exists()&&file.isFile()&&file.length()>0) {
-                    this.putFile(file,fileMonitorLogDto,fileList,resultT);
+                if (file.exists() && file.isFile() && file.length() > 0) {
+                    this.putFile(file, fileMonitorLogDto, fileList, resultT);
                     fileMonitorLogDto.setFolderRegular(folderRegular);
                     fileMonitorLogDto.setFilenameRegular(filenameRegular);
                     return;
@@ -56,133 +56,134 @@ public class FileSmaService extends FileBaseService {
 
         }
         try {
-            this.multipleFiles(fileMonitorLogDto,fileList,directoryAccountDto,resultT);
-            if(!resultT.isSuccess()){
+            this.multipleFiles(fileMonitorLogDto, fileList, directoryAccountDto, resultT);
+            if (!resultT.isSuccess()) {
                 return;
             }
-            this.insertFilePath(fileList,fileMonitorLogDto,resultT);
-            if(!resultT.isSuccess()){
+            this.insertFilePath(fileList, fileMonitorLogDto, resultT);
+            if (!resultT.isSuccess()) {
                 return;
             }
-            this.updateFileStatistics(fileMonitorLogDto,resultT);
+            this.updateFileStatistics(fileMonitorLogDto, resultT);
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(!resultT.isSuccess()){
+        } finally {
+            if (!resultT.isSuccess()) {
                 fileMonitorLogDto.setHandleCode(2);
-            }else {
+            } else {
                 fileMonitorLogDto.setHandleCode(1);
             }
             fileMonitorLogDto.setHandleMsg(resultT.getProcessMsg().toString());
-            long endTime=System.currentTimeMillis();
-            long elapsedTime=(endTime-starTime)/1000;
+            long endTime = System.currentTimeMillis();
+            long elapsedTime = (endTime - starTime) / 1000;
             fileMonitorLogDto.setElapsedTime(elapsedTime);
             this.updateLog(fileMonitorLogDto);
         }
 
     }
-    public void multipleFiles(FileMonitorLogDto fileMonitorLogDto,List<Map<String,Object>> fileList,DirectoryAccountDto directoryAccountDto, ResultT<String> resultT){
-        SmbFileFilter smbFileFilter=this.filterFile(fileMonitorLogDto,fileList,resultT);
-        if(!resultT.isSuccess()){
+
+    public void multipleFiles(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, DirectoryAccountDto directoryAccountDto, ResultT<String> resultT) {
+        SmbFileFilter smbFileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
+        if (!resultT.isSuccess()) {
             return;
         }
-        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null,directoryAccountDto.getUser(),directoryAccountDto.getPass());
+        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
         try {
-            String remotePath="smb://"+directoryAccountDto.getIp()+fileMonitorLogDto.getFolderRegular()+"/";
+            String remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
             SmbFile file = new SmbFile(remotePath, auth);
-            HtFileUtil.loopFiles(file,smbFileFilter);
+            HtFileUtil.loopFiles(file, smbFileFilter);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
         }
 
     }
 
-    public  SmbFileFilter filterFile(FileMonitorLogDto fileMonitorLogDto,List<Map<String,Object>> fileList,ResultT<String> resultT){
-        SmbFileFilter fileFilter= null;
+    public SmbFileFilter filterFile(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, ResultT<String> resultT) {
+        SmbFileFilter fileFilter = null;
         try {
-            String expression=this.repalceRegx(fileMonitorLogDto,resultT);
+            String expression = this.repalceRegx(fileMonitorLogDto, resultT);
             fileMonitorLogDto.setExpression(expression);
-            if(!resultT.isSuccess()){
+            if (!resultT.isSuccess()) {
                 return null;
             }
-            long endTime=fileMonitorLogDto.getTriggerTime();
-            long beginTime= CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(),endTime);
-            List<String> fullpaths=this.findExist(fileMonitorLogDto.getTaskId(),fileMonitorLogDto.getTriggerTime());
+            long endTime = fileMonitorLogDto.getTriggerTime();
+            long beginTime = CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
+            List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
             fileFilter = new SmbFileFilter() {
                 @Override
                 public boolean accept(SmbFile smbFile) throws SmbException {
-                    if(fullpaths.contains(smbFile.getPath())){
+                    if (fullpaths.contains(smbFile.getPath())) {
                         return false;
                     }
-                    if(StringUtil.isEmpty(fileMonitorLogDto.getFilenameRegular())){
+                    if (StringUtil.isEmpty(fileMonitorLogDto.getFilenameRegular())) {
                         return true;
                     }
-                    if(smbFile.isDirectory()){
+                    if (smbFile.isDirectory()) {
                         return true;
                     }
-                    long size =smbFile.length();
-                    if(size==0){
+                    long size = smbFile.length();
+                    if (size == 0) {
                         return false;
                     }
-                    boolean isMatch= Pattern.matches(fileMonitorLogDto.getFilenameRegular(), smbFile.getName());
-                    if(!isMatch){
+                    boolean isMatch = Pattern.matches(fileMonitorLogDto.getFilenameRegular(), smbFile.getName());
+                    if (!isMatch) {
                         return false;
                     }
-                    if(StringUtil.isEmpty(expression)){
+                    if (StringUtil.isEmpty(expression)) {
                         return true;
                     }
-                    long createTime=smbFile.createTime();
-                    long lastModified=smbFile.getLastModified();
-                    if(1==fileMonitorLogDto.getIsUt()){
-                        createTime=createTime-1000*3600*8;
-                        lastModified=lastModified-1000*3600*8;
+                    long createTime = smbFile.createTime();
+                    long lastModified = smbFile.getLastModified();
+                    if (1 == fileMonitorLogDto.getIsUt()) {
+                        createTime = createTime - 1000 * 3600 * 8;
+                        lastModified = lastModified - 1000 * 3600 * 8;
                     }
-                    long ddataTime=getDataTime(createTime,smbFile.getName(),expression,resultT);
-                    if(!resultT.isSuccess()){
+                    long ddataTime = getDataTime(createTime, smbFile.getName(), expression, resultT);
+                    if (!resultT.isSuccess()) {
                         return false;
                     }
-                    if(ddataTime<=beginTime||ddataTime>endTime){
+                    if (ddataTime <= beginTime || ddataTime > endTime) {
                         return false;
                     }
-                    String fullpath=smbFile.getPath();
-                    Map<String,Object> source=new HashMap<>();
-                    source.put("last_modified_time",new Date(lastModified));
-                    source.put("create_time",new Date(createTime));
-                    source.put("d_datetime",new Date(ddataTime));
-                    source.put("full_path",fullpath);
-                    source.put("parent_path",smbFile.getParent());
-                    source.put("file_name",smbFile.getName());
-                    source.put("file_bytes",size);
+                    String fullpath = smbFile.getPath();
+                    Map<String, Object> source = new HashMap<>();
+                    source.put("last_modified_time", new Date(lastModified));
+                    source.put("create_time", new Date(createTime));
+                    source.put("d_datetime", new Date(ddataTime));
+                    source.put("full_path", fullpath);
+                    source.put("parent_path", smbFile.getParent());
+                    source.put("file_name", smbFile.getName());
+                    source.put("file_bytes", size);
                     fileList.add(source);
                     return true;
                 }
             };
         } catch (Exception e) {
-           resultT.setErrorMessage(OwnException.get(e));
+            resultT.setErrorMessage(OwnException.get(e));
         }
         return fileFilter;
     }
 
 
-    public void putFile(SmbFile file,FileMonitorLogDto fileMonitorLogDto,List<Map<String,Object>> fileList, ResultT<String> resultT){
+    public void putFile(SmbFile file, FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         try {
-            String expression=this.repalceRegx(fileMonitorLogDto,resultT);
-            long createTime= file.createTime();
-            long lastModified=file.getLastModified();
-            if(1==fileMonitorLogDto.getIsUt()){
-                createTime=createTime-1000*3600*8;
-                lastModified=lastModified-1000*3600*8;
+            String expression = this.repalceRegx(fileMonitorLogDto, resultT);
+            long createTime = file.createTime();
+            long lastModified = file.getLastModified();
+            if (1 == fileMonitorLogDto.getIsUt()) {
+                createTime = createTime - 1000 * 3600 * 8;
+                lastModified = lastModified - 1000 * 3600 * 8;
             }
-            long ddataTime=getDataTime(createTime,file.getName(),expression,resultT);
-            String fullpath=file.getPath();
-            Map<String,Object> source=new HashMap<>();
-            source.put("last_modified_time",new Date(lastModified));
-            source.put("create_time",new Date(createTime));
-            source.put("d_datetime",new Date(ddataTime));
-            source.put("full_path",fullpath);
-            source.put("parent_path",file.getParent());
-            source.put("file_name",file.getName());
-            source.put("file_bytes",file.length());
+            long ddataTime = getDataTime(createTime, file.getName(), expression, resultT);
+            String fullpath = file.getPath();
+            Map<String, Object> source = new HashMap<>();
+            source.put("last_modified_time", new Date(lastModified));
+            source.put("create_time", new Date(createTime));
+            source.put("d_datetime", new Date(ddataTime));
+            source.put("full_path", fullpath);
+            source.put("parent_path", file.getParent());
+            source.put("file_name", file.getName());
+            source.put("file_bytes", file.length());
             fileList.add(source);
         } catch (SmbException e) {
             e.printStackTrace();

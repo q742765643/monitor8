@@ -1,7 +1,5 @@
 package com.piesat.common.filter;
 
-import org.springframework.context.annotation.Configuration;
-
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -21,8 +19,8 @@ import java.util.*;
 public class CustomEncryptHttpWrapper extends HttpServletRequestWrapper {
 
     private final Map<String, String> headers = new HashMap<>(8);
-    private Map<String, String[]> parameterMap=new HashMap<>(); // 所有参数的Map集合
     private final byte[] data;
+    private Map<String, String[]> parameterMap = new HashMap<>(); // 所有参数的Map集合
 
     public CustomEncryptHttpWrapper(HttpServletRequest request, String content) {
         super(request);
@@ -32,7 +30,7 @@ public class CustomEncryptHttpWrapper extends HttpServletRequestWrapper {
             String key = headerNames.nextElement();
             headers.put(key, request.getHeader(key));
         }
-        
+
     }
 
     public void putHeader(String key, String value) {
@@ -51,7 +49,7 @@ public class CustomEncryptHttpWrapper extends HttpServletRequestWrapper {
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return  Collections.enumeration(headers.keySet());
+        return Collections.enumeration(headers.keySet());
     }
 
     @Override
@@ -84,6 +82,7 @@ public class CustomEncryptHttpWrapper extends HttpServletRequestWrapper {
     public BufferedReader getReader() throws IOException {
         return super.getReader();
     }
+
     /**
      * 获取所有参数名
      *
@@ -98,17 +97,15 @@ public class CustomEncryptHttpWrapper extends HttpServletRequestWrapper {
     /**
      * 获取指定参数名的值，如果有重复的参数名，则返回第一个的值 接收一般变量 ，如text类型
      *
-     * @param name
-     *            指定参数名
+     * @param name 指定参数名
      * @return 指定参数名的值
      */
     @Override
     public String getParameter(String name) {
         String[] results = parameterMap.get(name);
-        if (results == null || results.length <= 0){
+        if (results == null || results.length <= 0) {
             return null;
-        }
-        else {
+        } else {
             return results[0];
         }
     }
@@ -120,10 +117,9 @@ public class CustomEncryptHttpWrapper extends HttpServletRequestWrapper {
     @Override
     public String[] getParameterValues(String name) {
         String[] results = parameterMap.get(name);
-        if (results == null || results.length <= 0){
+        if (results == null || results.length <= 0) {
             return null;
-        }
-        else {
+        } else {
             int length = results.length;
             for (int i = 0; i < length; i++) {
             }

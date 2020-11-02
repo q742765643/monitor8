@@ -7,8 +7,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
-
 /**
  * @program: sod
  * @描述

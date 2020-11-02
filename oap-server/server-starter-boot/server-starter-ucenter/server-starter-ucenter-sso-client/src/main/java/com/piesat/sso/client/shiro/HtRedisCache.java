@@ -4,15 +4,10 @@ import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.CollectionUtils;
-import org.crazycake.shiro.IRedisManager;
 import org.crazycake.shiro.RedisCache;
 import org.crazycake.shiro.exception.CacheManagerPrincipalIdNotAssignedException;
 import org.crazycake.shiro.exception.PrincipalIdNullException;
 import org.crazycake.shiro.exception.PrincipalInstanceException;
-import org.crazycake.shiro.exception.SerializationException;
-import org.crazycake.shiro.serializer.ObjectSerializer;
-import org.crazycake.shiro.serializer.RedisSerializer;
-import org.crazycake.shiro.serializer.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +21,7 @@ import java.util.*;
  * @author: zzj
  * @create: 2019-12-18 11:48
  **/
-public class HtRedisCache<K, V>  implements Cache<K, V> {
+public class HtRedisCache<K, V> implements Cache<K, V> {
     private static Logger logger = LoggerFactory.getLogger(RedisCache.class);
     private String keyPrefix = "shiro:cache:";
     private HtRedisManager redisManager;
@@ -35,32 +30,33 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
 
     public HtRedisCache(HtRedisManager redisManager, String prefix, int expire, String principalIdFieldName) {
 
-        if(redisManager == null) {
+        if (redisManager == null) {
             throw new IllegalArgumentException("redisManager cannot be null.");
         } else {
 
-            if(prefix != null && !"".equals(prefix)) {
+            if (prefix != null && !"".equals(prefix)) {
                 this.keyPrefix = prefix;
             }
-            this.redisManager=redisManager;
+            this.redisManager = redisManager;
             this.expire = expire;
-            if(principalIdFieldName != null) {
+            if (principalIdFieldName != null) {
                 this.principalIdFieldName = principalIdFieldName;
             }
 
 
         }
     }
+
     @Override
     public V get(K key) throws CacheException {
         logger.debug("get key [" + key + "]");
-        if(key == null) {
+        if (key == null) {
             return null;
         } else {
             try {
                 String redisCacheKey = this.getRedisCacheKey(key);
                 Object rawValue = this.redisManager.get(redisCacheKey);
-                if(rawValue == null) {
+                if (rawValue == null) {
                     return null;
                 } else {
                     return (V) rawValue;
@@ -70,9 +66,10 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
             }
         }
     }
+
     @Override
     public V put(K key, V value) throws CacheException {
-        logger.debug("put key [{}]",key);
+        logger.debug("put key [{}]", key);
         if (key == null) {
             logger.warn("Saving a null key is meaningless, return value directly without call Redis.");
             return value;
@@ -88,7 +85,7 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
 
     @Override
     public V remove(K key) throws CacheException {
-        logger.debug("remove key [{}]",key);
+        logger.debug("remove key [{}]", key);
         if (key == null) {
             return null;
         }
@@ -102,14 +99,15 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
             throw new CacheException(e);
         }
     }
+
     private String getRedisCacheKey(K key) {
-        return key == null?null:this.keyPrefix + this.getStringRedisKey(key);
+        return key == null ? null : this.keyPrefix + this.getStringRedisKey(key);
     }
 
     private String getStringRedisKey(K key) {
         String redisKey;
-        if(key instanceof PrincipalCollection) {
-            redisKey = this.getRedisKeyFromPrincipalIdField((PrincipalCollection)key);
+        if (key instanceof PrincipalCollection) {
+            redisKey = this.getRedisKeyFromPrincipalIdField((PrincipalCollection) key);
         } else {
             redisKey = key.toString();
         }
@@ -126,7 +124,7 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
     private String getIdObj(Object principalObject, Method pincipalIdGetter) {
         try {
             Object idObj = pincipalIdGetter.invoke(principalObject, new Object[0]);
-            if(idObj == null) {
+            if (idObj == null) {
                 throw new PrincipalIdNullException(principalObject.getClass(), this.principalIdFieldName);
             } else {
                 String redisKey = idObj.toString();
@@ -152,28 +150,30 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
     }
 
     private String getPrincipalIdMethodName() {
-        if(this.principalIdFieldName != null && !"".equals(this.principalIdFieldName)) {
+        if (this.principalIdFieldName != null && !"".equals(this.principalIdFieldName)) {
             return "get" + this.principalIdFieldName.substring(0, 1).toUpperCase() + this.principalIdFieldName.substring(1);
         } else {
             throw new CacheManagerPrincipalIdNotAssignedException();
         }
     }
-   @Override
+
+    @Override
     public void clear() throws CacheException {
-       logger.debug("clear cache");
-       Set<String> keys = null;
-       try {
-           keys = redisManager.scan(this.keyPrefix + "*");
-       } catch (Exception e) {
-           logger.error("get keys error", e);
-       }
-       if (keys == null || keys.size() == 0) {
-           return;
-       }
-       for (String key : keys) {
-           redisManager.del(key);
-       }
-   }
+        logger.debug("clear cache");
+        Set<String> keys = null;
+        try {
+            keys = redisManager.scan(this.keyPrefix + "*");
+        } catch (Exception e) {
+            logger.error("get keys error", e);
+        }
+        if (keys == null || keys.size() == 0) {
+            return;
+        }
+        for (String key : keys) {
+            redisManager.del(key);
+        }
+    }
+
     @Override
     public int size() {
         Long longSize = 0L;
@@ -184,6 +184,7 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
         }
         return longSize.intValue();
     }
+
     @Override
     public Set<K> keys() {
         Set<String> keys = null;
@@ -199,7 +200,7 @@ public class HtRedisCache<K, V>  implements Cache<K, V> {
         }
 
         Set<K> convertedKeys = new HashSet<K>();
-        for (String key:keys) {
+        for (String key : keys) {
             try {
                 convertedKeys.add((K) key);
             } catch (Exception e) {

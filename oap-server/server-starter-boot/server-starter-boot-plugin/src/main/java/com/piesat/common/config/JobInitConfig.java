@@ -1,6 +1,5 @@
 package com.piesat.common.config;
 
-import com.piesat.skywalking.api.alarm.AlarmConfigService;
 import com.piesat.skywalking.service.quartz.timing.*;
 import com.piesat.skywalking.service.timing.JobScheduleHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ public class JobInitConfig implements ApplicationRunner {
     private JobScheduleHelper jobScheduleHelper;
     @Autowired
     private JobInfoQuartzService jobInfoQuartzService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         autoDiscoveryQuartzService.initJob();

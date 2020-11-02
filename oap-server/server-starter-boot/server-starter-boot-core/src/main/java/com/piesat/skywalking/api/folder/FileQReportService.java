@@ -7,9 +7,9 @@ import java.util.Map;
 
 public interface FileQReportService {
 
-    public List<Map<String,String>> findHeader();
+    public List<Map<String, String>> findHeader();
 
-    public List<Map<String,Object>> findFileReport(SystemQueryDto systemQueryDto);
+    public List<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto);
 
-    public List<Map<String,Object>> fileLineDiagram(String taskId);
+    public List<Map<String, Object>> fileLineDiagram(String taskId);
 }

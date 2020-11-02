@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @创建人 zzj
  * @创建时间 2019/11/14 9:32
  */
-@Target({ElementType.METHOD , ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface DecryptRequest {

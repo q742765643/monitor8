@@ -1,9 +1,6 @@
 package com.piesat.common.jpa.dialect;
 
 import com.xugu.dialect.XuguDialect5;
-import org.hibernate.dialect.MySQL57Dialect;
-import org.hibernate.dialect.MySQL5Dialect;
-import org.hibernate.dialect.MySQLDialect;
 
 /**
  * @program: sod
@@ -20,7 +17,7 @@ public class XuguDialect extends XuguDialect5 {
             String[] primaryKey,
             boolean referencesPrimaryKey) {
 //      设置foreignkey对应的列值可以为空
-        return " alter "+ foreignKey[0] +" set default null " ;
+        return " alter " + foreignKey[0] + " set default null ";
     }
 
 }

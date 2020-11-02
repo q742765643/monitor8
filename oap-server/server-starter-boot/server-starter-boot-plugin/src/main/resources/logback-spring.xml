@@ -2,7 +2,7 @@
 
 <configuration debug="true">
     <springProperty scope="context" name="logPath" source="log.path" defaultValue="../../logs"/>
-    <springProperty scope="context" name="logLevel" source="log.level" />
+    <springProperty scope="context" name="logLevel" source="log.level"/>
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
                     converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>

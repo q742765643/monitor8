@@ -6,7 +6,6 @@ import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.util.constant.GrpcConstant;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
-import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
  * @创建人 zzj
  * @创建时间 2019/12/3 17:57
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface DictDataService {
     /**
      * 根据条件分页查询字典数据
@@ -77,12 +76,11 @@ public interface DictDataService {
     public DictDataDto updateDictData(DictDataDto dictData);
 
     /**
-     *
      * @param dictType
      * @param dictValue
      * @return
      */
-    DictDataDto findByDictTypeAndDictValue(String dictType,String dictValue);
+    DictDataDto findByDictTypeAndDictValue(String dictType, String dictValue);
 
     public void exportExcel(DictDataDto dictData);
 }

@@ -1,7 +1,6 @@
 package com.piesat.sso.client.shiro;
 
 import com.alibaba.fastjson.JSON;
-import com.piesat.common.filter.WrapperedRequest;
 import com.piesat.common.grpc.config.SpringUtil;
 import com.piesat.common.utils.OwnException;
 import com.piesat.common.utils.ServletUtils;
@@ -11,9 +10,7 @@ import com.piesat.common.utils.ip.IpUtils;
 import com.piesat.sso.client.enums.OperatorType;
 import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.ucenter.rpc.api.monitor.LoginInfoService;
-import com.piesat.ucenter.rpc.api.system.UserService;
 import com.piesat.ucenter.rpc.dto.monitor.LoginInfoDto;
-import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.util.ResultT;
 import com.piesat.util.ReturnCodeEnum;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -40,8 +37,8 @@ import java.util.concurrent.ExecutorService;
  * @创建时间 2019/12/10 15:10
  */
 public class HtAuthenticationFilter extends FormAuthenticationFilter {
-    private Logger logger = LoggerFactory.getLogger(HtAuthenticationFilter.class);
     private static String THRID_LOGIN_APP_ID = "THRID_LOGIN_APP_ID:";
+    private Logger logger = LoggerFactory.getLogger(HtAuthenticationFilter.class);
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {

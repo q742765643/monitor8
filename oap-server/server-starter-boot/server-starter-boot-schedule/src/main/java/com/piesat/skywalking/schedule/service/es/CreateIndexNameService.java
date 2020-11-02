@@ -1,22 +1,15 @@
 package com.piesat.skywalking.schedule.service.es;
 
-import com.piesat.constant.IndexNameConstant;
-import com.piesat.util.IndexNameUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class CreateIndexNameService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
 
-    public void createAlarmLog(String indexName){
+    public void createAlarmLog(String indexName) {
         /*try {
             if(!elasticSearch7Client.isExistsIndex(indexName)){
                 Map<String,Object> settings=new HashMap<>();

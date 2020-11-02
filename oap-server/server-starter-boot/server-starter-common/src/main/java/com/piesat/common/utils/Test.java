@@ -16,22 +16,22 @@ public class Test {
         //要加密的数据（数据库的用户名或密码）
         String username = textEncryptor.encrypt("USR_SOD");
         String password = textEncryptor.encrypt("Pnmic_qwe123");
-        System.out.println("username:"+username);
-        System.out.println("password:"+password);
+        System.out.println("username:" + username);
+        System.out.println("password:" + password);
         String s1 = textEncryptor.encrypt("Pnmic_qwe123");
-        System.out.println("s1:"+s1);
+        System.out.println("s1:" + s1);
         String s2 = textEncryptor.encrypt("qwe123");
-        System.out.println("s2:"+s2);
+        System.out.println("s2:" + s2);
         String s3 = textEncryptor.encrypt("sod2019");
-        System.out.println("s3:"+s3);
+        System.out.println("s3:" + s3);
         String mmd = textEncryptor.encrypt("nmic@100200");
-        System.out.println("mmd:"+mmd);
+        System.out.println("mmd:" + mmd);
         String are = textEncryptor.encrypt("music#2020");
-        System.out.println("are:"+are);
+        System.out.println("are:" + are);
         String are1 = textEncryptor.decrypt("HbaZNoUMJp0EsMMUFpNxiTUjZZvy9NKm");
-        System.out.println("are1:"+are1);
+        System.out.println("are1:" + are1);
         String pp = textEncryptor.encrypt("Cmadaas@2019");
-        System.out.println("pp:"+pp);
+        System.out.println("pp:" + pp);
 
     }
 }

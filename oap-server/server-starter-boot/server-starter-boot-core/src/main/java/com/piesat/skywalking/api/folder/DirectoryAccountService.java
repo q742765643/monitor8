@@ -9,7 +9,7 @@ import com.piesat.util.page.PageForm;
 
 import java.util.List;
 
-@GrpcHthtService(server = GrpcConstant.SCHEDULE_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.SCHEDULE_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface DirectoryAccountService {
     public PageBean selectPageList(PageForm<DirectoryAccountDto> pageForm);
 

@@ -1,11 +1,9 @@
 package com.piesat.sso.client.shiro;
 
 import com.piesat.common.grpc.config.SpringUtil;
-
 import com.piesat.common.utils.AESUtil;
 import com.piesat.common.utils.ip.IpUtils;
 import com.piesat.sso.client.util.AddressUtils;
-import com.piesat.ucenter.rpc.api.system.BizUserService;
 import com.piesat.ucenter.rpc.api.system.MenuService;
 import com.piesat.ucenter.rpc.api.system.RoleService;
 import com.piesat.ucenter.rpc.api.system.UserService;
@@ -19,7 +17,6 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Set;
 
@@ -73,8 +70,8 @@ public class HtShiroRealm extends AuthorizingRealm {
             userDto.setOperatorType(token.getOperatorType());
             userDto.setLoginDate(new Date());
             SimpleAuthenticationInfo authenticationInfo = null;
-            if ("11".equals(userDto.getUserType())){
-                if (!"3".equals(userDto.getChecked())){
+            if ("11".equals(userDto.getUserType())) {
+                if (!"3".equals(userDto.getChecked())) {
                     throw new LockedAccountException();
                 }
                 String pwd = AESUtil.aesDecrypt(userDto.getPassword()).trim();
@@ -82,8 +79,8 @@ public class HtShiroRealm extends AuthorizingRealm {
                         userDto, //用户名
                         new Md5Hash(pwd, username, 2).toString(), //密码
                         salt,
-                        getName() );
-            }else {
+                        getName());
+            } else {
                 authenticationInfo = new SimpleAuthenticationInfo(
                         userDto, //用户名
                         userDto.getPassword(), //密码
@@ -103,7 +100,7 @@ public class HtShiroRealm extends AuthorizingRealm {
                     userDto, //用户名
                     new Md5Hash(pwd, username, 2).toString(), //密码
                     salt,
-                    getName() );
+                    getName());
             return authenticationInfo;
         }
 

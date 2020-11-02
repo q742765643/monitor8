@@ -1,7 +1,6 @@
 package com.piesat.skywalking.dto;
 
 import com.piesat.util.BaseDto;
-import io.protostuff.runtime.ArraySchemas;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -14,5 +13,5 @@ public class ProcessConfigDto extends BaseDto {
     @ApiModelProperty(value = "主机id")
     private String hostId;
     @ApiModelProperty(value = "设备当前状态 0 一般 1 危险 2故障 3正常")
-    private Integer currentStatus=-1;
+    private Integer currentStatus = -1;
 }

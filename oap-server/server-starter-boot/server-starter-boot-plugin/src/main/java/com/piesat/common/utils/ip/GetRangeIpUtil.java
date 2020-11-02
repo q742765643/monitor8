@@ -17,11 +17,12 @@ public class GetRangeIpUtil {
         }
         return list;
     }
+
     public static List<String> GetIpListWithMask(String destIp) {
         ArrayList<String> list = new ArrayList<>();
         String statrIpList = destIp.substring(0, destIp.lastIndexOf("."));
-        String range=destIp.substring(destIp.lastIndexOf(".")+1,destIp.length());
-        String[] ranges=range.split("-");
+        String range = destIp.substring(destIp.lastIndexOf(".") + 1, destIp.length());
+        String[] ranges = range.split("-");
         String startInt = ranges[0];
         String endInt = ranges[1];
         for (int i = Integer.parseInt(startInt); i <= Integer.parseInt(endInt); i++) {

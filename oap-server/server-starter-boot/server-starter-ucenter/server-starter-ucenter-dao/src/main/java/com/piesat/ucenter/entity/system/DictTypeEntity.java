@@ -16,27 +16,33 @@ import javax.persistence.Table;
  */
 @Entity
 @Data
-@Table(name="T_SOD_DICT_TYPE")
+@Table(name = "T_SOD_DICT_TYPE")
 public class DictTypeEntity extends BaseEntity {
 
 
-    /** 字典名称 */
-    @Excel(name="字典名称")
-    @Column(name="dict_name", length=100)
+    /**
+     * 字典名称
+     */
+    @Excel(name = "字典名称")
+    @Column(name = "dict_name", length = 100)
     private String dictName;
 
-    /** 字典类型 */
-    @Excel(name="字典类型")
-    @Column(name="dict_type", length=100)
+    /**
+     * 字典类型
+     */
+    @Excel(name = "字典类型")
+    @Column(name = "dict_type", length = 100)
     private String dictType;
 
-    /** 状态（0正常 1停用） */
-    @Excel(name="字典类型",readConverterExp = "0=正常,1=停用")
-    @Column(name="status", length=1)
+    /**
+     * 状态（0正常 1停用）
+     */
+    @Excel(name = "字典类型", readConverterExp = "0=正常,1=停用")
+    @Column(name = "status", length = 1)
     private String status;
     /**
      * 备注
      */
-    @Column(name="remark",length = 500)
+    @Column(name = "remark", length = 500)
     private String remark;
 }

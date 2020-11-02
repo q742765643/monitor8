@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 /**
  * sofa-hessian 序列化/反序列化工具
- *
+ * <p>
  * 参考：
  * https://github.com/alipay/sofa-rpc/blob/master/extension-impl/codec-sofa-hessian/src/main/java/com/alipay/sofa/rpc/codec/sofahessian/SofaHessianSerializer.java
  */

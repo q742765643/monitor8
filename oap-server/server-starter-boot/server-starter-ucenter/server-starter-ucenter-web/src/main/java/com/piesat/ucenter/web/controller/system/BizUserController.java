@@ -1,7 +1,6 @@
 package com.piesat.ucenter.web.controller.system;
 
 import com.piesat.ucenter.rpc.api.system.BizUserService;
-import com.piesat.ucenter.rpc.api.system.DeptService;
 import com.piesat.util.ResultT;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

@@ -1,11 +1,12 @@
 package com.piesat.common.utils;
 
-import com.aspose.words.FontSettings;
 import com.aspose.words.License;
 import com.aspose.words.SaveFormat;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author cwh

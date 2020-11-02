@@ -11,7 +11,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +30,7 @@ public class LevelController {
 
     /**
      * 获取分页数据接口
+     *
      * @param levelDto
      * @param pageNum
      * @param pageSize
@@ -38,16 +38,17 @@ public class LevelController {
      */
     @GetMapping("/list")
     @ApiOperation(value = "条件分页查询", notes = "条件分页查询")
-    public ResultT<PageBean> list(LevelDto levelDto,int pageNum,int pageSize) {
-        ResultT<PageBean> resultT=new ResultT<>();
-        PageForm<LevelDto> pageForm=new PageForm<>(pageNum,pageSize,levelDto);
-        PageBean pageBean=levelService.selectLevelList(pageForm);
+    public ResultT<PageBean> list(LevelDto levelDto, int pageNum, int pageSize) {
+        ResultT<PageBean> resultT = new ResultT<>();
+        PageForm<LevelDto> pageForm = new PageForm<>(pageNum, pageSize, levelDto);
+        PageBean pageBean = levelService.selectLevelList(pageForm);
         resultT.setData(pageBean);
         return resultT;
     }
 
     /**
      * 添加
+     *
      * @param levelDto
      * @return
      */
@@ -56,8 +57,8 @@ public class LevelController {
     public ResultT save(@RequestBody LevelDto levelDto) {
         try {
             LevelDto save = this.levelService.saveDto(levelDto);
-            if(save.getId() == null){
-               return  ResultT.failed("相同grid格式的层次类型已存在");
+            if (save.getId() == null) {
+                return ResultT.failed("相同grid格式的层次类型已存在");
             }
             return ResultT.success(save);
         } catch (Exception e) {
@@ -68,35 +69,33 @@ public class LevelController {
 
     /**
      * 批量删除
+     *
      * @param levelIds
      * @return
      */
     @DeleteMapping("/{levelIds}")
-    public ResultT<String> remove(@PathVariable String[] levelIds)
-    {
-        ResultT<String> resultT=new ResultT<>();
-        List<String> list=new ArrayList();
-        if(levelIds.length>0){
-            list= Arrays.asList(levelIds);
+    public ResultT<String> remove(@PathVariable String[] levelIds) {
+        ResultT<String> resultT = new ResultT<>();
+        List<String> list = new ArrayList();
+        if (levelIds.length > 0) {
+            list = Arrays.asList(levelIds);
             levelService.deleteLevelByIds(list);
         }
         return resultT;
     }
 
     @PutMapping("/edit")
-    public ResultT<LevelDto> edit(@RequestBody LevelDto levelDto)
-    {
-        ResultT<LevelDto> resultT=new ResultT<>();
-        levelDto=levelService.updateLevel(levelDto);
+    public ResultT<LevelDto> edit(@RequestBody LevelDto levelDto) {
+        ResultT<LevelDto> resultT = new ResultT<>();
+        levelDto = levelService.updateLevel(levelDto);
         resultT.setData(levelDto);
         return resultT;
     }
 
     @GetMapping(value = "/{levelId}")
-    public ResultT<LevelDto> getLevelById(@PathVariable String levelId)
-    {
-        ResultT<LevelDto> resultT=new ResultT<>();
-        LevelDto levelDto=levelService.getDotById(levelId);
+    public ResultT<LevelDto> getLevelById(@PathVariable String levelId) {
+        ResultT<LevelDto> resultT = new ResultT<>();
+        LevelDto levelDto = levelService.getDotById(levelId);
         resultT.setData(levelDto);
         return resultT;
     }
@@ -104,7 +103,7 @@ public class LevelController {
     @ApiOperation(value = "查询所有层次")
     @RequiresPermissions("dm:dictionary:getAllLevel")
     @GetMapping(value = "/getAllLevel")
-    public ResultT getAllLevel(){
+    public ResultT getAllLevel() {
         List<LevelDto> allLevel = this.levelService.getAllLevel();
         return ResultT.success(allLevel);
     }

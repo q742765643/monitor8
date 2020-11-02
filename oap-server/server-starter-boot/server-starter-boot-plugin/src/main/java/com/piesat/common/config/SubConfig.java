@@ -12,14 +12,14 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 public class SubConfig {
     @Bean
     MessageListenerAdapter messageListener() {
-        return new MessageListenerAdapter( new MsgListener() );
+        return new MessageListenerAdapter(new MsgListener());
     }
 
     @Bean
     RedisMessageListenerContainer redisContainer(RedisConnectionFactory factory) {
         final RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
-        container.addMessageListener(messageListener(), new ChannelTopic( "PUBSUB.WEBSOCKET" ));
+        container.addMessageListener(messageListener(), new ChannelTopic("PUBSUB.WEBSOCKET"));
         return container;
     }
 }

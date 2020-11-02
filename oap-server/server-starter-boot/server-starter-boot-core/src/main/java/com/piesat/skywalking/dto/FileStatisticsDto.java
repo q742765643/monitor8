@@ -56,7 +56,6 @@ public class FileStatisticsDto {
     private Date endTimeA;
 
 
-
     @ApiModelProperty(value = "当前状态 0 一般 1 危险 2故障 3正常 4 未执行")
     private Integer status;
     @ApiModelProperty(value = "插入时间")

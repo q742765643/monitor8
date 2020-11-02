@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class HtJobInfoDto extends BaseDto {
     @ApiModelProperty(value = "上次调度时间")
-    private long triggerLastTime;	// 上次调度时间
+    private long triggerLastTime;    // 上次调度时间
     @ApiModelProperty(value = "下次调度时间")
     private long triggerNextTime;
     @ApiModelProperty(value = "0 代表未启动 1代表启动")

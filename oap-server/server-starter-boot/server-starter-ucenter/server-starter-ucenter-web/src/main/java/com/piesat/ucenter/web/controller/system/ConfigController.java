@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/system/config")
 public class ConfigController {
     @GetMapping(value = "/configKey/{configKey}")
-    public ResultT<String> getConfigKey(@PathVariable String configKey)
-    {
-        ResultT<String> resultT=new ResultT<>();
+    public ResultT<String> getConfigKey(@PathVariable String configKey) {
+        ResultT<String> resultT = new ResultT<>();
         resultT.setData("111111");
         return resultT;
     }

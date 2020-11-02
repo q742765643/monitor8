@@ -21,11 +21,8 @@ import java.io.Serializable;
 public class HtSessionManager extends DefaultWebSessionManager {
     private static final String AUTHORIZATION = "Authorization";
     private static final String APP_ID = "appId";
-    private static String THRID_LOGIN_APP_ID="THRID_LOGIN_APP_ID:";
-
-
-
     private static final String REFERENCED_SESSION_ID_SOURCE = "Stateless request";
+    private static String THRID_LOGIN_APP_ID = "THRID_LOGIN_APP_ID:";
 
     public HtSessionManager() {
         super();
@@ -45,7 +42,7 @@ public class HtSessionManager extends DefaultWebSessionManager {
         }
         System.out.println("id2:"+id);*/
         if (!StringUtils.isEmpty(id)) {
-            if(id.equals("88888888")){
+            if (id.equals("88888888")) {
                 return super.getSessionId(request, response);
             }
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);
@@ -53,13 +50,13 @@ public class HtSessionManager extends DefaultWebSessionManager {
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);
             return id;
         } else {
-            String appId= WebUtils.toHttp(request).getHeader(APP_ID);
-            RedisUtil redisUtil= SpringUtil.getBean(RedisUtil.class);
-            boolean has=redisUtil.hasKey(THRID_LOGIN_APP_ID+appId);
-            if(has){
-                String appSessionId= (String) redisUtil.get(THRID_LOGIN_APP_ID+appId);
-                boolean checkSession=redisUtil.hasKey("shiro:session:"+appSessionId);
-                if(checkSession){
+            String appId = WebUtils.toHttp(request).getHeader(APP_ID);
+            RedisUtil redisUtil = SpringUtil.getBean(RedisUtil.class);
+            boolean has = redisUtil.hasKey(THRID_LOGIN_APP_ID + appId);
+            if (has) {
+                String appSessionId = (String) redisUtil.get(THRID_LOGIN_APP_ID + appId);
+                boolean checkSession = redisUtil.hasKey("shiro:session:" + appSessionId);
+                if (checkSession) {
                     request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);
                     request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, appSessionId);
                     request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);

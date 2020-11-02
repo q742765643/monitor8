@@ -43,7 +43,7 @@ public class AlarmLogDto extends BaseDto {
     @ApiModelProperty(value = "告警监测类型")
     private Integer monitorType;
 
-    private boolean isAlarm=false;
+    private boolean isAlarm = false;
 
     @ApiModelProperty(value = "一般判断条件")
     private List<ConditionDto> generals;

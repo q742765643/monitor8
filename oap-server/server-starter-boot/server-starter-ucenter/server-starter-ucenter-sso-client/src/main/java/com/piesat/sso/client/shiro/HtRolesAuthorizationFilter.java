@@ -5,9 +5,6 @@ import com.piesat.util.ResultT;
 import com.piesat.util.ReturnCodeEnum;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authz.RolesAuthorizationFilter;
-import org.apache.shiro.web.util.WebUtils;
-import org.springframework.util.StringUtils;
-import springfox.documentation.service.ResponseMessage;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -29,7 +26,7 @@ public class HtRolesAuthorizationFilter extends RolesAuthorizationFilter {
         resp.setContentType("application/json; charset=utf-8");
         PrintWriter out = resp.getWriter();
         Subject subject = getSubject(request, response);
-        ResultT<String> resultT=new ResultT<>();
+        ResultT<String> resultT = new ResultT<>();
         // 没有认证,先返回未认证的json
         if (subject.getPrincipal() == null) {
             resultT.setErrorMessage(ReturnCodeEnum.ReturnCodeEnum_401_ERROR);

@@ -15,11 +15,11 @@ public class HtObjectSerializer implements RedisSerializer {
     @Override
     public byte[] serialize(Object object) throws SerializationException {
         byte[] result = new byte[0];
-        if(object == null) {
+        if (object == null) {
             return result;
         } else {
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream(128);
-            if(!(object instanceof Serializable)) {
+            if (!(object instanceof Serializable)) {
                 throw new SerializationException("requires a Serializable payload but received an object of type [" + object.getClass().getName() + "]");
             } else {
                 try {
@@ -34,10 +34,11 @@ public class HtObjectSerializer implements RedisSerializer {
             }
         }
     }
+
     @Override
     public Object deserialize(byte[] bytes) throws SerializationException {
         Object result = null;
-        if(bytes != null && bytes.length != 0) {
+        if (bytes != null && bytes.length != 0) {
             try {
                 ByteArrayInputStream byteStream = new ByteArrayInputStream(bytes);
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteStream);

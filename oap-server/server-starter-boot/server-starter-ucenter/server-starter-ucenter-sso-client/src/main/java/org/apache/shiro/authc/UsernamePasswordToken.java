@@ -17,6 +17,7 @@ public class UsernamePasswordToken implements HostAuthenticationToken, RememberM
     private HttpServletRequest request;
     private String param;
     private int operatorType;
+
     public UsernamePasswordToken() {
         this.rememberMe = false;
     }
@@ -73,14 +74,17 @@ public class UsernamePasswordToken implements HostAuthenticationToken, RememberM
     public void setPassword(char[] password) {
         this.password = password;
     }
+
     @Override
     public Object getPrincipal() {
         return this.getUsername();
     }
+
     @Override
     public Object getCredentials() {
         return this.getPassword();
     }
+
     @Override
     public String getHost() {
         return this.host;
@@ -89,6 +93,7 @@ public class UsernamePasswordToken implements HostAuthenticationToken, RememberM
     public void setHost(String host) {
         this.host = host;
     }
+
     @Override
     public boolean isRememberMe() {
         return this.rememberMe;
@@ -111,6 +116,7 @@ public class UsernamePasswordToken implements HostAuthenticationToken, RememberM
         }
 
     }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

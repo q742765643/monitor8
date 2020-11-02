@@ -1,31 +1,18 @@
 package com.piesat.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.piesat.common.filter.CustomEncryptHttpMessageConverter;
-import com.piesat.common.filter.MyFormHttpMessageConverter;
 import com.piesat.common.interceptor.CurrentUserArgumentResolver;
-import com.piesat.common.interceptor.HthtInterceptor;
 import com.piesat.common.interceptor.RequestParamMethodArgumentResolver;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +24,7 @@ import java.util.List;
 @Configuration
 public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Autowired
-    private  ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Resource
     private CurrentUserArgumentResolver currentUserArgumentResolver;
     @Autowired
@@ -48,18 +35,17 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     private String httpPath;
 
 
-
-
     @Override
     protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(new RequestParamMethodArgumentResolver(beanFactory,true));
+        argumentResolvers.add(new RequestParamMethodArgumentResolver(beanFactory, true));
         //argumentResolvers.add(currentUserArgumentResolver);
         // 注册Spring data jpa pageable的参数分解器
-       // argumentResolvers.add(new CurrentUserArgumentResolver());
+        // argumentResolvers.add(new CurrentUserArgumentResolver());
     }
+
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(httpPath+"/**").addResourceLocations("file:"+savePath+"/");
+        registry.addResourceHandler(httpPath + "/**").addResourceLocations("file:" + savePath + "/");
         registry.addResourceHandler("doc.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")

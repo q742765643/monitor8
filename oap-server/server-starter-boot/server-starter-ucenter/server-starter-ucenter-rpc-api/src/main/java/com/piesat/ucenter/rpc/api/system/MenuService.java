@@ -7,7 +7,6 @@ import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.ucenter.rpc.util.RouterVo;
 import com.piesat.ucenter.rpc.util.TreeSelect;
 import com.piesat.util.constant.GrpcConstant;
-import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.List;
 import java.util.Set;
@@ -18,7 +17,7 @@ import java.util.Set;
  * @创建人 zzj
  * @创建时间 2019/11/28 17:07
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface MenuService {
     /**
      * 查询系统菜单列表
@@ -27,13 +26,14 @@ public interface MenuService {
      * @return 菜单列表
      */
     List<MenuDto> selectMenuList(MenuDto menu);
+
     /**
      * 根据用户ID查询权限
      *
      * @param userId 用户ID
      * @return 权限列表
      */
-   Set<String> selectMenuPermsByUserId(String userId);
+    Set<String> selectMenuPermsByUserId(String userId);
 
     /**
      * 获取菜单数据权限
@@ -41,22 +41,24 @@ public interface MenuService {
      * @param user 用户信息
      * @return 菜单权限信息
      */
-   Set<String> getMenuPermission(UserDto user);
+    Set<String> getMenuPermission(UserDto user);
+
     /**
      * 获取路由列表
      *
      * @param userId 用户id
      * @return 获取路由
      */
-   List<RouterVo> getRouters(String userId);
+    List<RouterVo> getRouters(String userId);
+
     /**
-     *@描述 查询菜单select
-     *@参数 [menu]
-     *@返回值 java.util.List<com.piesat.ucenter.rpc.util.TreeSelect>
-     *@author zzj
-     *@创建时间 2019/11/29 15:51
+     * @描述 查询菜单select
+     * @参数 [menu]
+     * @返回值 java.util.List<com.piesat.ucenter.rpc.util.TreeSelect>
+     * @author zzj
+     * @创建时间 2019/11/29 15:51
      **/
-   List<TreeSelect> treeSelect(MenuDto menu);
+    List<TreeSelect> treeSelect(MenuDto menu);
 
     /**
      * 新增保存菜单信息

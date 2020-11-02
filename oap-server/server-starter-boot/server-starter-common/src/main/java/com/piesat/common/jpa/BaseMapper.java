@@ -1,9 +1,5 @@
 package com.piesat.common.jpa;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 /**
@@ -12,7 +8,7 @@ import java.util.List;
  * @创建人 zzj
  * @创建时间 2019/11/18 11:31
  */
-public interface BaseMapper <D, E> {
+public interface BaseMapper<D, E> {
 
     /**
      * DTO转Entity

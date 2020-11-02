@@ -36,68 +36,69 @@ public class PgResetSql {
 
         Object parameter = invocation.getArgs()[1];
         BoundSql boundSql = mappedStatement.getBoundSql(parameter);
-        List<ResultMap> resultMaps=mappedStatement.getResultMaps();
+        List<ResultMap> resultMaps = mappedStatement.getResultMaps();
         if (StringUtils.isBlank(boundSql.getSql())) {
-            return ;
+            return;
         }
         String originalSql = boundSql.getSql().trim();
         Configuration configuration = mappedStatement.getConfiguration();
-        List<ParameterMapping> parameterMappings=new ArrayList<>();
-        originalSql=formatSql(originalSql,configuration,boundSql,parameterMappings);
+        List<ParameterMapping> parameterMappings = new ArrayList<>();
+        originalSql = formatSql(originalSql, configuration, boundSql, parameterMappings);
 
-        String add="";
+        String add = "";
         if (parameter instanceof BaseEntity) {
             BaseEntity entity = (BaseEntity) parameter;
             CCJSqlParserManager pm = new CCJSqlParserManager();
             Statement parse = pm.parse(new StringReader(originalSql));
-            Select noOrderSelect = (Select)parse;
+            Select noOrderSelect = (Select) parse;
             SelectBody selectBody = noOrderSelect.getSelectBody();
-            if (selectBody instanceof SetOperationList){
-                return ;
+            if (selectBody instanceof SetOperationList) {
+                return;
             }
-            add=SqlUtil.resetSql(entity.getParams(),selectBody,resultMaps);
-            if(com.piesat.common.utils.StringUtils.isNotNullString(add)) {
+            add = SqlUtil.resetSql(entity.getParams(), selectBody, resultMaps);
+            if (com.piesat.common.utils.StringUtils.isNotNullString(add)) {
                 try {
 
-                    PlainSelect setOperationList = (PlainSelect)selectBody;
+                    PlainSelect setOperationList = (PlainSelect) selectBody;
                     originalSql = noOrderSelect.toString();
-                    if (null!=setOperationList.getOrderByElements()){
+                    if (null != setOperationList.getOrderByElements()) {
                         setOperationList.setOrderByElements(null);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                String sql = originalSql+" order by  " + add;
+                String sql = originalSql + " order by  " + add;
                 originalSql = sql;
             }
-        }  if (parameter instanceof BaseDto) {
+        }
+        if (parameter instanceof BaseDto) {
             BaseDto entity = (BaseDto) parameter;
             CCJSqlParserManager pm = new CCJSqlParserManager();
             Statement parse = pm.parse(new StringReader(originalSql));
-            Select noOrderSelect = (Select)parse;
+            Select noOrderSelect = (Select) parse;
             SelectBody selectBody = noOrderSelect.getSelectBody();
-            if (selectBody instanceof SetOperationList){
-                return ;
+            if (selectBody instanceof SetOperationList) {
+                return;
             }
-            add=SqlUtil.resetSql(entity.getParams(),selectBody,resultMaps);
+            add = SqlUtil.resetSql(entity.getParams(), selectBody, resultMaps);
 
-            if(com.piesat.common.utils.StringUtils.isNotNullString(add)) {
+            if (com.piesat.common.utils.StringUtils.isNotNullString(add)) {
                 try {
 
-                    PlainSelect setOperationList = (PlainSelect)selectBody;
+                    PlainSelect setOperationList = (PlainSelect) selectBody;
                     originalSql = noOrderSelect.toString();
-                    if (null!=setOperationList.getOrderByElements()){
+                    if (null != setOperationList.getOrderByElements()) {
                         setOperationList.setOrderByElements(null);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                String sql = originalSql+" order by  " + add;
+                String sql = originalSql + " order by  " + add;
                 originalSql = sql;
             }
-        }else if(parameter instanceof Map){
+        } else if (parameter instanceof Map) {
             Map map = (Map) parameter;
-            String pp= null;
+            String pp = null;
             try {
                 pp = (String) map.get("params");
             } catch (Exception e) {
@@ -105,23 +106,23 @@ public class PgResetSql {
             }
             CCJSqlParserManager pm = new CCJSqlParserManager();
             Statement parse = pm.parse(new StringReader(originalSql));
-            Select noOrderSelect = (Select)parse;
+            Select noOrderSelect = (Select) parse;
             SelectBody selectBody = noOrderSelect.getSelectBody();
-            if (selectBody instanceof SetOperationList){
-                return ;
+            if (selectBody instanceof SetOperationList) {
+                return;
             }
-            add=SqlUtil.resetSql(pp,selectBody,resultMaps);
-            if(com.piesat.common.utils.StringUtils.isNotNullString(add)){
+            add = SqlUtil.resetSql(pp, selectBody, resultMaps);
+            if (com.piesat.common.utils.StringUtils.isNotNullString(add)) {
                 try {
-                    PlainSelect setOperationList = (PlainSelect)selectBody;
+                    PlainSelect setOperationList = (PlainSelect) selectBody;
                     originalSql = noOrderSelect.toString();
-                    if (null!=setOperationList.getOrderByElements()){
+                    if (null != setOperationList.getOrderByElements()) {
                         setOperationList.setOrderByElements(null);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                String sql = originalSql+" order by  " + add;
+                String sql = originalSql + " order by  " + add;
                 originalSql = sql;
             }
 
@@ -136,7 +137,7 @@ public class PgResetSql {
             ReflectUtils.setFieldValue(newBoundSql, "metaParameters", mo);
         }
         if (ReflectUtils.getFieldValue(boundSql, "additionalParameters") != null) {
-            Map<String, Object> additionalParameters =  ReflectUtils.getFieldValue(boundSql, "additionalParameters");
+            Map<String, Object> additionalParameters = ReflectUtils.getFieldValue(boundSql, "additionalParameters");
             ReflectUtils.setFieldValue(newBoundSql, "additionalParameters", additionalParameters);
         }
         MappedStatement newMs = SqlUtil.copyFromMappedStatement(mappedStatement, new SqlUtil.BoundSqlSqlSource(newBoundSql));
@@ -144,15 +145,16 @@ public class PgResetSql {
         invocation.getArgs()[0] = newMs;
 
     }
-    private static String formatSql(String sql, Configuration configuration, BoundSql boundSql,  List<ParameterMapping> parameterMappingNew ) {
 
-        sql=sql.trim();
+    private static String formatSql(String sql, Configuration configuration, BoundSql boundSql, List<ParameterMapping> parameterMappingNew) {
+
+        sql = sql.trim();
         //填充占位符, 目前基本不用mybatis存储过程调用,故此处不做考虑
         Object parameterObject = boundSql.getParameterObject();
         TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
 
-        Map<Integer,String> parameters = new LinkedHashMap<>();
-        List<ParameterMapping> parameterMappings=boundSql.getParameterMappings();
+        Map<Integer, String> parameters = new LinkedHashMap<>();
+        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         parameterMappingNew.addAll(parameterMappings);
         if (parameterMappings != null) {
             MetaObject metaObject = parameterObject == null ? null : configuration.newMetaObject(parameterObject);
@@ -182,7 +184,7 @@ public class PgResetSql {
                         builder.append("'");
                         builder.append(value);
                         builder.append("'");
-                        parameters.put(i,builder.toString());
+                        parameters.put(i, builder.toString());
                         parameterMappingNew.remove(parameterMapping);
                     }
 
@@ -190,27 +192,27 @@ public class PgResetSql {
                 }
             }
         }
-        String[]  sqls=sql.split("\\?");
-        String newSql="";
-        if(sqls.length>0&&parameters.size()>0){
-            for(int i=0;i<sqls.length;i++){
-                String s=parameters.get(i);
-                if(null!=s){
-                    newSql=newSql+" "+sqls[i].trim()+s;
-                }else {
-                    newSql=newSql+" "+sqls[i].trim()+"?";
+        String[] sqls = sql.split("\\?");
+        String newSql = "";
+        if (sqls.length > 0 && parameters.size() > 0) {
+            for (int i = 0; i < sqls.length; i++) {
+                String s = parameters.get(i);
+                if (null != s) {
+                    newSql = newSql + " " + sqls[i].trim() + s;
+                } else {
+                    newSql = newSql + " " + sqls[i].trim() + "?";
                 }
             }
         }
 
-        if(!"".equals(newSql)){
-            if(!sql.endsWith("?")){
-                newSql=newSql.substring(0,newSql.length()-1);
+        if (!"".equals(newSql)) {
+            if (!sql.endsWith("?")) {
+                newSql = newSql.substring(0, newSql.length() - 1);
             }
-           sql=newSql;
+            sql = newSql;
         }
         //for (String value : parameters) {
-           // sql = sql.replaceFirst("\\?", value);
+        // sql = sql.replaceFirst("\\?", value);
         //}
         return sql;
     }

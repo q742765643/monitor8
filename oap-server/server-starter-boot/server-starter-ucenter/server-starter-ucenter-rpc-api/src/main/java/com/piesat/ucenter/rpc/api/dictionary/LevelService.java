@@ -10,16 +10,16 @@ import com.piesat.util.page.PageForm;
 import java.util.List;
 
 /**
- *@description
- *@author wangyajuan
- *@date 2019年12月23日下午6:05:15
- *
+ * @author wangyajuan
+ * @description
+ * @date 2019年12月23日下午6:05:15
  */
-@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER,serialization = SerializeType.PROTOSTUFF)
+@GrpcHthtService(server = GrpcConstant.UCENTER_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface LevelService {
 
     /**
      * 根据条件分页查询
+     *
      * @param pageForm
      * @return
      */
@@ -27,6 +27,7 @@ public interface LevelService {
 
     /**
      * 添加层次属性
+     *
      * @param levelDto
      * @return
      */
@@ -34,12 +35,14 @@ public interface LevelService {
 
     /**
      * 批量删除
+     *
      * @param levelIds
      */
     public void deleteLevelByIds(List<String> levelIds);
 
     /**
      * 修改
+     *
      * @param levelDto
      * @return
      */
@@ -47,6 +50,7 @@ public interface LevelService {
 
     /**
      * 根据ID获取
+     *
      * @param id
      * @return
      */

@@ -25,18 +25,19 @@ import java.io.IOException;
  * @创建人 zzj
  * @创建时间 2019/12/11 11:14
  */
-public class HtExceptionHandler implements HandlerExceptionResolver  {
-    private Logger logger= LoggerFactory.getLogger(HtExceptionHandler.class);
+public class HtExceptionHandler implements HandlerExceptionResolver {
+    private Logger logger = LoggerFactory.getLogger(HtExceptionHandler.class);
+
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object o, Exception e) {
-        ResultT<String> resultT=new ResultT<>();
-        String mess=OwnException.get(e);
+        ResultT<String> resultT = new ResultT<>();
+        String mess = OwnException.get(e);
         logger.error(mess);
         if (e instanceof UnauthorizedException || e instanceof AuthorizationException) {
-             resultT.setErrorMessage(ReturnCodeEnum.ReturnCodeEnum_403_ERROR);
+            resultT.setErrorMessage(ReturnCodeEnum.ReturnCodeEnum_403_ERROR);
             return outJson(request, response, resultT);
         }
-        if(e instanceof GrpcException){
+        if (e instanceof GrpcException) {
             resultT.setErrorMessage(ReturnCodeEnum.ReturnCodeEnum_501_ERROR);
             return outJson(request, response, resultT);
         }
@@ -44,8 +45,8 @@ public class HtExceptionHandler implements HandlerExceptionResolver  {
             resultT.setErrorMessage(e.getMessage());
             return outJson(request, response, resultT);
         }
-        if(mess.length()>500){
-            mess=mess.substring(0,499);
+        if (mess.length() > 500) {
+            mess = mess.substring(0, 499);
         }
         resultT.setErrorMessage(mess);
         return outJson(request, response, resultT);

@@ -26,6 +26,14 @@ import java.util.concurrent.*;
 @Component
 @Order(10)
 public class TimingConfig implements ApplicationRunner {
+    /**
+     * private ExecutorService  executorService= new ThreadPoolExecutor(5, 5,
+     * 0L, TimeUnit.MILLISECONDS,
+     * new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("heart-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
+     */
+
+
+    private static ScheduledExecutorService timingPool;
     @Autowired
     private RedisUtil redisUtil;
     @Value("${spring.application.name}")
@@ -33,78 +41,72 @@ public class TimingConfig implements ApplicationRunner {
     @Autowired
     private GrpcProperties grpcProperties;
 
-    /**private ExecutorService  executorService= new ThreadPoolExecutor(5, 5,
-     0L, TimeUnit.MILLISECONDS,
-     new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("heart-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());*/
-
-
-    private static ScheduledExecutorService timingPool;
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        Map<String,String> server=grpcProperties.getServer();
-        Map<String,Map<String,Object>> client=grpcProperties.getClient();
-        Map<String,String> hosts=grpcProperties.getHosts();
+        Map<String, String> server = grpcProperties.getServer();
+        Map<String, Map<String, Object>> client = grpcProperties.getClient();
+        Map<String, String> hosts = grpcProperties.getHosts();
         ThreadFactory timingPoolFactory = new ThreadFactoryBuilder().setNameFormat("grpc-worker-timing-pool-%d").build();
-        ChannelUtil channelUtil= ChannelUtil.getInstance();
+        ChannelUtil channelUtil = ChannelUtil.getInstance();
         timingPool = Executors.newScheduledThreadPool(3, timingPoolFactory);
-        timingPool.scheduleWithFixedDelay (()->{
-            String host=server.get("host");
-            String grpcPort=server.get("port");
-            if(null!=hosts&&null!=hosts.get(host)){
-                host=hosts.get(host);
+        timingPool.scheduleWithFixedDelay(() -> {
+            String host = server.get("host");
+            String grpcPort = server.get("port");
+            if (null != hosts && null != hosts.get(host)) {
+                host = hosts.get(host);
             }
-            if(StringUtil.isEmpty(host)){
-                List<String> grpcHosts=NetUtils.getLocalIP();
-                for(int i=0;i<grpcHosts.size();i++){
-                    redisUtil.hset("GRPC.SERVER:"+name,grpcHosts.get(i)+":"+grpcPort,1);
+            if (StringUtil.isEmpty(host)) {
+                List<String> grpcHosts = NetUtils.getLocalIP();
+                for (int i = 0; i < grpcHosts.size(); i++) {
+                    redisUtil.hset("GRPC.SERVER:" + name, grpcHosts.get(i) + ":" + grpcPort, 1);
                 }
-            }else {
-                String grpcHost=host;
-                redisUtil.hset("GRPC.SERVER:"+name,grpcHost+":"+grpcPort,1);
+            } else {
+                String grpcHost = host;
+                redisUtil.hset("GRPC.SERVER:" + name, grpcHost + ":" + grpcPort, 1);
             }
 
         }, 0, 60, TimeUnit.SECONDS);
-        timingPool.scheduleWithFixedDelay (()->{
+        timingPool.scheduleWithFixedDelay(() -> {
             log.info("==执行服务发现线程==");
             try {
                 for (String key : client.keySet()) {
-                    Map<Object,Object> addresss=redisUtil.hmget("GRPC.SERVER:"+key);
-                    addresss.forEach((a,b)->{
-                        String address=String.valueOf(a);
-                        ConcurrentHashMap<String, ManagedChannel>  channelMap=channelUtil.getChannel().get(key);
-                        if(channelMap==null){
-                            ManagedChannel channel = ManagedChannelBuilder.forTarget("static://"+address).usePlaintext().build();
-                            ConcurrentHashMap<String, ManagedChannel> newchanelMap=new ConcurrentHashMap<>();
-                            newchanelMap.put(address,channel);
-                            String status="";
+                    Map<Object, Object> addresss = redisUtil.hmget("GRPC.SERVER:" + key);
+                    addresss.forEach((a, b) -> {
+                        String address = String.valueOf(a);
+                        ConcurrentHashMap<String, ManagedChannel> channelMap = channelUtil.getChannel().get(key);
+                        if (channelMap == null) {
+                            ManagedChannel channel = ManagedChannelBuilder.forTarget("static://" + address).usePlaintext().build();
+                            ConcurrentHashMap<String, ManagedChannel> newchanelMap = new ConcurrentHashMap<>();
+                            newchanelMap.put(address, channel);
+                            String status = "";
                             try {
-                                HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
-                                HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(channel);
-                                HealthCheckResponse response=stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
-                                status=response.getStatus().getValueDescriptor().toString();
+                                HealthCheckRequest request = HealthCheckRequest.newBuilder().build();
+                                HealthGrpc.HealthBlockingStub stub = HealthGrpc.newBlockingStub(channel);
+                                HealthCheckResponse response = stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
+                                status = response.getStatus().getValueDescriptor().toString();
                             } catch (Exception e) {
-                                redisUtil.hdel("GRPC.SERVER:"+key,address);
-                                log.info("grpc {} 心跳检测失败",address);
-                            }finally {
-                                if(status.equals("SERVING")) {
+                                redisUtil.hdel("GRPC.SERVER:" + key, address);
+                                log.info("grpc {} 心跳检测失败", address);
+                            } finally {
+                                if (status.equals("SERVING")) {
                                     channelUtil.getChannel().put(key, newchanelMap);
                                 }
                             }
                         }
-                        if(channelMap!=null&&channelMap.get(address)==null){
-                            ManagedChannel channel = ManagedChannelBuilder.forTarget("static://"+address).usePlaintext().build();
-                            String status="";
+                        if (channelMap != null && channelMap.get(address) == null) {
+                            ManagedChannel channel = ManagedChannelBuilder.forTarget("static://" + address).usePlaintext().build();
+                            String status = "";
                             try {
-                                HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
-                                HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(channel);
-                                HealthCheckResponse response=stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
-                                status=response.getStatus().getValueDescriptor().toString();
+                                HealthCheckRequest request = HealthCheckRequest.newBuilder().build();
+                                HealthGrpc.HealthBlockingStub stub = HealthGrpc.newBlockingStub(channel);
+                                HealthCheckResponse response = stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
+                                status = response.getStatus().getValueDescriptor().toString();
                             } catch (Exception e) {
-                                redisUtil.hdel("GRPC.SERVER:"+key,address);
-                                log.info("grpc {} 心跳检测失败",address);
-                            }finally {
-                                if(status.equals("SERVING")){
-                                    channelUtil.getChannel().get(key).put(address,channel);
+                                redisUtil.hdel("GRPC.SERVER:" + key, address);
+                                log.info("grpc {} 心跳检测失败", address);
+                            } finally {
+                                if (status.equals("SERVING")) {
+                                    channelUtil.getChannel().get(key).put(address, channel);
                                 }
                             }
                         }
@@ -117,23 +119,23 @@ public class TimingConfig implements ApplicationRunner {
             }
 
         }, 0, 30, TimeUnit.SECONDS);
-        timingPool.scheduleWithFixedDelay(()->{
+        timingPool.scheduleWithFixedDelay(() -> {
             log.info("==执行心跳监测线程==");
             try {
-                ConcurrentHashMap<String, ConcurrentHashMap<String,ManagedChannel>>  channelMap=channelUtil.getChannel();
-                channelMap.forEach((k,v)->{
-                    v.forEach((a,b)->{
-                        String status="";
+                ConcurrentHashMap<String, ConcurrentHashMap<String, ManagedChannel>> channelMap = channelUtil.getChannel();
+                channelMap.forEach((k, v) -> {
+                    v.forEach((a, b) -> {
+                        String status = "";
                         try {
-                            HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
-                            HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(b);
-                            HealthCheckResponse response=stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
-                            status=response.getStatus().getValueDescriptor().toString();
+                            HealthCheckRequest request = HealthCheckRequest.newBuilder().build();
+                            HealthGrpc.HealthBlockingStub stub = HealthGrpc.newBlockingStub(b);
+                            HealthCheckResponse response = stub.withDeadlineAfter(5, TimeUnit.SECONDS).check(request);
+                            status = response.getStatus().getValueDescriptor().toString();
                         } catch (Exception e) {
-                            log.info("grpc {} 心跳检测失败",a);
-                        }finally {
-                            if(!status.equals("SERVING")){
-                                if(null!=channelUtil.getChannel().get(k)){
+                            log.info("grpc {} 心跳检测失败", a);
+                        } finally {
+                            if (!status.equals("SERVING")) {
+                                if (null != channelUtil.getChannel().get(k)) {
                                     try {
                                         channelUtil.getChannel().get(k).get(a).shutdown();
                                     } catch (Exception e) {
@@ -141,7 +143,7 @@ public class TimingConfig implements ApplicationRunner {
                                     }
                                 }
                                 channelUtil.getChannel().get(k).remove(a);
-                                redisUtil.hdel("GRPC.SERVER:"+k,a);
+                                redisUtil.hdel("GRPC.SERVER:" + k, a);
                            /*     executorService.execute(
                                         ()->{
                                             boolean flag=false;

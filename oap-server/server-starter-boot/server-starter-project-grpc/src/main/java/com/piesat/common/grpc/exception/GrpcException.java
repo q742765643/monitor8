@@ -2,7 +2,7 @@ package com.piesat.common.grpc.exception;
 
 public class GrpcException extends RuntimeException {
 
-    public GrpcException(String message){
+    public GrpcException(String message) {
         super(message);
     }
 

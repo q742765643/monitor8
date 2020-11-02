@@ -15,13 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class OuathController {
     @GetMapping(value = "/unauth")
     public ResultT<String> unauth() {
-        ResultT<String> resultT=new ResultT<>();
+        ResultT<String> resultT = new ResultT<>();
         resultT.setErrorMessage(ReturnCodeEnum.ReturnCodeEnum_401_ERROR);
         return resultT;
     }
+
     @GetMapping(value = "/unauthorized")
     public ResultT<String> unauthorized() {
-        ResultT<String> resultT=new ResultT<>();
+        ResultT<String> resultT = new ResultT<>();
         resultT.setErrorMessage(ReturnCodeEnum.ReturnCodeEnum_403_ERROR);
         return resultT;
     }

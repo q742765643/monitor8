@@ -1,7 +1,6 @@
 package com.piesat.ucenter.rpc.mapstruct.system;
 
 import com.piesat.common.jpa.BaseMapper;
-import com.piesat.ucenter.dao.system.RoleDao;
 import com.piesat.ucenter.entity.system.RoleEntity;
 import com.piesat.ucenter.rpc.dto.system.RoleDto;
 import org.mapstruct.Mapper;

@@ -1,6 +1,5 @@
 package com.piesat.skywalking.service.trigger;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.piesat.common.grpc.annotation.GrpcHthtClient;
 import com.piesat.skywalking.api.remote.RemoteService;
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
@@ -11,12 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class TriggerService {
@@ -28,44 +23,44 @@ public class TriggerService {
             0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("trigger-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());*/
 
-    public void trigger(HtJobInfoDto jobInfoDto){
-        executorTriggerService.execute(()->{
-            ResultT<String> resultT=new ResultT<>();
-            JobContext jobContext=new JobContext();
-            long triggerLastTime=jobInfoDto.getTriggerLastTime();
-            if(triggerLastTime==0){
-                triggerLastTime=jobInfoDto.getTriggerNextTime();
+    public void trigger(HtJobInfoDto jobInfoDto) {
+        executorTriggerService.execute(() -> {
+            ResultT<String> resultT = new ResultT<>();
+            JobContext jobContext = new JobContext();
+            long triggerLastTime = jobInfoDto.getTriggerLastTime();
+            if (triggerLastTime == 0) {
+                triggerLastTime = jobInfoDto.getTriggerNextTime();
             }
-            jobInfoDto.setTriggerLastTime(triggerLastTime-jobInfoDto.getDelayTime());
+            jobInfoDto.setTriggerLastTime(triggerLastTime - jobInfoDto.getDelayTime());
             jobContext.setHandler(jobInfoDto.getJobHandler());
             jobContext.setHtJobInfoDto(jobInfoDto);
-            if(jobInfoDto.getTriggerType()==null){
+            if (jobInfoDto.getTriggerType() == null) {
                 jobInfoDto.setTriggerType(0);
             }
-            if(1==jobInfoDto.getTriggerType()){
-                List<?> list=remoteService.sharding(jobContext,resultT);
-                if(list==null||list.size()==0){
+            if (1 == jobInfoDto.getTriggerType()) {
+                List<?> list = remoteService.sharding(jobContext, resultT);
+                if (list == null || list.size() == 0) {
                     return;
                 }
-                double batch = new BigDecimal(list.size()).divide(new BigDecimal(3),2, RoundingMode.HALF_UP).doubleValue();
-                int  slice= (int) Math.ceil(batch);
-                int start=0;
-                int end=0;
-                for(int i=0;i<3;i++){
-                    start=slice*i;
-                    end=slice*(i+1);
-                    if(end>list.size()){
-                        end=list.size();
+                double batch = new BigDecimal(list.size()).divide(new BigDecimal(3), 2, RoundingMode.HALF_UP).doubleValue();
+                int slice = (int) Math.ceil(batch);
+                int start = 0;
+                int end = 0;
+                for (int i = 0; i < 3; i++) {
+                    start = slice * i;
+                    end = slice * (i + 1);
+                    if (end > list.size()) {
+                        end = list.size();
                     }
-                    jobContext.setLists(list.subList(start,end));
-                    remoteService.execute(jobContext,resultT);
-                    if(end==list.size()){
+                    jobContext.setLists(list.subList(start, end));
+                    remoteService.execute(jobContext, resultT);
+                    if (end == list.size()) {
                         break;
                     }
 
                 }
-            }else {
-                remoteService.execute(jobContext,resultT);
+            } else {
+                remoteService.execute(jobContext, resultT);
             }
         });
 

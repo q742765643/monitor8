@@ -14,21 +14,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class WebSocketServer {
     //记录在线人数
     private static AtomicInteger onlineNum = new AtomicInteger();
-
+    private static ConcurrentHashMap<Session, String> sessionPools = new ConcurrentHashMap<>();
     private Session session;
 
-    private static ConcurrentHashMap<Session,String> sessionPools = new ConcurrentHashMap<>();
+    public static void addOnlineCount() {
+        onlineNum.incrementAndGet();
+    }
+
+    public static void subOnlineCount() {
+        onlineNum.decrementAndGet();
+    }
 
     @OnOpen
-    public void open(Session session,@PathParam(value="userId")String userId) {
-        this.session=session;
-        sessionPools.put(session,userId);
+    public void open(Session session, @PathParam(value = "userId") String userId) {
+        this.session = session;
+        sessionPools.put(session, userId);
         addOnlineCount();
-        System.out.println("当前在线人数为"+onlineNum);
+        System.out.println("当前在线人数为" + onlineNum);
 
     }
-    public void sendMessage(String content) throws IOException{
-        sessionPools.forEach((k,v)->{
+
+    public void sendMessage(String content) throws IOException {
+        sessionPools.forEach((k, v) -> {
             try {
                 k.getBasicRemote().sendObject(content);
             } catch (IOException e) {
@@ -39,28 +46,23 @@ public class WebSocketServer {
         });
 
     }
+
     @OnMessage
-    public void onMessage(String message,Session session) throws IOException {
+    public void onMessage(String message, Session session) throws IOException {
 
     }
+
     @OnClose
-    public void onClose(){
+    public void onClose() {
         sessionPools.remove(session);
         subOnlineCount();
-        System.out.println("当前在线人数为"+onlineNum);
+        System.out.println("当前在线人数为" + onlineNum);
     }
+
     @OnError
-    public void onError(Session session, Throwable throwable){
+    public void onError(Session session, Throwable throwable) {
         System.out.println("发生错误");
         throwable.printStackTrace();
-    }
-
-    public static void addOnlineCount(){
-        onlineNum.incrementAndGet();
-    }
-
-    public static void subOnlineCount() {
-        onlineNum.decrementAndGet();
     }
 
 }

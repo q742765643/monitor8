@@ -13,5 +13,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RoleMenuDao extends BaseDao<RoleMenuEntity> {
 
-    void  deleteByRoleId(String roleId);
+    void deleteByRoleId(String roleId);
 }

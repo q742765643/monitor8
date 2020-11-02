@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Paths;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
@@ -39,27 +36,14 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.command.CommandService;
-import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
-import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
-import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
-import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
-import org.apache.skywalking.oap.server.core.query.LogQueryService;
-import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
-import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
-import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
-import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
-import org.apache.skywalking.oap.server.core.query.TraceQueryService;
+import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
@@ -82,37 +66,37 @@ import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.core.worker.WorkerInstancesService;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Paths;
+
 /**
  * Core module provider includes the recommended and default implementations of {@link CoreModule#services()}. All
  * services with these default implementations are widely used including data receiver, data analysis, streaming
  * process, storage and query.
- *
+ * <p>
  * NOTICE. In our experiences, no one should re-implement the core module service implementations, unless we are very
  * familiar with all mechanisms of SkyWalking.
  */
 public class CoreModuleProvider extends ModuleProvider {
 
+    public static ServletContextHandler CONTEXTHANDLER;
     private final CoreModuleConfig moduleConfig;
-    private GRPCServer grpcServer;
-    private JettyServer jettyServer;
-    private RemoteClientManager remoteClientManager;
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
     private final SourceReceiverImpl receiver;
+    private GRPCServer grpcServer;
+    private JettyServer jettyServer;
+    private RemoteClientManager remoteClientManager;
     private ApdexThresholdConfig apdexThresholdConfig;
     private EndpointNameGroupingRuleWatcher endpointNameGroupingRuleWatcher;
-    public static ServletContextHandler CONTEXTHANDLER;
 
     public CoreModuleProvider() {
         super();
@@ -309,11 +293,11 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
         /**try {
-            grpcServer.start();
-            //jettyServer.start();
-        } catch (ServerException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }**/
+         grpcServer.start();
+         //jettyServer.start();
+         } catch (ServerException e) {
+         throw new ModuleStartException(e.getMessage(), e);
+         }**/
         if (MonitorConstant.ISENABLE) {
             PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 

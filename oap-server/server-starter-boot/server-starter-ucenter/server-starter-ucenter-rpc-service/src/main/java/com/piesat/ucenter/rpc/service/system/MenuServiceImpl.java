@@ -6,11 +6,9 @@ import com.piesat.common.utils.StringUtils;
 import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.ucenter.dao.system.MenuDao;
 import com.piesat.ucenter.entity.system.MenuEntity;
-import com.piesat.ucenter.entity.system.RoleEntity;
 import com.piesat.ucenter.mapper.system.MenuMapper;
 import com.piesat.ucenter.rpc.api.system.MenuService;
 import com.piesat.ucenter.rpc.dto.system.MenuDto;
-import com.piesat.ucenter.rpc.dto.system.RoleDto;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.ucenter.rpc.mapstruct.system.MenuMapstruct;
 import com.piesat.ucenter.rpc.util.MetaVo;
@@ -49,57 +47,54 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 菜单列表
      */
     @Override
-    public List<MenuDto> selectMenuList(MenuDto menu)
-    {
+    public List<MenuDto> selectMenuList(MenuDto menu) {
         List<MenuEntity> menuList = menuMapper.selectMenuList(menuMapstruct.toEntity(menu));
         return this.buildMenuTree(menuMapstruct.toDto(menuList));
     }
+
     /**
-     *@描述 查询菜单select
-     *@参数 [menu]
-     *@返回值 java.util.List<com.piesat.ucenter.rpc.util.TreeSelect>
-     *@author zzj
-     *@创建时间 2019/11/29 15:51
+     * @描述 查询菜单select
+     * @参数 [menu]
+     * @返回值 java.util.List<com.piesat.ucenter.rpc.util.TreeSelect>
+     * @author zzj
+     * @创建时间 2019/11/29 15:51
      **/
     @Override
-    public List<TreeSelect> treeSelect(MenuDto menu){
+    public List<TreeSelect> treeSelect(MenuDto menu) {
         List<MenuEntity> menuList = menuMapper.selectMenuList(menuMapstruct.toEntity(menu));
         return this.buildMenuTreeSelect(menuMapstruct.toDto(menuList));
 
     }
+
     /**
      * 构建前端所需要下拉树结构
      *
      * @param menus 菜单列表
      * @return 下拉树结构列表
      */
-    public List<TreeSelect> buildMenuTreeSelect(List<MenuDto> menus)
-    {
+    public List<TreeSelect> buildMenuTreeSelect(List<MenuDto> menus) {
         List<MenuDto> menuTrees = buildMenuTree(menus);
         return menuTrees.stream().map(TreeSelect::new).collect(Collectors.toList());
     }
+
     /**
      * 构建前端所需要树结构
      *
      * @param menus 菜单列表
      * @return 树结构列表
      */
-    public List<MenuDto> buildMenuTree(List<MenuDto> menus)
-    {
+    public List<MenuDto> buildMenuTree(List<MenuDto> menus) {
         List<MenuDto> returnList = new ArrayList<MenuDto>();
-        for (Iterator<MenuDto> iterator = menus.iterator(); iterator.hasNext();)
-        {
+        for (Iterator<MenuDto> iterator = menus.iterator(); iterator.hasNext(); ) {
             MenuDto t = (MenuDto) iterator.next();
             // 根据传入的某个父节点ID,遍历该父节点的所有子节点
-            if ("0".equals(t.getParentId()))
-            {
+            if ("0".equals(t.getParentId())) {
                 recursionFn(menus, t);
                 returnList.add(t);
             }
         }
-        removeMenuTree(menus,returnList);
-        if (!menus.isEmpty())
-        {
+        removeMenuTree(menus, returnList);
+        if (!menus.isEmpty()) {
             returnList.addAll(menus);
         }
         return returnList;
@@ -107,20 +102,21 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
 
     /**
      * 菜单列表移除树结构列表中的节点
-     * @param menus  菜单列表
+     *
+     * @param menus    菜单列表
      * @param menuTree 树结构列表
      */
-    public void removeMenuTree(List<MenuDto> menus,List<MenuDto> menuTree){
-        for (int i=0;i<menuTree.size();i++){
+    public void removeMenuTree(List<MenuDto> menus, List<MenuDto> menuTree) {
+        for (int i = 0; i < menuTree.size(); i++) {
             MenuDto t = menuTree.get(i);
-            for(int j=0;j<menus.size();j++){
-                if(t.getId().equals(menus.get(j).getId())){
+            for (int j = 0; j < menus.size(); j++) {
+                if (t.getId().equals(menus.get(j).getId())) {
                     menus.remove(menus.get(j));
                     break;
                 }
             }
             List<MenuDto> children = t.getChildren();
-            removeMenuTree(menus,children);
+            removeMenuTree(menus, children);
         }
     }
 
@@ -131,19 +127,17 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 权限列表
      */
     @Override
-    public Set<String> selectMenuPermsByUserId(String userId)
-    {
+    public Set<String> selectMenuPermsByUserId(String userId) {
         List<String> perms = menuMapper.selectMenuPermsByUserId(userId);
         Set<String> permsSet = new HashSet<>();
-        for (String perm : perms)
-        {
-            if (StringUtils.isNotEmpty(perm))
-            {
+        for (String perm : perms) {
+            if (StringUtils.isNotEmpty(perm)) {
                 permsSet.addAll(Arrays.asList(perm.trim().split(",")));
             }
         }
         return permsSet;
     }
+
     /**
      * 获取菜单数据权限
      *
@@ -151,8 +145,7 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 菜单权限信息
      */
     @Override
-    public Set<String> getMenuPermission(UserDto user)
-    {
+    public Set<String> getMenuPermission(UserDto user) {
         Set<String> roles = new HashSet<String>();
         roles.add("*:*:*");
         //String a="dm:databaseDefine:page";
@@ -175,60 +168,51 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @param userId 用户名称
      * @return 菜单列表
      */
-    public List<MenuDto> selectMenuTreeByUserId(String userId)
-    {
+    public List<MenuDto> selectMenuTreeByUserId(String userId) {
         List<MenuEntity> menus = null;
-        if ("1".equals(userId))
-        {
+        if ("1".equals(userId)) {
             menus = menuMapper.selectMenuTreeAll();
-        }
-        else
-        {
+        } else {
             menus = menuMapper.selectMenuTreeByUserId(userId);
         }
         return getChildPerms(menuMapstruct.toDto(menus), "0");
     }
+
     /**
      * 根据父节点的ID获取所有子节点
      *
-     * @param list 分类表
+     * @param list     分类表
      * @param parentId 传入的父节点ID
      * @return String
      */
-    public List<MenuDto> getChildPerms(List<MenuDto> list, String parentId)
-    {
+    public List<MenuDto> getChildPerms(List<MenuDto> list, String parentId) {
         List<MenuDto> returnList = new ArrayList<MenuDto>();
-        for (Iterator<MenuDto> iterator = list.iterator(); iterator.hasNext();)
-        {
+        for (Iterator<MenuDto> iterator = list.iterator(); iterator.hasNext(); ) {
             MenuDto t = (MenuDto) iterator.next();
             // 一、根据传入的某个父节点ID,遍历该父节点的所有子节点
-            if (t.getParentId().equals( parentId))
-            {
+            if (t.getParentId().equals(parentId)) {
                 recursionFn(list, t);
                 returnList.add(t);
             }
         }
         return returnList;
     }
+
     /**
      * 递归列表
      *
      * @param list
      * @param t
      */
-    private void recursionFn(List<MenuDto> list, MenuDto t)
-    {
+    private void recursionFn(List<MenuDto> list, MenuDto t) {
         // 得到子节点列表
         List<MenuDto> childList = getChildList(list, t);
         t.setChildren(childList);
-        for (MenuDto tChild : childList)
-        {
-            if (hasChild(list, tChild))
-            {
+        for (MenuDto tChild : childList) {
+            if (hasChild(list, tChild)) {
                 // 判断是否有子节点
                 Iterator<MenuDto> it = childList.iterator();
-                while (it.hasNext())
-                {
+                while (it.hasNext()) {
                     MenuDto n = (MenuDto) it.next();
                     recursionFn(list, n);
                 }
@@ -239,15 +223,12 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
     /**
      * 得到子节点列表
      */
-    private List<MenuDto> getChildList(List<MenuDto> list, MenuDto t)
-    {
+    private List<MenuDto> getChildList(List<MenuDto> list, MenuDto t) {
         List<MenuDto> tlist = new ArrayList<MenuDto>();
         Iterator<MenuDto> it = list.iterator();
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             MenuDto n = (MenuDto) it.next();
-            if (n.getParentId().equals(t.getId()))
-            {
+            if (n.getParentId().equals(t.getId())) {
                 tlist.add(n);
             }
         }
@@ -257,21 +238,19 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
     /**
      * 判断是否有子节点
      */
-    private boolean hasChild(List<MenuDto> list, MenuDto t)
-    {
+    private boolean hasChild(List<MenuDto> list, MenuDto t) {
         return getChildList(list, t).size() > 0 ? true : false;
     }
+
     /**
      * 构建前端路由所需要的菜单
      *
      * @param menus 菜单列表
      * @return 路由列表
      */
-    public List<RouterVo> buildMenus(List<MenuDto> menus)
-    {
+    public List<RouterVo> buildMenus(List<MenuDto> menus) {
         List<RouterVo> routers = new LinkedList<RouterVo>();
-        for (MenuDto menu : menus)
-        {
+        for (MenuDto menu : menus) {
             RouterVo router = new RouterVo();
             router.setName(menu.getMenuName());
             router.setPath(getRouterPath(menu));
@@ -280,8 +259,7 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
             router.setName(menu.getMenuName());
             List<MenuDto> cMenus = menu.getChildren();
             //&& "M".equals(menu.getMenuType())
-            if (!cMenus.isEmpty() && cMenus.size() > 0 )
-            {
+            if (!cMenus.isEmpty() && cMenus.size() > 0) {
                 router.setAlwaysShow(true);
                 router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(cMenus));
@@ -297,21 +275,21 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @param menu 菜单信息
      * @return 路由地址
      */
-    public String getRouterPath(MenuDto menu)
-    {
+    public String getRouterPath(MenuDto menu) {
         String routerPath = menu.getPath();
         // 非外链并且是一级目录
-        if ("0".equals(menu.getParentId()) && 1==menu.getIsFrame())
-        {
+        if ("0".equals(menu.getParentId()) && 1 == menu.getIsFrame()) {
             routerPath = "/" + menu.getPath();
         }
         return routerPath;
     }
+
     @Override
-    public List<RouterVo> getRouters(String userId){
+    public List<RouterVo> getRouters(String userId) {
         List<MenuDto> menus = this.selectMenuTreeByUserId(userId);
         return this.buildMenus(menus);
     }
+
     /**
      * 新增保存菜单信息
      *
@@ -319,15 +297,14 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 结果
      */
     @Override
-    public MenuDto insertMenu(MenuDto menu)
-    {
-        MenuEntity menuEntity=menuMapstruct.toEntity(menu);
+    public MenuDto insertMenu(MenuDto menu) {
+        MenuEntity menuEntity = menuMapstruct.toEntity(menu);
         return menuMapstruct.toDto(this.saveNotNull(menuEntity));
     }
 
     @Override
     public void updateMenu(MenuDto menu) {
-        MenuEntity menuEntity=menuMapstruct.toEntity(menu);
+        MenuEntity menuEntity = menuMapstruct.toEntity(menu);
         this.menuMapper.updateMenu(menuEntity);
     }
 
@@ -338,9 +315,8 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 菜单信息
      */
     @Override
-    public MenuDto selectMenuById(String menuId)
-    {
-        MenuEntity menuEntity=this.getById(menuId);
+    public MenuDto selectMenuById(String menuId) {
+        MenuEntity menuEntity = this.getById(menuId);
         return menuMapstruct.toDto(menuEntity);
     }
 
@@ -351,8 +327,7 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 结果
      */
     @Override
-    public void deleteMenuById(String menuId)
-    {
+    public void deleteMenuById(String menuId) {
         this.delete(menuId);
     }
 
@@ -363,16 +338,15 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
      * @return 选中菜单列表
      */
     @Override
-    public List<String> selectMenuListByRoleId(String roleId)
-    {
+    public List<String> selectMenuListByRoleId(String roleId) {
         return menuMapper.selectMenuListByRoleId(roleId);
     }
 
     @Override
-    public void exportExcel(MenuDto menuDto){
-        MenuEntity menuEntity=menuMapstruct.toEntity(menuDto);
-        List<MenuEntity> entities=menuMapper.selectMenuList(menuEntity);
-        ExcelUtil<MenuEntity> util=new ExcelUtil(MenuEntity.class);
-        util.exportExcel(entities,"菜单");
+    public void exportExcel(MenuDto menuDto) {
+        MenuEntity menuEntity = menuMapstruct.toEntity(menuDto);
+        List<MenuEntity> entities = menuMapper.selectMenuList(menuEntity);
+        ExcelUtil<MenuEntity> util = new ExcelUtil(MenuEntity.class);
+        util.exportExcel(entities, "菜单");
     }
 }

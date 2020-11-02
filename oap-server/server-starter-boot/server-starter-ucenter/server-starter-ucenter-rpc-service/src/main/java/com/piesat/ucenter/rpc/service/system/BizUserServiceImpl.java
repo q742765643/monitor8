@@ -5,13 +5,8 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.utils.AESUtil;
 import com.piesat.common.utils.DateUtils;
 import com.piesat.ucenter.dao.system.BizUserDao;
-import com.piesat.ucenter.dao.system.DeptDao;
 import com.piesat.ucenter.entity.system.BizUserEntity;
-import com.piesat.ucenter.entity.system.DeptEntity;
-import com.piesat.ucenter.mapper.system.DeptMapper;
 import com.piesat.ucenter.rpc.api.system.BizUserService;
-import com.piesat.ucenter.rpc.api.system.DeptService;
-import com.piesat.ucenter.rpc.dto.system.BizUserDto;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.ucenter.rpc.mapstruct.system.BizUserMapstruct;
 import com.piesat.util.ResultT;
@@ -20,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

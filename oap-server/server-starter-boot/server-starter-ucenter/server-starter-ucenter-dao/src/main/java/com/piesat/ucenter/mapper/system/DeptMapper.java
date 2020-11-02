@@ -1,7 +1,6 @@
 package com.piesat.ucenter.mapper.system;
 
 import com.piesat.ucenter.entity.system.DeptEntity;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +32,7 @@ public interface DeptMapper {
 
     /**
      * 根据ID查询
+     *
      * @param deptId
      * @return
      */

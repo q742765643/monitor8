@@ -2,19 +2,12 @@ package com.piesat.ucenter.web.controller.system;
 
 import com.alibaba.fastjson.JSONObject;
 import com.piesat.common.annotation.HtParam;
-import com.piesat.common.filter.WrapperedRequest;
-import com.piesat.common.grpc.annotation.GrpcHthtClient;
-import com.piesat.common.jpa.BaseDao;
-import com.piesat.common.jpa.BaseService;
 import com.piesat.common.utils.AESUtil;
 import com.piesat.common.utils.Doc2PDF;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.sso.client.annotation.Log;
 import com.piesat.sso.client.enums.BusinessType;
-import com.piesat.ucenter.dao.system.UserDao;
-import com.piesat.ucenter.entity.system.UserEntity;
 import com.piesat.ucenter.rpc.api.system.UserService;
-import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
@@ -25,9 +18,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StreamUtils;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +41,6 @@ import java.util.*;
 public class UserController {
     @Autowired
     private UserService userService;
-
 
 
     @Value("${serverfile.filePath}")
@@ -198,14 +188,14 @@ public class UserController {
         try {
             Map<String, String[]> parameterMap = request.getParameterMap();
             File newFile = null;
-            if (applyPaper != null&& StringUtils.isNotEmpty(applyPaper.getOriginalFilename())) {
+            if (applyPaper != null && StringUtils.isNotEmpty(applyPaper.getOriginalFilename())) {
                 String originalFileName1 = applyPaper.getOriginalFilename();//旧的文件名(用户上传的文件名称)
                 //新的文件名
                 //String newFileName1 = UUID.randomUUID().toString() + originalFileName1.substring(originalFileName1.lastIndexOf("."));
                 String fileSuffix = originalFileName1.substring(originalFileName1.lastIndexOf('.'));
                 //上传文件到服务器指定路径
                 //转换PDF
-                String newFileName1=originalFileName1.substring(0, originalFileName1.lastIndexOf("."))+"_"+new SimpleDateFormat("yyyyMMddHHmms").format(new Date())+fileSuffix;
+                String newFileName1 = originalFileName1.substring(0, originalFileName1.lastIndexOf(".")) + "_" + new SimpleDateFormat("yyyyMMddHHmms").format(new Date()) + fileSuffix;
                 newFile = new File(outFilePath + File.separator + newFileName1);
                 if (!newFile.getParentFile().exists()) {
                     // 如果目标文件所在的目录不存在，则创建父目录
@@ -213,13 +203,13 @@ public class UserController {
                 }
                 //存入
                 applyPaper.transferTo(newFile);
-                if (newFile.getName().endsWith(".pdf")||newFile.getName().endsWith(".PDF")){
-                    parameterMap.put("pdfPath",new String[]{httpPath + "/filePath/" + newFile.getName()});
-                }else{
+                if (newFile.getName().endsWith(".pdf") || newFile.getName().endsWith(".PDF")) {
+                    parameterMap.put("pdfPath", new String[]{httpPath + "/filePath/" + newFile.getName()});
+                } else {
                     String pdfName = newFileName1.substring(0, newFileName1.lastIndexOf(".")) + ".pdf";
                     String pdfPath = outFilePath + "/" + pdfName;
                     Doc2PDF.doc2pdf(outFilePath + File.separator + newFileName1, pdfPath);
-                    parameterMap.put("pdfPath",new String[]{httpPath + "/filePath/" + pdfName});
+                    parameterMap.put("pdfPath", new String[]{httpPath + "/filePath/" + pdfName});
                 }
             }
             ResultT add = userService.addBizUser(parameterMap, newFile == null ? "" : newFile.getPath());
@@ -239,7 +229,7 @@ public class UserController {
             File newFile = null;
             if (applyPaper != null) {
                 String originalFileName1 = applyPaper.getOriginalFilename();//旧的文件名(用户上传的文件名称)
-                if(StringUtils.isNotEmpty(originalFileName1)){
+                if (StringUtils.isNotEmpty(originalFileName1)) {
                     //新的文件名
                     String newFileName1 = UUID.randomUUID().toString() + originalFileName1.substring(originalFileName1.lastIndexOf("."));
                     newFile = new File(outFilePath + File.separator + newFileName1);
@@ -250,13 +240,13 @@ public class UserController {
                     }
                     //存入
                     applyPaper.transferTo(newFile);
-                    if (newFile.getName().endsWith(".pdf")||newFile.getName().endsWith(".PDF")){
-                        parameterMap.put("pdfPath",new String[]{httpPath + "/filePath/" + newFile.getName()});
-                    }else{
+                    if (newFile.getName().endsWith(".pdf") || newFile.getName().endsWith(".PDF")) {
+                        parameterMap.put("pdfPath", new String[]{httpPath + "/filePath/" + newFile.getName()});
+                    } else {
                         String pdfName = newFileName1.substring(0, newFileName1.lastIndexOf(".")) + ".pdf";
                         String pdfPath = outFilePath + "/" + pdfName;
                         Doc2PDF.doc2pdf(outFilePath + File.separator + newFileName1, pdfPath);
-                        parameterMap.put("pdfPath",new String[]{httpPath + "/filePath/" + pdfName});
+                        parameterMap.put("pdfPath", new String[]{httpPath + "/filePath/" + pdfName});
                     }
                 }
             }
@@ -296,7 +286,7 @@ public class UserController {
         }
         JSONObject jo = JSONObject.parseObject(body);
         String bizUserid = jo.getString("bizUserid");
-        String checked =  jo.getString("checked");
+        String checked = jo.getString("checked");
         UserDto user = new UserDto();
         user.setUserName(bizUserid);
         user.setChecked(checked);
@@ -310,7 +300,7 @@ public class UserController {
 //    @RequiresPermissions("system:user:editBase")
     @Log(title = "用户管理--业务用户审核", businessType = BusinessType.UPDATE)
     @GetMapping("/editBaseSod")
-    public ResultT<String> editBaseSod(String bizUserid, String checked,String reason) {
+    public ResultT<String> editBaseSod(String bizUserid, String checked, String reason) {
 //        String body = null;
 //        try {
 //            body = StreamUtils.copyToString(request.getInputStream(), Charset.forName("UTF-8"));
@@ -348,28 +338,28 @@ public class UserController {
         try {
             String body = StreamUtils.copyToString(request.getInputStream(), Charset.forName("UTF-8"));
             JSONObject jo = JSONObject.parseObject(body);
-        String bizUserid = jo.getString("bizUserid");
-        String newPwd = jo.getString("newPwd");
-        String oldPwd = jo.getString("oldPwd");
-        UserDto userDto = this.userService.selectUserByUserName(bizUserid);
-        if (userDto==null){
-            return ResultT.failed("用户不存在");
-        }
-        String pwd = AESUtil.aesDecrypt(userDto.getPassword()).trim();
-        if (pwd.equals(oldPwd)) {
-            UserDto user = new UserDto();
-            user.setUserName(bizUserid);
-            try {
-                String s = AESUtil.aesEncrypt(newPwd).trim();
-                user.setPassword(s);
-                return userService.editPwd(user);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return ResultT.failed(e.getMessage());
+            String bizUserid = jo.getString("bizUserid");
+            String newPwd = jo.getString("newPwd");
+            String oldPwd = jo.getString("oldPwd");
+            UserDto userDto = this.userService.selectUserByUserName(bizUserid);
+            if (userDto == null) {
+                return ResultT.failed("用户不存在");
             }
-        } else {
-            return ResultT.failed("旧密码不正确！");
-        }
+            String pwd = AESUtil.aesDecrypt(userDto.getPassword()).trim();
+            if (pwd.equals(oldPwd)) {
+                UserDto user = new UserDto();
+                user.setUserName(bizUserid);
+                try {
+                    String s = AESUtil.aesEncrypt(newPwd).trim();
+                    user.setPassword(s);
+                    return userService.editPwd(user);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return ResultT.failed(e.getMessage());
+                }
+            } else {
+                return ResultT.failed("旧密码不正确！");
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return ResultT.failed("参数不正确！");
@@ -391,12 +381,11 @@ public class UserController {
     @RequiresPermissions("system:dict:findAllBizUser")
     @GetMapping("/findAllBizUser")
     public ResultT<PageBean> findAllBizUser(UserDto userDto,
-                                  @HtParam(value="pageNum",defaultValue="1") int pageNum,
-                                  @HtParam(value="pageSize",defaultValue="10") int pageSize)
-    {
-        ResultT<PageBean> resultT=new ResultT();
-        PageForm<UserDto> pageForm=new PageForm<>(pageNum,pageSize,userDto);
-        PageBean pageBean=userService.findAllBizUser(pageForm);
+                                            @HtParam(value = "pageNum", defaultValue = "1") int pageNum,
+                                            @HtParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        ResultT<PageBean> resultT = new ResultT();
+        PageForm<UserDto> pageForm = new PageForm<>(pageNum, pageSize, userDto);
+        PageBean pageBean = userService.findAllBizUser(pageForm);
         resultT.setData(pageBean);
         return resultT;
     }
@@ -404,8 +393,7 @@ public class UserController {
     @RequiresPermissions("system:user:getUserByType")
     @GetMapping(value = "/getUserByType")
     @ApiOperation(value = "根据类型获取用户", notes = "根据类型获取用户")
-    public ResultT getAllPortalUser(String userType)
-    {
+    public ResultT getAllPortalUser(String userType) {
         List<UserDto> userDtos = this.userService.findByUserType(userType);
         return ResultT.success(userDtos);
     }

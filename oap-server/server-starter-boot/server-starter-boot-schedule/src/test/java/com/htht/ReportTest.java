@@ -20,7 +20,7 @@ import java.util.Map;
  * @Date: 2020-10-15 10:42
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ScheduleApplication.class )
+@SpringBootTest(classes = ScheduleApplication.class)
 public class ReportTest {
     @Autowired
     private DeviceReportService deviceReportService;
@@ -29,22 +29,22 @@ public class ReportTest {
 
     @Test
     public void testCpu() throws Exception {
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         //systemQueryDto.setIp("10.1.100.69");
         systemQueryDto.setStartTime("2020-10-14 00:00:00");
         systemQueryDto.setEndTime("2020-10-20 00:00:00");
-        Map<String, Map<String,Object>> baseInfo=new HashMap<>();
-        deviceReportService.getFilesystem(systemQueryDto,baseInfo);
+        Map<String, Map<String, Object>> baseInfo = new HashMap<>();
+        deviceReportService.getFilesystem(systemQueryDto, baseInfo);
     }
 
     @Test
     public void testCpu1() throws Exception {
-        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
         //systemQueryDto.setIp("10.1.100.69");
         systemQueryDto.setStartTime("2020-10-14 00:00:00");
         systemQueryDto.setEndTime("2020-10-21 00:00:00");
-        Map<String, Map<String,Object>> baseInfo=new HashMap<>();
-        overviewService.getFilesystem(systemQueryDto,baseInfo);
+        Map<String, Map<String, Object>> baseInfo = new HashMap<>();
+        overviewService.getFilesystem(systemQueryDto, baseInfo);
     }
 }
 

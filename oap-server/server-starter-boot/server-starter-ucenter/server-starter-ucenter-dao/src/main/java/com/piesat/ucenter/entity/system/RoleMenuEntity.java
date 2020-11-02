@@ -15,13 +15,17 @@ import javax.persistence.Table;
  */
 @Entity
 @Data
-@Table(name="T_SOD_ROLE_MENU")
+@Table(name = "T_SOD_ROLE_MENU")
 public class RoleMenuEntity extends UUIDEntity {
-    /** 角色ID */
-    @Column(name="ROLE_ID", length=32)
+    /**
+     * 角色ID
+     */
+    @Column(name = "ROLE_ID", length = 32)
     private String roleId;
 
-    /** 菜单ID */
-    @Column(name="MENU_ID", length=32)
+    /**
+     * 菜单ID
+     */
+    @Column(name = "MENU_ID", length = 32)
     private String menuId;
 }

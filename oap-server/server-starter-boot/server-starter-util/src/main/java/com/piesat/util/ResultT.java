@@ -1,9 +1,6 @@
 package com.piesat.util;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -29,6 +26,7 @@ public class ResultT<T> implements Serializable {
     private String eventTrag;
     @JsonIgnore
     private String eventSuggest;
+
     public ResultT() {
     }
 
@@ -91,7 +89,7 @@ public class ResultT<T> implements Serializable {
 
                 }
             }
-            if(cnt==1){
+            if (cnt == 1) {
                 sb.append(msg);
             }
         } else {//param为空时
@@ -131,6 +129,7 @@ public class ResultT<T> implements Serializable {
         String message = logInfo(format, args);
         this.processMsg.append(message + "\n");
     }
+
     public void setSuccessMessage(String message) {
         this.processMsg.append(message + "\n");
     }

@@ -6,17 +6,13 @@ import com.piesat.ucenter.mapper.system.DeptMapper;
 import com.piesat.ucenter.rpc.api.monitor.OnlineService;
 import com.piesat.ucenter.rpc.dto.monitor.OnlineDto;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
-import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.DefaultSessionContext;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DefaultSubjectContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +39,7 @@ public class OnlineServiceImpl implements OnlineService {
         for (Session key : keys) {
             SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
             if (key == null || key.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY) == null) {
-               continue;
+                continue;
             } else {
                 principalCollection = (SimplePrincipalCollection) key.getAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY);
                 UserDto userDto = (UserDto) principalCollection.getPrimaryPrincipal();
@@ -71,8 +67,8 @@ public class OnlineServiceImpl implements OnlineService {
         userOnlineList.removeAll(Collections.singleton(null));
         Collections.sort(userOnlineList);
         Collections.reverse(userOnlineList);
-        int startIndex = (pageNum -1)* pageSize;
-        int endIndex = ((pageNum -1) * pageSize) + pageSize;
+        int startIndex = (pageNum - 1) * pageSize;
+        int endIndex = ((pageNum - 1) * pageSize) + pageSize;
         int size = userOnlineList.size();
         if (endIndex > size) {
             endIndex = size;
@@ -82,10 +78,12 @@ public class OnlineServiceImpl implements OnlineService {
         pageBean.setPageData(userOnlineList.subList(startIndex, endIndex));
         return pageBean;
     }
-    public void forceLogout(String tokenId){
+
+    public void forceLogout(String tokenId) {
         Session session = sessionDAO.readSession(tokenId);//通过readSession读取session，然后调用delete删除
         sessionDAO.delete(session);
     }
+
     /**
      * 通过登录地址查询信息
      *
@@ -142,7 +140,7 @@ public class OnlineServiceImpl implements OnlineService {
         if (StringUtils.isNull(user)) {
             return null;
         }
-        DeptEntity deptEntity=deptMapper.getById(user.getDeptId());
+        DeptEntity deptEntity = deptMapper.getById(user.getDeptId());
         OnlineDto OnlineDto = new OnlineDto();
         OnlineDto.setTokenId(user.getTokenId());
         OnlineDto.setUserName(user.getUserName());
@@ -151,7 +149,7 @@ public class OnlineServiceImpl implements OnlineService {
         OnlineDto.setBrowser(user.getBrowser());
         OnlineDto.setOs(user.getOs());
         OnlineDto.setLoginTime(user.getLoginDate());
-        if(deptEntity!=null){
+        if (deptEntity != null) {
             OnlineDto.setDeptName(deptEntity.getDeptName());
         }
         if (StringUtils.isNotNull(user.getDept())) {

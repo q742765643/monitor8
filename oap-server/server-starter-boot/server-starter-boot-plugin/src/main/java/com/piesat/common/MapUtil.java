@@ -26,7 +26,7 @@ public class MapUtil {
 
     public static List<Map<String, Object>> transformMapList(List<Map<String, Object>> orgMap) {
         List<Map<String, Object>> list = new ArrayList<>();
-        for (Map<String, Object> map :orgMap ) {
+        for (Map<String, Object> map : orgMap) {
             list.add(transformUpperCase(map));
         }
         return list;

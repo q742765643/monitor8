@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
-import java.net.InetSocketAddress;
-import java.util.Objects;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -27,6 +25,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.Objects;
 
 public class JettyServer implements Server {
 
