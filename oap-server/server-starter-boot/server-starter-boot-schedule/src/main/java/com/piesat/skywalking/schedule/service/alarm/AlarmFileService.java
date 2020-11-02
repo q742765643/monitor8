@@ -1,6 +1,8 @@
 package com.piesat.skywalking.schedule.service.alarm;
 
+import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.schedule.service.alarm.base.AlarmBaseService;
+import com.piesat.util.ResultT;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,5 +13,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AlarmFileService extends AlarmBaseService {
+    @Override
+    public void execute(JobContext jobContext, ResultT<String> resultT) {
+
+    }
 }
 

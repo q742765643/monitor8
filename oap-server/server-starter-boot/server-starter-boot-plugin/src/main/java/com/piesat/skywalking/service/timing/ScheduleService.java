@@ -1,5 +1,6 @@
 package com.piesat.skywalking.service.timing;
 
+import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
 import com.piesat.skywalking.model.HtJobInfo;
 import com.piesat.sso.client.util.RedisUtil;
@@ -17,7 +18,7 @@ public class ScheduleService {
     protected static final String QUARTZ_HTHT_JOB = "QUARTZ.HTHT.JOB";
     protected static final String QUARTZ_HTHT_JOBDETAIL= "QUARTZ.HTHT.JOBDETAIL";
     public void handleJob(HtJobInfoDto jobInfo){
-        if(jobInfo.getTriggerStatus()==null){
+        if(jobInfo.getTriggerStatus()==null|| StringUtils.isEmpty(jobInfo.getJobCron())){
             return;
         }
         if(jobInfo.getTriggerStatus()==1){

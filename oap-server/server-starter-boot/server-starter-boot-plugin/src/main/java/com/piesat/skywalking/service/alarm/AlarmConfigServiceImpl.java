@@ -104,14 +104,14 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         if(alarmConfigDto.getTriggerStatus()==null){
             alarmConfigDto.setTriggerStatus(0);
         }
-        if(MonitorTypeEnum.FILE_REACH==MonitorTypeEnum.match(alarmConfigDto.getMonitorType())){
+ /*       if(MonitorTypeEnum.FILE_REACH==MonitorTypeEnum.match(alarmConfigDto.getMonitorType())){
             alarmConfigDto.setTriggerStatus(0);
-        }
+        }*/
         alarmConfigDto.setIsUt(0);
         alarmConfigDto.setDelayTime(0);
         alarmConfigDto.setJobHandler("alarmHandler");
         AlarmConfigEntity alarmConfigEntity=alarmConfigMapstruct.toEntity(alarmConfigDto);
-        alarmConfigEntity.setId(MonitorTypeEnum.match(alarmConfigEntity.getMonitorType()).getValue().toString());
+        //alarmConfigEntity.setId(MonitorTypeEnum.match(alarmConfigEntity.getMonitorType()).getValue().toString());
         alarmConfigEntity.setGeneral(JSON.toJSONString(alarmConfigDto.getGenerals()));
         alarmConfigEntity.setDanger(JSON.toJSONString(alarmConfigDto.getDangers()));
         alarmConfigEntity.setSeverity(JSON.toJSONString(alarmConfigDto.getSeveritys()));

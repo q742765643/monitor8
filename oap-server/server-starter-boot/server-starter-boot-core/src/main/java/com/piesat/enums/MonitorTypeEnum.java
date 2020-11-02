@@ -11,6 +11,7 @@ public enum MonitorTypeEnum {
     private Integer value;
     private MonitorTypeEnum(String title,Integer value) {
         this.title = title;
+        this.value = value;
     }
 
     public void setTitle(String title) {

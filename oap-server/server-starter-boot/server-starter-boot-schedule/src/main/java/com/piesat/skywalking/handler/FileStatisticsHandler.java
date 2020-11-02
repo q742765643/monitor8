@@ -6,10 +6,12 @@ import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.dto.model.JobContext;
+import com.piesat.skywalking.handler.base.BaseHandler;
 import com.piesat.skywalking.handler.base.BaseShardHandler;
 import com.piesat.skywalking.util.CronExpression;
 import com.piesat.skywalking.util.IdUtils;
 import com.piesat.util.IndexNameUtil;
+import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -25,13 +27,13 @@ import java.util.*;
 
 @Slf4j
 @Service("fileStatisticsHandler")
-public class FileStatisticsHandler implements BaseShardHandler {
+public class FileStatisticsHandler implements BaseHandler {
     @GrpcHthtClient
     private FileMonitorService fileMonitorService;
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
 
-    @Override
+/*    @Override
     public List<?> sharding(JobContext jobContext, ResultT<String> resultT) {
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
         fileMonitorDto.setTriggerStatus(null);
@@ -40,11 +42,14 @@ public class FileStatisticsHandler implements BaseShardHandler {
             return null;
         }
         return fileMonitorDtos;
-    }
+    }*/
 
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
-        List<FileMonitorDto> fileMonitorDtos=jobContext.getLists();
+        FileMonitorDto fileMonitorQDto=new FileMonitorDto();
+        fileMonitorQDto.setTriggerStatus(1);
+        NullUtil.changeToNull(fileMonitorQDto);
+        List<FileMonitorDto> fileMonitorDtos=fileMonitorService.selectBySpecification(fileMonitorQDto);
         List<FileStatisticsDto> fileStatisticsDtos=new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());

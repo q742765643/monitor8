@@ -1,3 +1,4 @@
+/*
 package com.piesat.skywalking.service.quartz.timing;
 
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
@@ -18,3 +19,4 @@ public class CommonQuartzService extends ScheduleService {
         this.handleJob(htJobInfoDto);
     }
 }
+*/

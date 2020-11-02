@@ -164,6 +164,17 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         return hostConfigMapstruct.toDto(hostConfigEntities);
     }
 
+    public List<HostConfigDto> selectAvailable(){
+        SimpleSpecificationBuilder triggerStatusBuilder = new SimpleSpecificationBuilder();
+        triggerStatusBuilder.add("triggerStatus", SpecificationOperator.Operator.eq.name(), 1);
+        SimpleSpecificationBuilder monitoringBuilder = new SimpleSpecificationBuilder();
+        monitoringBuilder.add("monitoringMethods", SpecificationOperator.Operator.eq.name(), 1);
+        monitoringBuilder.addOr("monitoringMethods", SpecificationOperator.Operator.eq.name(), 2);
+        Specification specification = triggerStatusBuilder.generateSpecification();
+        specification.and(monitoringBuilder.generateSpecification());
+        List<HostConfigEntity> hostConfigEntities=this.getAll(specification);
+        return hostConfigMapstruct.toDto(hostConfigEntities);
+    }
     public long selectCount(HostConfigDto hostConfigdto){
         HostConfigEntity hostConfig=hostConfigMapstruct.toEntity(hostConfigdto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();

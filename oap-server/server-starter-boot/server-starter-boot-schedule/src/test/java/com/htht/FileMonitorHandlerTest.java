@@ -4,7 +4,6 @@ import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.ScheduleApplication;
 import com.piesat.skywalking.dto.*;
 import com.piesat.skywalking.dto.model.JobContext;
-import com.piesat.skywalking.handler.AlarmHandler;
 import com.piesat.skywalking.handler.AutoDiscoveryHandler;
 import com.piesat.util.ResultT;
 import org.junit.Test;
@@ -25,8 +24,8 @@ public class FileMonitorHandlerTest {
     //private FileMonitorHandler fileMonitorHandler;
     @Autowired
     private AutoDiscoveryHandler autoDiscoveryHandler;
-    @Autowired
-    private AlarmHandler alarmHandler;
+    //@Autowired
+    //private AlarmHandler alarmHandler;
     @Test
     public void test() throws Exception {
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
@@ -69,14 +68,14 @@ public class FileMonitorHandlerTest {
         alarmConfigDto.setMonitorType(MonitorTypeEnum.CPU_USAGE.getValue());
         jobContext.setHtJobInfoDto(alarmConfigDto);
         jobContext.setLists(ips);
-        alarmHandler.execute(jobContext,new ResultT<>());
+        //alarmHandler.execute(jobContext,new ResultT<>());
     }
     @Test
     public void test3() throws Exception {
         ProcessConfigDto processConfigDto=new ProcessConfigDto();
         processConfigDto.setIp("10.1.100.75");
         processConfigDto.setProcessName("elasticsearch");
-        alarmHandler.selectProcess(processConfigDto);
+        //alarmHandler.selectProcess(processConfigDto);
 
     }
     @Test
@@ -104,6 +103,6 @@ public class FileMonitorHandlerTest {
         alarmConfigDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
         jobContext.setHtJobInfoDto(alarmConfigDto);
         jobContext.setLists(ips);
-        alarmHandler.execute(jobContext,new ResultT<>());
+        //alarmHandler.execute(jobContext,new ResultT<>());
     }
 }

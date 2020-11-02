@@ -1,3 +1,4 @@
+/*
 package com.piesat.skywalking.schedule.service.alarm;
 
 import com.alibaba.fastjson.JSON;
@@ -106,7 +107,9 @@ public class AlarmLogService {
             msgPublisher.sendMsg(JSON.toJSONString(alarmConfigDto));
 
         }
-        /***======currentStatus=3 状态为正常========***/
+        */
+/***======currentStatus=3 状态为正常========***//*
+
         if(0==alarmLogDto.getDeviceType()||1==alarmLogDto.getDeviceType()){
             HostConfigDto hostConfigDto=new HostConfigDto();
             hostConfigDto.setId(alarmLogDto.getHostId());
@@ -145,3 +148,4 @@ public class AlarmLogService {
 
     }
 }
+*/

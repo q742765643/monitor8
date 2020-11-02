@@ -1,3 +1,4 @@
+/*
 package com.piesat.skywalking.handler;
 
 import com.piesat.common.grpc.annotation.GrpcHthtClient;
@@ -416,3 +417,4 @@ public class AlarmHandler  implements BaseShardHandler {
 
     }
 }
+*/

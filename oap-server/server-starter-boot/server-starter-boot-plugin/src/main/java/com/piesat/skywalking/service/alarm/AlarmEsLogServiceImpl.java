@@ -1,3 +1,4 @@
+/*
 package com.piesat.skywalking.service.alarm;
 
 import com.alibaba.fastjson.JSON;
@@ -113,3 +114,4 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         return pageBean;
     }
 }
+*/
