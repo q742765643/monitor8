@@ -151,6 +151,30 @@ const router = new Router({
           path: '/fileMonitoring/file_log',
           component: () => import('@/page/fileMonitoring/file_log.vue'),
         },
+        // 用户管理
+        {
+          path: '/userMonitoring',
+          name: 'userMonitoring',
+          component: () => import('@/page/userMonitoring/index.vue')
+        },
+        // 角色管理
+        {
+          path: '/roleMonitoring',
+          name: 'roleMonitoring',
+          component: () => import('@/page/userMonitoring/role.vue')
+        },
+        // 部门管理
+        {
+          path: '/departmentMonitoring',
+          name: 'departmentMonitoring',
+          component: () => import('@/page/userMonitoring/department.vue')
+        },
+        // 在线用户
+        {
+          path: '/onlineUser',
+          name: 'onlineUser',
+          component: () => import('@/page/userMonitoring/onlineUser.vue')
+        },
       ],
     },
   ],

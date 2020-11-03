@@ -362,6 +362,22 @@ const dataService = {
         });
     });
   },
+
+  // 用户管理-表格
+  userCofigList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/user/gatAllBiz', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        });
+    });
+  }
 };
 
 export default dataService;

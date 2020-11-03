@@ -142,6 +142,27 @@
           <router-link to="/report"> 链路设备报表</router-link>
         </a-menu-item>
       </a-sub-menu>
+
+      <!-- 用户管理 -->
+      <a-sub-menu key="sub8">
+        <span slot="title"> <span class="iconfont">&#xe640;</span>用户管理</span>
+        <a-menu-item key="/userMonitoring">
+          <span class="iconfont">&#xe616;</span>
+          <router-link to="/userMonitoring"> 用户管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/roleMonitoring">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/roleMonitoring"> 角色管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/departmentMonitoring">
+          <span class="iconfont">&#xe60c;</span>
+          <router-link to="/departmentMonitoring"> 部门管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/onlineUser">
+          <span class="iconfont">&#xe60c;</span>
+          <router-link to="/onlineUser"> 在线用户</router-link>
+        </a-menu-item>
+      </a-sub-menu>
     </a-menu>
   </a-layout-sider>
 </template>
