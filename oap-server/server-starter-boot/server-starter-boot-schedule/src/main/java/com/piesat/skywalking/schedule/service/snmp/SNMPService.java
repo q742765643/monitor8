@@ -189,13 +189,13 @@ public class SNMPService {
         BigDecimal totalTime = idle.add(wait).add(nice).add(soft).add(steal).add(system).add(user)
                 .subtract(idlePre).subtract(waitPre).subtract(nicePre).subtract(softPre)
                 .subtract(stealPre).subtract(systemPre).subtract(userPre);
-        float idlep = (idle.subtract(idlePre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
-        float waitp = (wait.subtract(waitPre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
-        float nicep = (nice.subtract(nicePre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
-        float softp = (soft.subtract(softPre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
-        float stealp = (steal.subtract(stealPre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
-        float systemp = (system.subtract(systemPre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
-        float userp = (user.subtract(userPre)).divide(totalTime, 4, RoundingMode.HALF_UP).floatValue();
+        float idlep = (idle.subtract(idlePre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
+        float waitp = (wait.subtract(waitPre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
+        float nicep = (nice.subtract(nicePre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
+        float softp = (soft.subtract(softPre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
+        float stealp = (steal.subtract(stealPre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
+        float systemp = (system.subtract(systemPre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
+        float userp = (user.subtract(userPre)).divide(totalTime, 4, BigDecimal.ROUND_HALF_UP).floatValue();
         float total = 1 - idlep;
         Map<String, Object> systemM = new HashMap<>();
         Map<String, Object> cpu = new HashMap<>();
@@ -295,7 +295,7 @@ public class SNMPService {
         BigDecimal memCached = new BigDecimal(sysMemorys.get(8)).multiply(new BigDecimal(1024));
         BigDecimal actualFree = memAvailReal.add(memBuffer).add(memCached);
         BigDecimal actualUsedBytes = memTotalReal.subtract(actualFree);
-        BigDecimal actualUsedPct = actualUsedBytes.divide(memTotalReal, 4, RoundingMode.HALF_UP);
+        BigDecimal actualUsedPct = actualUsedBytes.divide(memTotalReal, 4, BigDecimal.ROUND_HALF_UP);
         Map<String, Object> system = new HashMap<>();
         Map<String, Object> memory = new HashMap<>();
         Map<String, Object> actual = new HashMap<>();
@@ -346,7 +346,7 @@ public class SNMPService {
         BigDecimal swapUsedBytes = memTotalSwap.subtract(memAvailSwap);
         BigDecimal swapUsedPct = new BigDecimal(0);
         if (memTotalSwap.longValue() > 0) {
-            swapUsedPct = swapUsedBytes.divide(memTotalSwap, 4, RoundingMode.HALF_UP);
+            swapUsedPct = swapUsedBytes.divide(memTotalSwap, 4, BigDecimal.ROUND_HALF_UP);
         }
         Map<String, Object> swap = new HashMap<>();
         swap.put("free", memAvailSwap.longValue());
@@ -369,7 +369,7 @@ public class SNMPService {
         memory.put("total", memTotalReal.longValue());
         Map<String, Object> totalUsed = new HashMap<>();
         totalUsed.put("bytes", memTotalReal.subtract(memAvailReal).longValue());
-        totalUsed.put("pct", (memTotalReal.subtract(memAvailReal)).divide(memTotalReal, 4, RoundingMode.HALF_UP).floatValue());
+        totalUsed.put("pct", (memTotalReal.subtract(memAvailReal)).divide(memTotalReal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
         memory.put("used", totalUsed);
         system.put("memory", memory);
         source.put("system", system);
@@ -402,7 +402,7 @@ public class SNMPService {
             BigDecimal unit = new BigDecimal(values[2].getVariable().toString());//unit 存储单元大小
             BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
             BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use
-            BigDecimal usePct = usedSize.divide(totalSize, 4, RoundingMode.HALF_UP);
+            BigDecimal usePct = usedSize.divide(totalSize, 4, BigDecimal.ROUND_HALF_UP);
             fsstatUse += usedSize.longValue();
             fsstatTotal += totalSize.longValue();
             fsstatCount += 1;
@@ -567,7 +567,7 @@ public class SNMPService {
             process.put("cmdline", args);
             BigDecimal normPct = new BigDecimal(0);
             if (totalCpuTime != 0) {
-                normPct = new BigDecimal(differenceMap.get(id)).divide(new BigDecimal(totalCpuTime), 4, RoundingMode.HALF_UP);
+                normPct = new BigDecimal(differenceMap.get(id)).divide(new BigDecimal(totalCpuTime), 4, BigDecimal.ROUND_HALF_UP);
             }
 
             Map<String, Object> cpuEs = new HashMap<>();
@@ -582,7 +582,7 @@ public class SNMPService {
             Map<String, Object> memory = new HashMap<>();
             Map<String, Object> rss = new HashMap<>();
             rss.put("bytes", mem.longValue());
-            rss.put("pct", mem.divide(memoryTotal, 4, RoundingMode.HALF_UP).floatValue());
+            rss.put("pct", mem.divide(memoryTotal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
             memory.put("rss", rss);
             process.put("memory", memory);
             system.put("process", process);

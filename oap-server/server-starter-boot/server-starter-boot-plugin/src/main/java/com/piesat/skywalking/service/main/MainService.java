@@ -46,8 +46,8 @@ public class MainService {
     private HostConfigService hostConfigService;
     @Autowired
     private ProcessConfigService processConfigService;
-    @Autowired
-    private AlarmEsLogService alarmEsLogService;
+    //@Autowired
+    //private AlarmEsLogService alarmEsLogService;
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
 
@@ -101,7 +101,8 @@ public class MainService {
     }
 
     public PageBean getAlarm(PageForm<AlarmLogDto> pageForm) {
-        return alarmEsLogService.selectPageList(pageForm);
+        //return alarmEsLogService.selectPageList(pageForm);
+        return null;
     }
 
     public List<AlarmDistributionVo> getAlarmDistribution(AlarmLogDto alarmLogDto) {

@@ -182,14 +182,14 @@ public class SNMPLinuxService extends SNMPService {
         BigDecimal memCached = new BigDecimal(sysMemorys.get(8)).multiply(new BigDecimal(1024));
         //BigDecimal actualFree = memAvailReal.add(memBuffer).add(memCached);
         //BigDecimal actualUsedBytes = memTotalReal.subtract(actualFree);
-        //BigDecimal actualUsedPct = actualUsedBytes.divide(memTotalReal,4,RoundingMode.HALF_UP);
+        //BigDecimal actualUsedPct = actualUsedBytes.divide(memTotalReal,4,BigDecimal.ROUND_HALF_UP);
         Map<String, Object> system = new HashMap<>();
         Map<String, Object> memory = new HashMap<>();
         Map<String, Object> actual = new HashMap<>();
         actual.put("free", memAvailReal.longValue());
         Map<String, Object> actualUsed = new HashMap<>();
         actualUsed.put("bytes", memTotalReal.subtract(memAvailReal).longValue());
-        actualUsed.put("pct", (memTotalReal.subtract(memAvailReal)).divide(memTotalReal, 4, RoundingMode.HALF_UP).floatValue());
+        actualUsed.put("pct", (memTotalReal.subtract(memAvailReal)).divide(memTotalReal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
         actual.put("used", actualUsed);
         memory.put("actual", actual);
         memory.put("free", memAvailReal.longValue());
@@ -233,7 +233,7 @@ public class SNMPLinuxService extends SNMPService {
         BigDecimal swapUsedBytes = memTotalSwap.subtract(memAvailSwap);
         BigDecimal swapUsedPct = new BigDecimal(0);
         if (memTotalSwap.longValue() > 0) {
-            swapUsedPct = swapUsedBytes.divide(memTotalSwap, 4, RoundingMode.HALF_UP);
+            swapUsedPct = swapUsedBytes.divide(memTotalSwap, 4, BigDecimal.ROUND_HALF_UP);
         }
         Map<String, Object> swap = new HashMap<>();
         swap.put("free", memAvailSwap.longValue());
@@ -256,7 +256,7 @@ public class SNMPLinuxService extends SNMPService {
         memory.put("total", memTotalReal.longValue());
         Map<String, Object> totalUsed = new HashMap<>();
         totalUsed.put("bytes", memTotalReal.subtract(memAvailReal).longValue());
-        totalUsed.put("pct", (memTotalReal.subtract(memAvailReal)).divide(memTotalReal, 4, RoundingMode.HALF_UP).floatValue());
+        totalUsed.put("pct", (memTotalReal.subtract(memAvailReal)).divide(memTotalReal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
         memory.put("used", totalUsed);
         system.put("memory", memory);
         source.put("system", system);

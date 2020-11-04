@@ -2,9 +2,11 @@ package com.piesat.skywalking.schedule.service.folder;
 
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
+import com.piesat.skywalking.schedule.service.alarm.AlarmFileService;
 import com.piesat.skywalking.schedule.service.folder.base.FileBaseService;
 import com.piesat.skywalking.util.HtFileUtil;
 import com.piesat.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -23,14 +25,17 @@ import java.util.regex.Pattern;
  */
 @Service
 public class FileLocalService extends FileBaseService {
-    long starTime = System.currentTimeMillis();
+    @Autowired
+    private AlarmFileService alarmFileService;
 
     @Override
     public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
+        long starTime = System.currentTimeMillis();
         try {
             if (monitor.getFileNum() == 1) {
                 String folderRegular = DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
+                fileMonitorLogDto.setRemotePath(folderRegular);
                 String filenameRegular = DateExpressionEngine.formatDateExpression(monitor.getFilenameRegular(), monitor.getTriggerLastTime());
                 File file = new File(folderRegular, filenameRegular);
                 if (file.exists() && file.isFile() && file.length() > 0) {
@@ -57,6 +62,7 @@ public class FileLocalService extends FileBaseService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            alarmFileService.execute(fileMonitorLogDto);
             if (!resultT.isSuccess()) {
                 fileMonitorLogDto.setHandleCode(2);
             } else {
@@ -77,6 +83,7 @@ public class FileLocalService extends FileBaseService {
         }
         try {
             File file = new File(fileMonitorLogDto.getFolderRegular());
+            fileMonitorLogDto.setRemotePath(fileMonitorLogDto.getFolderRegular());
             HtFileUtil.loopFiles(file, fileFilter);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));

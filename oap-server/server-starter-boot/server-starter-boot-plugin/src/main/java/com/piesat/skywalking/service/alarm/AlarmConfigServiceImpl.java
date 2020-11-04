@@ -66,7 +66,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     public List<AlarmConfigDto> selectBySpecification(AlarmConfigDto alarmConfigDto) {
         AlarmConfigEntity alarmConfig = alarmConfigMapstruct.toEntity(alarmConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
-        if (null != alarmConfig.getMonitorType() && alarmConfig.getMonitorType() > -1) {
+        if (null != alarmConfig.getMonitorType()) {
             specificationBuilder.addOr("monitorType", SpecificationOperator.Operator.eq.name(), alarmConfig.getMonitorType());
         }
         if (StringUtils.isNotNullString(alarmConfig.getTaskName())) {
@@ -89,7 +89,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
             alarmConfigDto1.setGenerals(JSON.parseArray(alarmConfigEntity.getGeneral(), ConditionDto.class));
             alarmConfigDto1.setDangers(JSON.parseArray(alarmConfigEntity.getDanger(), ConditionDto.class));
             alarmConfigDto1.setSeveritys(JSON.parseArray(alarmConfigEntity.getSeverity(), ConditionDto.class));
-            alarmConfigDtos.add(alarmConfigDto);
+            alarmConfigDtos.add(alarmConfigDto1);
         }
         return alarmConfigDtos;
     }
@@ -98,7 +98,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
     @Transactional
     public AlarmConfigDto save(AlarmConfigDto alarmConfigDto) {
         if (alarmConfigDto.getTriggerType() == null) {
-            alarmConfigDto.setTriggerType(1);
+            alarmConfigDto.setTriggerType(0);
         }
         if (alarmConfigDto.getTriggerStatus() == null) {
             alarmConfigDto.setTriggerStatus(0);

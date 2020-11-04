@@ -14,6 +14,8 @@ import lombok.Data;
 public class FileMonitorLogDto extends BaseDto {
     @ApiModelProperty(value = "任务ID")
     private String taskId;
+    @ApiModelProperty(value = "远程目录")
+    private String remotePath;
     @ApiModelProperty(value = "文件目录")
     private String folderRegular;
     @ApiModelProperty(value = "文件名规则")

@@ -42,10 +42,19 @@ spring:
       max-file-size: 1000000000
       max-request-size: 1000000000
   redis:
-    host: 10.1.100.8
-    port: 6379
-    timeout: 50000
-    password:
+#    host: 10.1.100.8
+#    port: 6379
+#    timeout: 50000
+#    password:
+    password: Cmadaas@2019
+    cluster:
+      nodes: 10.1.100.33:6378,10.1.100.33:6380,10.1.100.33:6381,10.1.100.34:6382,10.1.100.34:6383,10.1.100.34:6384
+      max-redirects: 3
+    lettuce:
+      pool:
+        max-idle: 16
+        max-active: 32
+        min-idle: 8
   datasource:
     #driver-class-name: org.postgresql.Driver
     #url: jdbc:postgresql://10.1.6.42:5432/soddb?currentSchema=usr_sod

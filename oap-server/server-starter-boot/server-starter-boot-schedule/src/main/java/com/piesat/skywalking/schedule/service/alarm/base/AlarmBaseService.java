@@ -36,15 +36,15 @@ import java.util.*;
 public abstract class AlarmBaseService {
     @Autowired
     protected ElasticSearch7Client elasticSearch7Client;
-    @GrpcHthtClient
-    private HostConfigService hostConfigService;
+    @Autowired
+    protected HostConfigQService hostConfigQService;
     @Autowired
     private MsgPublisher msgPublisher;
 
     public abstract void execute(JobContext jobContext, ResultT<String> resultT);
 
     public List<HostConfigDto> selectAvailable() {
-        return hostConfigService.selectAvailable();
+        return hostConfigQService.selectAvailable();
     }
 
     public SearchSourceBuilder buildWhere(String type) {
@@ -78,30 +78,30 @@ public abstract class AlarmBaseService {
         alarmLogDto.setGenerals(alarmConfigDto.getGenerals());
         alarmLogDto.setDangers(alarmConfigDto.getDangers());
         alarmLogDto.setSeveritys(alarmConfigDto.getSeveritys());
-        alarmLogDto.setStatus(3);
+        alarmLogDto.setStatus(0);
     }
 
     public void judgeAlarm(AlarmLogDto alarmLogDto) {
         boolean isAlarm = false;
         List<ConditionDto> severitys = alarmLogDto.getSeveritys();
         isAlarm = CompareUtil.compare(severitys, alarmLogDto.getUsage());
+        alarmLogDto.setAlarm(isAlarm);
         if (isAlarm) {
             alarmLogDto.setLevel(2);
-            alarmLogDto.setAlarm(isAlarm);
             return;
         }
         List<ConditionDto> dangers = alarmLogDto.getDangers();
         isAlarm = CompareUtil.compare(dangers, alarmLogDto.getUsage());
+        alarmLogDto.setAlarm(isAlarm);
         if (isAlarm) {
             alarmLogDto.setLevel(1);
-            alarmLogDto.setAlarm(isAlarm);
             return;
         }
         List<ConditionDto> generals = alarmLogDto.getGenerals();
         isAlarm = CompareUtil.compare(generals, alarmLogDto.getUsage());
+        alarmLogDto.setAlarm(isAlarm);
         if (isAlarm) {
             alarmLogDto.setLevel(0);
-            alarmLogDto.setAlarm(isAlarm);
             return;
         }
     }

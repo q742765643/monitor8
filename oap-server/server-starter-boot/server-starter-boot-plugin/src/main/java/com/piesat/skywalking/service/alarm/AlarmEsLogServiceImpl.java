@@ -1,4 +1,4 @@
-/*
+
 package com.piesat.skywalking.service.alarm;
 
 import com.alibaba.fastjson.JSON;
@@ -37,10 +37,10 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         AlarmLogDto alarmLogDto = pageForm.getT();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        if (!StringUtil.isEmpty(alarmLogDto.getDeviceName())) {
+/*        if (!StringUtil.isEmpty(alarmLogDto.getDeviceName())) {
             WildcardQueryBuilder deviceName = QueryBuilders.wildcardQuery("device_name", "*" + alarmLogDto.getDeviceName() + "*");
             boolBuilder.must(deviceName);
-        }
+        }*/
         if (null!=alarmLogDto.getMonitorType()&&alarmLogDto.getMonitorType()>-1) {
             MatchQueryBuilder type = QueryBuilders.matchQuery("monitor_type", alarmLogDto.getMonitorType());
             boolBuilder.must(type);
@@ -61,10 +61,10 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             MatchQueryBuilder level = QueryBuilders.matchQuery("level", alarmLogDto.getLevel());
             boolBuilder.must(level);
         }
-        if (StringUtil.isNotEmpty(alarmLogDto.getHostId())) {
+      /*  if (StringUtil.isNotEmpty(alarmLogDto.getHostId())) {
             MatchQueryBuilder hostId = QueryBuilders.matchQuery("host_id", alarmLogDto.getHostId());
             boolBuilder.must(hostId);
-        }
+        }*/
         Map<String, Object> paramt = new HashMap<>();
         if (!StringUtil.isEmpty(alarmLogDto.getParams())) {
             paramt = JSON.parseObject(alarmLogDto.getParams(), Map.class);
@@ -97,7 +97,7 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
                 Map<String, Object> map = hit.getSourceAsMap();
                 alarmLog.setId(hit.getId());
                 alarmLog.setDeviceType(Integer.parseInt(String.valueOf(map.get("device_type"))));
-                alarmLog.setDeviceName(String.valueOf(map.get("device_name")));
+                //alarmLog.setDeviceName(String.valueOf(map.get("device_name")));
                 alarmLog.setIp(String.valueOf(map.get("ip")));
                 alarmLog.setMessage(String.valueOf(map.get("message")));
                 alarmLog.setStatus(Integer.parseInt(String.valueOf(map.get("status"))));
@@ -114,4 +114,4 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         return pageBean;
     }
 }
-*/
+

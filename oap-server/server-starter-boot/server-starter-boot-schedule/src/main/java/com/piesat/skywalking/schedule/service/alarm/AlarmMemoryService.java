@@ -19,6 +19,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,9 @@ public class AlarmMemoryService extends AlarmBaseService {
         this.fitAlarmLog(alarmConfigDto, alarmLogDto);
         this.judgeAlarm(alarmLogDto);
         if (alarmLogDto.isAlarm()) {
-            String message = "未采集到内存使用率,请检查环境";
+            String message = hostConfigDto.getIp()+":未采集到内存使用率,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
-                message = "内存使用率到达" + alarmLogDto.getUsage() * 100 + "%";
+                message = hostConfigDto.getIp()+":内存使用率到达" + alarmLogDto.getUsage() + "%";
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
@@ -81,7 +82,7 @@ public class AlarmMemoryService extends AlarmBaseService {
                 Terms.Bucket bucket = buckets.get(i);
                 String ip = bucket.getKeyAsString();
                 ParsedAvg parsedAvg = bucket.getAggregations().get("avg_memory_pct");
-                float avgMemoryPct = Float.parseFloat(parsedAvg.getValueAsString());
+                float avgMemoryPct =(new BigDecimal(parsedAvg.getValueAsString()).setScale(4,BigDecimal.ROUND_HALF_UP)).floatValue()*100;
                 map.put(ip, avgMemoryPct);
             }
         } catch (IOException e) {

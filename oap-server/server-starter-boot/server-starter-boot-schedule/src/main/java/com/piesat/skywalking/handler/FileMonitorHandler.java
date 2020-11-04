@@ -164,7 +164,7 @@ public class FileMonitorHandler implements BaseHandler {
         }
         Integer currentStatus=3;
         if(monitor.getFileNum()>0){
-            float reach=new BigDecimal(fileNum).divide(new BigDecimal(monitor.getFileNum()),4, RoundingMode.HALF_UP).floatValue();
+            float reach=new BigDecimal(fileNum).divide(new BigDecimal(monitor.getFileNum()),4, BigDecimal.ROUND_HALF_UP).floatValue();
             if(reach<1){
                 currentStatus=this.toAlarm(monitor,ip,reach);
             }

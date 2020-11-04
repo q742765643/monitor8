@@ -42,7 +42,7 @@ public class TriggerService {
                 if (list == null || list.size() == 0) {
                     return;
                 }
-                double batch = new BigDecimal(list.size()).divide(new BigDecimal(3), 2, RoundingMode.HALF_UP).doubleValue();
+                double batch = new BigDecimal(list.size()).divide(new BigDecimal(3), 2, BigDecimal.ROUND_HALF_UP).doubleValue();
                 int slice = (int) Math.ceil(batch);
                 int start = 0;
                 int end = 0;

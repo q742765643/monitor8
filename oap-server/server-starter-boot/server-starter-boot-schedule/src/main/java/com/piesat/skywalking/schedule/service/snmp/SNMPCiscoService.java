@@ -74,7 +74,7 @@ public class SNMPCiscoService extends SNMPService {
         }
         float total = 0f;
         if (c.size() > 0) {
-            total = new BigDecimal(cp).divide(new BigDecimal(100)).divide(new BigDecimal(c.size()), 4, RoundingMode.HALF_UP).floatValue();
+            total = new BigDecimal(cp).divide(new BigDecimal(100)).divide(new BigDecimal(c.size()), 4, BigDecimal.ROUND_HALF_UP).floatValue();
         }
 
         Map<String, Object> systemM = new HashMap<>();
@@ -159,7 +159,7 @@ public class SNMPCiscoService extends SNMPService {
         BigDecimal free = new BigDecimal(memfree.get(0)); //MB/1024/1024
         BigDecimal used = new BigDecimal(memused.get(0));//MB/1024/1024
         BigDecimal total = free.add(used);
-        BigDecimal usedRate = used.divide(total, 4, RoundingMode.HALF_UP);
+        BigDecimal usedRate = used.divide(total, 4, BigDecimal.ROUND_HALF_UP);
         Map<String, Object> system = new HashMap<>();
         Map<String, Object> memory = new HashMap<>();
         Map<String, Object> actual = new HashMap<>();

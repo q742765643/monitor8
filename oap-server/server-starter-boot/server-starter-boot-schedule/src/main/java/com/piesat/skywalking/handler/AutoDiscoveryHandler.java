@@ -20,6 +20,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -29,6 +30,7 @@ import org.snmp4j.util.TableEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j
@@ -126,6 +128,13 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
     }
 
     public void getHost(HostConfigDto hostConfigDto) {
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String endTime=format.format(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, -60);
+        String beginTime=format.format(calendar.getTime());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.cpu");
@@ -134,6 +143,12 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         boolBuilder.must(matchType);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(beginTime);
+        rangeQueryBuilder.lte(endTime);
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
         String[] fields = new String[]{"host.os.name",
                 "host.ip", "host.hostname", "host.ip", "host.mask"
         };

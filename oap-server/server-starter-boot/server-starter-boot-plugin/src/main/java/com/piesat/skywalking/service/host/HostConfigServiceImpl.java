@@ -169,8 +169,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         monitoringBuilder.add("monitoringMethods", SpecificationOperator.Operator.eq.name(), 1);
         monitoringBuilder.addOr("monitoringMethods", SpecificationOperator.Operator.eq.name(), 2);
         Specification specification = triggerStatusBuilder.generateSpecification();
-        specification.and(monitoringBuilder.generateSpecification());
-        List<HostConfigEntity> hostConfigEntities = this.getAll(specification);
+        List<HostConfigEntity> hostConfigEntities = this.getAll(specification.and(monitoringBuilder.generateSpecification()));
         return hostConfigMapstruct.toDto(hostConfigEntities);
     }
 
