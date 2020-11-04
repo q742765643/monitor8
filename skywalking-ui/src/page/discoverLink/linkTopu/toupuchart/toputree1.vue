@@ -265,7 +265,7 @@
           },
           animate: true,
           defaultNode: {
-            type: 'card-node',
+            shape: 'card-node',
           },
           defaultEdge: {
             size: 1,

@@ -344,8 +344,9 @@
       /* 编辑 */
       handleEdit(row) {
         hongtuConfig.hostConfigDetail(row.id).then((response) => {
-          if (response.data.code == 200) {
-            this.formDialog = response.data.data;
+
+          if (response.code == 200) {
+            this.formDialog = response.data;
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }
@@ -356,7 +357,7 @@
         this.$refs.formModel.validate((valid) => {
           if (valid) {
             hongtuConfig.hostConfigPost(this.formDialog).then((response) => {
-              if (response.data.code == 200) {
+              if (response.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
                 this.visibleModel = false;
                 this.queryTable();
@@ -390,7 +391,7 @@
           cancelText: '否',
           onOk: () => {
             hongtuConfig.hostConfigDelete(ids.join(',')).then((response) => {
-              if (response.data.code == 200) {
+              if (response.code == 200) {
                 this.$message.success('删除成功');
                 this.resetQuery();
               }
