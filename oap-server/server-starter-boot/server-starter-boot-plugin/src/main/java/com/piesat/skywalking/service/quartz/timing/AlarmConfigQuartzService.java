@@ -19,9 +19,6 @@ public class AlarmConfigQuartzService extends ScheduleService {
         List<AlarmConfigDto> alarmConfigDtos = alarmConfigService.selectBySpecification(alarmConfigDto);
         if (null != alarmConfigDto && !alarmConfigDtos.isEmpty()) {
             for (AlarmConfigDto o : alarmConfigDtos) {
-                if (MonitorTypeEnum.FILE_REACH == MonitorTypeEnum.match(o.getMonitorType())) {
-                    o.setTriggerStatus(0);
-                }
                 this.handleJob(o);
             }
         }

@@ -9,6 +9,8 @@ import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.schedule.service.alarm.base.AlarmBaseService;
+import com.piesat.skywalking.util.IdUtils;
+import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
 import org.elasticsearch.action.search.SearchResponse;
@@ -23,6 +25,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ParsedAvg;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,6 +43,10 @@ import java.util.*;
 public class AlarmProcessService extends AlarmBaseService {
     @GrpcHthtClient
     private ProcessConfigService processConfigService;
+    @Autowired
+    private RedisUtil redisUtil;
+
+    private static String PROCESS_EXCEPTION="HTHT.PROCESS_EXCEPTION";
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
         AlarmConfigDto alarmConfigDto = (AlarmConfigDto) jobContext.getHtJobInfoDto();
@@ -69,6 +76,7 @@ public class AlarmProcessService extends AlarmBaseService {
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
         }
+        this.outageStatistics(processConfigDto,alarmLogDto);
     }
 
 
@@ -119,6 +127,76 @@ public class AlarmProcessService extends AlarmBaseService {
         }
         return usage;
 
+    }
+    public void outageStatistics(ProcessConfigDto processConfigDto,AlarmLogDto alarmLogDto){
+        try {
+            long value= this.getValue(processConfigDto);
+            if(value==0&&alarmLogDto.isAlarm()){
+                redisUtil.hset(PROCESS_EXCEPTION,processConfigDto.getId(),System.currentTimeMillis());
+                redisUtil.hset(PROCESS_EXCEPTION+".LAST",processConfigDto.getId(),new BigDecimal(alarmLogDto.getUsage()).longValue());
+            }
+            if(value>0){
+                long usge= new BigDecimal(String.valueOf(redisUtil.hget(PROCESS_EXCEPTION+".LAST",processConfigDto.getId()))).longValue();
+                boolean flag=false;
+                Map<String, Object> source = new HashMap<>();
+                if(usge>0){
+                    source.put("type",1);
+                }else {
+                    source.put("type",-1);
+                }
+                if(alarmLogDto.isAlarm()&&alarmLogDto.getUsage()<0&&usge>0){
+                    redisUtil.hdel(PROCESS_EXCEPTION,processConfigDto.getId());
+                    redisUtil.hdel(PROCESS_EXCEPTION+".LAST",processConfigDto.getId());
+                    flag=true;
+                }
+                if(alarmLogDto.isAlarm()&&alarmLogDto.getUsage()>0&&usge<0){
+                    redisUtil.hdel(PROCESS_EXCEPTION,processConfigDto.getId());
+                    redisUtil.hdel(PROCESS_EXCEPTION+".LAST",processConfigDto.getId());
+                    flag=true;
+                }
+                if(!alarmLogDto.isAlarm()&&usge!=0){
+                    redisUtil.hdel(PROCESS_EXCEPTION,processConfigDto.getId());
+                    redisUtil.hdel(PROCESS_EXCEPTION+".LAST",processConfigDto.getId());
+                    flag=true;
+                }
+                if(!flag){
+                    return;
+                }
+                try {
+                    long endTime=System.currentTimeMillis();
+                    source.put("id",processConfigDto.getId());
+                    source.put("ip",processConfigDto.getIp());
+                    source.put("start_time",value);
+                    source.put("end_time",System.currentTimeMillis());
+                    source.put("duration",endTime-value);
+                    source.put("@timestamp",new Date());
+                    boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG);
+                    if (!isExistsIndex) {
+                        Map<String, Object> ip = new HashMap<>();
+                        ip.put("type", "keyword");
+                        Map<String, Object> properties = new HashMap<>();
+                        properties.put("ip", ip);
+                        Map<String, Object> mapping = new HashMap<>();
+                        mapping.put("properties", properties);
+                        elasticSearch7Client.createIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, new HashMap<>(), mapping);
+                    }
+                    elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, IdUtils.fastUUID(), source);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public long getValue(ProcessConfigDto processConfigDto){
+        Object o= redisUtil.hget(PROCESS_EXCEPTION,processConfigDto.getId());
+        if(o==null){
+            return 0;
+        }else {
+            return new BigDecimal(String.valueOf(o)).longValue();
+        }
     }
 }
 

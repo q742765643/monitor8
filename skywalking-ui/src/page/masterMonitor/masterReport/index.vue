@@ -206,14 +206,16 @@
         this.alarmCountData = [];
         this.cpuUsageData = [];
         this.ramUsageData = [];
+        this.romUsageData =[];
 
         this.tableData.forEach((item) => {
           this.downCountData.push(item.downCount);
           this.downDurationData.push(item.downTime);
           this.xAxisData.push(item.ip);
           this.alarmCountData.push(item.alarmCount);
-          this.cpuUsageData.push(item.maxMemoryPct);
-          this.ramUsageData.push(item.maxFilesystemPct);
+          this.cpuUsageData.push(item.maxCpuPct);
+          this.romUsageData.push(item.maxFilesystemPct);
+          this.ramUsageData.push(item.maxMemoryPct);
         });
       },
       initSeries() {

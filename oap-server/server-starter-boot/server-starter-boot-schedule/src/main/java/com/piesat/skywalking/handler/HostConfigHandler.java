@@ -45,10 +45,6 @@ public class HostConfigHandler implements BaseHandler {
             long startTime = System.currentTimeMillis();
             HostConfigDto hostConfigDto = (HostConfigDto) jobContext.getHtJobInfoDto();
             String ip = hostConfigDto.getIp();
-            this.insertPacket(ip);
-            if (2 != hostConfigDto.getMonitoringMethods()) {
-                return;
-            }
             String os = hostConfigDto.getOs();
             Date date = new Date(System.currentTimeMillis());
             SNMPSessionUtil snmp = new SNMPSessionUtil(ip, "161", "public", "2");
@@ -77,41 +73,5 @@ public class HostConfigHandler implements BaseHandler {
         }
     }
 
-    public void insertPacket(String ip) {
-        try {
-            Map<String, Object> basicInfo = new HashMap<>();
-            basicInfo.put("ip", ip);
-            basicInfo.put("@timestamp", new Date());
-            basicInfo.put("hostname", ip);
-            Map<String, Object> source = snmpWindowsService.metricbeatMap("packet", basicInfo);
-            float usage = this.selectPing(ip);
-            source.put("loss", (float) (Math.round(usage * 100) / 100));
-            if (usage > -1) {
-                String indexName = IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT, new Date());
-                elasticSearch7Client.forceInsert(indexName, IdUtils.fastUUID(), source);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    public float selectPing(String ip) {
-        float usage = -1;
-        try {
-            ResultT<String> resultT = PingUtil.ping(ip);
-            if (!resultT.isSuccess()) {
-                return usage;
-            }
-            //Pattern pattern = Pattern.compile("[\\w\\W]*丢失 = ([0-9]\\d*)[\\w\\W]*");
-            Pattern pattern = Pattern.compile("([0-9]\\d*)% 丢失");
-            Matcher matcher = pattern.matcher(resultT.getData());
-            while (matcher.find()) {
-                usage = Float.parseFloat(matcher.group(1)) / 100;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return usage;
-
-    }
 }

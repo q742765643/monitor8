@@ -13,9 +13,8 @@ public class PingUtil {
         StringBuffer result = new StringBuffer();
         Runtime r = Runtime.getRuntime();  // 将要执行的ping命令,此命令是windows格式的命令
         //String pingCommand = "ping " + ipAddress + " -n " + pingTimes    + " -w " + timeOut;
-        String pingCommand = "ping " + ipAddress + " -w 4";
+        String pingCommand = "ping " + ipAddress + " -w 10";
         try {   // 执行命令并获取输出
-            System.out.println(pingCommand);
             Process p = r.exec(pingCommand);
             if (p == null) {
                 resultT.setErrorMessage("ping 异常");

@@ -11,10 +11,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.Ela
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -32,11 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName : DeviceReportService
@@ -59,6 +54,8 @@ public class DeviceReportService {
         this.getPacketloss(systemQueryDto, baseInfo);
         this.getProcess(systemQueryDto, baseInfo);
         this.getUptime(systemQueryDto, baseInfo);
+        this.getAlarm(systemQueryDto,baseInfo);
+        this.getDown(systemQueryDto,baseInfo);
         HostConfigDto hostConfigdto = new HostConfigDto();
         NullUtil.changeToNull(hostConfigdto);
         List<HostConfigDto> hostConfigDtos = hostConfigService.selectBySpecification(hostConfigdto);
@@ -344,10 +341,95 @@ public class DeviceReportService {
         map.put("max.packet.pct", 0f);
         map.put("max.uptime.pct", 0f);
         map.put("max.process.size", 0l);
-        map.put("down.time", 60 * 60 * 1000 * 60l);
-        map.put("down.num", 5l);
-        map.put("alarm.num", 10l);
+        map.put("down.time", 0l);
+        map.put("down.num", 0l);
+        map.put("alarm.num", 0l);
         return map;
+    }
+
+    public void getAlarm(SystemQueryDto systemQueryDto,Map<String, Map<String, Object>> baseInfo){
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        Set set = new HashSet<Long>();
+        set.add(0l);
+        set.add(1l);
+        TermsQueryBuilder termsHost = QueryBuilders.termsQuery("device_type", set);
+        boolBuilder.must(termsHost);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        search.query(boolBuilder);
+        ValueCountAggregationBuilder sumAlarmNum = AggregationBuilders.count("sumAlarmNum").field("level");
+        TermsAggregationBuilder groupById = AggregationBuilders.terms("groupby_ip").field("ip").size(10000);
+        groupById.subAggregation(sumAlarmNum);
+        search.aggregation(groupById);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG, search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if (aggregations == null) {
+                return;
+            }
+            ParsedStringTerms terms = aggregations.get("groupby_ip");
+            List<? extends Terms.Bucket> buckets = terms.getBuckets();
+            for (int i = 0; i < buckets.size(); i++) {
+                Terms.Bucket bucket = buckets.get(i);
+                String ip = bucket.getKeyAsString();
+                ParsedValueCount parsedValueCount = bucket.getAggregations().get("sumAlarmNum");
+                long num = new BigDecimal(parsedValueCount.getValueAsString()).longValue();
+                Map<String, Object> value = this.getValueMap(baseInfo, ip);
+                value.put("alarm.num", num);
+                baseInfo.put(ip, value);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void getDown(SystemQueryDto systemQueryDto,Map<String, Map<String, Object>> baseInfo){
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        search.query(boolBuilder);
+        ValueCountAggregationBuilder sumDownNum = AggregationBuilders.count("sumDownNum").field("duration");
+        SumAggregationBuilder sumDownTime=AggregationBuilders.sum("sumDownTime").field("duration");
+        TermsAggregationBuilder groupById = AggregationBuilders.terms("groupby_ip").field("ip").size(10000);
+        groupById.subAggregation(sumDownNum);
+        groupById.subAggregation(sumDownTime);
+        search.aggregation(groupById);
+        search.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_HOST_DOWN_LOG, search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            if (aggregations == null) {
+                return;
+            }
+            ParsedStringTerms terms = aggregations.get("groupby_ip");
+            List<? extends Terms.Bucket> buckets = terms.getBuckets();
+            for (int i = 0; i < buckets.size(); i++) {
+                Terms.Bucket bucket = buckets.get(i);
+                String ip = bucket.getKeyAsString();
+                ParsedValueCount parsedValueCount = bucket.getAggregations().get("sumDownNum");
+                ParsedSum parsedSumDownTime= bucket.getAggregations().get("sumDownTime");
+                long num = new BigDecimal(parsedValueCount.getValueAsString()).longValue();
+                long time= new BigDecimal(parsedSumDownTime.getValueAsString()).longValue();
+                Map<String, Object> value = this.getValueMap(baseInfo, ip);
+                value.put("down.num", num);
+                value.put("down.time", time);
+                baseInfo.put(ip, value);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
 

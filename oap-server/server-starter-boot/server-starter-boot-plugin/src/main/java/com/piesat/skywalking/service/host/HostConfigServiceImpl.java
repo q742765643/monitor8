@@ -119,7 +119,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         hostConfigDto.setJobHandler("hostConfigHandler");
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
         hostConfig = super.saveNotNull(hostConfig);
-        hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        if(hostConfig.getMonitoringMethods()==2){
+            hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        }
         return hostConfigMapstruct.toDto(hostConfig);
     }
 

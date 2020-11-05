@@ -129,6 +129,17 @@ public abstract class AlarmBaseService {
         source.put("@timestamp", alarmLogDto.getTimestamp());
         String indexName = IndexNameConstant.T_MT_ALARM_LOG;
         try {
+
+            boolean isExistsIndex = elasticSearch7Client.isExistsIndex(indexName);
+            if (!isExistsIndex) {
+                Map<String, Object> ip = new HashMap<>();
+                ip.put("type", "keyword");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("ip", ip);
+                Map<String, Object> mapping = new HashMap<>();
+                mapping.put("properties", properties);
+                elasticSearch7Client.createIndex(indexName, new HashMap<>(), mapping);
+            }
             elasticSearch7Client.forceInsert(indexName, IdUtils.fastUUID(), source);
         } catch (IOException e) {
             e.printStackTrace();
