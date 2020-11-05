@@ -232,6 +232,7 @@
         queryParams: {
           pageNum: 1,
           pageSize: 10,
+          deviceType: 1,
           ip: '',
           triggerStatus: '',
         },

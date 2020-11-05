@@ -119,6 +119,7 @@
         queryParams: {
           pageNum: 1,
           pageSize: 10,
+          deviceType: 0,
         },
         dayFormat: 'YYYY-MM-DD',
         monthFormat: 'YYYY-MM',

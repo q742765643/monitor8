@@ -60,6 +60,7 @@ public class AlarmMemoryService extends AlarmBaseService {
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
         }
+        this.insertUnprocessed(alarmLogDto);
     }
 
     public Map<String, Float> findMemoryAvg() {

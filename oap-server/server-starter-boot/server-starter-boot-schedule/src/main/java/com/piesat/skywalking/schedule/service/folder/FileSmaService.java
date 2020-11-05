@@ -69,11 +69,12 @@ public class FileSmaService extends FileBaseService {
             if (!resultT.isSuccess()) {
                 return;
             }
-            this.updateFileStatistics(fileMonitorLogDto, resultT);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             alarmFileService.execute(fileMonitorLogDto);
+            this.updateFileStatistics(fileMonitorLogDto, resultT);
             if (!resultT.isSuccess()) {
                 fileMonitorLogDto.setHandleCode(2);
             } else {

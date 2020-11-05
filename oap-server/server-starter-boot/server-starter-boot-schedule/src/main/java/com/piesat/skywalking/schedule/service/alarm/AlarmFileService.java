@@ -28,6 +28,9 @@ public class AlarmFileService extends AlarmBaseService {
 
     }
     public void execute(FileMonitorLogDto fileMonitorLogDto) {
+        if(0!=fileMonitorLogDto.getIsCompensation()){
+            return;
+        }
         AlarmConfigDto alarmConfigQDto=new AlarmConfigDto();
         NullUtil.changeToNull(alarmConfigQDto);
         alarmConfigQDto.setMonitorType(5);
@@ -40,9 +43,6 @@ public class AlarmFileService extends AlarmBaseService {
     }
 
     public void toAlarm(AlarmConfigDto alarmConfigDto, FileMonitorLogDto fileMonitorLogDto) {
-        if(0!=fileMonitorLogDto.getIsCompensation()){
-            return;
-        }
         AlarmLogDto alarmLogDto=new AlarmLogDto();
         alarmLogDto.setRelatedId(fileMonitorLogDto.getTaskId());
         alarmLogDto.setDeviceType(3);
@@ -50,6 +50,7 @@ public class AlarmFileService extends AlarmBaseService {
         alarmLogDto.setUsage(usage*100);
         this.fitAlarmLog(alarmConfigDto, alarmLogDto);
         this.judgeAlarm(alarmLogDto);
+        fileMonitorLogDto.setStatus(3);
         if (alarmLogDto.isAlarm()) {
             String message = fileMonitorLogDto.getTaskName()+":"+fileMonitorLogDto.getRemotePath()+":未采集到文件,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
@@ -57,7 +58,9 @@ public class AlarmFileService extends AlarmBaseService {
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
+            fileMonitorLogDto.setStatus(alarmLogDto.getLevel());
         }
+        this.insertUnprocessed(alarmLogDto);
     }
 }
 

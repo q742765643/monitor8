@@ -81,7 +81,6 @@ public class FileQReportServiceImpl implements FileQReportService {
             for (SearchHit hit : searchHits) {
                 Map jsonMap = new LinkedHashMap();
                 JsonParseUtil.parseJSON2Map(jsonMap, hit.getSourceAsString(), null);
-                jsonMap.put("late_num", 1);
                 list.add(jsonMap);
             }
         } catch (IOException e) {

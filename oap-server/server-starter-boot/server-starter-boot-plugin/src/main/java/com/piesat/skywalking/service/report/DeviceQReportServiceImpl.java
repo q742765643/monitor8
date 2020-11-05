@@ -148,7 +148,7 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
                 ipMap.put(ip, map);
 
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ipMap;

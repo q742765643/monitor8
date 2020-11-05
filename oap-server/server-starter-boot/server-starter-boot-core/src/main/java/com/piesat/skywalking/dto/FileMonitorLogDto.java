@@ -51,5 +51,6 @@ public class FileMonitorLogDto extends BaseDto {
     private String jobCron;
     @ApiModelProperty(value = "任务名称")
     private String taskName;
+    private Integer status;
 }
 

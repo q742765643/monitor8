@@ -114,13 +114,13 @@
       this.color = this.data.map((item) => item.color);
 
       await hongtuConfig.getDeviceStatus().then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          this.heatData = res.data.data;
+        if (res.code == 200) {
+          this.heatData = res.data;
           this.initData();
         }
       });
       //this.heatData = [];
-      this.initData();
+      //this.initData();
     },
     mounted() {
       window.addEventListener('resize', () => {
@@ -134,18 +134,12 @@
     methods: {
       initData() {
         this.heatData.forEach((item) => {
-          item.currentStatus = this.data[Math.floor(Math.random() * (0 - 4)) + 4].status;
+          //console.log(item)
+          //item.currentStatus = this.data[Math.floor(Math.random() * (0 - 4)) + 4].status;
           this.data.forEach((item2, index) => {
             if (item.currentStatus == item2.status) {
               item.color = item2.color;
-            }
-          });
-        });
-
-        this.heatData.forEach((item) => {
-          this.data.forEach((data) => {
-            if (item.currentStatus == data.status) {
-              data.value++;
+              item2.value++;
             }
           });
         });

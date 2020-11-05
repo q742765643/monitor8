@@ -60,6 +60,7 @@ public class AlarmCpuService extends AlarmBaseService {
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
         }
+        this.insertUnprocessed(alarmLogDto);
     }
 
 

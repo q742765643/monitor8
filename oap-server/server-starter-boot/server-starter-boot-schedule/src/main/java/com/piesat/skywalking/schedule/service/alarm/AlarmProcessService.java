@@ -77,6 +77,7 @@ public class AlarmProcessService extends AlarmBaseService {
             this.insertEs(alarmLogDto);
         }
         this.outageStatistics(processConfigDto,alarmLogDto);
+        this.insertUnprocessed(alarmLogDto);
     }
 
 

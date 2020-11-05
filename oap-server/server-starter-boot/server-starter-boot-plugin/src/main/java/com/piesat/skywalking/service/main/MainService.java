@@ -8,6 +8,7 @@ import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.api.host.ProcessConfigService;
 import com.piesat.skywalking.dto.*;
+import com.piesat.skywalking.mapper.HostConfigMapper;
 import com.piesat.skywalking.vo.AlarmDistributionVo;
 import com.piesat.skywalking.vo.MonitorViewVo;
 import com.piesat.util.IndexNameUtil;
@@ -46,6 +47,8 @@ public class MainService {
     private HostConfigService hostConfigService;
     @Autowired
     private ProcessConfigService processConfigService;
+    @Autowired
+    private HostConfigMapper hostConfigMapper;
     //@Autowired
     //private AlarmEsLogService alarmEsLogService;
     @Autowired
@@ -56,23 +59,15 @@ public class MainService {
 
         HostConfigDto hostConfigDto = new HostConfigDto();
         NullUtil.changeToNull(hostConfigDto);
-        List<Integer> types = new ArrayList<>();
-        types.add(2);
-        types.add(3);
-        types.add(4);
-        hostConfigDto.setMediaTypes(types);
+        hostConfigDto.setDeviceType(1);
         long link = hostConfigService.selectCount(hostConfigDto);
         MonitorViewVo linkView = new MonitorViewVo();
         linkView.setClassify("链路设备");
         linkView.setNum(link);
         monitorViewVos.add(linkView);
 
-
-        List<Integer> typeServer = new ArrayList<>();
-        typeServer.add(0);
-        typeServer.add(1);
         NullUtil.changeToNull(hostConfigDto);
-        hostConfigDto.setMediaTypes(typeServer);
+        hostConfigDto.setDeviceType(0);
         long host = hostConfigService.selectCount(hostConfigDto);
         MonitorViewVo hostView = new MonitorViewVo();
         hostView.setClassify("主机设备");
@@ -80,7 +75,7 @@ public class MainService {
         monitorViewVos.add(hostView);
 
         FileMonitorDto fileMonitorDto = new FileMonitorDto();
-        fileMonitorDto.setTriggerStatus(null);
+        NullUtil.changeToNull(fileMonitorDto);
         long files = fileMonitorService.selectCount(fileMonitorDto);
         MonitorViewVo fileView = new MonitorViewVo();
         fileView.setClassify("数据任务");
@@ -88,6 +83,7 @@ public class MainService {
         monitorViewVos.add(fileView);
 
         ProcessConfigDto processConfigDto = new ProcessConfigDto();
+        NullUtil.changeToNull(processConfigDto);
         long process = processConfigService.selectCount(processConfigDto);
         MonitorViewVo processView = new MonitorViewVo();
         processView.setClassify("进程任务");
@@ -96,8 +92,42 @@ public class MainService {
         return monitorViewVos;
     }
 
-    public List<HostConfigDto> getDeviceStatus(HostConfigDto hostConfigdto) {
-        return hostConfigService.selectBySpecification(hostConfigdto);
+    public List<Map<String, Object>>  getDeviceStatus(HostConfigDto hostConfigdto) {
+     /*   List<Map<String, Object>> mapList=hostConfigMapper.findStateStatistics();
+        Map<String, Object> map=new HashMap<>();
+        if(null!=mapList && mapList.size()>0){
+            for (int i=0;i<mapList.size();i++){
+                map.putAll(mapList.get(i));
+            }
+        }
+        String[] names=new String[]{"未知","一般","危险","故障","正常"};
+        String[] values=new String[]{"11","0","1","2","3"};
+        List<MonitorViewVo> monitorViewVos = new ArrayList<>();
+        for(int i=0;i<names.length;i++){
+            MonitorViewVo monitorViewVo=new MonitorViewVo();
+            if(null!=map.get(values[i])){
+                monitorViewVo.setNum(Long.parseLong(String.valueOf(map.get(values[i]))));
+            }
+            monitorViewVo.setClassify(names[i]);
+            monitorViewVos.add(monitorViewVo);
+        }*/
+        Map<String, String> mapKey=new HashMap<>();
+        mapKey.put("11","未知");
+        mapKey.put("0","一般");
+        mapKey.put("1","危险");
+        mapKey.put("2","故障");
+        mapKey.put("3","正常");
+        List<HostConfigDto> hostConfigDtos=hostConfigService.selectBySpecification(hostConfigdto);
+        List<Map<String, Object>> mapList=new ArrayList<>();
+        if(null!=hostConfigDtos&&!hostConfigDtos.isEmpty()){
+            for(int i=0;i< hostConfigDtos.size();i++){
+                Map<String, Object> map=new HashMap<>();
+                map.put("currentStatus",mapKey.get(String.valueOf(hostConfigDtos.get(i).getCurrentStatus())));
+                map.put("ip",hostConfigDtos.get(i).getIp());
+                mapList.add(map);
+            }
+        }
+        return mapList;
     }
 
     public PageBean getAlarm(PageForm<AlarmLogDto> pageForm) {
@@ -106,6 +136,13 @@ public class MainService {
     }
 
     public List<AlarmDistributionVo> getAlarmDistribution(AlarmLogDto alarmLogDto) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String endTime = format.format(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, -60*24);
+        String beginTime = format.format(calendar.getTime());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         Map<String, Object> paramt = new HashMap<>();
@@ -113,12 +150,14 @@ public class MainService {
             paramt = JSON.parseObject(alarmLogDto.getParams(), Map.class);
         }
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
-        if (StringUtils.isNotNullString((String) paramt.get("beginTime"))) {
+        rangeQueryBuilder.gte(beginTime);
+        rangeQueryBuilder.lte(endTime);
+       /* if (StringUtils.isNotNullString((String) paramt.get("beginTime"))) {
             rangeQueryBuilder.gte((String) paramt.get("beginTime"));
         }
         if (StringUtils.isNotNullString((String) paramt.get("endTime"))) {
             rangeQueryBuilder.lte((String) paramt.get("endTime"));
-        }
+        }*/
         rangeQueryBuilder.timeZone("+08:00");
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
         boolBuilder.filter(rangeQueryBuilder);
@@ -130,8 +169,9 @@ public class MainService {
         searchSourceBuilder.query(boolBuilder);
         searchSourceBuilder.size(0);
         List<AlarmDistributionVo> list = new ArrayList<>();
+        Map<String,String> map=new HashMap<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG + "-*", searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG, searchSourceBuilder);
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedLongTerms parsedLongTerms = aggregations.get("device_type");
             if (parsedLongTerms == null) {
@@ -140,30 +180,25 @@ public class MainService {
             List<? extends Terms.Bucket> buckets = parsedLongTerms.getBuckets();
             if (buckets.size() > 0) {
                 for (int i = 0; i < buckets.size(); i++) {
-                    AlarmDistributionVo alarmDistributionVo = new AlarmDistributionVo();
+                    //AlarmDistributionVo alarmDistributionVo = new AlarmDistributionVo();
                     Terms.Bucket bucket = buckets.get(i);
-                    Long key = Long.parseLong(String.valueOf(bucket.getKey()));
+                    String key =String.valueOf(bucket.getKey());
                     ParsedValueCount parsedValueCount = bucket.getAggregations().get("count");
                     Long count = parsedValueCount.getValue();
-                    if (key == 0) {
-                        alarmDistributionVo.setClassify("主机设备");
-                    }
-                    if (key == 1) {
-                        alarmDistributionVo.setClassify("链路设备");
-                    }
-                    if (key == 2) {
-                        alarmDistributionVo.setClassify("进程任务");
-                    }
-                    if (key == 3) {
-                        alarmDistributionVo.setClassify("数据任务");
-                    }
-                    alarmDistributionVo.setNum(count);
-                    list.add(alarmDistributionVo);
-
+                    map.put(key,String.valueOf(count));
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+        String[] titles=new String[]{"主机设备","链路设备","进程任务","数据任务"};
+        for(int i=0;i<=3;i++){
+            AlarmDistributionVo alarmDistributionVo = new AlarmDistributionVo();
+            if(null!=map.get(String.valueOf(i))){
+                alarmDistributionVo.setNum(Long.parseLong(map.get(String.valueOf(i))));
+            }
+            alarmDistributionVo.setClassify(titles[i]);
+            list.add(alarmDistributionVo);
         }
         return list;
 

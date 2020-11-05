@@ -147,7 +147,7 @@ public abstract class FileBaseService {
     public void updateFileStatistics(FileMonitorLogDto fileMonitorLogDto, ResultT<String> resultT) {
         try {
             FileStatisticsDto fileStatisticsDto = new FileStatisticsDto();
-            fileStatisticsDto.setStatus(0);
+            fileStatisticsDto.setStatus(fileMonitorLogDto.getStatus());
             fileStatisticsDto.setId(fileMonitorLogDto.getTaskId() + "_" + fileMonitorLogDto.getTriggerTime());
             fileStatisticsDto.setTaskId(fileMonitorLogDto.getTaskId());
             fileStatisticsDto.setTaskName(fileMonitorLogDto.getTaskName());

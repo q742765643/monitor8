@@ -14,6 +14,8 @@ import com.piesat.sso.client.util.mq.MsgPublisher;
 import com.piesat.util.CompareUtil;
 import com.piesat.util.ResultT;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -147,7 +149,43 @@ public abstract class AlarmBaseService {
         msgPublisher.sendMsg(JSON.toJSONString(alarmLogDto));
     }
 
+    public void insertUnprocessed(AlarmLogDto alarmLogDto){
+        try {
+            if(alarmLogDto.isAlarm()){
+                GetResponse getResponse= null;
+                Map<String,Object> source=new HashMap<>();
+                try {
+                    getResponse = elasticSearch7Client.get(IndexNameConstant.T_MT_ALARM,alarmLogDto.getRelatedId()+"_"+alarmLogDto.getMonitorType());
+                    source=getResponse.getSourceAsMap();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if(null!=source&&source.size()>0){
+                    source.put("level", alarmLogDto.getLevel());
+                    source.put("usage", alarmLogDto.getUsage());
+                    source.put("message", alarmLogDto.getMessage());
+                }else {
+                    source=new HashMap<>();
+                    source.put("device_type", alarmLogDto.getDeviceType());
+                    source.put("alarm_kpi", alarmLogDto.getAlarmKpi());
+                    source.put("level", alarmLogDto.getLevel());
+                    source.put("ip", alarmLogDto.getIp());
+                    source.put("monitor_type", alarmLogDto.getMonitorType());
+                    source.put("media_type", alarmLogDto.getMediaType());
+                    source.put("usage", alarmLogDto.getUsage());
+                    source.put("message", alarmLogDto.getMessage());
+                    source.put("related_id", alarmLogDto.getRelatedId());
+                    source.put("@timestamp", alarmLogDto.getTimestamp());
+                }
+                elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_ALARM,alarmLogDto.getRelatedId()+"_"+alarmLogDto.getMonitorType(),source);
+            }else {
+                elasticSearch7Client.deleteById(IndexNameConstant.T_MT_ALARM,alarmLogDto.getRelatedId()+"_"+alarmLogDto.getMonitorType());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
 }
 
 

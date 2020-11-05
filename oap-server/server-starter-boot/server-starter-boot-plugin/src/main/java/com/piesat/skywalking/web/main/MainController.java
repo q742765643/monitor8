@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Api(value = "首页", tags = {"首页"})
@@ -37,9 +38,9 @@ public class MainController {
 
     @ApiOperation(value = "查询设备状态", notes = "查询设备状态")
     @GetMapping("/getDeviceStatus")
-    public ResultT<List<HostConfigDto>> getDeviceStatus(HostConfigDto hostConfigdto) {
-        ResultT<List<HostConfigDto>> resultT = new ResultT<>();
-        List<HostConfigDto> list = mainService.getDeviceStatus(hostConfigdto);
+    public ResultT<List<Map<String, Object>> > getDeviceStatus(HostConfigDto hostConfigdto) {
+        ResultT<List<Map<String, Object>> > resultT = new ResultT<>();
+        List<Map<String, Object>>  list = mainService.getDeviceStatus(hostConfigdto);
         resultT.setData(list);
         return resultT;
     }

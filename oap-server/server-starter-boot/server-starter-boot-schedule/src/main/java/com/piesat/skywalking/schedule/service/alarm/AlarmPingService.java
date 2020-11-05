@@ -65,6 +65,7 @@ public class AlarmPingService extends AlarmBaseService {
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
         }
+        this.insertUnprocessed(alarmLogDto);
     }
 
 

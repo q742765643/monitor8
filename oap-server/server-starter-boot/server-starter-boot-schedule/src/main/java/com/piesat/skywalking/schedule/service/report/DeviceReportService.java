@@ -58,6 +58,7 @@ public class DeviceReportService {
         this.getDown(systemQueryDto,baseInfo);
         HostConfigDto hostConfigdto = new HostConfigDto();
         NullUtil.changeToNull(hostConfigdto);
+        //hostConfigdto.setDeviceType(1);
         List<HostConfigDto> hostConfigDtos = hostConfigService.selectBySpecification(hostConfigdto);
         BulkRequest request = new BulkRequest();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -66,7 +67,7 @@ public class DeviceReportService {
             Map<String, Object> source = this.getMap();
             source.put("ip", hostConfigDto.getIp());
             source.put("@timestamp", time);
-            source.put("ishost", hostConfigDto.getIsHost());
+            source.put("device_type", hostConfigDto.getDeviceType());
             if (null != baseInfo.get(hostConfigDto.getIp())) {
                 source.putAll(baseInfo.get(hostConfigDto.getIp()));
             }

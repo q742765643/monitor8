@@ -68,6 +68,7 @@ public class AlarmDiskService extends AlarmBaseService {
                 alarmLogDto.setMessage(message);
                 this.insertEs(alarmLogDto);
             }
+            this.insertUnprocessed(alarmLogDto);
         }else {
             for(int i=0;i<fileSystemVos.size();i++){
                 alarmLogDto.setUsage(fileSystemVos.get(i).getUsage());
@@ -78,6 +79,7 @@ public class AlarmDiskService extends AlarmBaseService {
                     alarmLogDto.setMessage(message);
                     this.insertEs(alarmLogDto);
                 }
+                this.insertUnprocessed(alarmLogDto);
             }
 
         }
