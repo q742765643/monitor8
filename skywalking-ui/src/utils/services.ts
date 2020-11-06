@@ -368,16 +368,87 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/user/gatAllBiz', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
+          reject(err);
         });
     });
-  }
+  },
+  // 菜单管理-表格
+  menulList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 菜单管理-表格
+  menuList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 菜单管理-菜单树
+  menuTreeselect(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/treeselect', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 告警管理-新增/编辑
+  menuPost(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/system/menu', params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 告警管理-详情
+  menuDetail(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 };
 
 export default dataService;

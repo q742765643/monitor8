@@ -154,6 +154,10 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/roleMonitoring"> 角色管理</router-link>
         </a-menu-item>
+        <a-menu-item key="/menuManagement">
+          <span class="iconfont">&#xe630;</span>
+          <router-link to="/menuManagement"> 菜单管理</router-link>
+        </a-menu-item>
         <a-menu-item key="/departmentMonitoring">
           <span class="iconfont">&#xe60c;</span>
           <router-link to="/departmentMonitoring"> 部门管理</router-link>
