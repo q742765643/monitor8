@@ -13,6 +13,7 @@ import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.util.IndexNameUtil;
 import com.piesat.util.PingUtil;
 import com.piesat.util.ResultT;
+import com.piesat.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -107,35 +108,20 @@ public class LossHandler implements BaseHandler {
     }
     public void outageStatistics(HostConfigDto hostConfigDto,boolean flag){
         try {
-            long value= this.getValue(hostConfigDto);
-            if(value==0&&!flag){
-                redisUtil.hset(HOST_EXCEPTION,hostConfigDto.getId(),System.currentTimeMillis());
+            Map<String, Object> source=this.findDownLog(hostConfigDto);
+            long startTime= new BigDecimal(String.valueOf(source.get("start_time"))).longValue();
+            source.put("end_time",System.currentTimeMillis());
+            source.put("duration",System.currentTimeMillis()-startTime);
+            if(!flag){
+                this.insertDownLog(source);
             }
-            if(value>0&&flag){
-                redisUtil.hdel(HOST_EXCEPTION,hostConfigDto.getId());
-                Map<String, Object> source = new HashMap<>();
-                try {
-                    long endTime=System.currentTimeMillis();
-                    source.put("id",hostConfigDto.getId());
-                    source.put("ip",hostConfigDto.getIp());
-                    source.put("start_time",value);
-                    source.put("end_time",System.currentTimeMillis());
-                    source.put("duration",endTime-value);
-                    source.put("@timestamp",new Date());
-                    boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG);
-                    if (!isExistsIndex) {
-                        Map<String, Object> ip = new HashMap<>();
-                        ip.put("type", "keyword");
-                        Map<String, Object> properties = new HashMap<>();
-                        properties.put("ip", ip);
-                        Map<String, Object> mapping = new HashMap<>();
-                        mapping.put("properties", properties);
-                        elasticSearch7Client.createIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG, new HashMap<>(), mapping);
-                    }
-                    elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_HOST_DOWN_LOG, IdUtils.fastUUID(), source);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if(flag){
+               String indexId= (String) source.get("index_id");
+               if(StringUtil.isEmpty(indexId)){
+                   return;
+               }
+               source.put("status",1);
+               this.insertDownLog(source);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -186,6 +172,62 @@ public class LossHandler implements BaseHandler {
             e.printStackTrace();
         }
         return level;
+    }
+    public void insertDownLog(Map<String, Object> source){
+        try {
+            String indexId= (String) source.get("index_id");
+            if(StringUtil.isEmpty(indexId)){
+                indexId=IdUtils.fastUUID();
+            }
+            boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG);
+            if (!isExistsIndex) {
+                Map<String, Object> ip = new HashMap<>();
+                ip.put("type", "keyword");
+                Map<String, Object> id = new HashMap<>();
+                id.put("type", "keyword");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("ip", ip);
+                properties.put("id", id);
+                Map<String, Object> mapping = new HashMap<>();
+                mapping.put("properties", properties);
+                elasticSearch7Client.createIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG, new HashMap<>(), mapping);
+            }
+            elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_HOST_DOWN_LOG, indexId, source);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Map<String, Object>  findDownLog(HostConfigDto hostConfigDto){
+        Map<String, Object> source=new HashMap<>();
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchId = QueryBuilders.matchQuery("id", hostConfigDto.getId());
+        MatchQueryBuilder matchStatus = QueryBuilders.matchQuery("status", 0);
+        boolBuilder.must(matchId);
+        boolBuilder.must(matchStatus);
+        search.query(boolBuilder);
+        search.size(1);
+        try {
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_HOST_DOWN_LOG, search);
+            SearchHits hits = response.getHits();
+            SearchHit[] searchHits = hits.getHits();
+            if(searchHits.length>0){
+                for (SearchHit hit : searchHits) {
+                      source = hit.getSourceAsMap();
+                      source.put("index_id",hit.getId());
+                      return source;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        source.put("id",hostConfigDto.getId());
+        source.put("ip",hostConfigDto.getIp());
+        source.put("@timestamp",new Date());
+        source.put("status",0);
+        source.put("start_time",System.currentTimeMillis());
+        return source;
     }
 }
 

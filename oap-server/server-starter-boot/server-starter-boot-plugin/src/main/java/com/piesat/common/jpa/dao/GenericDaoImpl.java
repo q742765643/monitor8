@@ -124,6 +124,8 @@ public class GenericDaoImpl<T, ID extends Serializable> extends SimpleJpaReposit
         return result;
     }
 
-
+    public JpaEntityInformation<T, ?> getEntityInformation() {
+        return entityInformation;
+    }
 }
 

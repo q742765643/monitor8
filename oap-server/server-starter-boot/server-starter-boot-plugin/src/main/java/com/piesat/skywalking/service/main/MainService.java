@@ -32,10 +32,12 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.metrics.ParsedValueCount;
 import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -205,20 +207,52 @@ public class MainService {
     }
 
 
-    public List<FileStatisticsDto> getFileStatus() {
-        List<FileStatisticsDto> list = new ArrayList<>();
+    public Map<String,Object> getFileStatus() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long endTime = calendar.getTime().getTime();
+        long startTime = endTime - 86400 * 1000;
+
+        List<String> hoursList=new ArrayList<>();
+        Map<String,String> hoursMap=new HashMap<>();
+        SimpleDateFormat qh=new SimpleDateFormat("d/H");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+        Calendar calendarTemp = Calendar.getInstance();
+        calendarTemp.setTimeInMillis(startTime);
+        for(int i=0;i<24;i++){
+             calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
+             int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
+             if(i==0||hour==0){
+                 hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
+             }else {
+                 hoursList.add(String.valueOf(hour));
+             }
+             hoursMap.put(qh.format(calendarTemp.getTimeInMillis()),String.valueOf(i));
+
+        }
+
+        FileMonitorDto fileMonitorDto=new FileMonitorDto();
+        NullUtil.changeToNull(fileMonitorDto);
+        List<FileMonitorDto> fileMonitorList=fileMonitorService.selectBySpecification(fileMonitorDto);
+        List<String> daysList=new ArrayList<>();
+        Map<String,String> daysMap=new HashMap<>();
+        if(null!=fileMonitorList){
+            for(int i=0;i<fileMonitorList.size();i++){
+                daysList.add(fileMonitorList.get(i).getTaskName());
+                daysMap.put(fileMonitorList.get(i).getId(),String.valueOf(i));
+            }
+        }
+
+
+        List<Integer[]> data = new ArrayList<>();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        String indexName = IndexNameUtil.getIndexName(IndexNameConstant.T_MT_FILE_STATISTICS, new Date());
+        String indexName = IndexNameConstant.T_MT_FILE_STATISTICS;
         try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            long startTime = calendar.getTime().getTime();
-            long endTime = startTime + 86400 * 1000;
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
             RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("start_time_s");
             rangeQueryBuilder.gte(format.format(startTime));
@@ -230,29 +264,168 @@ public class MainService {
             searchSourceBuilder.query(boolBuilder);
             SearchResponse response = elasticSearch7Client.search(indexName, searchSourceBuilder);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
-            long count = hits.getTotalHits().value;
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> source = hit.getSourceAsMap();
-                FileStatisticsDto fileStatisticsDto = new FileStatisticsDto();
-                fileStatisticsDto.setTaskId((String) source.get("task_id"));
-                fileStatisticsDto.setFilenameRegular((String) source.get("filename_regular"));
-                fileStatisticsDto.setFileNum(Long.parseLong(String.valueOf(source.get("file_num"))));
-                fileStatisticsDto.setFileSize(Long.parseLong(String.valueOf(source.get("file_size"))));
-                fileStatisticsDto.setStartTimeL(Long.parseLong(String.valueOf(source.get("start_time_l"))));
-                fileStatisticsDto.setStartTimeS(JsonParseUtil.formateToDate(String.valueOf(source.get("start_time_s"))));
-                fileStatisticsDto.setStatus(Integer.parseInt(String.valueOf(source.get("status"))));
-                fileStatisticsDto.setRealFileNum(Long.parseLong(String.valueOf(source.get("real_file_num"))));
-                fileStatisticsDto.setRealFileSize(Long.parseLong(String.valueOf(source.get("real_file_size"))));
-                fileStatisticsDto.setPerFileNum(Float.parseFloat(String.valueOf(source.get("per_file_num"))));
-                fileStatisticsDto.setPerFileSize(Float.parseFloat(String.valueOf(source.get("per_file_size"))));
-                list.add(fileStatisticsDto);
+                String taskId= (String) source.get("task_id");
+                long startTimel=new BigDecimal(String.valueOf(source.get("start_time_l"))).longValue();
+                String status=String.valueOf(source.get("status"));
+                String hour=qh.format(startTimel);
+                if(StringUtil.isNotEmpty(daysMap.get(taskId))&&StringUtil.isNotEmpty(hoursMap.get(hour))){
+                    Integer[] d=new Integer[3];
+                    d[0]=Integer.parseInt(hoursMap.get(hour));
+                    d[1]=Integer.parseInt(daysMap.get(taskId));
+                    d[2]=Integer.parseInt(status);
+                    data.add(d);
+                }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return list;
+        Map<String,Object> returnMap=new HashMap<>();
+        returnMap.put("days",daysList);
+        returnMap.put("hours",hoursList);
+        returnMap.put("data",data);
+        return returnMap;
 
+    }
+
+    public Map<String,Object> getProcess(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long endTime = calendar.getTime().getTime();
+        long startTime = endTime - 86400 * 1000;
+
+        List<String> hoursList=new ArrayList<>();
+        Map<String,String> hoursMap=new HashMap<>();
+        SimpleDateFormat qh=new SimpleDateFormat("d/H");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+        Calendar calendarTemp = Calendar.getInstance();
+        calendarTemp.setTimeInMillis(startTime);
+        for(int i=0;i<24;i++){
+            calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
+            int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
+            if(i==0||hour==0){
+                hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
+            }else {
+                hoursList.add(String.valueOf(hour));
+            }
+            hoursMap.put(qh.format(calendarTemp.getTimeInMillis()),String.valueOf(i));
+
+        }
+        ProcessConfigDto pro=new ProcessConfigDto();
+        NullUtil.changeToNull(pro);
+        List<ProcessConfigDto> processConfigDtos= processConfigService.selectBySpecification(pro);
+        List<String> daysList=new ArrayList<>();
+        Map<String,String> daysMap=new HashMap<>();
+        Map<Integer,List<Integer[]>> all=new HashMap<>();
+        if(null!=processConfigDtos){
+            for(int i=0;i<processConfigDtos.size();i++){
+                daysList.add(processConfigDtos.get(i).getProcessName());
+                daysMap.put(processConfigDtos.get(i).getId(),String.valueOf(i));
+                List<Integer[]> list=new ArrayList<>();
+                all.put(i,list);
+                //numsMap.put(i,temp);
+            }
+        }
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        String indexName = IndexNameConstant.T_MT_PROCESS_DOWN_LOG;
+        List<Integer[]> nums = new ArrayList<>();
+
+        try {
+            BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+            boolBuilder.should(QueryBuilders.rangeQuery("start_time").from(startTime).includeLower(true));
+            boolBuilder.should(QueryBuilders.rangeQuery("end_time").from(startTime).includeLower(true));
+            searchSourceBuilder.size(1000);
+            searchSourceBuilder.query(boolBuilder).sort("start_time", SortOrder.ASC);
+            SearchResponse response = elasticSearch7Client.search(indexName, searchSourceBuilder);
+            SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
+            SearchHit[] searchHits = hits.getHits();
+            for (SearchHit hit : searchHits) {
+                Map<String, Object> source = hit.getSourceAsMap();
+                long stTime=new BigDecimal(String.valueOf(source.get("start_time"))).longValue();
+                long edTime=new BigDecimal(String.valueOf(source.get("end_time"))).longValue();
+                if(stTime<startTime){
+                    stTime=startTime;
+                }
+                if(edTime>endTime){
+                    edTime=endTime;
+                }
+                String id= (String) source.get("id");
+                String type=String.valueOf(source.get("type"));
+                String hour1=qh.format(stTime);
+                String hour2=qh.format(edTime);
+                if(StringUtil.isNotEmpty(daysMap.get(id))&&StringUtil.isNotEmpty(hoursMap.get(hour1))&&StringUtil.isNotEmpty(hoursMap.get(hour2))){
+                    Integer[] d=new Integer[4];
+                    d[0]=Integer.parseInt(daysMap.get(id));
+                    d[1]=Integer.parseInt(hoursMap.get(hour1));
+                    d[2]=Integer.parseInt(hoursMap.get(hour2));
+                    if(d[1]==d[2]){
+                        d[2]=d[1]+1;
+                    }
+                    d[3]=0;
+                    if("1".equals(type)){
+                        d[3]=1;
+                    }
+                    nums.add(d);
+                    all.get(d[0]).add(d);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        for(int i=0;i<processConfigDtos.size();i++){
+            try {
+                List<Integer[]> list=all.get(i);
+                if(list.size()==0){
+                    Integer[] d=new Integer[]{i,0,23,2};
+                    nums.add(d);
+                }
+                int start=0;
+                int end=0;
+                for(int j=0;j<list.size();j++){
+                    if(j==0){
+                        start=0;
+                        end=list.get(j)[1];
+                        if(start!=end){
+                            Integer[] d=new Integer[]{i,start,end,2};
+                            nums.add(d);
+                        }
+                    }
+                    if(j==list.size()-1){
+                        start=list.get(j)[2];
+                        end=23;
+                        if(start!=end){
+                            Integer[] d=new Integer[]{i,start,end,2};
+                            nums.add(d);
+                        }
+                    }
+                    if(j>0){
+                        start=list.get(j-1)[2];
+                        end=list.get(j)[1];
+                        if(start!=end){
+                            Integer[] d=new Integer[]{i,start,end,2};
+                            nums.add(d);
+                        }
+                    }
+
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        Map<String,Object> returnMap=new HashMap<>();
+        returnMap.put("days",daysList);
+        returnMap.put("hours",hoursList);
+        returnMap.put("nums",nums);
+        return returnMap;
     }
 
 }

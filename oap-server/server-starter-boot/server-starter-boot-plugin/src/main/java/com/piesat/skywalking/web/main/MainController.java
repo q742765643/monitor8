@@ -71,25 +71,19 @@ public class MainController {
 
     @ApiOperation(value = "查询数据状态", notes = "查询数据状态")
     @GetMapping("/getFileStatus")
-    public ResultT<List<FileStatisticsDto>> getFileStatus() {
-        ResultT<List<FileStatisticsDto>> resultT = new ResultT<>();
-        List<FileStatisticsDto> list = mainService.getFileStatus();
+    public ResultT<Map<String,Object>> getFileStatus() {
+        ResultT<Map<String,Object>> resultT = new ResultT<>();
+        Map<String,Object> list = mainService.getFileStatus();
         resultT.setData(list);
         return resultT;
     }
 
     @ApiOperation(value = "查询进程热力图", notes = "查询进程热力图")
     @GetMapping("/getProcess")
-    public ResultT<List<AlarmLogDto>> getProcess() {
-        ResultT<List<AlarmLogDto>> resultT = new ResultT<>();
-        AlarmLogDto alarmLogDto = new AlarmLogDto();
-        alarmLogDto.setDeviceType(null);
-        alarmLogDto.setStatus(null);
-        alarmLogDto.setLevel(null);
-        alarmLogDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
-        PageForm<AlarmLogDto> pageForm = new PageForm<AlarmLogDto>(1, 100, alarmLogDto);
-        PageBean pageBean = mainService.getAlarm(pageForm);
-        resultT.setData(pageBean.getPageData());
+    public ResultT<Map<String,Object>> getProcess() {
+        ResultT<Map<String,Object>> resultT = new ResultT<>();
+        Map<String,Object> map = mainService.getProcess();
+        resultT.setData(map);
         return resultT;
     }
 }
