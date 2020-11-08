@@ -112,6 +112,10 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/alarmMonitoring"> 告警管理</router-link>
         </a-menu-item>
+        <a-menu-item key="/alarmMonitoring/alarmReport">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/alarmMonitoring/alarmReport"> 告警报表</router-link>
+        </a-menu-item>
       </a-sub-menu>
 
       <a-sub-menu key="sub7">

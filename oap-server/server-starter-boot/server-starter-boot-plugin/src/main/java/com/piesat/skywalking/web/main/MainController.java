@@ -47,15 +47,10 @@ public class MainController {
 
     @ApiOperation(value = "查询未处理告警", notes = "查询未处理告警")
     @GetMapping("/getAlarm")
-    public ResultT<List<AlarmLogDto>> getAlarm() {
+    public ResultT<List<AlarmLogDto>> getAlarm(AlarmLogDto query) {
         ResultT<List<AlarmLogDto>> resultT = new ResultT<>();
-        AlarmLogDto alarmLogDto = new AlarmLogDto();
-        alarmLogDto.setDeviceType(null);
-        alarmLogDto.setStatus(0);
-        alarmLogDto.setLevel(null);
-        PageForm<AlarmLogDto> pageForm = new PageForm<AlarmLogDto>(1, 100, alarmLogDto);
-        PageBean pageBean = mainService.getAlarm(pageForm);
-        resultT.setData(pageBean.getPageData());
+        List<AlarmLogDto> alarmLogDtos=mainService.getAlarm(query);
+        resultT.setData(alarmLogDtos);
         return resultT;
     }
 

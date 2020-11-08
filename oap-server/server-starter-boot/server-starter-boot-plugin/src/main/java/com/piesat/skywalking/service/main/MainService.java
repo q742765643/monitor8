@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.alarm.AlarmEsLogService;
+import com.piesat.skywalking.api.alarm.AlarmUnService;
 import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.api.host.ProcessConfigService;
@@ -55,6 +56,8 @@ public class MainService {
     //private AlarmEsLogService alarmEsLogService;
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @Autowired
+    private AlarmUnService alarmUnService;
 
     public List<MonitorViewVo> getMonitorViewVo() {
         List<MonitorViewVo> monitorViewVos = new ArrayList<>();
@@ -132,9 +135,10 @@ public class MainService {
         return mapList;
     }
 
-    public PageBean getAlarm(PageForm<AlarmLogDto> pageForm) {
+    public List<AlarmLogDto> getAlarm(AlarmLogDto query) {
+        List<AlarmLogDto> alarmLogDtos=alarmUnService.selectList(query);
         //return alarmEsLogService.selectPageList(pageForm);
-        return null;
+        return alarmLogDtos;
     }
 
     public List<AlarmDistributionVo> getAlarmDistribution(AlarmLogDto alarmLogDto) {

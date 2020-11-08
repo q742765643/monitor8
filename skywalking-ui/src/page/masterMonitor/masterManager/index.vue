@@ -335,6 +335,11 @@
       },
     },
     methods: {
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.fetch();
+      },
       statusFormat(options,status) {
         return this.selectDictLabel(options,status);
       },

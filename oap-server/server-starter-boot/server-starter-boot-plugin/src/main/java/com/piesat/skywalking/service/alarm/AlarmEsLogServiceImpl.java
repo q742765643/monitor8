@@ -37,15 +37,11 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         AlarmLogDto alarmLogDto = pageForm.getT();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-/*        if (!StringUtil.isEmpty(alarmLogDto.getDeviceName())) {
-            WildcardQueryBuilder deviceName = QueryBuilders.wildcardQuery("device_name", "*" + alarmLogDto.getDeviceName() + "*");
-            boolBuilder.must(deviceName);
-        }*/
-        if (null!=alarmLogDto.getMonitorType()&&alarmLogDto.getMonitorType()>-1) {
+        if (null!=alarmLogDto.getMonitorType()) {
             MatchQueryBuilder type = QueryBuilders.matchQuery("monitor_type", alarmLogDto.getMonitorType());
             boolBuilder.must(type);
         }
-        if (null!=alarmLogDto.getDeviceType()&&alarmLogDto.getDeviceType()>-1) {
+        if (null!=alarmLogDto.getDeviceType()) {
             MatchQueryBuilder deviceType = QueryBuilders.matchQuery("device_type", alarmLogDto.getDeviceType());
             boolBuilder.must(deviceType);
         }
@@ -53,18 +49,14 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             WildcardQueryBuilder ip = QueryBuilders.wildcardQuery("ip", "*" + alarmLogDto.getIp() + "*");
             boolBuilder.must(ip);
         }
-        if (null!=alarmLogDto.getStatus()&&alarmLogDto.getStatus()>-1) {
+        if (null!=alarmLogDto.getStatus()) {
             MatchQueryBuilder status = QueryBuilders.matchQuery("status", alarmLogDto.getStatus());
             boolBuilder.must(status);
         }
-        if (null!=alarmLogDto.getLevel()&&alarmLogDto.getLevel()>-1) {
+        if (null!=alarmLogDto.getLevel()) {
             MatchQueryBuilder level = QueryBuilders.matchQuery("level", alarmLogDto.getLevel());
             boolBuilder.must(level);
         }
-      /*  if (StringUtil.isNotEmpty(alarmLogDto.getHostId())) {
-            MatchQueryBuilder hostId = QueryBuilders.matchQuery("host_id", alarmLogDto.getHostId());
-            boolBuilder.must(hostId);
-        }*/
         Map<String, Object> paramt = new HashMap<>();
         if (!StringUtil.isEmpty(alarmLogDto.getParams())) {
             paramt = JSON.parseObject(alarmLogDto.getParams(), Map.class);
@@ -97,9 +89,10 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
                 Map<String, Object> map = hit.getSourceAsMap();
                 alarmLog.setId(hit.getId());
                 alarmLog.setDeviceType(Integer.parseInt(String.valueOf(map.get("device_type"))));
-                //alarmLog.setDeviceName(String.valueOf(map.get("device_name")));
                 alarmLog.setIp(String.valueOf(map.get("ip")));
+                alarmLog.setMonitorType(Integer.parseInt(String.valueOf(map.get("monitor_type"))));
                 alarmLog.setMessage(String.valueOf(map.get("message")));
+                alarmLog.setRelatedId(String.valueOf(map.get("related_id")));
                 alarmLog.setStatus(Integer.parseInt(String.valueOf(map.get("status"))));
                 alarmLog.setLevel(Integer.parseInt(String.valueOf(map.get("level"))));
                 alarmLog.setUsage(new BigDecimal(String.valueOf(map.get("usage"))).floatValue());
