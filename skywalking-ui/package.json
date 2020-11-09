@@ -23,7 +23,9 @@
   "dependencies": {
     "@antv/g6": "^3.8.0",
     "@riophae/vue-treeselect": "^0.4.0",
+    "@smallwei/avue": "^2.0.0",
     "ant-design-vue": "^1.6.5",
+    "antd": "^4.8.0",
     "awe-dnd": "^0.3.4",
     "axios": "^0.18.0",
     "bootstrap": "^4.5.2",
@@ -32,7 +34,7 @@
     "d3-tip": "^0.9.1",
     "dayjs": "^1.8.8",
     "echarts": "^4.1.0",
-    "element-ui": "2.11.1",
+    "element-ui": "^2.11.1",
     "jquery": "^3.5.1",
     "lib-flexible": "^0.3.2",
     "lodash": "^4.17.15",
@@ -55,6 +57,7 @@
   },
   "devDependencies": {
     "@hyjiacan/vue-datepicker": "^2.0.0",
+    "@types/echarts": "^4.9.0",
     "@types/lodash": "^4.14.138",
     "@vue/cli-plugin-babel": "^3.4.1",
     "@vue/cli-plugin-typescript": "^3.4.1",

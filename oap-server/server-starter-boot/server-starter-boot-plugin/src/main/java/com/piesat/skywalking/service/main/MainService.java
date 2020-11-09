@@ -136,6 +136,7 @@ public class MainService {
     }
 
     public List<AlarmLogDto> getAlarm(AlarmLogDto query) {
+        query.setStatus(0);
         List<AlarmLogDto> alarmLogDtos=alarmUnService.selectList(query);
         //return alarmEsLogService.selectPageList(pageForm);
         return alarmLogDtos;

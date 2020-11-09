@@ -55,7 +55,7 @@ public class AlarmMemoryService extends AlarmBaseService {
         if (alarmLogDto.isAlarm()) {
             String message = hostConfigDto.getIp()+":未采集到内存使用率,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
-                message = hostConfigDto.getIp()+":内存使用率到达" + alarmLogDto.getUsage() + "%";
+                message = hostConfigDto.getIp()+":内存使用率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)+ "%";
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);

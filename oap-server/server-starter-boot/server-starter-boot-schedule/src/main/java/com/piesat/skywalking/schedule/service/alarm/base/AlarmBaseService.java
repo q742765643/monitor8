@@ -13,13 +13,17 @@ import com.piesat.skywalking.util.IdUtils;
 import com.piesat.sso.client.util.mq.MsgPublisher;
 import com.piesat.util.CompareUtil;
 import com.piesat.util.ResultT;
+import com.piesat.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -151,39 +155,67 @@ public abstract class AlarmBaseService {
 
     public void insertUnprocessed(AlarmLogDto alarmLogDto){
         try {
-            if(alarmLogDto.isAlarm()){
-                GetResponse getResponse= null;
-                Map<String,Object> source=new HashMap<>();
-                try {
-                    getResponse = elasticSearch7Client.get(IndexNameConstant.T_MT_ALARM,alarmLogDto.getRelatedId()+"_"+alarmLogDto.getMonitorType());
-                    source=getResponse.getSourceAsMap();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if(null!=source&&source.size()>0){
-                    source.put("level", alarmLogDto.getLevel());
-                    source.put("usage", alarmLogDto.getUsage());
-                    source.put("message", alarmLogDto.getMessage());
-                }else {
-                    source=new HashMap<>();
-                    source.put("device_type", alarmLogDto.getDeviceType());
-                    source.put("alarm_kpi", alarmLogDto.getAlarmKpi());
-                    source.put("level", alarmLogDto.getLevel());
-                    source.put("ip", alarmLogDto.getIp());
-                    source.put("monitor_type", alarmLogDto.getMonitorType());
-                    source.put("media_type", alarmLogDto.getMediaType());
-                    source.put("usage", alarmLogDto.getUsage());
-                    source.put("message", alarmLogDto.getMessage());
-                    source.put("related_id", alarmLogDto.getRelatedId());
-                    source.put("@timestamp", alarmLogDto.getTimestamp());
-                }
-                elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_ALARM,alarmLogDto.getRelatedId()+"_"+alarmLogDto.getMonitorType(),source);
+            Map<String,Object> source=this.findAalarm(alarmLogDto);
+            String indexId= (String) source.get("index_id");
+            source.put("end_time", System.currentTimeMillis());
+            if(alarmLogDto.isAlarm()) {
+                if (StringUtil.isEmpty(indexId)){
+                    indexId=IdUtils.fastUUID();
+                 }
+                elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_ALARM,indexId,source);
             }else {
-                elasticSearch7Client.deleteById(IndexNameConstant.T_MT_ALARM,alarmLogDto.getRelatedId()+"_"+alarmLogDto.getMonitorType());
+                if(StringUtil.isNotEmpty(indexId)){
+                    source.put("status",1);
+                    elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_ALARM,indexId,source);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+    }
+    public Map<String,Object> findAalarm(AlarmLogDto alarmLogDto){
+        Map<String,Object> source=new HashMap<>();
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchId = QueryBuilders.matchQuery("related_id", alarmLogDto.getRelatedId());
+        MatchQueryBuilder matchStatus = QueryBuilders.matchQuery("status", 0);
+        MatchQueryBuilder matchMonitorType = QueryBuilders.matchQuery("monitor_type", alarmLogDto.getMonitorType());
+        boolBuilder.must(matchId);
+        boolBuilder.must(matchStatus);
+        boolBuilder.must(matchMonitorType);
+        search.query(boolBuilder);
+        search.size(1);
+        try {
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM, search);
+            SearchHits hits = response.getHits();
+            SearchHit[] searchHits = hits.getHits();
+            if(searchHits.length>0){
+                for (SearchHit hit : searchHits) {
+                    source = hit.getSourceAsMap();
+                    source.put("level", alarmLogDto.getLevel());
+                    source.put("usage", alarmLogDto.getUsage());
+                    source.put("message", alarmLogDto.getMessage());
+                    source.put("index_id",hit.getId());
+                    return source;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        source.put("device_type", alarmLogDto.getDeviceType());
+        source.put("alarm_kpi", alarmLogDto.getAlarmKpi());
+        source.put("level", alarmLogDto.getLevel());
+        source.put("ip", alarmLogDto.getIp());
+        source.put("monitor_type", alarmLogDto.getMonitorType());
+        source.put("media_type", alarmLogDto.getMediaType());
+        source.put("usage", alarmLogDto.getUsage());
+        source.put("message", alarmLogDto.getMessage());
+        source.put("related_id", alarmLogDto.getRelatedId());
+        source.put("@timestamp", alarmLogDto.getTimestamp());
+        source.put("start_time", System.currentTimeMillis());
+        source.put("status",0);
+        return source;
 
     }
 }

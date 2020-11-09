@@ -60,6 +60,10 @@ public class AlarmUnServiceImpl implements AlarmUnService {
             MatchQueryBuilder level = QueryBuilders.matchQuery("level", query.getLevel());
             boolBuilder.must(level);
         }
+        if (null!=query.getStatus()) {
+            MatchQueryBuilder status = QueryBuilders.matchQuery("status", query.getStatus());
+            boolBuilder.must(status);
+        }
         search.query(boolBuilder).sort("@timestamp", SortOrder.DESC);
         search.size(100);
         try {

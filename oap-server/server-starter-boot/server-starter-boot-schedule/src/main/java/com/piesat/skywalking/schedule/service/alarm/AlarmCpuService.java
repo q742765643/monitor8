@@ -55,7 +55,7 @@ public class AlarmCpuService extends AlarmBaseService {
         if (alarmLogDto.isAlarm()) {
             String message = hostConfigDto.getIp()+":未采集到cpu使用率,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
-                message = hostConfigDto.getIp()+":cpu使用率到达" + alarmLogDto.getUsage() + "%";
+                message = hostConfigDto.getIp()+":cpu使用率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP) + "%";
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);

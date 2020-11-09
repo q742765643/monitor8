@@ -75,7 +75,7 @@ public class AlarmDiskService extends AlarmBaseService {
                 this.fitAlarmLog(alarmConfigDto, alarmLogDto);
                 this.judgeAlarm(alarmLogDto);
                 if (alarmLogDto.isAlarm()) {
-                    String message =  hostConfigDto.getIp()+":"+fileSystemVos.get(i).getDiskName()+"磁盘使用率到达" + alarmLogDto.getUsage()  + "%";
+                    String message =  hostConfigDto.getIp()+":"+fileSystemVos.get(i).getDiskName()+"磁盘使用率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)  + "%";
                     alarmLogDto.setMessage(message);
                     this.insertEs(alarmLogDto);
                 }

@@ -2,61 +2,40 @@
     <div class="content">
 
        <a-row >
-            <a-col  :span="12" >
-                <a-col  :span="10" style="height: 5rem">
-                    <a-card  size="small" style="height: 2.25rem;margin-top: 0.2rem;margin-left: 0.15rem">
+            <a-col  :span="14" >
+                <a-col  :span="10" style="height: 4.45rem">
+                    <a-card  size="small"  style="height: 4.25rem">
                         <a-row>当前故障设备与故障数量</a-row>
-                        <a-row type="flex" justify="space-around"  align="middle" style="height: 1.3rem">
+                        <a-row type="flex" justify="space-around"  align="middle" style="height: 3.7rem" >
                                 col-4
                         </a-row>
                     </a-card>
-                    <a-card size="small"  style="height: 2.25rem;margin-top: 0.25rem;margin-left: 0.15rem">
-                        <a-row>数据采集速率</a-row>
-                        <a-row type="flex" justify="space-around"  align="middle" style="height: 1.3rem">
-                            col-4
-                        </a-row>
-                    </a-card>
                 </a-col>
-                <a-col  :span="14" style="height: 5rem">
-                    <a-card size="small" style="height: 4.75rem;margin-top: 0.2rem;margin-left: 0.15rem">
+                <a-col  :span="14" style="height: 4.25rem">
+                    <a-card size="small" style="height: 4.25rem;margin-left: 0.15rem">
                         <div id="alarmLevel" style="height: 4.25rem"></div>
                     </a-card>
                 </a-col>
-                <a-col  :span="24" style="height: 4.25rem">
-                    <a-card size="small"  style="height: 4.25rem;margin-top: 0.2rem;margin-left: 0.15rem" >
-                        <div id="alarmTrend" style="height:  5.5rem;width: 110%;margin-top: -1rem"></div>
+                <a-col  :span="24" style="height:  5rem" >
+                    <a-card size="small"  >
+                        <div id="alarmTrend" style="height:  5rem"></div>
                     </a-card>
                 </a-col>
             </a-col>
-            <a-col  :span="12" style="height: 9.25rem">
-                <a-card size="small"    style="height: 9.25rem;margin-top: 0.2rem;margin-left: 0.15rem;;margin-right: 0.15rem" >
-                   <div style="margin-left: 1rem">
-                       <a-timeline mode="left">
-                           <a-timeline-item >Create a services site 2015-09-01</a-timeline-item>
-                           <a-timeline-item color="green" >
-                               <p style="margin-left: 0rem"> Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                                   laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto
-                                   beatae vitae dicta sunt explicabo.</p>
-                               Solve initial network problems 2015-09-01
-                           </a-timeline-item>
-                           <a-timeline-item>
-                               <a-icon slot="dot" type="clock-circle-o" style="font-size: 16px;" />
-                               <span style="margin-left: -1rem">111</span>
-                               <span style="margin-left: 0.5rem"> Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                                   laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto
-                                   beatae vitae dicta sunt explicabo.</span>
-
-                           </a-timeline-item>
-                           <a-timeline-item color="red">
-                               Network problems being solved 2015-09-01
-                           </a-timeline-item>
-                           <a-timeline-item>Create a services site 2015-09-01</a-timeline-item>
-                           <a-timeline-item>
-                               <a-icon slot="dot" type="clock-circle-o" style="font-size: 16px;" />
-                               Technical testing 2015-09-01
-                           </a-timeline-item>
-                       </a-timeline>
-                   </div>
+            <a-col  :span="10" style="height: 10rem">
+                <a-card size="small"    style="height: 10rem;margin-left: 0.15rem;;margin-right: 0.15rem" >
+                    <el-timeline>
+                        <el-timeline-item
+                                v-for="(activity, index) in activities"
+                                :key="index"
+                                :icon="activity.icon"
+                                :type="activity.type"
+                                :color="activity.color"
+                                :size="activity.size"
+                                :timestamp="activity.timestamp">
+                            {{activity.content}}
+                        </el-timeline-item>
+                    </el-timeline>
 
                 </a-card>
             </a-col>
@@ -70,6 +49,24 @@ export default {
     data() {
         return {
             alarmLevelChart:'',
+            activities: [{
+                content: '支持使用图标',
+                timestamp: '2018-04-12 20:46',
+                size: 'large',
+                type: 'primary',
+                icon: 'el-icon-more'
+            }, {
+                content: '支持自定义颜色',
+                timestamp: '2018-04-03 20:46',
+                color: '#0bbd87'
+            }, {
+                content: '支持自定义尺寸',
+                timestamp: '2018-04-03 20:46',
+                size: 'large'
+            }, {
+                content: '默认样式的节点',
+                timestamp: '2018-04-03 20:46'
+            }]
         };
     },
     mounted(){
@@ -85,21 +82,64 @@ export default {
     methods: {
         drawAlarmTrend(){
            let drawAlarmTrendChart=echarts.init(document.getElementById('alarmTrend'));
-           let option = {
-               xAxis: {
-                   type: 'category',
-                   boundaryGap: false,
-                   data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-               },
-               yAxis: {
-                   type: 'value'
-               },
-               series: [{
-                   data: [820, 932, 901, 934, 1290, 1330, 1320],
-                   type: 'line',
-                   areaStyle: {}
-               }]
-           };
+            var base = new Date(1968, 9, 3);
+            var oneDay = 24 * 3600 * 1000;
+            var date = [];
+
+            var data = [Math.random() * 300];
+
+            for (var i = 1; i < 20000; i++) {
+                var now = new Date(base += oneDay);
+                date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
+                data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
+            }
+
+            let option = {
+                tooltip: {
+                    trigger: 'axis',
+                    position: function (pt) {
+                        return [pt[0], '10%'];
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '2%',
+                    top:'3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: date
+                },
+                yAxis: {
+                    type: 'value',
+                    boundaryGap: [0, '100%']
+                },
+                series: [
+                    {
+                        name: '模拟数据',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'none',
+                        sampling: 'average',
+                        itemStyle: {
+                            color: 'rgb(255, 70, 131)'
+                        },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgb(255, 158, 68)'
+                            }, {
+                                offset: 1,
+                                color: 'rgb(255, 70, 131)'
+                            }])
+                        },
+                        data: data
+                    }
+                ]
+            };
            drawAlarmTrendChart.setOption(option);
            //window.onresize =  drawAlarmTrendChart.resize;
         },
@@ -160,12 +200,21 @@ export default {
             box-shadow: $plane_shadow;
             width: 100%;
             height:100%;
-            background: white;
+            background-color: #f0f2f7;
             //display: flex;
-            overflow-y: auto;
+            overflow-y: hidden;
             overflow-x: hidden;
 
         }
 
+    ::v-deep .el-timeline-item__timestamp.is-bottom {
+        position: absolute;
+        left: -117px;
+        top: -3px;
+        color: #333333;
+    }
+    ::v-deep .el-timeline {
+        padding-left: 120px;
+    }
 </style>
 

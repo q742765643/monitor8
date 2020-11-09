@@ -72,7 +72,7 @@ public class AlarmProcessService extends AlarmBaseService {
         if (alarmLogDto.isAlarm()) {
             String message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+"未采集到进程信息,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
-                message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+" cpu变化率为" + alarmLogDto.getUsage()+"%"  ;
+                message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+" cpu变化率为" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)+"%"  ;
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
