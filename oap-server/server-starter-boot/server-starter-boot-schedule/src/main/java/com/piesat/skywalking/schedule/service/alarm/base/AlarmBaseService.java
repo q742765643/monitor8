@@ -159,6 +159,9 @@ public abstract class AlarmBaseService {
             String indexId= (String) source.get("index_id");
             source.put("end_time", System.currentTimeMillis());
             if(alarmLogDto.isAlarm()) {
+                source.put("level", alarmLogDto.getLevel());
+                source.put("usage", alarmLogDto.getUsage());
+                source.put("message", alarmLogDto.getMessage());
                 if (StringUtil.isEmpty(indexId)){
                     indexId=IdUtils.fastUUID();
                  }
@@ -193,9 +196,6 @@ public abstract class AlarmBaseService {
             if(searchHits.length>0){
                 for (SearchHit hit : searchHits) {
                     source = hit.getSourceAsMap();
-                    source.put("level", alarmLogDto.getLevel());
-                    source.put("usage", alarmLogDto.getUsage());
-                    source.put("message", alarmLogDto.getMessage());
                     source.put("index_id",hit.getId());
                     return source;
                 }

@@ -4,36 +4,45 @@
        <a-row >
             <a-col  :span="14" >
                 <a-col  :span="10" style="height: 4.45rem">
-                    <a-card  size="small"  style="height: 4.25rem">
-                        <a-row>当前故障设备与故障数量</a-row>
-                        <a-row type="flex" justify="space-around"  align="middle" style="height: 3.7rem" >
-                                col-4
-                        </a-row>
+                    <a-card  size="small" title="当前故障设备与故障数量"  style="height: 4.25rem">
+
+                            <a-row type="flex" justify="center" align="middle"  style="height: 3rem;">
+                                <a-col  :span="12" align="center">
+                                    <span style="font-size: 30px">{{deviceNum}}</span><span>个</span>
+                                    <p>故障设备</p>
+                                </a-col>
+                                <a-col  :span="12" align="center">
+                                    <span style="font-size: 30px">{{faultNum}}</span><span>个</span>
+                                    <p>故障数量</p>
+                                </a-col>
+                            </a-row>
+
                     </a-card>
                 </a-col>
-                <a-col  :span="14" style="height: 4.25rem">
-                    <a-card size="small" style="height: 4.25rem;margin-left: 0.15rem">
-                        <div id="alarmLevel" style="height: 4.25rem"></div>
+                <a-col  :span="14" style="height: 4.45rem">
+                    <a-card size="small" title="当前故障级别"  style="height: 4.25rem;margin-left: 0.15rem">
+                        <div id="alarmLevel" style="height:  3.7rem"></div>
                     </a-card>
                 </a-col>
                 <a-col  :span="24" style="height:  5rem" >
-                    <a-card size="small"  >
-                        <div id="alarmTrend" style="height:  5rem"></div>
+                    <a-card size="small" title="当前故障趋势" >
+                        <div id="alarmTrend" style="height:  4.0rem"></div>
                     </a-card>
                 </a-col>
             </a-col>
             <a-col  :span="10" style="height: 10rem">
-                <a-card size="small"    style="height: 10rem;margin-left: 0.15rem;;margin-right: 0.15rem" >
+                <a-card size="small"   title="当前故障列表" style="height: 10rem;margin-left: 0.15rem;;margin-right: 0.15rem" >
                     <el-timeline>
                         <el-timeline-item
-                                v-for="(activity, index) in activities"
+                                v-for="(item, index) in alarmList"
                                 :key="index"
-                                :icon="activity.icon"
-                                :type="activity.type"
-                                :color="activity.color"
-                                :size="activity.size"
-                                :timestamp="activity.timestamp">
-                            {{activity.content}}
+                                :icon="item.icon"
+                                :type="item.type"
+                                :color="item.color"
+                                :size="item.size"
+                                :timestamp="item.start_time">
+                            <p :style="{color:item.color}">{{item.message}}</p>
+                            <p :style="{color:item.color}">{{item.level}}({{item.status}})</p>
                         </el-timeline-item>
                     </el-timeline>
 
@@ -49,50 +58,98 @@ export default {
     data() {
         return {
             alarmLevelChart:'',
-            activities: [{
-                content: '支持使用图标',
-                timestamp: '2018-04-12 20:46',
-                size: 'large',
-                type: 'primary',
-                icon: 'el-icon-more'
-            }, {
-                content: '支持自定义颜色',
-                timestamp: '2018-04-03 20:46',
-                color: '#0bbd87'
-            }, {
-                content: '支持自定义尺寸',
-                timestamp: '2018-04-03 20:46',
-                size: 'large'
-            }, {
-                content: '默认样式的节点',
-                timestamp: '2018-04-03 20:46'
-            }]
+            alarmTrendDate:[],
+            alarmTrendData:[],
+            alarmLevelData:[],
+            alarmList:[],
+            deviceNum:0,
+            faultNum:0,
+
         };
     },
     mounted(){
+        this.selectAlarmNum();
+        this.selectAlarmTrend();
+        this.selectAlarmLevel();
         this.$nextTick(function() {
-            this.drawAlarmLevel();
-            this.drawAlarmTrend();
         })
         let _this=this;
         window.addEventListener("resize",function () {
             _this.alarmLevelChart.resize();
         })
     },
+    created() {
+        this.selectAlarmList();
+    },
     methods: {
+        selectAlarmNum(){
+            request({
+                url:'/alarmEsLog/selectAlarmNum',
+                method: 'get'
+            }).then(data => {
+                this.deviceNum = data.data.deviceNum;
+                this.faultNum =data.data.faultNum;
+            });
+        },
+        selectAlarmList(){
+            let that=this;
+            request({
+                url:'/alarmEsLog/selectAlarmList',
+                method: 'get'
+            }).then(data => {
+                this.alarmList = data.data;
+                this.alarmList.forEach(function(item, index) {
+                    //item 就是当日按循环到的对象
+                    //index是循环的索引，从0开始
+                    if(item.status==0){
+                        item.status="未处理";
+                    }else {
+                        item.status="已处理";
+                    }
+
+                    item.type='primary';
+                    if(item.level==0){
+                        item.color='#A051EA';
+                        item.level="一般";
+                    }
+                    if(item.level==1){
+                        item.color='#F8D27E';
+                        item.level="危险";
+                    }
+                    if(item.level==2){
+                        item.color='#F97185';
+                        item.level="故障";
+                    }
+                    item.start_time=that.parseTime(item.start_time,'{y}-{m}-{d} {h}:{i}')
+
+                })
+            });
+        },
+        selectAlarmLevel(){
+            request({
+                url:'/alarmEsLog/selectAlarmLevel',
+                method: 'get'
+            }).then(data => {
+                this.alarmLevelData = data.data;
+
+                this.drawAlarmLevel();
+            });
+        },
+        selectAlarmTrend(){
+            request({
+                url:'/alarmEsLog/selectAlarmTrend',
+                method: 'get'
+            }).then(data => {
+                this.alarmTrendDate = data.data.date;
+                this.alarmTrendData = data.data.data;
+                this.drawAlarmTrend();
+            });
+        },
         drawAlarmTrend(){
            let drawAlarmTrendChart=echarts.init(document.getElementById('alarmTrend'));
-            var base = new Date(1968, 9, 3);
-            var oneDay = 24 * 3600 * 1000;
-            var date = [];
+            var date = this.alarmTrendDate;
 
-            var data = [Math.random() * 300];
-
-            for (var i = 1; i < 20000; i++) {
-                var now = new Date(base += oneDay);
-                date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
-                data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
-            }
+            var data = this.alarmTrendData;
 
             let option = {
                 tooltip: {
@@ -111,29 +168,32 @@ export default {
                 xAxis: {
                     type: 'category',
                     boundaryGap: false,
-                    data: date
+                    data: date,
+                    axisLabel: {
+                        interval:0,//代表显示所有x轴标签显示
+                    }
                 },
                 yAxis: {
                     type: 'value',
-                    boundaryGap: [0, '100%']
+                    //boundaryGap: [0, 100]
                 },
                 series: [
                     {
-                        name: '模拟数据',
+                        name: '告警次数',
                         type: 'line',
                         smooth: true,
                         symbol: 'none',
                         sampling: 'average',
                         itemStyle: {
-                            color: 'rgb(255, 70, 131)'
+                            color: 'rgb(74,92,165)'
                         },
                         areaStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                                 offset: 0,
-                                color: 'rgb(255, 158, 68)'
+                                color: 'rgb(92,83,199)'
                             }, {
                                 offset: 1,
-                                color: 'rgb(255, 70, 131)'
+                                color: 'rgb(92,83,199)'
                             }])
                         },
                         data: data
@@ -148,6 +208,7 @@ export default {
             this.alarmLevelChart = echarts.init(document.getElementById('alarmLevel'))
             // 绘制图表
             let option = {
+                color:['#A051EA', '#F8D27E','#F97185'],
                 tooltip: {
                     trigger: 'item',
                     formatter: '{a} <br/>{b}: {c} ({d}%)'
@@ -155,13 +216,14 @@ export default {
                 legend: {
                     orient: 'vertical',
                     left: 10,
-                    data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+                    data: ['一般', '危险', '故障']
                 },
                 series: [
                     {
-                        name: '访问来源',
+                        name: '告警级别',
                         type: 'pie',
                         radius: ['50%', '70%'],
+                        center: ["60%", "40%"],
                         avoidLabelOverlap: false,
                         label: {
                             show: false,
@@ -177,18 +239,12 @@ export default {
                         labelLine: {
                             show: false
                         },
-                        data: [
-                            {value: 335, name: '直接访问'},
-                            {value: 310, name: '邮件营销'},
-                            {value: 234, name: '联盟广告'},
-                            {value: 135, name: '视频广告'},
-                            {value: 1548, name: '搜索引擎'}
-                        ]
+                        data: this.alarmLevelData
                     }
                 ]
             };
             this.alarmLevelChart.setOption(option);
-            //window.onresize =  this.alarmLevelChart.resize;
+            window.onresize =  this.alarmLevelChart.resize;
             //window.onresize =  this.alarmLevelChart.resize;
         }
     },
@@ -215,6 +271,23 @@ export default {
     }
     ::v-deep .el-timeline {
         padding-left: 120px;
+    }
+    .info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        margin-left: 0.3rem;
+        width: 100%;
+        .name {
+            font-weight: 200;
+        }
+        .number {
+            p {
+                display: inline;
+                font-weight: 200;
+            }
+        }
     }
 </style>
 
