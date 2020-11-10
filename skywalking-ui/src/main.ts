@@ -77,7 +77,7 @@ import '@/assets/css/style.scss';
 //     },
 //   ],
 // });
-
+import 'lib-flexible'; //https://blog.csdn.net/weixin_41257563/article/details/97266234 自适应方案核心
 //拖动
 /* import VueDND from 'awe-dnd' */
 let VueDND: any = require('awe-dnd');

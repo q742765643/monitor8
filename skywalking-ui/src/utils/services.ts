@@ -449,6 +449,32 @@ const dataService = {
         });
     });
   },
+  // 登录
+  userLogin(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/login?username=admin&password=2020Sod123&uuid=15812e460ae548dca98143f3bac93b4f&code=' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 验证码
+  captchaImage() {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/captchaImage')
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 };
 
 export default dataService;
