@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName : DateUtil
@@ -186,6 +187,19 @@ public class HtDateUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return calendar.getTimeInMillis();
+    }
+
+    public static String millisToDayHrMinSec(long milliseconds){
+        final long day = TimeUnit.MILLISECONDS.toDays(milliseconds);
+
+        final long hours = TimeUnit.MILLISECONDS.toHours(milliseconds)
+                - TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(milliseconds));
+
+        final long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
+                - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
+
+
+        return String.format("%d 天 %d 小时 %d 分", day, hours, minutes);
     }
 
 }

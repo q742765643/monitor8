@@ -13,6 +13,7 @@ import com.piesat.skywalking.util.IdUtils;
 import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
+import com.piesat.util.StringUtil;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
@@ -71,7 +72,7 @@ public class AlarmProcessService extends AlarmBaseService {
         if (alarmLogDto.isAlarm()) {
             String message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+"未采集到进程信息,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
-                message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+" cpu变化率为" + alarmLogDto.getUsage()+"%"  ;
+                message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+" cpu变化率为" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)+"%"  ;
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
@@ -131,61 +132,52 @@ public class AlarmProcessService extends AlarmBaseService {
     }
     public void outageStatistics(ProcessConfigDto processConfigDto,AlarmLogDto alarmLogDto){
         try {
-            long value= this.getValue(processConfigDto);
-            if(value==0&&alarmLogDto.isAlarm()){
-                redisUtil.hset(PROCESS_EXCEPTION,processConfigDto.getId(),System.currentTimeMillis());
-                redisUtil.hset(PROCESS_EXCEPTION+".LAST",processConfigDto.getId(),new BigDecimal(alarmLogDto.getUsage()).longValue());
-            }
-            if(value>0){
-                long usge= new BigDecimal(String.valueOf(redisUtil.hget(PROCESS_EXCEPTION+".LAST",processConfigDto.getId()))).longValue();
-                boolean flag=false;
-                Map<String, Object> source = new HashMap<>();
-                if(usge>0){
-                    source.put("type",1);
-                }else {
-                    source.put("type",-1);
-                }
-                if(alarmLogDto.isAlarm()&&alarmLogDto.getUsage()<0&&usge>0){
-                    redisUtil.hdel(PROCESS_EXCEPTION,processConfigDto.getId());
-                    redisUtil.hdel(PROCESS_EXCEPTION+".LAST",processConfigDto.getId());
-                    flag=true;
-                }
-                if(alarmLogDto.isAlarm()&&alarmLogDto.getUsage()>0&&usge<0){
-                    redisUtil.hdel(PROCESS_EXCEPTION,processConfigDto.getId());
-                    redisUtil.hdel(PROCESS_EXCEPTION+".LAST",processConfigDto.getId());
-                    flag=true;
-                }
-                if(!alarmLogDto.isAlarm()&&usge!=0){
-                    redisUtil.hdel(PROCESS_EXCEPTION,processConfigDto.getId());
-                    redisUtil.hdel(PROCESS_EXCEPTION+".LAST",processConfigDto.getId());
-                    flag=true;
-                }
-                if(!flag){
+            Map<String, Object> source=this.findProcessDownLog(processConfigDto,alarmLogDto);
+            long startTime= new BigDecimal(String.valueOf(source.get("start_time"))).longValue();
+            source.put("end_time",System.currentTimeMillis());
+            source.put("duration",System.currentTimeMillis()-startTime);
+            if(!alarmLogDto.isAlarm()){
+                String indexId= (String) source.get("index_id");
+                if(StringUtil.isEmpty(indexId)){
                     return;
                 }
-                try {
-                    long endTime=System.currentTimeMillis();
-                    source.put("id",processConfigDto.getId());
-                    source.put("ip",processConfigDto.getIp());
-                    source.put("start_time",value);
-                    source.put("end_time",System.currentTimeMillis());
-                    source.put("duration",endTime-value);
-                    source.put("@timestamp",new Date());
-                    boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG);
-                    if (!isExistsIndex) {
-                        Map<String, Object> ip = new HashMap<>();
-                        ip.put("type", "keyword");
-                        Map<String, Object> properties = new HashMap<>();
-                        properties.put("ip", ip);
-                        Map<String, Object> mapping = new HashMap<>();
-                        mapping.put("properties", properties);
-                        elasticSearch7Client.createIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, new HashMap<>(), mapping);
+                source.put("status",1);
+                this.insertPorcessDownLog(source);
+            }
+            if(alarmLogDto.isAlarm()){
+                String indexId= (String) source.get("index_id");
+                if(StringUtil.isEmpty(indexId)){
+                    this.insertPorcessDownLog(source);
+                }else {
+                    String oldType= (String) source.get("type");
+                    String newType="1";
+                    if(alarmLogDto.getUsage()==-1){
+                           newType="-1";
                     }
-                    elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, IdUtils.fastUUID(), source);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    if(!oldType.equals(newType)){
+                        source.put("status",1);
+                    }
+                    this.insertPorcessDownLog(source);
+                    if(!oldType.equals(newType)){
+                        source.put("id",processConfigDto.getId());
+                        source.put("ip",processConfigDto.getIp());
+                        source.put("@timestamp",new Date());
+                        source.put("status",0);
+                        if(alarmLogDto.getUsage()==-1){
+                            source.put("type","-1");
+                        }else {
+                            source.put("type","1");
+                        }
+                        source.put("start_time",System.currentTimeMillis());
+                        source.put("end_time",System.currentTimeMillis());
+                        source.put("duration",System.currentTimeMillis()-startTime);
+                        this.insertPorcessDownLog(source);
+                    }
                 }
             }
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,6 +190,68 @@ public class AlarmProcessService extends AlarmBaseService {
         }else {
             return new BigDecimal(String.valueOf(o)).longValue();
         }
+    }
+
+    public void insertPorcessDownLog(Map<String, Object> source){
+        try {
+            String indexId= (String) source.get("index_id");
+            if(StringUtil.isEmpty(indexId)){
+                indexId=IdUtils.fastUUID();
+            }
+            boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG);
+            if (!isExistsIndex) {
+                Map<String, Object> ip = new HashMap<>();
+                ip.put("type", "keyword");
+                Map<String, Object> id = new HashMap<>();
+                id.put("type", "keyword");
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("ip", ip);
+                properties.put("id", id);
+                Map<String, Object> mapping = new HashMap<>();
+                mapping.put("properties", properties);
+                elasticSearch7Client.createIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, new HashMap<>(), mapping);
+            }
+            elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, indexId, source);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Map<String, Object>  findProcessDownLog(ProcessConfigDto processConfigDto,AlarmLogDto alarmLogDto){
+        Map<String, Object> source=new HashMap<>();
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchId = QueryBuilders.matchQuery("id", processConfigDto.getId());
+        MatchQueryBuilder matchStatus = QueryBuilders.matchQuery("status", 0);
+        boolBuilder.must(matchId);
+        boolBuilder.must(matchStatus);
+        search.query(boolBuilder);
+        search.size(1);
+        try {
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, search);
+            SearchHits hits = response.getHits();
+            SearchHit[] searchHits = hits.getHits();
+            if(searchHits.length>0){
+                for (SearchHit hit : searchHits) {
+                    source = hit.getSourceAsMap();
+                    source.put("index_id",hit.getId());
+                    return source;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        source.put("id",processConfigDto.getId());
+        source.put("ip",processConfigDto.getIp());
+        source.put("@timestamp",new Date());
+        source.put("status",0);
+        if(alarmLogDto.getUsage()==-1){
+            source.put("type","-1");
+        }else {
+            source.put("type","1");
+        }
+        source.put("start_time",System.currentTimeMillis());
+        return source;
     }
 }
 

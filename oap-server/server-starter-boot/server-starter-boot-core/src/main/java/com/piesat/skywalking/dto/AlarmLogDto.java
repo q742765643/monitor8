@@ -43,6 +43,9 @@ public class AlarmLogDto extends BaseDto {
     @ApiModelProperty(value = "告警监测类型")
     private Integer monitorType;
 
+    @ApiModelProperty(value = "持续时间")
+    private String duration;
+
     private boolean isAlarm = false;
 
     @ApiModelProperty(value = "一般判断条件")

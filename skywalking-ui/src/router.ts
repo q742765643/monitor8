@@ -119,6 +119,11 @@ const router = new Router({
         },
         // 告警管理
         {
+          path: '/alarmMonitoring/alarmReport',
+          name: 'alarmReport',
+          component: () => import('@/page/alarmMonitoring/alarmReport/index.vue'),
+        },
+        {
           path: '/alarmMonitoring',
           name: 'alarmMonitoring',
           component: () => import('@/page/alarmMonitoring/index.vue'),
