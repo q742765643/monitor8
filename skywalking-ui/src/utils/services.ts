@@ -613,16 +613,7 @@ const dataService = {
     const baseURL = '/monitor'
     window.location.href = baseURL + "/api/com/downloadByPath?filePath=" + params;
   },
-
-  downloadfileCommon(params: any) {
-    // if (params.headers['content-disposition']) {
-    //   let fileName = decodeURI(params.headers['content-disposition'].split(';')[1].split('=')[1]);
-    //   fileDownload(params.data, fileName)
-    // }
-    const fileNames = window.sessionStorage.getItem('fileName')
-    console.log(fileNames)
-    fileDownload(params, `${fileNames}`);
-  },
+  
 
   exportRole(query: object) {
     return request({

@@ -111,8 +111,6 @@ Vue.prototype.msgSuccess = function(msg: any) {
 };
 
 Vue.prototype.download = hongtuConfig.download
-Vue.prototype.downloadfileCommon = hongtuConfig.downloadfileCommon
-
 Vue.prototype.msgError = function(msg: any) {
   this.$message.success(msg);
 };
