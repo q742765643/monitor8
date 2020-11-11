@@ -64,6 +64,11 @@ VXETable.setup({ size: 'mini' });
 import '@/assets/css/reset.scss';
 import '@/assets/css/style.scss';
 
+import axios from 'axios'
+Vue.prototype.$axios = axios
+
+import hongtuConfig from '@/utils/services';
+
 // import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf';
 // VXETable.use(VXETablePluginExportPDF);
 // import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx';
@@ -78,7 +83,7 @@ import '@/assets/css/style.scss';
 //     },
 //   ],
 // });
-
+import 'lib-flexible'; //https://blog.csdn.net/weixin_41257563/article/details/97266234 自适应方案核心
 //拖动
 /* import VueDND from 'awe-dnd' */
 let VueDND: any = require('awe-dnd');
@@ -104,6 +109,9 @@ declare module 'vue/types/vue' {
 Vue.prototype.msgSuccess = function(msg: any) {
   this.$message.success(msg);
 };
+
+Vue.prototype.download = hongtuConfig.download
+Vue.prototype.downloadfileCommon = hongtuConfig.downloadfileCommon
 
 Vue.prototype.msgError = function(msg: any) {
   this.$message.success(msg);

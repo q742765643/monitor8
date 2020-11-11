@@ -1,5 +1,8 @@
 import axios from 'axios';
 import instance from '@/utils/request';
+import { getBaseURL } from 'xe-utils/methods';
+import fileDownload from 'js-file-download'
+import request from "@/utils/request";
 /* let instance = axios.create({
   baseURL: 'http://10.1.100.35:12800',
   timeout: 6000,
@@ -363,11 +366,81 @@ const dataService = {
     });
   },
 
+  // 用户管理-新增
+  userCofigAdd(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/system/user', params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 用户管理-删除
+  userCofigDelete(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/system/user/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 用户管理-根据id查询用户信息
+  userCofigSearchById(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/user/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 用户管理-查找用户
+  userCofigSearch(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/user/findAllBizUser' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 用户管理-修改
+  userCofigEdit(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/user', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
   // 用户管理-表格
   userCofigList(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/system/user/gatAllBiz', {
+        .get('/system/user/list', {
           params: params,
         })
         .then((res) => {
@@ -378,58 +451,23 @@ const dataService = {
         });
     });
   },
-  // 菜单管理-表格
-  menulList(params: Object) {
-    return new Promise((resolve, reject) => {
-      instance
-        .get('/system/menu/list', {
-          params: params,
-        })
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+
+  // 用户管理-用户信息导出
+  exportUser(query: object) {
+    return request({
+      url: '/system/user/export',
+      method: 'get',
+      params: query,
+      responseType: "arraybuffer"
+    })
   },
-  // 菜单管理-表格
-  menuList(params: Object) {
+
+  // 角色管理-分页查询角色信息
+  roleConfigList(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/system/menu/list', {
-          params: params,
-        })
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-  // 菜单管理-菜单树
-  menuTreeselect(params: Object) {
-    return new Promise((resolve, reject) => {
-      instance
-        .get('/system/menu/treeselect', {
-          params: params,
-        })
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  },
-  // 告警管理-新增/编辑
-  menuPost(params: Object) {
-    return new Promise((resolve, reject) => {
-      instance
-        .post('/system/menu', params)
-        .then((res) => {
-          resolve(res);
+        .get('/system/role/list', {
+          params: params
         })
         .catch((err) => {
           reject(err);
@@ -445,9 +483,154 @@ const dataService = {
           resolve(res);
         })
         .catch((err) => {
-          reject(err);
-        });
-    });
+          reject(err)
+        })
+    })
+  },
+
+  // 角色管理-新增角色
+  roleConfigAdd(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/system/role', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 角色管理-根据id查询角色
+  roleCofigSearchById(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/role/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 角色管理-修改角色
+  roleConfigEdit(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/role', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 角色管理-删除角色
+  roleConfigDelete(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/system/role/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 角色管理-导出角色信息
+  roleConfigUpload(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/role/export', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 部门管理-获取部门下拉树列表
+  treeselect(params:Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/dept/treeselect', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 在线用户-分页查询在线用户
+  onlineUserList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/monitor/online/list', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 菜单管理-查询菜单树
+  menuConfigTree(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/treeselect', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 通用下载方法
+  download(params: String) {
+    const baseURL = '/monitor'
+    window.location.href = baseURL + "/api/com/downloadByPath?filePath=" + params;
+  },
+
+  downloadfileCommon(params: any) {
+    // if (params.headers['content-disposition']) {
+    //   let fileName = decodeURI(params.headers['content-disposition'].split(';')[1].split('=')[1]);
+    //   fileDownload(params.data, fileName)
+    // }
+    const fileNames = window.sessionStorage.getItem('fileName')
+    console.log(fileNames)
+    fileDownload(params, `${fileNames}`);
+  },
+
+  exportRole(query: object) {
+    return request({
+      url: '/system/role/export',
+      method: 'get',
+      params: query,
+      responseType: "arraybuffer"
+    })
   },
 };
 

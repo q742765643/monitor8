@@ -31,6 +31,11 @@
             新增
           </a-button>
         </a-col>
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="handleLogin">
+            登录
+          </a-button>
+        </a-col>
       </a-row>
       <div id="tablediv">
         <vxe-table :data="tableData" align="center" :tree-config="{}" highlight-hover-row ref="tablevxe">
@@ -293,17 +298,22 @@
             name: '用户管理',
           },
         ],
+        imgcode: '',
       };
     },
     created() {
       hongtuConfig.getDicts('sys_show_hide').then((res) => {
         if (res.code == 200) {
-          this.menuStatus = res.data;
+          this.menuStatus = res.data.code;
         }
       });
       this.queryTable();
     },
-    mounted() {},
+    mounted() {
+      hongtuConfig.captchaImage().then((response) => {
+        this.imgcode = response.data.code;
+      });
+    },
     methods: {
       /* 查询 */
       handleQuery() {
@@ -378,6 +388,17 @@
           return false;
         }
       }); */
+      },
+      handleLogin() {
+        let obj = {
+          username: 'admin',
+          password: '2020Sod123',
+          code: this.imgcode,
+          uuid: '15812e460ae548dca98143f3bac93b4f',
+        };
+        hongtuConfig.userLogin(this.imgcode).then((response) => {
+          alert('111');
+        });
       },
       /* 删除 */
       handleDelete(row) {

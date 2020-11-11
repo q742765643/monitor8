@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import hongtuConfig from '@/utils/services';
 export default {
   data() {
     return {
@@ -62,10 +63,17 @@ export default {
       paginationTotal: 0,
     };
   },
-  created() {},
+  created() {
+    this.getOnlineUserList()
+  },
   methods: {
     handlePageChange() {},
     handleQuery() {},
+    getOnlineUserList() {
+      hongtuConfig.onlineUserList(this.queryParams).then((res) => {
+        console.log(res)
+      })
+    },
     resetQuery() {},
     handleEdit(row) {}
   },
