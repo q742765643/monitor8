@@ -401,8 +401,8 @@ public class SystemService {
                 Map<String, Object> filesystem = (Map<String, Object>) system.get("filesystem");
                 Map<String, Object> used = (Map<String, Object>) filesystem.get("used");
                 fileSystemVo.setDiskName((String) filesystem.get("mount_point"));
-                fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, RoundingMode.HALF_UP).doubleValue());
-                fileSystemVo.setUsage(new BigDecimal(String.valueOf(used.get("pct"))).doubleValue());
+                fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, BigDecimal.ROUND_HALF_UP).floatValue());
+                fileSystemVo.setUsage(new BigDecimal(String.valueOf(used.get("pct"))).floatValue());
                 fileSystemVos.add(fileSystemVo);
             }
 

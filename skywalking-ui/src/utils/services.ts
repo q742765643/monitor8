@@ -469,8 +469,18 @@ const dataService = {
         .get('/system/role/list', {
           params: params
         })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 告警管理-详情
+  menuDetail(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
           reject(err)

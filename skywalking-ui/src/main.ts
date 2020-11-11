@@ -39,8 +39,8 @@ import 'echarts/lib/component/tooltip';
 import VModal from 'vue-js-modal';
 import { queryOAPTimeInfo } from './utils/localtime';
 import './assets';
-/* import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css'; */
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 import Pagination from '@/components/Pagination/index.vue';
 
 import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel } from '@/components/util';
@@ -55,6 +55,7 @@ import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
 import 'ant-design-vue/dist/antd.css';
 import { FormModel } from 'ant-design-vue';
+Vue.use(ElementUI);
 Vue.use(FormModel);
 Vue.use(VXETable);
 Vue.use(Antd);
@@ -82,7 +83,7 @@ import hongtuConfig from '@/utils/services';
 //     },
 //   ],
 // });
-
+import 'lib-flexible'; //https://blog.csdn.net/weixin_41257563/article/details/97266234 自适应方案核心
 //拖动
 /* import VueDND from 'awe-dnd' */
 let VueDND: any = require('awe-dnd');

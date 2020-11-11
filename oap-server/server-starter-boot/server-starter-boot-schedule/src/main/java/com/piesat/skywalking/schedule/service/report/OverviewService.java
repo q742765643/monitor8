@@ -5,6 +5,9 @@ import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
+import com.piesat.skywalking.util.IdUtils;
+import com.piesat.skywalking.util.Ping;
+import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.util.NullUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
@@ -59,6 +62,7 @@ public class OverviewService {
         this.getMemorySize(systemQueryDto, baseInfo);
         HostConfigDto hostConfigdto = new HostConfigDto();
         NullUtil.changeToNull(hostConfigdto);
+        hostConfigdto.setDeviceType(0);
         List<HostConfigDto> hostConfigDtos = hostConfigService.selectBySpecification(hostConfigdto);
         BulkRequest request = new BulkRequest();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -67,7 +71,7 @@ public class OverviewService {
             Map<String, Object> source = this.getMap();
             source.put("ip", hostConfigDto.getIp());
             source.put("@timestamp", time);
-            source.put("ishost", hostConfigDto.getIsHost());
+            source.put("device_type", hostConfigDto.getDeviceType());
             if (null != baseInfo.get(hostConfigDto.getIp())) {
                 source.putAll(baseInfo.get(hostConfigDto.getIp()));
             }
@@ -77,7 +81,13 @@ public class OverviewService {
             float memoryUse = (float) source.get("avg.memory.pct");
             source.put("cpu.use", cpuUse * cpuCores);
             source.put("memory.use", memoryUse * memoryTotal);
-            if (memoryTotal == 0 && cpuCores == 0) {
+            boolean flag=false;
+            try {
+                 flag= Ping.ping(hostConfigDto.getIp());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (!flag) {
                 source.put("online", 0l);
             }
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_OVERVIEW, hostConfigDto.getIp()).source(source);
@@ -356,5 +366,7 @@ public class OverviewService {
         map.put("online", 1l);
         return map;
     }
+
+
 }
 

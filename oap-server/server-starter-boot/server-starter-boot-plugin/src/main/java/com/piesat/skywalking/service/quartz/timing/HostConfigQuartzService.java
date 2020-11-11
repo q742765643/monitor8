@@ -21,7 +21,9 @@ public class HostConfigQuartzService extends ScheduleService {
         List<HostConfigDto> hostConfigEntities = hostConfigService.selectBySpecification(hostConfig);
         if (null != hostConfigEntities && !hostConfigEntities.isEmpty()) {
             for (HostConfigDto o : hostConfigEntities) {
-                this.handleJob(o);
+                if(2==o.getMonitoringMethods()){
+                    this.handleJob(o);
+                }
             }
         }
     }

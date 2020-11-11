@@ -1,12 +1,12 @@
 <template>
   <div id="main_moniter">
     <div id="row1">
-      <viewMonitor></viewMonitor>
+      <!--<viewMonitor></viewMonitor>-->
       <distributAlarm></distributAlarm>
+      <deviceState></deviceState>
       <untreatAlarm></untreatAlarm>
     </div>
     <div id="row2">
-      <deviceState></deviceState>
       <dataState></dataState>
       <softwareState></softwareState>
     </div>

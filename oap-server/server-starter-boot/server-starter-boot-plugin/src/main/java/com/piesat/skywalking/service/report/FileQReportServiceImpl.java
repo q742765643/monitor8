@@ -81,7 +81,6 @@ public class FileQReportServiceImpl implements FileQReportService {
             for (SearchHit hit : searchHits) {
                 Map jsonMap = new LinkedHashMap();
                 JsonParseUtil.parseJSON2Map(jsonMap, hit.getSourceAsString(), null);
-                jsonMap.put("late_num", 1);
                 list.add(jsonMap);
             }
         } catch (IOException e) {
@@ -133,10 +132,10 @@ public class FileQReportServiceImpl implements FileQReportService {
                         ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
                         long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
                         long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
-                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
+                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_HALF_UP).longValue();
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         if (sumFileNumL > 0) {
-                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_UP).floatValue();
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
                             map.put(taskId + "_toQuoteRate", toQuoteRate);
                         }
                         map.put(taskId + "_sumRealFileNum", sumRealFileNumL);

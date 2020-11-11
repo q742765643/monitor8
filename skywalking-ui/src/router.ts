@@ -129,6 +129,11 @@ const router = new Router({
         },
         // 告警管理
         {
+          path: '/alarmMonitoring/alarmReport',
+          name: 'alarmReport',
+          component: () => import('@/page/alarmMonitoring/alarmReport/index.vue'),
+        },
+        {
           path: '/alarmMonitoring',
           name: 'alarmMonitoring',
           component: () => import('@/page/alarmMonitoring/index.vue'),
@@ -165,25 +170,31 @@ const router = new Router({
         {
           path: '/userMonitoring',
           name: 'userMonitoring',
-          component: () => import('@/page/userMonitoring/index.vue')
+          component: () => import('@/page/userMonitoring/index.vue'),
         },
         // 角色管理
         {
           path: '/roleMonitoring',
           name: 'roleMonitoring',
-          component: () => import('@/page/userMonitoring/role.vue')
+          component: () => import('@/page/userMonitoring/role.vue'),
         },
         // 部门管理
         {
           path: '/departmentMonitoring',
           name: 'departmentMonitoring',
-          component: () => import('@/page/userMonitoring/department.vue')
+          component: () => import('@/page/userMonitoring/department.vue'),
         },
         // 在线用户
         {
           path: '/onlineUser',
           name: 'onlineUser',
-          component: () => import('@/page/userMonitoring/onlineUser.vue')
+          component: () => import('@/page/userMonitoring/onlineUser.vue'),
+        },
+        // 菜单管理
+        {
+          path: '/menuManagement',
+          name: 'menuManagement',
+          component: () => import('@/page/userMonitoring/menuManagement.vue'),
         },
       ],
     },

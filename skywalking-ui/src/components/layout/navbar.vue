@@ -112,6 +112,10 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/alarmMonitoring"> 告警管理</router-link>
         </a-menu-item>
+        <a-menu-item key="/alarmMonitoring/alarmReport">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/alarmMonitoring/alarmReport"> 告警报表</router-link>
+        </a-menu-item>
       </a-sub-menu>
 
       <a-sub-menu key="sub7">
@@ -153,6 +157,10 @@
         <a-menu-item key="/roleMonitoring">
           <span class="iconfont">&#xe611;</span>
           <router-link to="/roleMonitoring"> 角色管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/menuManagement">
+          <span class="iconfont">&#xe630;</span>
+          <router-link to="/menuManagement"> 菜单管理</router-link>
         </a-menu-item>
         <a-menu-item key="/departmentMonitoring">
           <span class="iconfont">&#xe60c;</span>

@@ -28,10 +28,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.core.util.JsonUtils;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -44,6 +46,8 @@ import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -294,5 +298,16 @@ public class ElasticSearch7Client extends ElasticSearchClient {
                             .setConcurrentRequests(concurrentRequests)
                             .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
                             .build();
+    }
+
+    public void deleteById(String index, String id){
+        DeleteRequest deleteRequest = new DeleteRequest(index, id);
+        try {
+            log.info("删除数据根据ID,rq:{}", new Gson().toJson(deleteRequest));
+            client.delete(deleteRequest, RequestOptions.DEFAULT);
+        } catch (Exception e) {
+            log.error("es查询异常{}", e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

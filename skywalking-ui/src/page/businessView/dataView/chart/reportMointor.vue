@@ -19,7 +19,8 @@
         timeList:[],
         lateList:[],
         shouldList:[],
-        actualList:[]
+        actualList:[],
+        tempList:[]
       };
     },
     mounted() {
@@ -44,10 +45,12 @@
           this.lateList=[];
           this.shouldList=[];
           this.actualList=[];
+          this.tempList=[];
           list.forEach((item, index) => {
-            this.timeList.push(this.parseTime(item.start_time_l,'{h}:{i}:{s}'));
+            this.timeList.push(this.parseTime(item.start_time_l,'{d}/{h}:{i}'));
             this.lateList.push(item.late_num);
             this.shouldList.push(item.file_num);
+            this.tempList.push(item.file_num);
             this.actualList.push(Number(item.late_num)+Number(item.real_file_num));
           });
           this.drawChart(this.chartID);
@@ -56,7 +59,7 @@
       drawChart(id) {
         this.mixChart = echarts.init(document.getElementById(id));
         var colors = ['#5793f3', '#d14a61', '#675bba'];
-        let shouldA = this.shouldList.sort((a, b) => a - b)
+        let shouldA = this.tempList.sort((a, b) => a - b)
         let shouldL=Number(shouldA[shouldA.length-1])+20;
         let options = {
           textStyle: {

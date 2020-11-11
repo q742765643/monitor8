@@ -20,6 +20,9 @@ public class FileMonitorLogEntity extends BaseEntity {
     @Column(name = "task_id", length = 50)
     private String taskId;
 
+    @Column(name = "remote_path", length = 255)
+    private String remotePath;
+
     @Column(name = "folder_regular", length = 255)
     private String folderRegular;
 

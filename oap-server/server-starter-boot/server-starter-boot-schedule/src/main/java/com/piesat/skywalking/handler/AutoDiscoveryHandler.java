@@ -13,6 +13,7 @@ import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
 import com.piesat.skywalking.util.GetRangeIpUtil;
 import com.piesat.skywalking.util.Ping;
 import com.piesat.util.JsonParseUtil;
+import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -20,6 +21,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -29,6 +31,7 @@ import org.snmp4j.util.TableEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Slf4j
@@ -54,9 +57,10 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
             for (String ip : ips) {
                 HostConfigDto hostConfig = new HostConfigDto();
                 hostConfig.setIp(ip);
-                hostConfig.setCurrentStatus(11);
-                hostConfig.setDeviceType(11);
+                hostConfig.setCurrentStatus(3);
+                hostConfig.setDeviceType(1);
                 hostConfig.setMediaType(11);
+                hostConfig.setIsHost(0);
                 SNMPSessionUtil dv = new SNMPSessionUtil(ip, "161", "public", "2");
                 try {
 
@@ -65,35 +69,31 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                             this.getMacAndGetaway(hostConfig, dv);
                             this.getMediaType(hostConfig, dv);
                         }
-                        if (0 != hostConfig.getDeviceType()) {
+                        if (0 == hostConfig.getIsHost()) {
                             String isRouter = dv.getSnmpGet(PDU.GET, router).get(0);
                             boolean isSw = dv.snmpWalk2(sw).isEmpty();
                             if ("1".equals(isRouter) && isSw) {//路由器
-                                hostConfig.setDeviceType(1);
                                 hostConfig.setMediaType(4);
                             }
                             if ("2".equals(isRouter) && !isSw) {//二层交换机
-                                hostConfig.setDeviceType(1);
                                 hostConfig.setMediaType(2);
                             }
                             if ("1".equals(isRouter) && !isSw) {//三层交换机
-                                hostConfig.setDeviceType(1);
                                 hostConfig.setMediaType(3);
                             }
                         }
                         hostConfig.setMonitoringMethods(2);
                         hostConfig.setJobCron("0/30 * * * * ?");
-                        hostConfig.setId(ip);
+                        //hostConfig.setId(ip);
                         hostConfig.setTriggerStatus(1);
                         hostConfigService.save(hostConfig);
-
                     } else {
                         hostConfig.setJobCron("0/30 * * * * ?");
-                        hostConfig.setId(ip);
+                        //hostConfig.setId(ip);
                         hostConfig.setTriggerStatus(1);
                         hostConfig.setMonitoringMethods(3);
                         this.getHost(hostConfig);
-                        hostConfigService.save(hostConfig);
+                        this.findHost(hostConfig);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -126,6 +126,13 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
     }
 
     public void getHost(HostConfigDto hostConfigDto) {
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String endTime=format.format(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, -60);
+        String beginTime=format.format(calendar.getTime());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.cpu");
@@ -134,6 +141,12 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         boolBuilder.must(matchType);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(beginTime);
+        rangeQueryBuilder.lte(endTime);
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
         String[] fields = new String[]{"host.os.name",
                 "host.ip", "host.hostname", "host.ip", "host.mask"
         };
@@ -156,8 +169,6 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                 if (hostConfigDto.getOs().toUpperCase().indexOf("LINUX") != -1) {
                     hostConfigDto.setMediaType(1);
                 }
-                hostConfigDto.setDeviceType(0);
-
                 List<String> macs = JSON.parseArray((String) jsonMap.get("host.mask"), String.class);
                 for (int i = 0; i < macs.size(); i++) {
                     String[] masks = macs.get(i).split("--");
@@ -189,11 +200,11 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
             hostConfig.setOs(sysDescs.get(0));
             if (hostConfig.getOs().toUpperCase().indexOf("WINDOW") != -1) {
                 hostConfig.setMediaType(0);
-                hostConfig.setDeviceType(0);
+                hostConfig.setIsHost(1);
             }
             if (hostConfig.getOs().toUpperCase().indexOf("LINUX") != -1) {
                 hostConfig.setMediaType(1);
-                hostConfig.setDeviceType(0);
+                hostConfig.setIsHost(1);
             }
 
         } catch (Exception e) {
@@ -265,4 +276,18 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         }
 
     }
+    public void findHost(HostConfigDto hostConfig){
+        if(3==hostConfig.getMonitoringMethods()){
+            HostConfigDto qh=new HostConfigDto();
+            NullUtil.changeToNull(qh);
+            qh.setIp(hostConfig.getIp());
+            List<HostConfigDto>  hostConfigDtos=hostConfigService.selectBySpecification(qh);
+            if(null!=hostConfigDtos&&hostConfigDtos.size()>0){
+                return;
+            }
+        }
+        hostConfigService.save(hostConfig);
+    }
+
+
 }

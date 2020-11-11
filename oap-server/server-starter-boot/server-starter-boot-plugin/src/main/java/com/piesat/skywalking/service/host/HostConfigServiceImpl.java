@@ -58,10 +58,13 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
             specificationBuilder.add("os", SpecificationOperator.Operator.likeAll.name(), host.getOs());
         }
         if (null != host.getMediaType()) {
-            specificationBuilder.add("media_type", SpecificationOperator.Operator.eq.name(), host.getMediaType());
+            specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), host.getMediaType());
         }
         if (null != host.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), host.getCurrentStatus());
+        }
+        if (null != host.getDeviceType()) {
+            specificationBuilder.add("deviceType", SpecificationOperator.Operator.eq.name(), host.getDeviceType());
         }
         Specification specification = specificationBuilder.generateSpecification();
         Sort sort = Sort.by(Sort.Direction.ASC, "ip");
@@ -95,6 +98,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (null != hostConfig.getMediaType()) {
             specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), hostConfig.getMediaType());
         }
+        if (null != hostConfig.getDeviceType()) {
+            specificationBuilder.add("deviceType", SpecificationOperator.Operator.eq.name(), hostConfig.getDeviceType());
+        }
         if (null != hostConfig.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
         }
@@ -119,7 +125,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         hostConfigDto.setJobHandler("hostConfigHandler");
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
         hostConfig = super.saveNotNull(hostConfig);
-        hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        if(hostConfig.getMonitoringMethods()==2){
+            hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        }
         return hostConfigMapstruct.toDto(hostConfig);
     }
 
@@ -169,8 +177,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         monitoringBuilder.add("monitoringMethods", SpecificationOperator.Operator.eq.name(), 1);
         monitoringBuilder.addOr("monitoringMethods", SpecificationOperator.Operator.eq.name(), 2);
         Specification specification = triggerStatusBuilder.generateSpecification();
-        specification.and(monitoringBuilder.generateSpecification());
-        List<HostConfigEntity> hostConfigEntities = this.getAll(specification);
+        List<HostConfigEntity> hostConfigEntities = this.getAll(specification.and(monitoringBuilder.generateSpecification()));
         return hostConfigMapstruct.toDto(hostConfigEntities);
     }
 
@@ -198,8 +205,8 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (null != hostConfig.getMediaType()) {
             specificationBuilder.add("mediaType", SpecificationOperator.Operator.eq.name(), hostConfig.getMediaType());
         }
-        if (hostConfig.getMediaTypes() != null && hostConfig.getMediaTypes().size() > 0) {
-            specificationBuilder.add("mediaType", SpecificationOperator.Operator.inn.name(), hostConfig.getMediaTypes());
+        if (null != hostConfig.getDeviceType()) {
+            specificationBuilder.add("deviceType", SpecificationOperator.Operator.eq.name(), hostConfig.getDeviceType());
         }
         if (null != hostConfig.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());

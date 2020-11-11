@@ -5,6 +5,7 @@ import com.piesat.skywalking.api.folder.DirectoryAccountService;
 import com.piesat.skywalking.dto.DirectoryAccountDto;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
+import com.piesat.skywalking.schedule.service.alarm.AlarmFileService;
 import com.piesat.skywalking.schedule.service.folder.base.FileBaseService;
 import com.piesat.skywalking.util.HtFileUtil;
 import com.piesat.util.*;
@@ -12,6 +13,7 @@ import jcifs.smb1.smb1.NtlmPasswordAuthentication;
 import jcifs.smb1.smb1.SmbException;
 import jcifs.smb1.smb1.SmbFile;
 import jcifs.smb1.smb1.SmbFileFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -30,6 +32,8 @@ import java.util.regex.Pattern;
 public class FileSmaService extends FileBaseService {
     @GrpcHthtClient
     private DirectoryAccountService directoryAccountService;
+    @Autowired
+    private AlarmFileService alarmFileService;
 
     @Override
     public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
@@ -42,6 +46,7 @@ public class FileSmaService extends FileBaseService {
             //NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null,"samba","samba");
             NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
             String remotePath = "smb://" + directoryAccountDto.getIp() + folderRegular + "/" + filenameRegular;
+            fileMonitorLogDto.setRemotePath(remotePath);
             try {
                 SmbFile file = new SmbFile(remotePath, auth);
                 if (file.exists() && file.isFile() && file.length() > 0) {
@@ -64,10 +69,12 @@ public class FileSmaService extends FileBaseService {
             if (!resultT.isSuccess()) {
                 return;
             }
-            this.updateFileStatistics(fileMonitorLogDto, resultT);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            alarmFileService.execute(fileMonitorLogDto);
+            this.updateFileStatistics(fileMonitorLogDto, resultT);
             if (!resultT.isSuccess()) {
                 fileMonitorLogDto.setHandleCode(2);
             } else {
@@ -90,6 +97,7 @@ public class FileSmaService extends FileBaseService {
         NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
         try {
             String remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
+            fileMonitorLogDto.setRemotePath(remotePath);
             SmbFile file = new SmbFile(remotePath, auth);
             HtFileUtil.loopFiles(file, smbFileFilter);
         } catch (Exception e) {

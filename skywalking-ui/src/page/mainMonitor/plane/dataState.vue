@@ -10,58 +10,34 @@ import planeTitle from '@/components/titile/planeTitle.vue';
 import { remFontSize } from '@/components/utils/fontSize.js';
 import echarts from 'echarts';
 import moment from 'moment';
+import request from "@/utils/request";
 export default {
   name: 'distributAlarm',
   components: { planeTitle },
   data() {
     return {
       charts: '',
+      hoursList:[],
+      dataList:[],
+      daysList:[],
     };
   },
   methods: {
     drawheatMap(id) {
-      //获取横轴刻度
-      var nowh = moment().hour();
-      var h = '';
-      var xArray = [];
-      xArray.push(nowh);
-
-      for (let i = 1; i < 24; i++) {
-        h = moment()
-          .subtract(i, 'hour')
-          .format('H');
-
-        if (h == '0') {
-          //  h = h + '\n' + moment().format('MM/DD');
-          h = moment().format('M/D');
-        }
-        if (i == 23) {
-          h = moment()
-            .subtract(1, 'day')
-            .format('M/D');
-        }
-        xArray.push(h);
-      }
 
       this.charts = echarts.init(document.getElementById(id));
 
-      var hours = xArray.reverse();
-      var days = ['we', 'df', 'gh', 'qw', 'df', 'fg', 'er', 'sd'];
+      var hours = this.hoursList;
+      var days = this.daysList;
 
       let states = [
-        /*    { label: '正常', value: 0, color: '#2BB9F7' }, */
-        { label: '一般', value: 1, color: '#FCAB13' },
-        { label: '严重', value: 2, color: '#FD651A' },
-        { label: '断线', value: 3, color: '#9C82ED' },
+        { label: '一般', value: 0, color: '#FCAB13' },
+        { label: '严重', value: 1, color: '#FD651A' },
+        { label: '故障', value: 2, color: '#9C82ED' },
+        { label: '正常', value: 3, color: '#2BB9F7' },
+        { label: '未执行', value: 4, color: '#9C82ED' },
       ];
-      var data = [];
-      let x, y, value;
-      for (let i = 0; i < 30; i++) {
-        y = Math.floor(Math.random() * (0 - 7)) + 7;
-        x = Math.floor(Math.random() * (0 - 23)) + 23;
-        value = Math.floor(Math.random() * (1 - 4)) + 4;
-        data.push([x, y, value]);
-      }
+
 
       let option = {
         textStyle: {
@@ -70,15 +46,15 @@ export default {
         tooltip: {
           position: 'top',
           formatter: (params) => {
-            return states[params.value[2] - 1].label;
-          },
+            return states[params.value[2]].label;
+            },
         },
         animation: false,
         grid: {
           bottom: '10%',
           top: '5%',
-          left: '5%',
-          right: '5%',
+          //left: '10%',
+          right: '0%',
         },
         xAxis: {
           axisTick: {
@@ -146,9 +122,9 @@ export default {
         series: [
           {
             type: 'heatmap',
-            data: data,
+            data: this.dataList,
             label: {
-              show: true,
+              //show: true,
               /* formatter: (params) => {
                 return states[params.value[2] - 1].label;
               }, */
@@ -167,10 +143,22 @@ export default {
 
       this.charts.setOption(option);
     },
+    getFileStatus() {
+      request({
+        url: '/main/getFileStatus',
+        method: 'get'
+      }).then(data => {
+        this.daysList = data.data.days;
+        this.hoursList = data.data.hours;
+        this.dataList = data.data.data
+        this.drawheatMap('data_contnet');
+      });
+    }
   },
   mounted() {
+    this.getFileStatus();
     this.$nextTick(() => {
-      this.drawheatMap('data_contnet');
+      //this.drawheatMap('data_contnet');
     });
     setTimeout(() => {
       window.addEventListener('resize', () => {
@@ -178,17 +166,19 @@ export default {
       });
     }, 500);
   },
+
+
 };
 </script>
 
 <style lang="scss" scoped>
 #dataState {
-  height: 3.75rem;
+  height: 6.45rem;
   width: 100%;
-  margin-top: 0.5rem;
+  //margin-top: 0.5rem;
   box-shadow: $plane_shadow;
   #data_contnet {
-    height: calc(3.75rem - 0.75rem);
+    height: 85%;
   }
 }
 </style>

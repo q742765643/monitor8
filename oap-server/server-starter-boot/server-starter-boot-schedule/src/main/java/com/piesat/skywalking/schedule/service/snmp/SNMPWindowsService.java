@@ -89,7 +89,7 @@ public class SNMPWindowsService extends SNMPService {
             VariableBinding[] values = event.getColumns();
             percentage += Integer.parseInt(values[0].getVariable().toString());
         }
-        float total = new BigDecimal(percentage).divide(new BigDecimal(100)).divide(new BigDecimal(list.size()), 4, RoundingMode.HALF_UP).floatValue();
+        float total = new BigDecimal(percentage).divide(new BigDecimal(100)).divide(new BigDecimal(list.size()), 4, BigDecimal.ROUND_HALF_UP).floatValue();
 
         long cores = (long) basicInfo.get("cores");
 
@@ -207,7 +207,7 @@ public class SNMPWindowsService extends SNMPService {
         actual.put("free", memTotalReal.subtract(memUseReal).longValue());
         Map<String, Object> actualUsed = new HashMap<>();
         actualUsed.put("bytes", memUseReal.longValue());
-        actualUsed.put("pct", memUseReal.divide(memTotalReal, 4, RoundingMode.HALF_UP).floatValue());
+        actualUsed.put("pct", memUseReal.divide(memTotalReal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
         actual.put("used", actualUsed);
         memory.put("actual", actual);
         memory.put("free", memTotalReal.subtract(memUseReal).longValue());
@@ -250,7 +250,7 @@ public class SNMPWindowsService extends SNMPService {
 
         BigDecimal swapUsedPct = new BigDecimal(0);
         if (memTotalSwap.longValue() > 0) {
-            swapUsedPct = memUseSwap.divide(memTotalSwap, 4, RoundingMode.HALF_UP);
+            swapUsedPct = memUseSwap.divide(memTotalSwap, 4, BigDecimal.ROUND_HALF_UP);
         }
         Map<String, Object> swap = new HashMap<>();
         swap.put("free", memTotalSwap.subtract(memUseSwap).longValue());
@@ -273,7 +273,7 @@ public class SNMPWindowsService extends SNMPService {
         memory.put("total", memTotalReal.longValue());
         Map<String, Object> totalUsed = new HashMap<>();
         totalUsed.put("bytes", memUseReal.longValue());
-        totalUsed.put("pct", memUseReal.divide(memTotalReal, 4, RoundingMode.HALF_UP).floatValue());
+        totalUsed.put("pct", memUseReal.divide(memTotalReal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
         memory.put("used", totalUsed);
         system.put("memory", memory);
         source.put("system", system);

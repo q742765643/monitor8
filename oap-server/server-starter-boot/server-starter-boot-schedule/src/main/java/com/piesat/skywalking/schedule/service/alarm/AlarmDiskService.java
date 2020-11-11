@@ -6,22 +6,29 @@ import com.piesat.skywalking.dto.AlarmLogDto;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.schedule.service.alarm.base.AlarmBaseService;
+import com.piesat.skywalking.vo.FileSystemVo;
 import com.piesat.util.ResultT;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.MaxAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.ParsedAvg;
+import org.elasticsearch.search.aggregations.metrics.ParsedMax;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @ClassName : AlarmDiskService
@@ -35,62 +42,123 @@ public class AlarmDiskService extends AlarmBaseService {
     public void execute(JobContext jobContext, ResultT<String> resultT) {
         AlarmConfigDto alarmConfigDto = (AlarmConfigDto) jobContext.getHtJobInfoDto();
         List<HostConfigDto> hostConfigDtos = this.selectAvailable();
-        Map<String, Float> map = this.findMemoryAvg();
+
         for (int i = 0; i < hostConfigDtos.size(); i++) {
             AlarmLogDto alarmLogDto = new AlarmLogDto();
             HostConfigDto hostConfigDto = hostConfigDtos.get(i);
             if (0 != hostConfigDto.getDeviceType()) {
                 continue;
             }
-            alarmLogDto.setUsage(this.getMap(hostConfigDto.getIp(), map));
             this.toAlarm(alarmLogDto, alarmConfigDto, hostConfigDto);
         }
     }
 
     public void toAlarm(AlarmLogDto alarmLogDto, AlarmConfigDto alarmConfigDto, HostConfigDto hostConfigDto) {
+        List<FileSystemVo> fileSystemVos = this.findDiskList(hostConfigDto.getIp());
         alarmLogDto.setIp(hostConfigDto.getIp());
         alarmLogDto.setRelatedId(hostConfigDto.getId());
         alarmLogDto.setMediaType(hostConfigDto.getMediaType());
         alarmLogDto.setDeviceType(hostConfigDto.getDeviceType());
-        this.fitAlarmLog(alarmConfigDto, alarmLogDto);
-        this.judgeAlarm(alarmLogDto);
-        if (alarmLogDto.isAlarm()) {
-            String message = "未采集到磁盘使用率,请检查环境";
-            if (alarmLogDto.getUsage() > 0) {
-                message = "磁盘使用率到达" + alarmLogDto.getUsage() * 100 + "%";
+        if(null==fileSystemVos||fileSystemVos.size()==0){
+            alarmLogDto.setUsage(-1f);
+            this.fitAlarmLog(alarmConfigDto, alarmLogDto);
+            this.judgeAlarm(alarmLogDto);
+            if (alarmLogDto.isAlarm()) {
+                String message = hostConfigDto.getIp()+":未采集到磁盘使用率,请检查环境";
+                alarmLogDto.setMessage(message);
+                this.insertEs(alarmLogDto);
             }
-            alarmLogDto.setMessage(message);
-            this.insertEs(alarmLogDto);
+            this.insertUnprocessed(alarmLogDto);
+        }else {
+            for(int i=0;i<fileSystemVos.size();i++){
+                alarmLogDto.setUsage(fileSystemVos.get(i).getUsage());
+                this.fitAlarmLog(alarmConfigDto, alarmLogDto);
+                this.judgeAlarm(alarmLogDto);
+                if (alarmLogDto.isAlarm()) {
+                    String message =  hostConfigDto.getIp()+":"+fileSystemVos.get(i).getDiskName()+"磁盘使用率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)  + "%";
+                    alarmLogDto.setMessage(message);
+                    this.insertEs(alarmLogDto);
+                }
+                this.insertUnprocessed(alarmLogDto);
+            }
+
         }
+
     }
 
-    public Map<String, Float> findMemoryAvg() {
-        Map<String, Float> map = new HashMap<>();
-        SearchSourceBuilder search = this.buildWhere("memory");
-        AvgAggregationBuilder avgPct = AggregationBuilders.avg("avg_memory_pct").field("system.memory.used.pct").format("0.0000");
-        TermsAggregationBuilder groupByIp = AggregationBuilders.terms("groupby_ip").field("host.name").size(10000);
-        groupByIp.subAggregation(avgPct);
-        search.aggregation(groupByIp);
-        search.size(0);
+    public List<FileSystemVo> findDiskList(String ip) {
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String endTime=format.format(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, -10);
+        String beginTime=format.format(calendar.getTime());
+        List<FileSystemVo> fileSystemVos = new ArrayList<>();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.filesystem");
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", ip);
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(beginTime);
+        rangeQueryBuilder.lte(endTime);
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        searchSourceBuilder.query(boolBuilder);
+        MaxAggregationBuilder maxTime = AggregationBuilders.max("@timestamp");
+        maxTime.field("@timestamp");
+        searchSourceBuilder.aggregation(maxTime);
+
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", search);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
             Aggregations aggregations = searchResponse.getAggregations();
-            if (aggregations == null) {
-                return map;
+            ParsedMax parsedMax = aggregations.get("@timestamp");
+            if (parsedMax != null) {
+                String timestamp = parsedMax.getValueAsString();
+                if("-Infinity".equals(timestamp)){
+                    return fileSystemVos;
+                }
+                BoolQueryBuilder boolFileBuilder = QueryBuilders.boolQuery();
+                QueryBuilder queryBuilder = QueryBuilders.termQuery("@timestamp", timestamp);
+                //WildcardQueryBuilder wildDocker = QueryBuilders.wildcardQuery("system.filesystem.mount_point", "*docker*");
+                //WildcardQueryBuilder wildKubernetes = QueryBuilders.wildcardQuery("system.filesystem.mount_point", "*kubernetes*");
+                boolFileBuilder.must(queryBuilder);
+                boolFileBuilder.must(matchEvent);
+                boolFileBuilder.must(matchIp);
+                //boolFileBuilder.mustNot(wildDocker);
+                //boolFileBuilder.mustNot(wildKubernetes);
+                SearchSourceBuilder fileSearch = new SearchSourceBuilder();
+                fileSearch.query(boolFileBuilder);
+                String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct"};
+                fileSearch.fetchSource(fields, null);
+                fileSearch.size(1000);
+                SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", fileSearch);
+                SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
+                SearchHit[] searchHits = hits.getHits();
+                for (SearchHit hit : searchHits) {
+                    FileSystemVo fileSystemVo = new FileSystemVo();
+                    Map<String, Object> map = hit.getSourceAsMap();
+                    Map<String, Object> system = (Map<String, Object>) map.get("system");
+                    Map<String, Object> filesystem = (Map<String, Object>) system.get("filesystem");
+                    Map<String, Object> used = (Map<String, Object>) filesystem.get("used");
+                    fileSystemVo.setDiskName((String) filesystem.get("mount_point"));
+                    fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, BigDecimal.ROUND_HALF_UP).floatValue());
+                    fileSystemVo.setUsage((new BigDecimal(String.valueOf(used.get("pct"))).setScale(4,BigDecimal.ROUND_HALF_UP)).floatValue()*100);
+                    fileSystemVos.add(fileSystemVo);
+                }
+
             }
-            ParsedStringTerms terms = aggregations.get("groupby_ip");
-            List<? extends Terms.Bucket> buckets = terms.getBuckets();
-            for (int i = 0; i < buckets.size(); i++) {
-                Terms.Bucket bucket = buckets.get(i);
-                String ip = bucket.getKeyAsString();
-                ParsedAvg parsedAvg = bucket.getAggregations().get("avg_memory_pct");
-                float avgMemoryPct = Float.parseFloat(parsedAvg.getValueAsString());
-                map.put(ip, avgMemoryPct);
-            }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return map;
+
+
+        return fileSystemVos;
+
     }
 
 }

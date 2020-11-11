@@ -41,17 +41,21 @@
         <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
           <vxe-table-column type="checkbox"></vxe-table-column>
           <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
-          <vxe-table-column field="address" title="调度地址" show-overflow></vxe-table-column>
+          <vxe-table-column field="taskName" title="任务名称">
+            <template v-slot="{ row }">
+              <span> {{ statusFormat(typeOptions, row.monitorType) }}</span>
+            </template>
+          </vxe-table-column>
+
           <vxe-table-column field="triggerStatus" title="状态" show-overflow>
             <template v-slot="{ row }">
               <span v-if="row.triggerStatus == 0">未启动 </span>
               <span v-if="row.triggerStatus == 1">启动 </span>
             </template>
           </vxe-table-column>
-          <vxe-table-column field="isUt" title="时区" show-overflow>
-            <template v-slot="{ row }">
-              <span v-if="row.triggerStatus == 0">北京时 </span>
-              <span v-if="row.triggerStatus == 1">世界时 </span>
+          <vxe-table-column field="createTime" title="创建时间" show-overflow>
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
           </vxe-table-column>
           <vxe-table-column width="160" field="date" title="操作">
@@ -315,11 +319,17 @@
       hongtuConfig.getDicts('alarm_kpi').then((res) => {
         if (res.code == 200) {
           this.kpiOptions = res.data;
+          this.kpiOptions.forEach((item, index) => {
+            item.dictValue=parseInt( item.dictValue)
+          });
         }
       });
       hongtuConfig.getDicts('alarm_type').then((res) => {
         if (res.code == 200) {
           this.typeOptions = res.data;
+          this.typeOptions.forEach((item, index) => {
+            item.dictValue=parseInt( item.dictValue)
+          });
         }
       });
       this.queryTable();
@@ -441,6 +451,7 @@
         hongtuConfig.alarmCofigDetail(row.id).then((response) => {
           if (response.code == 200) {
             this.formDialog = response.data;
+            this.changeType(this.formDialog.monitorType);
             this.visibleModel = true;
             this.dialogTitle = '编辑';
           }

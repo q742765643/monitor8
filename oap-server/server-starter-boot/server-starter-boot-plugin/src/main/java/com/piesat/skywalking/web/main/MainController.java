@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Api(value = "首页", tags = {"首页"})
@@ -37,24 +38,19 @@ public class MainController {
 
     @ApiOperation(value = "查询设备状态", notes = "查询设备状态")
     @GetMapping("/getDeviceStatus")
-    public ResultT<List<HostConfigDto>> getDeviceStatus(HostConfigDto hostConfigdto) {
-        ResultT<List<HostConfigDto>> resultT = new ResultT<>();
-        List<HostConfigDto> list = mainService.getDeviceStatus(hostConfigdto);
+    public ResultT<List<Map<String, Object>> > getDeviceStatus(HostConfigDto hostConfigdto) {
+        ResultT<List<Map<String, Object>> > resultT = new ResultT<>();
+        List<Map<String, Object>>  list = mainService.getDeviceStatus(hostConfigdto);
         resultT.setData(list);
         return resultT;
     }
 
     @ApiOperation(value = "查询未处理告警", notes = "查询未处理告警")
     @GetMapping("/getAlarm")
-    public ResultT<List<AlarmLogDto>> getAlarm() {
+    public ResultT<List<AlarmLogDto>> getAlarm(AlarmLogDto query) {
         ResultT<List<AlarmLogDto>> resultT = new ResultT<>();
-        AlarmLogDto alarmLogDto = new AlarmLogDto();
-        alarmLogDto.setDeviceType(null);
-        alarmLogDto.setStatus(0);
-        alarmLogDto.setLevel(null);
-        PageForm<AlarmLogDto> pageForm = new PageForm<AlarmLogDto>(1, 100, alarmLogDto);
-        PageBean pageBean = mainService.getAlarm(pageForm);
-        resultT.setData(pageBean.getPageData());
+        List<AlarmLogDto> alarmLogDtos=mainService.getAlarm(query);
+        resultT.setData(alarmLogDtos);
         return resultT;
     }
 
@@ -70,25 +66,19 @@ public class MainController {
 
     @ApiOperation(value = "查询数据状态", notes = "查询数据状态")
     @GetMapping("/getFileStatus")
-    public ResultT<List<FileStatisticsDto>> getFileStatus() {
-        ResultT<List<FileStatisticsDto>> resultT = new ResultT<>();
-        List<FileStatisticsDto> list = mainService.getFileStatus();
+    public ResultT<Map<String,Object>> getFileStatus() {
+        ResultT<Map<String,Object>> resultT = new ResultT<>();
+        Map<String,Object> list = mainService.getFileStatus();
         resultT.setData(list);
         return resultT;
     }
 
     @ApiOperation(value = "查询进程热力图", notes = "查询进程热力图")
     @GetMapping("/getProcess")
-    public ResultT<List<AlarmLogDto>> getProcess() {
-        ResultT<List<AlarmLogDto>> resultT = new ResultT<>();
-        AlarmLogDto alarmLogDto = new AlarmLogDto();
-        alarmLogDto.setDeviceType(null);
-        alarmLogDto.setStatus(null);
-        alarmLogDto.setLevel(null);
-        alarmLogDto.setMonitorType(MonitorTypeEnum.PRCESS.getValue());
-        PageForm<AlarmLogDto> pageForm = new PageForm<AlarmLogDto>(1, 100, alarmLogDto);
-        PageBean pageBean = mainService.getAlarm(pageForm);
-        resultT.setData(pageBean.getPageData());
+    public ResultT<Map<String,Object>> getProcess() {
+        ResultT<Map<String,Object>> resultT = new ResultT<>();
+        Map<String,Object> map = mainService.getProcess();
+        resultT.setData(map);
         return resultT;
     }
 }
