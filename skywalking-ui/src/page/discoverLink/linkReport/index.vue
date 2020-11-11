@@ -114,6 +114,7 @@
     },
     methods: {
       exportEventPdf(){
+        this.queryParams.alarmChart=this.getFullCanvasDataURL('barlineChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         params.params=JSON.stringify(params.params);
         request({
@@ -127,7 +128,7 @@
         });
       },
       exportEventXls(){
-
+        this.queryParams.alarmChart=this.getFullCanvasDataURL('barlineChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         params.params=JSON.stringify(params.params);
         request({
@@ -264,7 +265,6 @@
         };
 
         this.charts.setOption(options);
-        this.queryParams.alarmChart=this.charts.getDataURL();
 
       },
       fetch() {
