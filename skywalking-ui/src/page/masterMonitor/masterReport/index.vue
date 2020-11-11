@@ -1,84 +1,40 @@
 <template>
   <div id="reportMater">
-    <div id="header">
-      <div id="selectType">
-        <label>报表类型:</label>
-        <!--  <select
-          id="option"
-          v-model="currentType"
-          @change="onChangeType(currentType)"
-        >
-          <option value="date">日报</option>
-          <option value="week">周报</option>
-          <option value="month">月报</option>
-          <option value="year">年报</option>
-        </select> -->
-        <a-select
-          v-model="currentType"
-          @change="onChangeType(currentType)"
-          default-value="day"
-          style="width: 3.2rem"
-          size="small"
-        >
-          <a-select-option value="day"> 日报 </a-select-option>
-          <a-select-option value="week"> 周报 </a-select-option>
-          <a-select-option value="month"> 月报 </a-select-option>
-          <a-select-option value="year"> 年报 </a-select-option>
-        </a-select>
-      </div>
+    <selectDate @changeDate="changeDate"></selectDate>
 
-      <!--   :default-value="moment(new Date()).format('YYYY-MM-DD')" -->
-      <!--  :default-value="null" -->
-      <!--    :default-value="moment(new Date()).format('YYYY-MM')" -->
-      <div id="timePicker">
-        <label>报表周期:</label>
-        <a-date-picker
-          :size="size"
-          v-if="currentType == 'day'"
-          v-model="dateRange"
-          :format="dayFormat"
-          @change="timeChange"
-          :default-value="moment(moment().format(dayFormat) + '', dayFormat)"
-        />
-        <a-week-picker
-          :size="size"
-          v-if="currentType == 'week'"
-          v-model="dateRange"
-          @change="timeChange"
-          :default-value="moment()"
-        />
-        <a-month-picker
-          :size="size"
-          v-if="currentType == 'month'"
-          :format="monthFormat"
-          v-model="dateRange"
-          @change="timeChange"
-          :default-value="moment(moment().format(monthFormat) + '', monthFormat)"
-        />
-
-        <a-year-picker
-          :size="size"
-          v-model="dateRange"
-          v-if="currentType == 'year'"
-          :format="yearFormat"
-          @change="timeChange"
-          style="display: inline-block;"
-        />
-      </div>
-    </div>
     <div id="content">
-      <div id="title">{{ date_title }}服务器监视情况</div>
+      <div id="title">服务器监视情况</div>
       <div id="dataPlane">
         <div id="report_chartdiv">
           <div id="alarmChart"></div>
           <div id="useageChart"></div>
+        </div>
+        <div id="table">
+          <div id="toolbar">
+            <vxe-toolbar custom>
+              <template v-slot:buttons>
+                <!--   <vxe-button @click="exportEventXls">导出excel</vxe-button>
+                <vxe-button @click="exportEventPdf">导出pdf</vxe-button> -->
+                <a-button type="primary" @click="exportEventXls">
+                  导出excel
+                </a-button>
+                <a-button type="primary" @click="exportEventPdf">
+                  导出pdf
+                </a-button>
+              </template>
+            </vxe-toolbar>
+          </div>
         </div>
         <div id="tablediv">
           <vxe-table border ref="xTable" :height="tableheight" :data="tableData">
             <!--<vxe-table-column field="number" title="序号"></vxe-table-column>-->
             <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
             <vxe-table-column field="ip" title="IP地址" show-overflow></vxe-table-column>
-            <vxe-table-column field="updateTime" title="最新时间" show-overflow></vxe-table-column>
+            <vxe-table-column field="updateTime" title="最新时间" show-overflow>
+              <template slot-scope="scope">
+                <span>{{ parseTime(scope.row.updateTime) }}</span>
+              </template>
+            </vxe-table-column>
             <vxe-table-column field="maxUptime" title="连续在线时长(时)" show-overflow></vxe-table-column>
             <vxe-table-column field="alarmCount" title="告警次数"></vxe-table-column>
             <vxe-table-column field="downCount" title="宕机次数"></vxe-table-column>
@@ -89,7 +45,7 @@
             <vxe-table-column field="maxProcessSize" title="最多进程数"></vxe-table-column>
           </vxe-table>
 
-          <vxe-pager
+  <!--        <vxe-pager
             id="page_table"
             perfect
             :current-page.sync="queryParams.pageNum"
@@ -99,7 +55,7 @@
             @page-change="fetch"
             :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
           >
-          </vxe-pager>
+          </vxe-pager>-->
         </div>
       </div>
     </div>
@@ -108,17 +64,19 @@
 
 <script>
   import aYearPicker from '@/components/datePickYear/datePickYear.vue';
+  import selectDate from '@/components/date/select.vue';
   import { remFontSize } from '@/components/utils/fontSize.js';
   import echarts from 'echarts';
   import moment from 'moment';
   import request from '@/utils/request';
+  import Qs from 'qs';
   export default {
     data() {
       return {
         total: 0,
         queryParams: {
           pageNum: 1,
-          pageSize: 10,
+          pageSize: 10000,
           deviceType: 0,
         },
         dayFormat: 'YYYY-MM-DD',
@@ -149,10 +107,10 @@
         tableData: [],
       };
     },
-    components: { aYearPicker },
+    components: { aYearPicker,selectDate },
     created() {},
     mounted() {
-      this.fetch();
+      //this.fetch();
       this.$nextTick(() => {});
 
       window.addEventListener('resize', () => {
@@ -165,6 +123,58 @@
       });
     },
     methods: {
+      exportEventPdf(){
+        let params=this.addDateRange(this.queryParams, this.dateRange)
+        console.log(params);
+        params.params=JSON.stringify(params.params);
+        request({
+          url:  '/report/exportPdf',
+          method: 'post',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          data: Qs.stringify(params),
+          responseType: "arraybuffer"
+        }).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      exportEventXls(){
+
+        let params=this.addDateRange(this.queryParams, this.dateRange)
+        console.log(params);
+        params.params=JSON.stringify(params.params);
+        request({
+          url:  '/report/export',
+          method: 'post',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          data: Qs.stringify(params),
+          responseType: "arraybuffer"
+        }).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      getFullCanvasDataURL(divId){
+        //将第一个画布作为基准。
+        var baseCanvas = $("#"+divId).find("canvas").first()[0];
+        if(!baseCanvas){
+          return false;
+        };
+        var width = baseCanvas.width;
+        var height = baseCanvas.height;
+        var ctx = baseCanvas.getContext("2d");
+        //遍历，将后续的画布添加到在第一个上
+        $("#"+divId).find("canvas").each(function(i,canvasObj){
+          if(i>0){
+            var canvasTmp = $(canvasObj)[0];
+            ctx.drawImage(canvasTmp,0,0,width,height);
+          }
+        });
+        //获取base64位的url
+        return baseCanvas.toDataURL();
+      },
+      changeDate(data){
+        this.dateRange=data;
+        this.fetch();
+      },
       moment,
       onChangeType(currentType) {
         if (currentType == 'day') {
@@ -372,7 +382,8 @@
         let h = document.getElementById('dataPlane').clientHeight;
         let padding = getComputedStyle(document.getElementById('tablediv'), false)['paddingLeft'];
         let chartHeight = document.getElementById('report_chartdiv').offsetHeight;
-        let h_page = document.getElementById('page_table').offsetHeight;
+        let h_page=0;
+        //let h_page = document.getElementById('page_table').offsetHeight;
         this.tableheight = h - chartHeight - parseInt(padding) * 2 - h_page - 1;
       },
       drawChart(id, chart, title, legend, Yaxis, series) {
@@ -431,10 +442,15 @@
           series: series,
         };
         chart.setOption(options);
+        if(id=="alarmChart"){
+          this.queryParams.alarmChart=chart.getDataURL();
+        }
+        if(id=="useageChart"){
+          this.queryParams.useageChart=chart.getDataURL();
+        }
+
       },
       fetch() {
-        this.queryParams.beginTime = '2020-10-17 00:00:00';
-        this.queryParams.endTime = '2020-10-20 00:00:00';
         request({
           url: '/report/list',
           method: 'get',

@@ -1,5 +1,6 @@
 <template>
   <div id="report">
+    <selectDate @changeDate="changeDate"></selectDate>
     <div id="content">
       <div id="linkReport_chart">
         <div id="barlineChart"></div>
@@ -10,10 +11,10 @@
             <template v-slot:buttons>
               <!--   <vxe-button @click="exportEventXls">导出excel</vxe-button>
               <vxe-button @click="exportEventPdf">导出pdf</vxe-button> -->
-              <a-button type="primary">
+              <a-button type="primary" @click="exportEventXls">
                 导出excel
               </a-button>
-              <a-button type="primary">
+              <a-button type="primary"  @click="exportEventPdf">
                 导出pdf
               </a-button>
             </template>
@@ -44,7 +45,7 @@
           <vxe-table-column field="location" title="详细地址" show-overflow></vxe-table-column>
         </vxe-table>
 
-        <vxe-pager
+      <!--  <vxe-pager
           id="page_table"
           perfect
           :current-page.sync="queryParams.pageNum"
@@ -54,7 +55,7 @@
           @page-change="fetch"
           :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
         >
-        </vxe-pager>
+        </vxe-pager>-->
       </div>
     </div>
   </div>
@@ -65,13 +66,16 @@
   import { remFontSize } from '@/components/utils/fontSize.js';
   // 接口地址
   import hongtuConfig from '@/utils/services';
+  import selectDate from '@/components/date/select.vue';
+  import Qs from 'qs';
+  import request from '@/utils/request';
   export default {
     data() {
       return {
         total: 0,
         queryParams: {
           pageNum: 1,
-          pageSize: 10,
+          pageSize: 10000,
           deviceType: 1,
         },
         currentStatusOptions: [],
@@ -86,8 +90,10 @@
         name: ['在线时长', '平均丢包率', '最大丢包率'],
         tableheight: null,
         tableData: [],
+        dateRange:[],
       };
     },
+    components: { selectDate },
     created() {
       this.getDicts('current_status').then((response) => {
         this.currentStatusOptions = response.data;
@@ -100,13 +106,63 @@
       });
     },
     mounted() {
-      this.fetch();
+      //this.fetch();
       this.$nextTick(() => {});
       window.addEventListener('resize', () => {
         this.setTableHeight();
       });
     },
     methods: {
+      exportEventPdf(){
+        let params=this.addDateRange(this.queryParams, this.dateRange)
+        params.params=JSON.stringify(params.params);
+        request({
+          url:  '/report/exportPdfLink',
+          method: 'post',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          data: Qs.stringify(params),
+          responseType: "arraybuffer"
+        }).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      exportEventXls(){
+
+        let params=this.addDateRange(this.queryParams, this.dateRange)
+        params.params=JSON.stringify(params.params);
+        request({
+          url:  '/report/exportExcelLink',
+          method: 'post',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          data: Qs.stringify(params),
+          responseType: "arraybuffer"
+        }).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      getFullCanvasDataURL(divId){
+        //将第一个画布作为基准。
+        var baseCanvas = $("#"+divId).find("canvas").first()[0];
+        if(!baseCanvas){
+          return false;
+        };
+        var width = baseCanvas.width;
+        var height = baseCanvas.height;
+        var ctx = baseCanvas.getContext("2d");
+        //遍历，将后续的画布添加到在第一个上
+        $("#"+divId).find("canvas").each(function(i,canvasObj){
+          if(i>0){
+            var canvasTmp = $(canvasObj)[0];
+            ctx.drawImage(canvasTmp,0,0,width,height);
+          }
+        });
+        //获取base64位的url
+        return baseCanvas.toDataURL();
+      },
+      changeDate(data){
+        this.dateRange=data;
+        this.fetch();
+      },
       formatCurrentStatus({ cellValue }) {
         return this.selectDictLabel(this.currentStatusOptions, cellValue);
       },
@@ -208,23 +264,10 @@
         };
 
         this.charts.setOption(options);
-      },
-      exportEventXls() {
-        this.$refs.xTable.exportData({
-          filename: '报表',
-          sheetName: 'Sheet1',
-          type: 'xlsx',
-        });
-      },
-      exportEventPdf() {
-        this.$refs.xTable.exportData({
-          filename: '报表',
-          type: 'pdf',
-        });
+        this.queryParams.alarmChart=this.charts.getDataURL();
+
       },
       fetch() {
-        this.queryParams.beginTime = '2020-10-17 00:00:00';
-        this.queryParams.endTime = '2020-10-20 00:00:00';
         hongtuConfig.reportList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
           if (res.code == 200) {
             this.total = res.data.totalCount;
@@ -281,7 +324,7 @@
 
 <style lang="scss" scoped>
   #report {
-    background: #eef5fd;
+    //background: #eef5fd;
     //width: 20rem;
     width: 100%;
     #content {

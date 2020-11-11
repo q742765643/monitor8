@@ -12,5 +12,13 @@ import com.piesat.util.page.PageForm;
  */
 public interface DeviceQReportService {
     public PageBean getSystemReport(PageForm<HostConfigDto> pageForm);
+
+    public void exportExcel(PageForm<HostConfigDto> pageForm);
+
+    public void exportPdf(PageForm<HostConfigDto> pageForm);
+
+    public void exportExcelLink(PageForm<HostConfigDto> pageForm);
+
+    public void exportPdfLink(PageForm<HostConfigDto> pageForm);
 }
 

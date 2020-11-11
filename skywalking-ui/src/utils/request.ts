@@ -17,7 +17,7 @@ const baseURL = '/monitor';
 const service = axios.default.create({
   baseURL,
   timeout: 10000, // 请求超时时间
-  maxContentLength: 4000,
+  maxContentLength: Infinity,
 });
 /*
 let instance = axios.create({
@@ -27,6 +27,7 @@ let instance = axios.create({
 
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
+      console.log(config)
     return config;
   },
   (err: any) => {
@@ -41,6 +42,9 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   (response: AxiosResponse) => {
+    if (response.data instanceof ArrayBuffer) {
+       return response;
+    }
     if (response.status !== 200) {
       /*  Message({
              message: `请求错误，${String(response.status)}`,

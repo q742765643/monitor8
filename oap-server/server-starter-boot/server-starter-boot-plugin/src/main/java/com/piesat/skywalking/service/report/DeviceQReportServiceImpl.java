@@ -1,17 +1,27 @@
 package com.piesat.skywalking.service.report;
 
+import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.api.report.DeviceQReportService;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.entity.HostConfigEntity;
+import com.piesat.skywalking.excel.HostExcelVo;
+import com.piesat.skywalking.excel.LinkExcelVo;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
+import com.piesat.skywalking.vo.ImageVo;
+import com.piesat.ucenter.entity.system.MenuEntity;
+import com.piesat.ucenter.rpc.dto.system.MenuDto;
+import com.piesat.util.ImageUtils;
+import com.piesat.util.NullUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
+import com.sun.imageio.plugins.common.ImageUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -21,11 +31,13 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.*;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +60,10 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
     public PageBean getSystemReport(PageForm<HostConfigDto> pageForm) {
         HostConfigEntity host = hostConfigMapstruct.toEntity(pageForm.getT());
         SystemQueryDto systemQueryDto = new SystemQueryDto();
+        NullUtil.changeToNull(systemQueryDto);
         systemQueryDto.setStartTime((String) host.getParamt().get("beginTime"));
         systemQueryDto.setEndTime((String) host.getParamt().get("endTime"));
+        systemQueryDto.setDeviceType(host.getDeviceType());
         Map<String, Map<String, Object>> ipMap = this.getSystemReportEs(systemQueryDto);
         pageForm.getT().setParams(null);
         PageBean pageBean = hostConfigService.selectPageList(pageForm);
@@ -163,8 +177,119 @@ public class DeviceQReportServiceImpl implements DeviceQReportService {
         rangeQueryBuilder.timeZone("+08:00");
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
         boolBuilder.filter(rangeQueryBuilder);
+        if(null!=systemQueryDto.getDeviceType()){
+            MatchQueryBuilder deviceType=QueryBuilders.matchQuery("device_type",systemQueryDto.getDeviceType());
+            boolBuilder.must(deviceType);
+        }
         searchSourceBuilder.query(boolBuilder);
         return searchSourceBuilder;
+    }
+
+    public void exportExcel(PageForm<HostConfigDto> pageForm) {
+        ExcelUtil<HostExcelVo> util = new ExcelUtil(HostExcelVo.class);
+        List<HostExcelVo> list=new ArrayList<>();
+        PageBean pageBean=this.getSystemReport(pageForm);
+        List<HostConfigDto> hostConfigDtos=pageBean.getPageData();
+        for(int i=0;i<hostConfigDtos.size();i++){
+            HostExcelVo hostExcelVo=new HostExcelVo();
+            BeanUtils.copyProperties(hostConfigDtos.get(i),hostExcelVo);
+            list.add(hostExcelVo);
+        }
+        HostConfigDto host = pageForm.getT();
+        List<ImageVo> imageVos=new ArrayList<>();
+        ImageVo alarm=new ImageVo();
+        byte[] alarmByte= ImageUtils.generateImageToByte(host.getAlarmChart());
+        alarm.setCol1(0);
+        alarm.setCol2(4);
+        alarm.setRow1(0);
+        alarm.setRow2(10);
+        alarm.setBytes(alarmByte);
+        imageVos.add(alarm);
+        ImageVo useage=new ImageVo();
+        byte[] useageByte= ImageUtils.generateImageToByte(host.getUseageChart());
+        useage.setCol1(6);
+        useage.setCol2(10);
+        useage.setRow1(0);
+        useage.setRow2(10);
+        useage.setBytes(useageByte);
+        imageVos.add(useage);
+        util.exportExcelImage(list, "服务器监视情况",imageVos,10);
+    }
+    public void exportPdf(PageForm<HostConfigDto> pageForm) {
+        ExcelUtil<HostExcelVo> util = new ExcelUtil(HostExcelVo.class);
+        List<HostExcelVo> list=new ArrayList<>();
+        PageBean pageBean=this.getSystemReport(pageForm);
+        List<HostConfigDto> hostConfigDtos=pageBean.getPageData();
+        for(int i=0;i<hostConfigDtos.size();i++){
+            HostExcelVo hostExcelVo=new HostExcelVo();
+            BeanUtils.copyProperties(hostConfigDtos.get(i),hostExcelVo);
+            list.add(hostExcelVo);
+        }
+        HostConfigDto host = pageForm.getT();
+        List<ImageVo> imageVos=new ArrayList<>();
+        ImageVo alarm=new ImageVo();
+        byte[] alarmByte= ImageUtils.generateImageToByte(host.getAlarmChart());
+        alarm.setCol1(0);
+        alarm.setCol2(4);
+        alarm.setRow1(0);
+        alarm.setRow2(10);
+        alarm.setBytes(alarmByte);
+        imageVos.add(alarm);
+        ImageVo useage=new ImageVo();
+        byte[] useageByte= ImageUtils.generateImageToByte(host.getUseageChart());
+        useage.setCol1(6);
+        useage.setCol2(10);
+        useage.setRow1(0);
+        useage.setRow2(10);
+        useage.setBytes(useageByte);
+        imageVos.add(useage);
+        util.exportPdf(list, "服务器监视情况",imageVos,10);
+    }
+
+    public void exportExcelLink(PageForm<HostConfigDto> pageForm) {
+        ExcelUtil<LinkExcelVo> util = new ExcelUtil(LinkExcelVo.class);
+        List<LinkExcelVo> list=new ArrayList<>();
+        PageBean pageBean=this.getSystemReport(pageForm);
+        List<HostConfigDto> hostConfigDtos=pageBean.getPageData();
+        for(int i=0;i<hostConfigDtos.size();i++){
+            LinkExcelVo linkExcelVo=new LinkExcelVo();
+            BeanUtils.copyProperties(hostConfigDtos.get(i),linkExcelVo);
+            list.add(linkExcelVo);
+        }
+        HostConfigDto host = pageForm.getT();
+        List<ImageVo> imageVos=new ArrayList<>();
+        ImageVo alarm=new ImageVo();
+        byte[] alarmByte= ImageUtils.generateImageToByte(host.getAlarmChart());
+        alarm.setCol1(1);
+        alarm.setCol2(9);
+        alarm.setRow1(0);
+        alarm.setRow2(15);
+        alarm.setBytes(alarmByte);
+        imageVos.add(alarm);
+        util.exportExcelImage(list, "链路运行情况",imageVos,15);
+    }
+
+    public void exportPdfLink(PageForm<HostConfigDto> pageForm) {
+        ExcelUtil<LinkExcelVo> util = new ExcelUtil(LinkExcelVo.class);
+        List<LinkExcelVo> list=new ArrayList<>();
+        PageBean pageBean=this.getSystemReport(pageForm);
+        List<HostConfigDto> hostConfigDtos=pageBean.getPageData();
+        for(int i=0;i<hostConfigDtos.size();i++){
+            LinkExcelVo linkExcelVo=new LinkExcelVo();
+            BeanUtils.copyProperties(hostConfigDtos.get(i),linkExcelVo);
+            list.add(linkExcelVo);
+        }
+        HostConfigDto host = pageForm.getT();
+        List<ImageVo> imageVos=new ArrayList<>();
+        ImageVo alarm=new ImageVo();
+        byte[] alarmByte= ImageUtils.generateImageToByte(host.getAlarmChart());
+        alarm.setCol1(1);
+        alarm.setCol2(9);
+        alarm.setRow1(0);
+        alarm.setRow2(15);
+        alarm.setBytes(alarmByte);
+        imageVos.add(alarm);
+        util.exportPdf(list, "链路运行情况",imageVos,15);
     }
 }
 

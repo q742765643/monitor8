@@ -36,6 +36,7 @@
     "echarts": "^4.1.0",
     "element-ui": "^2.11.1",
     "jquery": "^3.5.1",
+    "js-file-download": "^0.4.12",
     "lib-flexible": "^0.3.2",
     "lodash": "^4.17.15",
     "moment": "^2.27.0",
