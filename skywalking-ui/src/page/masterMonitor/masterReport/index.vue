@@ -451,6 +451,8 @@
 
       },
       fetch() {
+        this.queryParams.alarmChart='';
+        this.queryParams.useageChart='';
         request({
           url: '/report/list',
           method: 'get',
