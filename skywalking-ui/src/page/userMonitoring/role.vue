@@ -173,82 +173,13 @@
 <script>
 import hongtuConfig from '@/utils/services';
 import request from '@/utils/request';
-// const treeData = [
-//   {
-//     key: '0-0',
-//     scopedSlots: {
-//       title: 'title',
-//     },
-//     title: '0-0',
-//     children: [
-//       {
-//         key: '0-0-0',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-0-0',
-//       },
-//       {
-//         key: '0-0-1',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-0-1',
-//       },
-//       {
-//         key: '0-0-2',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-0-2',
-//       },
-//     ],
-//   },
-//   {
-//     key: '0-1',
-//     scopedSlots: {
-//       title: 'title',
-//     },
-//     title: '0-1',
-//     children: [
-//       {
-//         key: '0-1-0',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-1-0',
-//       },
-//       {
-//         key: '0-1-1',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-1-1',
-//       },
-//       {
-//         key: '0-1-2',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-1-2',
-//       },
-//     ],
-//   },
-//   {
-//     key: '0-2',
-//     scopedSlots: {
-//       title: '0-2',
-//     },
-//     title: '0-2',
-//   },
-// ];
 export default {
   data() {
     return {
       queryParams: {
-        roleName: '',
-        roleKey: '',
-        status: '',
+        roleName: undefined,
+        roleKey: undefined,
+        status: undefined,
         pageNum: 1,
         pageSize: 10,
       },
@@ -282,14 +213,16 @@ export default {
   },
   created() {
     this.getRoleList();
-    this.getTreeSelect()
   },
   methods: {
     getRoleList() {
       hongtuConfig.roleConfigList(this.queryParams).then((res) => {
+        debugger
+        console.log(13)
         console.log(res);
         this.roleListData = res.data.pageData;
         this.paginationTotal = res.data.totalCount;
+
       });
     },
     getTreeSelect(){

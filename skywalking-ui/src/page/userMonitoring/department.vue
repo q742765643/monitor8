@@ -191,7 +191,7 @@ export default {
         email: undefined,
         status: '0',
       };
-      this.$refs['formModel'].resetFields();
+      this.$refs.formModel.resetFields();
     },
     handleAdd(row) {
       this.reset()

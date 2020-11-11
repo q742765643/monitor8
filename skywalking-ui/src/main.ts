@@ -120,7 +120,7 @@ Vue.use(components);
 Vue.use(VModal, { dialog: true });
 Vue.directive('clickout', clickout);
 Vue.directive('tooltip', tooltip);
-/* Vue.use(ElementUI); */
+Vue.use(ElementUI);
 Vue.component('Pagination', Pagination);
 
 Vue.filter('dateformat', (dataStr: any, pattern: string = 'YYYY-MM-DD HH:mm:ss') => moment(dataStr).format(pattern));
