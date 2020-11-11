@@ -18,6 +18,9 @@ const service = axios.default.create({
   baseURL,
   timeout: 10000, // 请求超时时间
   maxContentLength: 4000,
+  // headers: {
+  //   "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+  // },
 });
 /*
 let instance = axios.create({
@@ -27,6 +30,7 @@ let instance = axios.create({
 
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
+    config.headers['Authorization'] = window.sessionStorage.getItem('token')
     return config;
   },
   (err: any) => {
@@ -49,6 +53,11 @@ service.interceptors.response.use(
          }); */
       return { code: 100 };
     } else {
+      // console.log(response.headers)
+      if(response.headers['content-disposition']){
+        let fileName = decodeURI(response.headers['content-disposition'].split(';')[1].split('=')[1]);
+        window.sessionStorage.setItem('fileName',fileName)
+      }
       let res = response.data;
       return res;
     }

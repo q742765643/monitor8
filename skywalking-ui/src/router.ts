@@ -32,6 +32,7 @@ import mainer from './views/containers/home/right/index/mainer.vue';
 import topu from './views/containers/home/right/topu/topu/topu.vue'; */
 
 import Home from './page/home.vue';
+import Login from './page/login/login.vue'
 
 Vue.use(Router);
 
@@ -45,6 +46,15 @@ const router = new Router({
   routes: [
     {
       path: '/',
+      redirect: '/login'
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/page/login/login.vue')
+    },
+    {
+      path: '/home',
       component: Home,
       children: [
         {
@@ -188,6 +198,11 @@ router.beforeEach((to, from, next) => {
     }
     window.axiosCancel = [];
   }
+
+  if (to.path === '/login') return next()
+  // 获取token
+  const tokenstr = window.sessionStorage.getItem('token')
+  if (!tokenstr) return next('/login')
   // if (to.meta.login && (token === null || token === 'guest')) {
   //   next();
   // } else if (token === null || token === 'guest') {
