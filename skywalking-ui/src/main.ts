@@ -43,7 +43,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import Pagination from '@/components/Pagination/index.vue';
 
-import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel } from '@/components/util';
+import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel,downloadfileCommon } from '@/components/util';
 
 import '@/assets/iconfont/iconfont.css';
 import 'lib-flexible';
@@ -95,6 +95,7 @@ Vue.prototype.resetForm = resetForm;
 Vue.prototype.addDateRange = addDateRange;
 Vue.prototype.getDicts = getDicts;
 Vue.prototype.selectDictLabel = selectDictLabel;
+Vue.prototype.downloadfileCommon = downloadfileCommon;
 declare module 'vue/types/vue' {
   interface Vue {
     parseTime(time: any, pattern: String): any;
@@ -102,6 +103,7 @@ declare module 'vue/types/vue' {
     addDateRange(params: any, dateRange: any): any;
     getDicts(dictType: String): any;
     selectDictLabel(datas: any, value: String): any;
+    downloadfileCommon(datas: any): any;
   }
 }
 Vue.prototype.msgSuccess = function(msg: any) {

@@ -4,21 +4,28 @@ import com.piesat.common.annotation.Excel;
 import com.piesat.common.annotation.Excels;
 import com.piesat.common.core.text.Convert;
 import com.piesat.common.utils.DateUtils;
+import com.piesat.common.utils.ExcelToPdf;
 import com.piesat.common.utils.ServletUtils;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.common.utils.reflect.ReflectUtils;
+import com.piesat.skywalking.vo.ImageVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFClientAnchor;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFDataValidation;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -305,7 +312,7 @@ public class ExcelUtil<T> {
                     this.createCell(excel, row, column++);
                 }
                 if (Excel.Type.EXPORT.equals(type)) {
-                    fillExcelData(index, row);
+                    fillExcelData(index,0, row);
                 }
             }
             String filename = encodingFilename(sheetName);
@@ -345,7 +352,7 @@ public class ExcelUtil<T> {
      * @param index 序号
      * @param row   单元格行
      */
-    public void fillExcelData(int index, Row row) {
+    public void fillExcelData(int index,int st, Row row) {
         int startNo = index * sheetSize;
         int endNo = Math.min(startNo + sheetSize, list.size());
         Map<Integer, Integer> poi = new HashMap<>();
@@ -353,7 +360,7 @@ public class ExcelUtil<T> {
         oldPoi.put(0, 1);
         int indexT = 1;
         for (int i = startNo; i < endNo; i++) {
-            row = sheet.createRow(i + 1 - startNo);
+            row = sheet.createRow(i + 1 - startNo+st);
             // 得到导出对象.
             T vo = (T) list.get(i);
             int column = 0;
@@ -474,9 +481,10 @@ public class ExcelUtil<T> {
      */
     private Map<String, CellStyle> createStyles(Workbook wb) {
         // 写入各条记录,每条记录对应excel表中的一行
+        // 写入各条记录,每条记录对应excel表中的一行
         Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
         CellStyle style = wb.createCellStyle();
-        style.setAlignment(HorizontalAlignment.LEFT);
+        style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
         style.setBorderRight(BorderStyle.THIN);
         style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
@@ -487,8 +495,8 @@ public class ExcelUtil<T> {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
         Font dataFont = wb.createFont();
-        dataFont.setFontName("宋体");
-        dataFont.setFontHeightInPoints((short) 15);
+        dataFont.setFontName("Arial");
+        dataFont.setFontHeightInPoints((short) 10);
         style.setFont(dataFont);
         styles.put("data", style);
 
@@ -499,12 +507,21 @@ public class ExcelUtil<T> {
         style.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         Font headerFont = wb.createFont();
-        headerFont.setFontName("宋体");
-        headerFont.setFontHeightInPoints((short) 20);
+        headerFont.setFontName("Arial");
+        headerFont.setFontHeightInPoints((short) 10);
         headerFont.setBold(true);
         headerFont.setColor(IndexedColors.WHITE.getIndex());
         style.setFont(headerFont);
         styles.put("header", style);
+
+        style = wb.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        Font totalFont = wb.createFont();
+        totalFont.setFontName("Arial");
+        totalFont.setFontHeightInPoints((short) 10);
+        style.setFont(totalFont);
+        styles.put("total", style);
 
         return styles;
     }
@@ -547,7 +564,8 @@ public class ExcelUtil<T> {
             sheet.setColumnWidth(column, 6000);
         } else {
             // 设置列宽
-            sheet.setColumnWidth(column, (int) ((attr.width() + 0.72) * 256));
+            //sheet.setColumnWidth(column, (int) ((attr.width() + 0.72) * 256));
+            sheet.setColumnWidth(column, (int) ((attr.width() + 0.72) *150));
             row.setHeight((short) (attr.height() * 20));
         }
         // 如果设置了提示信息则鼠标放上去提示.
@@ -797,6 +815,324 @@ public class ExcelUtil<T> {
         }
         return val;
     }
+    public void exportExcelImage(List<ImageVo> imageVos,int st) {
+        HttpServletResponse response = ServletUtils.getResponse();
+        OutputStream out = null;
+        try {
+            // 取出一共有多少个sheet.
+            double sheetNo = Math.ceil(list.size() / sheetSize);
+            for (int index = 0; index <= sheetNo; index++) {
+                createSheetPdf(sheetNo, index);
+                if(index==0){
+                    if(null!=imageVos){
+                        for(int k=0;k<imageVos.size();k++){
+                            ImageVo imageVo=imageVos.get(k);
+                            CreationHelper helper = wb.getCreationHelper();
+                            Drawing drawing = sheet.createDrawingPatriarch();
+                            ClientAnchor anchor = helper.createClientAnchor();
 
+                            // 图片插入坐标
+                            anchor.setDx1(0);
+                            anchor.setDy1(0);
+                            anchor.setDx2(0);
+                            anchor.setDy2(0);
+                            anchor.setCol1(imageVo.getCol1());
+                            anchor.setCol2(imageVo.getCol2());
+                            anchor.setRow1(imageVo.getRow1());
+                            anchor.setRow2(imageVo.getRow2());
+                            anchor.setAnchorType(ClientAnchor.AnchorType.byId(3));
+                            // 插入图片
+                            Picture pict = drawing.createPicture(anchor, wb.addPicture(imageVo.getBytes(), HSSFWorkbook.PICTURE_TYPE_PNG));
+                            // 合并日期占两行(4个参数，分别为起始行，结束行，起始列，结束列)
+                            // 行和列都是从0开始计数，且起始结束都会合并
+                            // 这里是合并excel中日期的两行为一行
+                            CellRangeAddress region = new CellRangeAddress(imageVo.getRow1(), imageVo.getRow2()-1, imageVo.getCol1(), imageVo.getCol2()-1);
+                            sheet.addMergedRegion(region);
+                        }
+                        st=st+1;
+                    }
+
+                    //pict.resize();
+
+                }
+                // 产生一行
+                Row row = sheet.createRow(st);
+                int column = 0;
+                // 写入各个字段的列头名称
+                for (Object[] os : fields) {
+                    Excel excel = (Excel) os[1];
+                    this.createCell(excel, row, column++);
+                }
+                if (Excel.Type.EXPORT.equals(type)) {
+                    fillExcelDataPdf(index,st, row);
+                }
+                st=0;
+            }
+            String filename = encodingFilename(sheetName);
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+//            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+            response.addHeader("Access-Control-Expose-Headers", "content-disposition");
+            response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+            out = response.getOutputStream();
+            //out =new FileOutputStream("/zzj/data/ssssss.xlsx");
+            wb.write(out);
+            out.flush();
+        } catch (Exception e) {
+            log.error("导出Excel异常{}", e.getMessage());
+            throw new RuntimeException("导出Excel失败，请联系网站管理员！");
+        } finally {
+            if (wb != null) {
+                try {
+                    wb.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+    public void exportExcelImage(List<T> list, String sheetName,List<ImageVo> imageVos,int st) {
+        this.init(list, sheetName, Excel.Type.EXPORT);
+        exportExcelImage(imageVos,st);
+    }
+
+    public void exportPdf(List<T> list, String sheetName,List<ImageVo> imageVos,int st) {
+        this.init(list, sheetName, Excel.Type.EXPORT);
+        exportPdf(imageVos,st);
+    }
+    public void exportPdf(List<ImageVo> imageVos,int st) {
+        HttpServletResponse response = ServletUtils.getResponse();
+        OutputStream out = null;
+        try {
+            // 取出一共有多少个sheet.
+            double sheetNo = Math.ceil(list.size() / sheetSize);
+            for (int index = 0; index <= sheetNo; index++) {
+                createSheetPdf(sheetNo, index);
+                if(index==0){
+                    if(null!=imageVos){
+                        for(int k=0;k<imageVos.size();k++){
+                            ImageVo imageVo=imageVos.get(k);
+                            CreationHelper helper = wb.getCreationHelper();
+                            Drawing drawing = sheet.createDrawingPatriarch();
+                            ClientAnchor anchor = helper.createClientAnchor();
+
+                            // 图片插入坐标
+                            anchor.setDx1(0);
+                            anchor.setDy1(0);
+                            anchor.setDx2(0);
+                            anchor.setDy2(0);
+                            anchor.setCol1(imageVo.getCol1());
+                            anchor.setCol2(imageVo.getCol2());
+                            anchor.setRow1(imageVo.getRow1());
+                            anchor.setRow2(imageVo.getRow2());
+                            anchor.setAnchorType(ClientAnchor.AnchorType.byId(3));
+                            // 插入图片
+                            Picture pict = drawing.createPicture(anchor, wb.addPicture(imageVo.getBytes(), HSSFWorkbook.PICTURE_TYPE_PNG));
+                            // 合并日期占两行(4个参数，分别为起始行，结束行，起始列，结束列)
+                            // 行和列都是从0开始计数，且起始结束都会合并
+                            // 这里是合并excel中日期的两行为一行
+                            CellRangeAddress region = new CellRangeAddress(imageVo.getRow1(), imageVo.getRow2()-1, imageVo.getCol1(), imageVo.getCol2()-1);
+                            sheet.addMergedRegion(region);
+                        }
+                        st=st+1;
+                    }
+
+                    //pict.resize();
+
+                }
+                // 产生一行
+                Row row = sheet.createRow(st);
+                int column = 0;
+                // 写入各个字段的列头名称
+                for (Object[] os : fields) {
+                    Excel excel = (Excel) os[1];
+                    this.createCell(excel, row, column++);
+                }
+                if (Excel.Type.EXPORT.equals(type)) {
+                    fillExcelDataPdf(index,st, row);
+                }
+                st=0;
+            }
+            String filename = encodingFilename(sheetName).replaceAll(".xlsx",".pdf");
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.addHeader("Access-Control-Expose-Headers", "content-disposition");
+            response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+            out = response.getOutputStream();
+            ExcelToPdf.excel2pdf(wb, out);
+            out.flush();
+        } catch (Exception e) {
+            log.error("导出Excel异常{}", e.getMessage());
+            throw new RuntimeException("导出Excel失败，请联系网站管理员！");
+        } finally {
+            if (wb != null) {
+                try {
+                    wb.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void createSheetPdf(double sheetNo, int index) {
+        this.sheet = wb.createSheet();
+        this.styles = createStylesDpf(wb);
+        // 设置工作表的名称.
+        if (sheetNo == 0) {
+            wb.setSheetName(index, sheetName);
+        } else {
+            wb.setSheetName(index, sheetName + index);
+        }
+    }
+    private Map<String, CellStyle> createStylesDpf(Workbook wb) {
+        // 写入各条记录,每条记录对应excel表中的一行
+        // 写入各条记录,每条记录对应excel表中的一行
+        Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        Font dataFont = wb.createFont();
+        dataFont.setFontName("宋体");
+        dataFont.setFontHeightInPoints((short) 10);
+        style.setFont(dataFont);
+        style.setWrapText(true);
+        styles.put("data", style);
+
+        style = wb.createCellStyle();
+        style.cloneStyleFrom(styles.get("data"));
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setWrapText(true);
+        Font headerFont = wb.createFont();
+        headerFont.setFontName("宋体");
+        headerFont.setFontHeightInPoints((short) 10);
+        headerFont.setBold(true);
+        //headerFont.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(headerFont);
+        styles.put("header", style);
+
+        style = wb.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        Font totalFont = wb.createFont();
+        totalFont.setFontName("宋体");
+        totalFont.setFontHeightInPoints((short) 10);
+        style.setFont(totalFont);
+        styles.put("total", style);
+
+        return styles;
+    }
+    public void fillExcelDataPdf(int index,int st, Row row) {
+        int startNo = index * sheetSize;
+        int endNo = Math.min(startNo + sheetSize, list.size());
+        Map<Integer, Integer> poi = new HashMap<>();
+        Map<Integer, Integer> oldPoi = new HashMap<>();
+        oldPoi.put(0, 1);
+        int indexT = 1;
+        for (int i = startNo; i < endNo; i++) {
+            row = sheet.createRow(i + 1 - startNo+st);
+            // 得到导出对象.
+            T vo = (T) list.get(i);
+            int column = 0;
+            for (Object[] os : fields) {
+                Field field = (Field) os[0];
+                Excel excel = (Excel) os[1];
+                // 设置实体类私有属性可访问
+                field.setAccessible(true);
+                if (indexT == 1) {
+                    poi.put(column, indexT);
+                }
+
+                if (indexT > 1 && isHb) {
+                    try {
+                        Object oldv = getTargetValue(list.get(i - 1), field, excel);
+                        Object oldn = getTargetValue(vo, field, excel);
+                        if (column == 0 && !String.valueOf(oldv).equals(String.valueOf(oldn))) {
+                            if (indexT - 1 > poi.get(column)) {
+                                CellRangeAddress cra = new CellRangeAddress(poi.get(column), indexT - 1, column, column);
+                                sheet.addMergedRegion(cra);
+                            }
+                            oldPoi.put(column, poi.get(column));
+                            poi.put(column, indexT);
+                        }
+                        if (column > 0 && !String.valueOf(oldv).equals(String.valueOf(oldn))) {
+                            if (indexT - 1 > poi.get(column) && poi.get(column) < poi.get(0) && indexT <= poi.get(0) && poi.get(0) - oldPoi.get(0) > 1) {
+                                int num = poi.get(column);
+                                if (num <= oldPoi.get(0)) {
+                                    num = oldPoi.get(0);
+                                }
+                                CellRangeAddress cra = new CellRangeAddress(num, indexT - 1, column, column);
+                                sheet.addMergedRegion(cra);
+                            }
+                            poi.put(column, indexT);
+                        }
+                        if (String.valueOf(oldv).equals(String.valueOf(oldn))) {
+                            if (indexT - 1 > poi.get(column) && indexT == poi.get(0) && poi.get(0) - oldPoi.get(0) > 1 && i < endNo - 1) {
+                                int num = poi.get(column);
+                                if (num <= oldPoi.get(0)) {
+                                    num = oldPoi.get(0);
+                                }
+                                CellRangeAddress cra = new CellRangeAddress(num, indexT - 1, column, column);
+                                sheet.addMergedRegion(cra);
+                                poi.put(column, indexT);
+
+                            }
+                            if (i == endNo - 1) {
+                                int num = poi.get(column);
+                                if (num <= oldPoi.get(0)) {
+                                    num = oldPoi.get(0);
+                                }
+                                CellRangeAddress cra = new CellRangeAddress(num, indexT, column, column);
+                                sheet.addMergedRegion(cra);
+                                poi.put(column, indexT);
+                            }
+
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                this.addCell(excel, row, vo, field, column);
+                column++;
+            }
+
+            indexT++;
+        }
+
+    }
 }
 

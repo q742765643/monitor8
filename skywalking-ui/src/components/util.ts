@@ -1,4 +1,5 @@
 import request from "@/utils/request";
+import fileDownload from 'js-file-download';
 export function parseTime(time:any, pattern:String) {
   if (arguments.length === 0) {
     return null
@@ -84,4 +85,21 @@ export function selectDictLabel(datas:any, value:String) {
     }
   })
   return actions.join('');
+}
+export function downloadfileCommon(res:any) {
+  console.log(res)
+  if (!res) {
+    // @ts-ignore
+    this.msgError("没有文件,无需下载!");
+    return;
+  }
+  if (res.headers['content-disposition']) {
+    let filename = decodeURI(res.headers['content-disposition'].split(';')[1].split('=')[1]);
+    console.log(filename);
+    fileDownload(res.data, filename);
+  } else {
+    // @ts-ignore
+    this.msgError("没有文件,无需下载!");
+  }
+
 }

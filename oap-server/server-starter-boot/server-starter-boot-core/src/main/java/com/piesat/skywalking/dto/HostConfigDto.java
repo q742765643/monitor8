@@ -74,4 +74,8 @@ public class HostConfigDto extends HtJobInfoDto {
     @ApiModelProperty(value = "宕机时长")
     private float downTime;
     private List<Integer> mediaTypes;
+
+    private String alarmChart;
+
+    private String useageChart;
 }

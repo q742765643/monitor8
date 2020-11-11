@@ -1,7 +1,6 @@
 package com.piesat.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.piesat.common.filter.DataFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
@@ -13,7 +12,7 @@ import org.springframework.context.annotation.Bean;
  */
 //@Configuration
 public class FilterConfig {
-    @Bean
+    /*@Bean
     public FilterRegistrationBean<DataFilter> registerDataFilter(ObjectMapper objectMapper) {
         FilterRegistrationBean<DataFilter> registration = new FilterRegistrationBean<>(new DataFilter(objectMapper));
         // registration.setFilter(new DataFilter(objectMapper));
@@ -22,5 +21,5 @@ public class FilterConfig {
         registration.setName("DataFilter");
         registration.setOrder(1);  //值越小，Filter越靠前。
         return registration;
-    }
+    }*/
 }
