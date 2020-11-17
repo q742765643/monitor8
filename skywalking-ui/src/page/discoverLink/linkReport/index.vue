@@ -114,6 +114,7 @@
     },
     methods: {
       exportEventPdf(){
+        this.queryParams.alarmChart=this.getFullCanvasDataURL('barlineChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         params.params=JSON.stringify(params.params);
         request({
@@ -127,7 +128,7 @@
         });
       },
       exportEventXls(){
-
+        this.queryParams.alarmChart=this.getFullCanvasDataURL('barlineChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         params.params=JSON.stringify(params.params);
         request({
@@ -178,8 +179,8 @@
 
         let h_report = document.getElementById('linkReport_chart').clientHeight;
         let barHeight = document.getElementById('toolbar').clientHeight;
-        let h_page = document.getElementById('page_table').offsetHeight;
-
+        //let h_page = document.getElementById('page_table').offsetHeight;
+        let h_page=0;
         this.tableheight = h - h_report - barHeight - 2 * parseInt(padding) - h_page - 1;
       },
       drawChart(id) {
@@ -264,10 +265,10 @@
         };
 
         this.charts.setOption(options);
-        this.queryParams.alarmChart=this.charts.getDataURL();
 
       },
       fetch() {
+        this.queryParams.alarmChart='';
         hongtuConfig.reportList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
           if (res.code == 200) {
             this.total = res.data.totalCount;

@@ -124,8 +124,9 @@
     },
     methods: {
       exportEventPdf(){
+        this.queryParams.alarmChart=this.getFullCanvasDataURL('alarmChart');
+        this.queryParams.useageChart=chart.getFullCanvasDataURL('useageChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
-        console.log(params);
         params.params=JSON.stringify(params.params);
         request({
           url:  '/report/exportPdf',
@@ -138,7 +139,8 @@
         });
       },
       exportEventXls(){
-
+        this.queryParams.alarmChart=this.getFullCanvasDataURL('alarmChart');
+        this.queryParams.useageChart=chart.getFullCanvasDataURL('useageChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         console.log(params);
         params.params=JSON.stringify(params.params);
@@ -442,15 +444,12 @@
           series: series,
         };
         chart.setOption(options);
-        if(id=="alarmChart"){
-          this.queryParams.alarmChart=chart.getDataURL();
-        }
-        if(id=="useageChart"){
-          this.queryParams.useageChart=chart.getDataURL();
-        }
+
 
       },
       fetch() {
+        this.queryParams.alarmChart='';
+        this.queryParams.useageChart='';
         request({
           url: '/report/list',
           method: 'get',
