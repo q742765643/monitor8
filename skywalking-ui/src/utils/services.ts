@@ -436,11 +436,41 @@ const dataService = {
     })
   },
 
+  // 用户管理-用户状态修改
+  editUserStatus(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/user/changeStatus', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
   // 用户管理-表格
   userCofigList(params: Object) {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/user/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 用户管理-重置密码
+  resetUserPwd(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/user/resetPwd', {
           params: params,
         })
         .then((res) => {
@@ -468,6 +498,9 @@ const dataService = {
       instance
         .get('/system/role/list', {
           params: params
+        })
+        .then((res) => {
+          resolve(res)
         })
         .catch((err) => {
           reject(err);
@@ -530,6 +563,20 @@ const dataService = {
     })
   },
 
+  // 角色管理-角色状态修改
+  editRoleStatus(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/role/changeStatus', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
   // 角色管理-删除角色
   roleConfigDelete(params: String) {
     return new Promise((resolve, reject) => {
@@ -561,12 +608,84 @@ const dataService = {
   },
 
   // 部门管理-获取部门下拉树列表
-  treeselect(params:Object) {
+  treeselect(params: Object) {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/dept/treeselect', {
           params: params
         })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 部门管理-获取部门列表
+  deptList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/dept/list', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 部门管理-新增部门
+  addDept(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/system/dept', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 部门管理-修改部门
+  editDept(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/dept', params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 部门管理-删除部门
+  deleteDept(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/system/dept/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 部门管理-根据部门编号查询部门详细信息
+  getDept(params: string) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/dept/' + params)
         .then((res) => {
           resolve(res)
         })
@@ -592,8 +711,22 @@ const dataService = {
     })
   },
 
+  // 在线用户-强退用户
+  forceLogout(params: string) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/monitor/online/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
   // 菜单管理-查询菜单树
-  menuConfigTree(params: Object) {
+  menuTreeselect(params: Object) {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/menu/treeselect', {
@@ -608,21 +741,173 @@ const dataService = {
     })
   },
 
+  // 菜单管理-根据角色ID查询对应菜单
+  roleMenuTreeselect(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/roleMenuTreeselect/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 菜单管理-查询所有菜单
+  menuList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/list', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 菜单管理-根据菜单编号获取详细信息
+  getmenuDetail(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/list' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 登录日志-分页查询登录日志
+  getLogin(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/monitor/logininfor/list',{
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 登录日志-导出日志
+  exportLogininfor(query: object) {
+    return request({
+      url: '/monitor/logininfor/export',
+      method: 'get',
+      params: query,
+      responseType: "arraybuffer"
+    })
+  },
+
+  // 登录日志-删除登录日志
+  delLogininfor(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/monitor/logininfor/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 登录日志-清空登录日志
+  cleanLogininfor() {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/monitor/logininfor/clean')
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 操作日志-分页查询操作日志
+  getOperlog(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/monitor/operlog/list',{
+          params: params
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 操作日志-删除操作日志
+  delOperlog(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/monitor/operlog/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 操作日志-清空操作日志
+  cleanOperlog() {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/monitor/operlog/clean')
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+  // 操作日志-日志信息导出
+  exportOperlog(query: object) {
+    return request({
+      url: '/monitor/operlog/export',
+      method: 'get',
+      params: query,
+      responseType: "arraybuffer"
+    })
+  },
+
+
   // 通用下载方法
   download(params: String) {
     const baseURL = '/monitor'
     window.location.href = baseURL + "/api/com/downloadByPath?filePath=" + params;
   },
 
-  downloadfileCommon(params: any) {
-    // if (params.headers['content-disposition']) {
-    //   let fileName = decodeURI(params.headers['content-disposition'].split(';')[1].split('=')[1]);
-    //   fileDownload(params.data, fileName)
-    // }
-    const fileNames = window.sessionStorage.getItem('fileName')
-    console.log(fileNames)
-    fileDownload(params, `${fileNames}`);
-  },
+  // downloadfileCommon(params: any) {
+  //   // if (params.headers['content-disposition']) {
+  //   //   let fileName = decodeURI(params.headers['content-disposition'].split(';')[1].split('=')[1]);
+  //   //   fileDownload(params.data, fileName)
+  //   // }
+  //   const fileNames = window.sessionStorage.getItem('fileName')
+  //   console.log(fileNames)
+  //   fileDownload(params, `${fileNames}`);
+  // },
 
   exportRole(query: object) {
     return request({

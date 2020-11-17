@@ -196,6 +196,18 @@ const router = new Router({
           name: 'menuManagement',
           component: () => import('@/page/userMonitoring/menuManagement.vue'),
         },
+        // 日志管理-操作日志
+        {
+          path: '/operlog',
+          name: 'oerlog',
+          component: () => import('@/page/userMonitoring/record/operlog.vue')
+        },
+        // 日志管理-登录日志
+        {
+          path: '/loginlog',
+          name: 'loginlog',
+          component: () => import('@/page/userMonitoring/record/loginLog.vue')
+        },
       ],
     },
   ],

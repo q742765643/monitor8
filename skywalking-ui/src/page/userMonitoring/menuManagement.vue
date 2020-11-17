@@ -358,7 +358,7 @@
       },
       /* 编辑 */
       handleEdit(row) {
-        hongtuConfig.menuDetail(row.id).then((response) => {
+        hongtuConfig.getmenuDetail(row.id).then((response) => {
           if (response.code == 200) {
             this.formDialog = response.data;
             this.iconList.forEach((element) => {
