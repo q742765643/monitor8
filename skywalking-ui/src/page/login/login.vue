@@ -35,6 +35,7 @@
 <script>
 import loginService from '@/utils/login';
 import request from "@/utils/request";
+import hongtuConfig from '@/utils/services';
 export default {
   data() {
     return {

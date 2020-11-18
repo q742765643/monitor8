@@ -37,7 +37,7 @@
           </a-form-model-item>
           <a-form-model-item label="创建时间">
             <a-range-picker
-              style="width: 240px"
+              style="width: 295px"
               v-model="queryParams.dateRange"
               @change="onTimeChange"
               :show-time="{
@@ -80,7 +80,7 @@
                 <span>{{ parseTime(scope.row.createTime) }}</span>
               </template>
             </vxe-table-column>
-            <vxe-table-column field="userOperation" title="操作" width="">
+            <vxe-table-column field="userOperation" title="操作" width="240">
               <template v-slot="{ row }">
                 <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
                 <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
@@ -110,15 +110,15 @@
       @cancel="handleCancel"
       okText="确定"
       cancelText="取消"
-      width="40%"
+      width="45%"
       :maskClosable="false"
       :centered="true"
       class="dialogBox"
     >
       <a-form-model
         v-if="visibleModel"
-        :label-col="{ span: 6 }"
-        :wrapperCol="{ span: 17 }"
+        :label-col="{ span: 8 }"
+        :wrapperCol="{ span: 15 }"
         :model="formDialog"
         ref="formModel"
         :rules="rules"
@@ -624,7 +624,9 @@ export default {
       })
       this.visible = false
     },
-    handleCancelPsd() {},
+    handleCancelPsd() {
+      this.visible = false
+    },
     handleExport() {
       hongtuConfig.exportUser(this.queryParams).then((res) => {
         this.downloadfileCommon(res);
@@ -664,7 +666,7 @@ export default {
       .ant-input {
         width: 3rem;
         padding: 0 0.375rem 0 0.1875rem;
-        margin-bottom: 0.375rem;
+        margin-bottom: 0.45rem;
       }
 
       .ant-calendar-range-picker-input {

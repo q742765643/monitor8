@@ -61,7 +61,7 @@
       @cancel="handleCancel"
       okText="确定"
       cancelText="取消"
-      width="30%"
+      width="40%"
       :maskClosable="false"
       :centered="true"
       class="dialogBox"
@@ -240,6 +240,9 @@ export default {
       this.getTreeselect();
       hongtuConfig.getDept(row.id).then((res) => {
         this.formDialog = res.data;
+        if(this.formDialog.parentId == 100) {
+          this.formDialog.parentId =0
+        }
         this.visibleModel = true;
         this.dialogTitle = '修改部门';
       });

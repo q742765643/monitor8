@@ -8,18 +8,14 @@
         <a-form-model-item label="状态">
           <a-select v-model="queryParams.visible">
             <a-select-option value="">全部</a-select-option>
-            <a-select-option :value="item.dictValue" v-for="(item, index) in menuStatus" :key="index">
-              {{ item.dictLabel }}
+            <a-select-option :value="dict.dictValue" v-for="dict in visibleOptions" :key="dict.dictValue">
+              {{ dict.dictLabel }}
             </a-select-option>
           </a-select>
         </a-form-model-item>
         <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery">
-            搜索
-          </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-            重置
-          </a-button>
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
         </a-form-model-item>
       </a-form-model>
     </div>
@@ -27,15 +23,11 @@
     <div id="linkManger_content">
       <a-row type="flex" class="rowToolbar">
         <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleAdd">
-            新增
-          </a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
         </a-col>
-        <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleLogin">
-            登录
-          </a-button>
-        </a-col>
+        <!-- <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="handleLogin"> 登录 </a-button>
+        </a-col> -->
       </a-row>
       <div id="tablediv">
         <vxe-table :data="tableData" align="center" :tree-config="{}" highlight-hover-row ref="tablevxe">
@@ -56,12 +48,8 @@
           </vxe-table-column>
           <vxe-table-column width="160" field="date" title="操作">
             <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" @click="handleEdit(row)">
-                编辑
-              </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)">
-                删除
-              </a-button>
+              <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
             </template>
           </vxe-table-column>
         </vxe-table>
@@ -71,13 +59,13 @@
       v-model="visibleModel"
       :title="dialogTitle"
       @ok="handleOk"
+      @cancel="handleCancel"
       okText="确定"
       cancelText="取消"
       width="50%"
       :maskClosable="false"
       :centered="true"
       class="dialogBox"
-      v-if="visibleModel"
     >
       <a-form-model
         :label-col="{ span: 6 }"
@@ -88,8 +76,14 @@
       >
         <a-row>
           <a-col :span="24">
-            <a-form-model-item label="上级菜单" prop="parentId" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
-              <a-tree-select
+            <a-form-model-item label="上级菜单" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+              <treeselect
+                v-model.trim="formDialog.parentId"
+                :options="menuOptions"
+                :show-count="true"
+                placeholder="选择上级菜单"
+              />
+              <!-- <a-tree-select
                 v-model="formDialog.parentId"
                 style="width: 100%"
                 :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
@@ -97,28 +91,22 @@
                 placeholder="Please select"
                 tree-default-expand-all
               >
-              </a-tree-select>
+              </a-tree-select> -->
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
             <a-form-model-item label="菜单类型" prop="menuType" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
               <a-radio-group :default-value="formDialog.menuType" v-model="formDialog.menuType">
-                <a-radio value="M">
-                  目录
-                </a-radio>
-                <a-radio value="C">
-                  菜单
-                </a-radio>
-                <a-radio value="F">
-                  按钮
-                </a-radio>
+                <a-radio value="M"> 目录 </a-radio>
+                <a-radio value="C"> 菜单 </a-radio>
+                <a-radio value="F"> 按钮 </a-radio>
               </a-radio-group>
             </a-form-model-item>
           </a-col>
 
           <a-col :span="24">
-            <a-form-model-item label="菜单图标" prop="icon" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
-              <a-popover v-model="visiblePopover" title="请选择菜单图标" trigger="click" placement="bottomLeft">
+            <a-form-model-item label="菜单图标" v-if="formDialog.menuType != 'F'" prop="icon" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+              <a-popover title="请选择菜单图标" trigger="click" placement="bottomLeft">
                 <div slot="content" class="iconFontBox">
                   <div
                     v-for="(item, index) in iconList"
@@ -152,38 +140,31 @@
           <a-col :span="12" v-show="formDialog.menuType != 'F'">
             <a-form-model-item label="是否外链">
               <a-radio-group :default-value="formDialog.isFrame" v-model="formDialog.isFrame">
-                <a-radio :value="0">
-                  是
-                </a-radio>
-                <a-radio :value="1">
-                  否
-                </a-radio>
+                <a-radio :value="0"> 是 </a-radio>
+                <a-radio :value="1"> 否 </a-radio>
               </a-radio-group>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12" v-show="formDialog.menuType == 'C'">
+          <a-col :span="12" v-if="formDialog.menuType == 'C'">
             <a-form-model-item label="组件路径" prop="component">
-              <a-input v-model="formDialog.component"> </a-input>
+              <a-input v-model="formDialog.component" placeholder="请输入组件路径"> </a-input>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12" v-show="formDialog.menuType == 'C' || formDialog.menuType == 'F'">
-            <a-form-model-item label="权限标识" prop="perms">
+          <a-col :span="12">
+            <a-form-model-item label="权限标识" prop="perms" v-if="formDialog.menuType != 'M'">
               <a-input v-model="formDialog.perms"> </a-input>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12" v-show="formDialog.menuType != 'F'">
-            <a-form-model-item label="路由地址" prop="path">
+          <a-col :span="12">
+            <a-form-model-item label="路由地址" prop="path" v-if="formDialog.menuType != 'F'">
               <a-input v-model="formDialog.path"> </a-input>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12" v-show="formDialog.menuType != 'F'">
-            <a-form-model-item label="菜单状态" prop="visible">
+          <a-col :span="12">
+            <a-form-model-item label="菜单状态" prop="visible" v-if="formDialog.menuType != 'F'">
               <a-radio-group :default-value="formDialog.visible" v-model="formDialog.visible">
-                <a-radio value="0">
-                  显示
-                </a-radio>
-                <a-radio value="1">
-                  隐藏
+                <a-radio v-for="dict in visibleOptions" :key="dict.dictValue" :value="dict.dictValue">
+                  {{ dict.dictLabel }}
                 </a-radio>
               </a-radio-group>
             </a-form-model-item>
@@ -195,20 +176,23 @@
 </template>
 
 <script>
-  import echarts from 'echarts';
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
-  import moment from 'moment';
-  export default {
-    data() {
-      return {
-        chosedName: '',
-        queryParams: {
-          visible: '',
-          menuName: '',
-        },
-        tableData: [
-          /*  { id: 1000, menuName: 'vxe-table 从入门到放弃1', type: 'mp3', size: 1024, date: '2020-08-01' },
+import echarts from 'echarts';
+// 接口地址
+import hongtuConfig from '@/utils/services';
+import Treeselect from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import moment from 'moment';
+export default {
+  components: { Treeselect },
+  data() {
+    return {
+      chosedName: '',
+      queryParams: {
+        visible: '',
+        menuName: '',
+      },
+      tableData: [
+        /*  { id: 1000, menuName: 'vxe-table 从入门到放弃1', type: 'mp3', size: 1024, date: '2020-08-01' },
         {
           id: 1005,
           menuName: 'Test2',
@@ -234,254 +218,307 @@
         },
         { id: 23666, menuName: 'Test8', type: 'xlsx', size: 2048, date: '2020-11-01' },
         { id: 24555, menuName: 'vxe-table 从入门到放弃9', type: 'avi', size: 224, date: '2020-10-01' }, */
-        ], //表格
-        paginationTotal: 0,
-        visibleModel: false, //弹出框
-        menuStatus: [], //菜单状态
-        dialogTitle: '',
-        visiblePopover: false,
-        treeData: [
-          {
-            title: '主类目',
-            value: '0',
-            key: '0',
-            children: [
-              /*  {
+      ], //表格
+      paginationTotal: 0,
+      visibleModel: false, //弹出框
+      dialogTitle: '',
+      treeData: [
+        {
+          title: '主类目',
+          value: '0',
+          key: '0',
+          children: [
+            /*  {
               title: 'Child Node1',
               value: '0-0-1',
               key: '0-0-1',
             }, */
-            ],
-          },
-        ],
-        formDialog: {
-          taskName: '',
-          menuType: 'M',
-          isFrame: '0',
-          visible: '1',
+          ],
         },
-        rules: {
-          menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
-          orderNum: [{ required: true, message: '请输入排序', trigger: 'blur' }],
-        }, //规则
-        iconList: [
-          {
-            icon: 'iconicon-test',
-            name: '综合监控',
-          },
-          {
-            icon: 'iconchains',
-            name: '链路发现',
-          },
-          {
-            icon: 'iconshezhi',
-            name: '设置',
-          },
-          {
-            icon: 'iconxianshiqi',
-            name: '主机监视',
-          },
-          {
-            icon: 'iconthree',
-            name: '业务视图',
-          },
-          {
-            icon: 'iconyewu',
-            name: '文件监控',
-          },
-          {
-            icon: 'iconlaba',
-            name: '告警管理',
-          },
-          {
-            icon: 'iconyonghu',
-            name: '用户管理',
-          },
-        ],
-        imgcode: '',
-      };
-    },
-    created() {
-      hongtuConfig.getDicts('sys_show_hide').then((res) => {
-        if (res.code == 200) {
-          this.menuStatus = res.data.code;
-        }
-      });
+      ],
+      // 菜单树选项
+      menuOptions: [],
+      formDialog: {
+        // taskName: '',
+        // menuType: 'M',
+        // isFrame: '0',
+        // visible: '1',
+      },
+      rules: {
+        menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
+        orderNum: [{ required: true, message: '请输入排序', trigger: 'blur' }],
+      }, //规则
+      iconList: [
+        {
+          icon: 'iconicon-test',
+          name: '综合监控',
+        },
+        {
+          icon: 'iconchains',
+          name: '链路发现',
+        },
+        {
+          icon: 'iconshezhi',
+          name: '设置',
+        },
+        {
+          icon: 'iconxianshiqi',
+          name: '主机监视',
+        },
+        {
+          icon: 'iconthree',
+          name: '业务视图',
+        },
+        {
+          icon: 'iconyewu',
+          name: '文件监控',
+        },
+        {
+          icon: 'iconlaba',
+          name: '告警管理',
+        },
+        {
+          icon: 'iconyonghu',
+          name: '用户管理',
+        },
+      ],
+      imgcode: '',
+      visibleOptions: [],
+    };
+  },
+  created() {
+    hongtuConfig.getDicts('sys_show_hide').then((res) => {
+      if (res.code == 200) {
+        this.visibleOptions = res.data;
+      }
+    });
+    this.queryTable();
+  },
+  // mounted() {
+  //   hongtuConfig.captchaImage().then((response) => {
+  //     this.imgcode = response.data.code;
+  //   });
+  // },
+  methods: {
+    /* 查询 */
+    handleQuery() {
       this.queryTable();
     },
-    mounted() {
-      hongtuConfig.captchaImage().then((response) => {
-        this.imgcode = response.data.code;
+    /* 重置 */
+    resetQuery() {
+      this.queryParams = {
+        beginTime: '',
+        endTime: '',
+      };
+      this.queryTable();
+    },
+
+    /* table方法 */
+    queryTable() {
+      hongtuConfig.menuList(this.queryParams).then((response) => {
+        this.tableData = response.data;
       });
     },
-    methods: {
-      /* 查询 */
-      handleQuery() {
-        this.queryTable();
-      },
-      /* 重置 */
-      resetQuery() {
-        this.queryParams = {
-          beginTime: '',
-          endTime: '',
-        };
-        this.queryTable();
-      },
-
-      /* table方法 */
-      queryTable() {
-        hongtuConfig.menuList(this.queryParams).then((response) => {
-          this.tableData = response.data;
-        });
-      },
-      /* 字典格式化 */
-      statusFormat(list, text) {
-        return hongtuConfig.formatterselectDictLabel(list, text);
-      },
-      handleAdd() {
-        /* 新增 */
-        this.dialogTitle = '新增';
-        this.formDialog = {
-          taskName: '',
-          orderNum: '',
-          menuType: 'M',
-          isFrame: 0,
-          visible: '1',
-        };
-        hongtuConfig.menuTreeselect().then((response) => {
-          if (response.code == 200) {
-            this.treeData[0].children = response.data;
-            this.visibleModel = true;
-          }
-        });
-        this.visibleModel = true;
-      },
-      /* 编辑 */
-      handleEdit(row) {
-        hongtuConfig.getmenuDetail(row.id).then((response) => {
-          if (response.code == 200) {
-            this.formDialog = response.data;
-            this.iconList.forEach((element) => {
-              if (element.icon == this.formDialog.icon) {
-                this.chosedName = element.name;
-              }
-            });
-            this.visibleModel = true;
-            this.dialogTitle = '编辑';
-          }
-        });
-      },
-      /* 确认 */
-      handleOk() {
-        console.log(this.formDialog);
-        /* this.$refs.formModel.validate((valid) => {
+    /* 字典格式化 */
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
+    },
+    handleAdd() {
+      /* 新增 */
+      this.reset()
+      this.getTreeselect()
+      this.dialogTitle = '新增';
+      this.formDialog = {
+        taskName: '',
+        orderNum: '',
+        menuType: 'M',
+        isFrame: 0,
+        visible: '1',
+      };
+      this.visibleModel = true;
+    },
+    /** 查询菜单下拉树结构 */
+    getTreeselect() {
+      hongtuConfig.menuTreeselect().then((res) => {
+        this.menuOptions = [];
+        const menu = { id: 0, label: '主类目', children: [] };
+        if (this.dialogTitle == '修改菜单') {
+          menu.children = res.data;
+          this.resetData(menu.children, this.formDialog.menuName);
+          console.log(menu.children);
+        } else {
+          menu.children = res.data;
+        }
+        this.menuOptions.push(menu);
+      });
+    },
+    resetData(dataArr, name) {
+      for (var i in dataArr) {
+        if (dataArr[i].label == name) {
+          dataArr[i].isDisabled = true;
+        } else {
+          this.resetData(dataArr[i].children, name);
+        }
+      }
+    },
+    // 表单重置
+    reset() {
+      this.formDialog = {
+        id: undefined,
+        parentId: 0,
+        menuName: undefined,
+        icon: undefined,
+        menuType: "M",
+        orderNum: undefined,
+        isFrame: 1,
+        visible: "",
+      };
+      // this.resetForm("formModel");
+      // this.formDialog.parentId = undefined
+    },
+    /* 编辑 */
+    handleEdit(row) {
+      this.reset()
+      this.getTreeselect()
+      hongtuConfig.getmenuDetail(row.id).then((response) => {
+        if (response.code == 200) {
+          this.formDialog = response.data;
+          // this.iconList.forEach((element) => {
+          //   if (element.icon == this.formDialog.icon) {
+          //     this.chosedName = element.name;
+          //   }
+          // });
+          this.visibleModel = true;
+          this.dialogTitle = '修改菜单';
+        }
+      });
+    },
+    /* 确认 */
+    handleOk() {
+      console.log(this.formDialog);
+      this.$refs.formModel.validate((valid) => {
         if (valid) {
-          hongtuConfig.menuPost(this.formDialog).then((response) => {
+          if(this.formDialog.id){
+            hongtuConfig.menuPost(this.formDialog).then((response) => {
             if (response.code == 200) {
               this.$message.success(this.dialogTitle + '成功');
               this.visibleModel = false;
               this.queryTable();
             }
           });
+          }else {
+            hongtuConfig.addDept(this.formDialog).then((res) => {
+              if(res.code == 200) {
+                this.$message.success('新增成功')
+                this.visibleModel = false
+                this.queryTable()
+              } 
+            })
+          }
+          
         } else {
           console.log('error submit!!');
           return false;
         }
-      }); */
-      },
-      handleLogin() {
-        let obj = {
-          username: 'admin',
-          password: '2020Sod123',
-          code: this.imgcode,
-          uuid: '15812e460ae548dca98143f3bac93b4f',
-        };
-        hongtuConfig.userLogin(this.imgcode).then((response) => {
-          alert('111');
-        });
-      },
-      /* 删除 */
-      handleDelete(row) {
-        let ids = [];
-        let taskNames = [];
-        if (!row.id) {
-          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            ids.push(element.id);
-            taskNames.push(element.taskName);
-          });
-        } else {
-          ids.push(row.id);
-          taskNames.push(row.taskName);
-        }
-        this.$confirm({
-          title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
-          content: '',
-          okText: '是',
-          okType: 'danger',
-          cancelText: '否',
-          onOk: () => {
-            hongtuConfig.alarmCofigDelete(ids.join(',')).then((response) => {
-              if (response.code == 200) {
-                this.$message.success('删除成功');
-                this.resetQuery();
-              }
-            });
-          },
-          onCancel() {},
-        });
-      },
+      });
     },
-  };
+    handleCancel() {
+      this.visibleModel = false
+      this.reset();
+    },
+    // handleLogin() {
+    //   let obj = {
+    //     username: 'admin',
+    //     password: '2020Sod123',
+    //     code: this.imgcode,
+    //     uuid: '15812e460ae548dca98143f3bac93b4f',
+    //   };
+    //   hongtuConfig.userLogin(this.imgcode).then((response) => {
+    //     alert('111');
+    //   });
+    // },
+    /* 删除 */
+    handleDelete(row) {
+      let ids = [];
+      let taskNames = [];
+      if (!row.id) {
+        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+          taskNames.push(element.taskName);
+        });
+      } else {
+        ids.push(row.id);
+        taskNames.push(row.taskName);
+      }
+      this.$confirm({
+        title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
+        content: '',
+        okText: '是',
+        okType: 'danger',
+        cancelText: '否',
+        onOk: () => {
+          hongtuConfig.alarmCofigDelete(ids.join(',')).then((response) => {
+            if (response.code == 200) {
+              this.$message.success('删除成功');
+              this.resetQuery();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  .menuManTemplate {
+.menuManTemplate {
+  width: 100%;
+  height: 100%;
+  font-family: Alibaba-PuHuiTi-Regular;
+
+  .head {
+    box-shadow: $plane_shadow;
     width: 100%;
-    height: 100%;
-    font-family: Alibaba-PuHuiTi-Regular;
-
-    .head {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      height: 1.25rem;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.1rem;
-    }
-
-    #linkManger_content {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      // height: calc(100% - 1.5rem);
-      background: white;
-      padding: 0.25rem;
-      overflow: hidden;
-    }
-  }
-  .dialogBox {
-    .ant-input-number {
-      width: 100%;
-    }
-    .iconChosedBox {
-      position: absolute;
-      left: 10px;
-      bottom: -12px;
-      font-size: 0.1875rem;
-    }
-    .iconInput {
-      color: rgba(0, 0, 0, 0);
-    }
-  }
-  .iconFontBox {
-    width: 420px;
+    height: 1.25rem;
+    background: #fff;
     display: flex;
-    flex-wrap: wrap;
-    cursor: pointer;
-
-    div {
-      width: 20%;
-    }
+    align-items: center;
+    margin-bottom: 0.1rem;
   }
+
+  #linkManger_content {
+    box-shadow: $plane_shadow;
+    width: 100%;
+    // height: calc(100% - 1.5rem);
+    background: white;
+    padding: 0.25rem;
+    overflow: hidden;
+  }
+}
+.dialogBox {
+  .ant-input-number {
+    width: 100%;
+  }
+  .iconChosedBox {
+    position: absolute;
+    left: 10px;
+    bottom: -12px;
+    font-size: 0.1875rem;
+  }
+  .iconInput {
+    color: rgba(0, 0, 0, 0);
+  }
+}
+.iconFontBox {
+  width: 420px;
+  display: flex;
+  flex-wrap: wrap;
+  cursor: pointer;
+
+  div {
+    width: 20%;
+  }
+}
 </style>

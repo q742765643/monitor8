@@ -1,5 +1,4 @@
 import instance from '@/utils/request';
-import { Header } from 'vxe-table';
 
 const loginService = {
     // 获取验证码
