@@ -95,7 +95,7 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item label="菜单类型" prop="menuType" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item label="菜单类型" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
               <a-radio-group :default-value="formDialog.menuType" v-model="formDialog.menuType">
                 <a-radio value="M"> 目录 </a-radio>
                 <a-radio value="C"> 菜单 </a-radio>
@@ -105,7 +105,7 @@
           </a-col>
 
           <a-col :span="24">
-            <a-form-model-item label="菜单图标" v-if="formDialog.menuType != 'F'" prop="icon" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item label="菜单图标" v-if="formDialog.menuType != 'F'" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
               <a-popover title="请选择菜单图标" trigger="click" placement="bottomLeft">
                 <div slot="content" class="iconFontBox">
                   <div
@@ -137,7 +137,7 @@
               <a-input-number v-model="formDialog.orderNum"> </a-input-number>
             </a-form-model-item>
           </a-col>
-          <a-col :span="12" v-show="formDialog.menuType != 'F'">
+          <a-col :span="12" v-if="formDialog.menuType != 'F'">
             <a-form-model-item label="是否外链">
               <a-radio-group :default-value="formDialog.isFrame" v-model="formDialog.isFrame">
                 <a-radio :value="0"> 是 </a-radio>
@@ -146,22 +146,22 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12" v-if="formDialog.menuType == 'C'">
-            <a-form-model-item label="组件路径" prop="component">
+            <a-form-model-item label="组件路径">
               <a-input v-model="formDialog.component" placeholder="请输入组件路径"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="权限标识" prop="perms" v-if="formDialog.menuType != 'M'">
+            <a-form-model-item label="权限标识" v-if="formDialog.menuType != 'M'">
               <a-input v-model="formDialog.perms"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="路由地址" prop="path" v-if="formDialog.menuType != 'F'">
+            <a-form-model-item label="路由地址" v-if="formDialog.menuType != 'F'">
               <a-input v-model="formDialog.path"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="菜单状态" prop="visible" v-if="formDialog.menuType != 'F'">
+            <a-form-model-item label="菜单状态" v-if="formDialog.menuType != 'F'">
               <a-radio-group :default-value="formDialog.visible" v-model="formDialog.visible">
                 <a-radio v-for="dict in visibleOptions" :key="dict.dictValue" :value="dict.dictValue">
                   {{ dict.dictLabel }}
@@ -191,51 +191,10 @@ export default {
         visible: '',
         menuName: '',
       },
-      tableData: [
-        /*  { id: 1000, menuName: 'vxe-table 从入门到放弃1', type: 'mp3', size: 1024, date: '2020-08-01' },
-        {
-          id: 1005,
-          menuName: 'Test2',
-          type: 'mp4',
-          size: null,
-          date: '2021-04-01',
-          children: [
-            { id: 24300, menuName: 'Test3', type: 'avi', size: 1024, date: '2020-03-01' },
-            { id: 20045, menuName: 'vxe-table 从入门到放弃4', type: 'html', size: 600, date: '2021-04-01' },
-            {
-              id: 10053,
-              menuName: 'vxe-table 从入门到放弃96',
-              type: 'avi',
-              size: null,
-              date: '2021-04-01',
-              children: [
-                { id: 24330, menuName: 'vxe-table 从入门到放弃5', type: 'txt', size: 25, date: '2021-10-01' },
-                { id: 21011, menuName: 'Test6', type: 'pdf', size: 512, date: '2020-01-01' },
-                { id: 22200, menuName: 'Test7', type: 'js', size: 1024, date: '2021-06-01' },
-              ],
-            },
-          ],
-        },
-        { id: 23666, menuName: 'Test8', type: 'xlsx', size: 2048, date: '2020-11-01' },
-        { id: 24555, menuName: 'vxe-table 从入门到放弃9', type: 'avi', size: 224, date: '2020-10-01' }, */
-      ], //表格
+      tableData: [], //表格
       paginationTotal: 0,
       visibleModel: false, //弹出框
       dialogTitle: '',
-      treeData: [
-        {
-          title: '主类目',
-          value: '0',
-          key: '0',
-          children: [
-            /*  {
-              title: 'Child Node1',
-              value: '0-0-1',
-              key: '0-0-1',
-            }, */
-          ],
-        },
-      ],
       // 菜单树选项
       menuOptions: [],
       formDialog: {
@@ -378,9 +337,11 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
+      
       this.reset()
+      console.log(this.formDialog.parentId)
       this.getTreeselect()
-      hongtuConfig.getmenuDetail(row.id).then((response) => {
+      hongtuConfig.getMenu(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;
           // this.iconList.forEach((element) => {
