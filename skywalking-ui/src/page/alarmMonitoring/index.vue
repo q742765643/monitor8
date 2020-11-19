@@ -16,12 +16,8 @@
           />
         </a-form-model-item>
         <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery">
-            搜索
-          </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-            重置
-          </a-button>
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
         </a-form-model-item>
       </a-form-model>
     </div>
@@ -29,18 +25,14 @@
     <div id="linkManger_content">
       <a-row type="flex" class="rowToolbar">
         <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleAdd">
-            新增
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete">
-            删除
-          </a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
       <div id="tablediv">
         <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
           <vxe-table-column type="checkbox"></vxe-table-column>
-          <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
+
           <vxe-table-column field="taskName" title="任务名称">
             <template v-slot="{ row }">
               <span> {{ statusFormat(typeOptions, row.monitorType) }}</span>
@@ -60,12 +52,8 @@
           </vxe-table-column>
           <vxe-table-column width="160" field="date" title="操作">
             <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" @click="handleEdit(row)">
-                编辑
-              </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)">
-                删除
-              </a-button>
+              <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
             </template>
           </vxe-table-column>
         </vxe-table>
@@ -112,12 +100,8 @@
           <a-col :span="12">
             <a-form-model-item label="状态" prop="triggerStatus">
               <a-select v-model="formDialog.triggerStatus" placeholder="字典状态">
-                <a-select-option :value="0">
-                  未启动
-                </a-select-option>
-                <a-select-option :value="1">
-                  启动
-                </a-select-option>
+                <a-select-option :value="0"> 未启动 </a-select-option>
+                <a-select-option :value="1"> 启动 </a-select-option>
               </a-select>
             </a-form-model-item>
           </a-col>
@@ -131,8 +115,17 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="corn表达式" prop="jobCron">
-              <a-input v-model="formDialog.jobCron" placeholder="corn表达式"> </a-input>
+            <a-form-model-item label="corn表达式1" prop="jobCron">
+              <el-popover v-model.trim="cronPopover">
+                <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
+                <el-input
+                  size="small"
+                  slot="reference"
+                  @click="cronPopover = true"
+                  v-model.trim="formDialog.jobCron"
+                  placeholder="请输入定时策略"
+                ></el-input>
+              </el-popover>
             </a-form-model-item>
           </a-col>
           <a-col :span="24" v-for="(itemp, indexp) in formDialog.generals" :key="'0-' + indexp">
@@ -141,13 +134,9 @@
                 <i class="formIcon">*</i><i class="rulesIcon rulesIcon1"></i> 一般阈值</span
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
-                <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
-                  <a-select-option value="and">
-                    并且
-                  </a-select-option>
-                  <a-select-option value="or">
-                    或者
-                  </a-select-option>
+                <a-select v-model="itemp.operate" style="width: 2rem; float: left; margin-left: 24px">
+                  <a-select-option value="and"> 并且 </a-select-option>
+                  <a-select-option value="or"> 或者 </a-select-option>
                 </a-select>
               </span>
               <a-row class="lineContent" :gutter="[16, 16]">
@@ -169,9 +158,7 @@
                   <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
                 </a-col>
                 <a-col :span="4" class="unitBox">
-                  <a-button type="primary" icon="plus" @click="generalsHandleAdd">
-                    新增
-                  </a-button>
+                  <a-button type="primary" icon="plus" @click="generalsHandleAdd"> 新增 </a-button>
                   <a-button type="danger" icon="delete" @click="generalsHandleDelete(indexp)" v-show="indexp > 0">
                     删除
                   </a-button>
@@ -185,13 +172,9 @@
                 <i class="formIcon">*</i><i class="rulesIcon rulesIcon2"></i> 危险阈值</span
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
-                <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
-                  <a-select-option value="and">
-                    并且
-                  </a-select-option>
-                  <a-select-option value="or">
-                    或者
-                  </a-select-option>
+                <a-select v-model="itemp.operate" style="width: 2rem; float: left; margin-left: 24px">
+                  <a-select-option value="and"> 并且 </a-select-option>
+                  <a-select-option value="or"> 或者 </a-select-option>
                 </a-select>
               </span>
               <a-row class="lineContent" :gutter="[16, 16]">
@@ -213,9 +196,7 @@
                   <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
                 </a-col>
                 <a-col :span="4" class="unitBox">
-                  <a-button type="primary" icon="plus" @click="dangerHandleAdd">
-                    新增
-                  </a-button>
+                  <a-button type="primary" icon="plus" @click="dangerHandleAdd"> 新增 </a-button>
                   <a-button type="danger" icon="delete" @click="dangerHandleDelete(indexp)" v-show="indexp > 0">
                     删除
                   </a-button>
@@ -230,13 +211,9 @@
                 <i class="formIcon">*</i><i class="rulesIcon rulesIcon3"></i> 故障阈值</span
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
-                <a-select v-model="itemp.operate" style="width:2rem;float: left;margin-left: 24px;">
-                  <a-select-option value="and">
-                    并且
-                  </a-select-option>
-                  <a-select-option value="or">
-                    或者
-                  </a-select-option>
+                <a-select v-model="itemp.operate" style="width: 2rem; float: left; margin-left: 24px">
+                  <a-select-option value="and"> 并且 </a-select-option>
+                  <a-select-option value="or"> 或者 </a-select-option>
                 </a-select>
               </span>
               <a-row class="lineContent" :gutter="[16, 16]">
@@ -258,9 +235,7 @@
                   <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
                 </a-col>
                 <a-col :span="4" class="unitBox">
-                  <a-button type="primary" icon="plus" @click="severitysHandleAdd">
-                    新增
-                  </a-button>
+                  <a-button type="primary" icon="plus" @click="severitysHandleAdd"> 新增 </a-button>
                   <a-button type="danger" icon="delete" @click="severitysHandleDelete(indexp)" v-show="indexp > 0">
                     删除
                   </a-button>
@@ -286,7 +261,26 @@
   import moment from 'moment';
   export default {
     data() {
+      //校验是否为cron表达式
+      var handleCronValidate = async (rule, value, callback) => {
+        if (value == '') {
+          callback(new Error('请输入执行策略!'));
+        } else {
+          let flag = true;
+          await getNextTime({
+            cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+          }).then((res) => {
+            flag = false;
+          });
+          if (flag) {
+            callback(new Error('执行策略表达式错误!'));
+          } else {
+            callback();
+          }
+        }
+      };
       return {
+        cronPopover: false,
         queryParams: {
           pageNum: 1,
           pageSize: 10,
@@ -307,7 +301,10 @@
           taskName: '',
           dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
         },
-        rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
+        rules: {
+          taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
+          //jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
+        }, //规则
       };
     },
     created() {
@@ -320,7 +317,7 @@
         if (res.code == 200) {
           this.kpiOptions = res.data;
           this.kpiOptions.forEach((item, index) => {
-            item.dictValue=parseInt( item.dictValue)
+            item.dictValue = parseInt(item.dictValue);
           });
         }
       });
@@ -328,7 +325,7 @@
         if (res.code == 200) {
           this.typeOptions = res.data;
           this.typeOptions.forEach((item, index) => {
-            item.dictValue=parseInt( item.dictValue)
+            item.dictValue = parseInt(item.dictValue);
           });
         }
       });
@@ -343,6 +340,34 @@
       });
     },
     methods: {
+      changeCron(val) {
+        this.cronExpression = val;
+        if (val.substring(0, 5) == '* * *') {
+          this.msgError('小时,分钟,秒必填');
+        } else {
+          this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
+        }
+      },
+      closeCronPopover() {
+        if (this.cronExpression.substring(0, 5) == '* * *') {
+          return;
+        } else {
+          /*   getNextTime({
+          cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
+        }).then((res) => {
+          let times = res.data;
+          let html = '';
+          times.forEach((element) => {
+            html += '<p>' + element + '</p>';
+          });
+          this.$alert(html, '前5次执行时间', {
+            dangerouslyUseHTMLString: true,
+          }).then(() => {
+            this.CronPopover = false;
+          });
+        }); */
+        }
+      },
       changeType(val) {
         this.monitorVal = val;
         this.formDialog.dangers.forEach((element) => {

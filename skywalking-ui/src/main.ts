@@ -53,6 +53,9 @@ import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
 import 'ant-design-vue/dist/antd.css';
 import { FormModel } from 'ant-design-vue';
+//全局引入 cron表达式
+import VueCron from 'vue-cron';
+Vue.use(VueCron); //使用方式：<vueCron></vueCron>
 Vue.use(ElementUI);
 Vue.use(FormModel);
 Vue.use(VXETable);
@@ -64,10 +67,6 @@ import '@/assets/css/style.scss';
 
 import axios from 'axios';
 Vue.prototype.$axios = axios;
-
-//全局引入 cron表达式
-// import VueCron from 'vue-cron'
-// Vue.use(VueCron); //使用方式：<vueCron></vueCron>
 
 // import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf';
 // VXETable.use(VXETablePluginExportPDF);
