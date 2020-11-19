@@ -14,9 +14,7 @@
     z-index: 1;
     width: 100%;
     height: 1rem;
-    // line-height: 1.25rem;
     font-size: 0.2rem;
-    //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
     box-shadow: $plane_shadow;
     margin-bottom: 0.1rem;
   }
