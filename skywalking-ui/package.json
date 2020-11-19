@@ -45,6 +45,7 @@
     "stompjs": "^2.3.3",
     "vue": "^2.6.6",
     "vue-class-component": "^6.0.0",
+    "vue-cron": "^1.0.9",
     "vue-i18n": "^8.10.0",
     "vue-js-modal": "^1.3.31",
     "vue-property-decorator": "^8.3.0",

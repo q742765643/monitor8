@@ -45,27 +45,27 @@ module.exports = {
                     ['^/monitor']: '',
                 },
             },
-        },
-    },
-    chainWebpack: (config) => {
-        /* const svgRule = config.module.rule('svg');
-                                                        svgRule.uses.clear();
-                                                        svgRule
-                                                            .use('svg-sprite-loader')
-                                                            .loader('svg-sprite-loader')
-                                                            .options({
-                                                                symbolId: '[name]',
-                                                            }); */
-        /*  const CssRule = config.module.rule('css');
-                                                         CssRule.uses.clear();
-                                                         CssRule.loader('css-loader')
-                                                         CssRule.loader('style-loader') */
-    },
-    css: {
-        loaderOptions: {
-            sass: {
-                data: `@import "./src/assets/css/global.scss";`,
+            chainWebpack: (config) => {
+                /* const svgRule = config.module.rule('svg');
+                                                                svgRule.uses.clear();
+                                                                svgRule
+                                                                    .use('svg-sprite-loader')
+                                                                    .loader('svg-sprite-loader')
+                                                                    .options({
+                                                                        symbolId: '[name]',
+                                                                    }); */
+                /*  const CssRule = config.module.rule('css');
+                                                                 CssRule.uses.clear();
+                                                                 CssRule.loader('css-loader')
+                                                                 CssRule.loader('style-loader') */
             },
-        },
-    },
-};
+            css: {
+                loaderOptions: {
+                    sass: {
+                        data: `@import "./src/assets/css/global.scss";`,
+                    },
+                },
+            },
+        }
+    }
+}

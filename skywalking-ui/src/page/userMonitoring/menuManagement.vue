@@ -360,7 +360,7 @@ export default {
       this.$refs.formModel.validate((valid) => {
         if (valid) {
           if(this.formDialog.id){
-            hongtuConfig.menuPost(this.formDialog).then((response) => {
+            hongtuConfig.updateMenu(this.formDialog).then((response) => {
             if (response.code == 200) {
               this.$message.success(this.dialogTitle + '成功');
               this.visibleModel = false;
@@ -368,7 +368,7 @@ export default {
             }
           });
           }else {
-            hongtuConfig.addDept(this.formDialog).then((res) => {
+            hongtuConfig.addMenu(this.formDialog).then((res) => {
               if(res.code == 200) {
                 this.$message.success('新增成功')
                 this.visibleModel = false
@@ -419,7 +419,7 @@ export default {
         okType: 'danger',
         cancelText: '否',
         onOk: () => {
-          hongtuConfig.alarmCofigDelete(ids.join(',')).then((response) => {
+          hongtuConfig.delMenu(ids.join(',')).then((response) => {
             if (response.code == 200) {
               this.$message.success('删除成功');
               this.resetQuery();

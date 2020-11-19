@@ -797,13 +797,41 @@ const dataService = {
     })
   },
 
+  // 菜单管理-删除菜单
+  delMenu(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 菜单管理-修改
+  updateMenu(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/menu' , params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
 
 
   // 菜单管理-新增菜单
   addMenu(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/system/menu' , params)
+        .post('/system/menu' , params)
         .then((res) => {
           resolve(res)
         })
