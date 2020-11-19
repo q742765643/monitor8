@@ -15,12 +15,8 @@
               <template v-slot:buttons>
                 <!--   <vxe-button @click="exportEventXls">导出excel</vxe-button>
                 <vxe-button @click="exportEventPdf">导出pdf</vxe-button> -->
-                <a-button type="primary" @click="exportEventXls">
-                  导出excel
-                </a-button>
-                <a-button type="primary" @click="exportEventPdf">
-                  导出pdf
-                </a-button>
+                <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
+                <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
               </template>
             </vxe-toolbar>
           </div>
@@ -45,7 +41,7 @@
             <vxe-table-column field="maxProcessSize" title="最多进程数"></vxe-table-column>
           </vxe-table>
 
-  <!--        <vxe-pager
+          <!--        <vxe-pager
             id="page_table"
             perfect
             :current-page.sync="queryParams.pageNum"
@@ -107,7 +103,7 @@
         tableData: [],
       };
     },
-    components: { aYearPicker,selectDate },
+    components: { aYearPicker, selectDate },
     created() {},
     mounted() {
       //this.fetch();
@@ -123,58 +119,62 @@
       });
     },
     methods: {
-      exportEventPdf(){
-        this.queryParams.alarmChart=this.getFullCanvasDataURL('alarmChart');
-        this.queryParams.useageChart=chart.getFullCanvasDataURL('useageChart');
-        let params=this.addDateRange(this.queryParams, this.dateRange)
-        params.params=JSON.stringify(params.params);
+      exportEventPdf() {
+        this.queryParams.alarmChart = this.getFullCanvasDataURL('alarmChart');
+        this.queryParams.useageChart = chart.getFullCanvasDataURL('useageChart');
+        let params = this.addDateRange(this.queryParams, this.dateRange);
+        params.params = JSON.stringify(params.params);
         request({
-          url:  '/report/exportPdf',
+          url: '/report/exportPdf',
           method: 'post',
-          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           data: Qs.stringify(params),
-          responseType: "arraybuffer"
+          responseType: 'arraybuffer',
         }).then((res) => {
           this.downloadfileCommon(res);
         });
       },
-      exportEventXls(){
-        this.queryParams.alarmChart=this.getFullCanvasDataURL('alarmChart');
-        this.queryParams.useageChart=chart.getFullCanvasDataURL('useageChart');
-        let params=this.addDateRange(this.queryParams, this.dateRange)
+      exportEventXls() {
+        this.queryParams.alarmChart = this.getFullCanvasDataURL('alarmChart');
+        this.queryParams.useageChart = chart.getFullCanvasDataURL('useageChart');
+        let params = this.addDateRange(this.queryParams, this.dateRange);
         console.log(params);
-        params.params=JSON.stringify(params.params);
+        params.params = JSON.stringify(params.params);
         request({
-          url:  '/report/export',
+          url: '/report/export',
           method: 'post',
-          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           data: Qs.stringify(params),
-          responseType: "arraybuffer"
+          responseType: 'arraybuffer',
         }).then((res) => {
           this.downloadfileCommon(res);
         });
       },
-      getFullCanvasDataURL(divId){
+      getFullCanvasDataURL(divId) {
         //将第一个画布作为基准。
-        var baseCanvas = $("#"+divId).find("canvas").first()[0];
-        if(!baseCanvas){
+        var baseCanvas = $('#' + divId)
+          .find('canvas')
+          .first()[0];
+        if (!baseCanvas) {
           return false;
-        };
+        }
         var width = baseCanvas.width;
         var height = baseCanvas.height;
-        var ctx = baseCanvas.getContext("2d");
+        var ctx = baseCanvas.getContext('2d');
         //遍历，将后续的画布添加到在第一个上
-        $("#"+divId).find("canvas").each(function(i,canvasObj){
-          if(i>0){
-            var canvasTmp = $(canvasObj)[0];
-            ctx.drawImage(canvasTmp,0,0,width,height);
-          }
-        });
+        $('#' + divId)
+          .find('canvas')
+          .each(function(i, canvasObj) {
+            if (i > 0) {
+              var canvasTmp = $(canvasObj)[0];
+              ctx.drawImage(canvasTmp, 0, 0, width, height);
+            }
+          });
         //获取base64位的url
         return baseCanvas.toDataURL();
       },
-      changeDate(data){
-        this.dateRange=data;
+      changeDate(data) {
+        this.dateRange = data;
         this.fetch();
       },
       moment,
@@ -219,7 +219,7 @@
         this.alarmCountData = [];
         this.cpuUsageData = [];
         this.ramUsageData = [];
-        this.romUsageData =[];
+        this.romUsageData = [];
 
         this.tableData.forEach((item) => {
           this.downCountData.push(item.downCount);
@@ -384,7 +384,7 @@
         let h = document.getElementById('dataPlane').clientHeight;
         let padding = getComputedStyle(document.getElementById('tablediv'), false)['paddingLeft'];
         let chartHeight = document.getElementById('report_chartdiv').offsetHeight;
-        let h_page=0;
+        let h_page = 0;
         //let h_page = document.getElementById('page_table').offsetHeight;
         this.tableheight = h - chartHeight - parseInt(padding) * 2 - h_page - 1;
       },
@@ -444,12 +444,10 @@
           series: series,
         };
         chart.setOption(options);
-
-
       },
       fetch() {
-        this.queryParams.alarmChart='';
-        this.queryParams.useageChart='';
+        this.queryParams.alarmChart = '';
+        this.queryParams.useageChart = '';
         request({
           url: '/report/list',
           method: 'get',

@@ -39,11 +39,10 @@ import 'echarts/lib/component/tooltip';
 import VModal from 'vue-js-modal';
 import { queryOAPTimeInfo } from './utils/localtime';
 import './assets';
-import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import Pagination from '@/components/Pagination/index.vue';
 
-import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel,downloadfileCommon } from '@/components/util';
+import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel, downloadfileCommon } from '@/components/util';
 
 import '@/assets/iconfont/iconfont.css';
 import 'lib-flexible';
@@ -55,7 +54,6 @@ import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
 import 'ant-design-vue/dist/antd.css';
 import { FormModel } from 'ant-design-vue';
-Vue.use(ElementUI);
 Vue.use(FormModel);
 Vue.use(VXETable);
 Vue.use(Antd);
@@ -64,9 +62,8 @@ VXETable.setup({ size: 'mini' });
 import '@/assets/css/reset.scss';
 import '@/assets/css/style.scss';
 
-import axios from 'axios'
-Vue.prototype.$axios = axios
-
+import axios from 'axios';
+Vue.prototype.$axios = axios;
 
 // import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf';
 // VXETable.use(VXETablePluginExportPDF);
@@ -82,7 +79,6 @@ Vue.prototype.$axios = axios
 //     },
 //   ],
 // });
-import 'lib-flexible'; //https://blog.csdn.net/weixin_41257563/article/details/97266234 自适应方案核心
 //拖动
 /* import VueDND from 'awe-dnd' */
 let VueDND: any = require('awe-dnd');
@@ -118,7 +114,6 @@ Vue.use(components);
 Vue.use(VModal, { dialog: true });
 Vue.directive('clickout', clickout);
 Vue.directive('tooltip', tooltip);
-Vue.use(ElementUI);
 Vue.component('Pagination', Pagination);
 
 Vue.filter('dateformat', (dataStr: any, pattern: string = 'YYYY-MM-DD HH:mm:ss') => moment(dataStr).format(pattern));
