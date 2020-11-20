@@ -125,7 +125,7 @@
     methods: {
       exportEventPdf(){
         this.queryParams.alarmChart=this.getFullCanvasDataURL('alarmChart');
-        this.queryParams.useageChart=chart.getFullCanvasDataURL('useageChart');
+        this.queryParams.useageChart=this.getFullCanvasDataURL('useageChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         params.params=JSON.stringify(params.params);
         request({
@@ -140,7 +140,7 @@
       },
       exportEventXls(){
         this.queryParams.alarmChart=this.getFullCanvasDataURL('alarmChart');
-        this.queryParams.useageChart=chart.getFullCanvasDataURL('useageChart');
+        this.queryParams.useageChart=this.getFullCanvasDataURL('useageChart');
         let params=this.addDateRange(this.queryParams, this.dateRange)
         console.log(params);
         params.params=JSON.stringify(params.params);
