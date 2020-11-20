@@ -42,9 +42,7 @@ import './assets';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import Pagination from '@/components/Pagination/index.vue';
-
-import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel,downloadfileCommon } from '@/components/util';
-
+import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel, downloadfileCommon } from '@/components/util';
 import '@/assets/iconfont/iconfont.css';
 import 'lib-flexible';
 import { Button } from 'ant-design-vue';
@@ -55,6 +53,9 @@ import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
 import 'ant-design-vue/dist/antd.css';
 import { FormModel } from 'ant-design-vue';
+//全局引入 cron表达式
+import VueCron from 'vue-cron';
+Vue.use(VueCron); //使用方式：<vueCron></vueCron>
 Vue.use(ElementUI);
 Vue.use(FormModel);
 Vue.use(VXETable);
@@ -64,10 +65,8 @@ VXETable.setup({ size: 'mini' });
 import '@/assets/css/reset.scss';
 import '@/assets/css/style.scss';
 
-import axios from 'axios'
-Vue.prototype.$axios = axios
-
-import hongtuConfig from '@/utils/services';
+import axios from 'axios';
+Vue.prototype.$axios = axios;
 
 // import VXETablePluginExportPDF from 'vxe-table-plugin-export-pdf';
 // VXETable.use(VXETablePluginExportPDF);
@@ -83,7 +82,6 @@ import hongtuConfig from '@/utils/services';
 //     },
 //   ],
 // });
-import 'lib-flexible'; //https://blog.csdn.net/weixin_41257563/article/details/97266234 自适应方案核心
 //拖动
 /* import VueDND from 'awe-dnd' */
 let VueDND: any = require('awe-dnd');
@@ -110,7 +108,6 @@ Vue.prototype.msgSuccess = function(msg: any) {
   this.$message.success(msg);
 };
 
-Vue.prototype.download = hongtuConfig.download
 Vue.prototype.msgError = function(msg: any) {
   this.$message.success(msg);
 };
@@ -120,7 +117,6 @@ Vue.use(components);
 Vue.use(VModal, { dialog: true });
 Vue.directive('clickout', clickout);
 Vue.directive('tooltip', tooltip);
-/* Vue.use(ElementUI); */
 Vue.component('Pagination', Pagination);
 
 Vue.filter('dateformat', (dataStr: any, pattern: string = 'YYYY-MM-DD HH:mm:ss') => moment(dataStr).format(pattern));

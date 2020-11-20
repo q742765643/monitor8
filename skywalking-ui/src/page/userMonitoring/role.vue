@@ -1,6 +1,6 @@
 <template>
   <div class="roleMonitorTemplate">
-    <a-form-model layout="inline" :model="queryParams" class="queryForm">
+    <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="角色名称">
         <a-input v-model="queryParams.roleName" placeholder="请输入角色名称"> </a-input>
       </a-form-model-item>
@@ -8,42 +8,27 @@
         <a-input v-model="queryParams.roleKey" placeholder="请输入权限字符"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="状态">
-        <a-select v-model="queryParams.status" style="width: 240px" @change="handleSelectChange">
-          <a-select-option :value="0">
-            正常
-          </a-select-option>
-          <a-select-option :value="1">
-            停用
+        <a-select v-model="queryParams.status" style="width: 240px">
+          <a-select-option v-for="dict in statusOptions" :key="dict.dictValue">
+            {{ dict.dictLabel }}
           </a-select-option>
         </a-select>
       </a-form-model-item>
       <a-form-model-item label="创建时间">
-        <a-range-picker />
+        <a-range-picker v-model.trim="queryParams.dateRange" />
       </a-form-model-item>
       <a-form-model-item>
-        <a-button type="primary" html-type="submit" @click="getRoleList">
-          搜索
-        </a-button>
-        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-          重置
-        </a-button>
+        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
       </a-form-model-item>
     </a-form-model>
     <div id="linkrole_content">
       <a-row type="flex" class="rowToolbar">
         <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleAdd">
-            新增
-          </a-button>
-          <a-button type="primary" icon="edit" @click="handleEdit">
-            修改
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete">
-            删除
-          </a-button>
-          <a-button type="primary" icon="vertical-align-bottom" @click="handleUpload">
-            导出
-          </a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+          <a-button type="primary" icon="edit" @click="handleUpdate"> 修改 </a-button>
+          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
+          <a-button type="primary" icon="vertical-align-bottom" @click="handleUpload"> 导出 </a-button>
         </a-col>
       </a-row>
 
@@ -57,15 +42,15 @@
               <a-switch :checked="row.status == '0' ? true : false" @change="handleStatus(row)" />
             </template>
           </vxe-table-column>
-          <vxe-table-column field="createTime" title="创建时间"></vxe-table-column>
+          <vxe-table-column field="createTime" title="创建时间">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createTime) }}</span>
+            </template>
+          </vxe-table-column>
           <vxe-table-column title="操作">
             <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" @click="handleEdit(row)">
-                修改
-              </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)">
-                删除
-              </a-button>
+              <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
+              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
             </template>
           </vxe-table-column>
         </vxe-table>
@@ -133,7 +118,7 @@
                 :auto-expand-parent="autoExpandParent"
                 :selected-keys="selectedKeys"
                 :tree-data="treeData"
-                :replaceFields='replaceFields'
+                :replaceFields="replaceFields"
                 @expand="onExpand"
                 @select="onSelect"
               />
@@ -143,12 +128,9 @@
         <a-row>
           <a-col :span="24">
             <a-form-model-item label="状态">
-              <a-radio-group name="radioGroup" style="width:200px" v-model="formDialog.status">
-                <a-radio :value="0">
-                  正常
-                </a-radio>
-                <a-radio :value="1">
-                  停用
+              <a-radio-group name="radioGroup" style="width: 200px" v-model="formDialog.status">
+                <a-radio v-for="dict in statusOptions" :key="dict.dictValue" :value="dict.dictValue">
+                  {{ dict.dictLabel }}
                 </a-radio>
               </a-radio-group>
             </a-form-model-item>
@@ -173,82 +155,13 @@
 <script>
 import hongtuConfig from '@/utils/services';
 import request from '@/utils/request';
-// const treeData = [
-//   {
-//     key: '0-0',
-//     scopedSlots: {
-//       title: 'title',
-//     },
-//     title: '0-0',
-//     children: [
-//       {
-//         key: '0-0-0',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-0-0',
-//       },
-//       {
-//         key: '0-0-1',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-0-1',
-//       },
-//       {
-//         key: '0-0-2',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-0-2',
-//       },
-//     ],
-//   },
-//   {
-//     key: '0-1',
-//     scopedSlots: {
-//       title: 'title',
-//     },
-//     title: '0-1',
-//     children: [
-//       {
-//         key: '0-1-0',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-1-0',
-//       },
-//       {
-//         key: '0-1-1',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-1-1',
-//       },
-//       {
-//         key: '0-1-2',
-//         scopedSlots: {
-//           title: 'title',
-//         },
-//         title: '0-1-2',
-//       },
-//     ],
-//   },
-//   {
-//     key: '0-2',
-//     scopedSlots: {
-//       title: '0-2',
-//     },
-//     title: '0-2',
-//   },
-// ];
 export default {
   data() {
     return {
       queryParams: {
-        roleName: '',
-        roleKey: '',
-        status: '',
+        roleName: undefined,
+        roleKey: undefined,
+        status: undefined,
         pageNum: 1,
         pageSize: 10,
       },
@@ -256,14 +169,7 @@ export default {
       paginationTotal: 0,
       visibleModel: false,
       dialogTitle: '',
-      formDialog: {
-        roleName: '',
-        roleKey: '',
-        roleSort: 0,
-        status: 0,
-        menuIds: [],
-        remark: '',
-      },
+      formDialog: {},
       rules: {
         roleName: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }],
         roleKey: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
@@ -276,29 +182,62 @@ export default {
       replaceFields: {
         children: 'children',
         title: 'label',
-        key: 'id'
-      }
+        key: 'id',
+      },
+      statusOptions: [],
+      ids: [],
     };
   },
   created() {
     this.getRoleList();
-    this.getTreeSelect()
+    hongtuConfig.getDicts('sys_normal_disable').then((res) => {
+      if (res.code == 200) {
+        this.statusOptions = res.data;
+      }
+      console.log(this.statusOptions);
+    });
   },
   methods: {
     getRoleList() {
-      hongtuConfig.roleConfigList(this.queryParams).then((res) => {
+      if (this.queryParams.dateRange) {
+        this.dateRange = this.queryParams.dateRange;
+      } else {
+        this.dateRange = [];
+      }
+      hongtuConfig.roleConfigList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
         console.log(res);
         this.roleListData = res.data.pageData;
         this.paginationTotal = res.data.totalCount;
       });
     },
-    getTreeSelect(){
-      hongtuConfig.menuConfigTree(this.queryParams).then((res) => {
-        console.log(res)
-        this.treeData = res.data
-      })
+    // 查询菜单树结构
+    getMenuTreeselect() {
+      hongtuConfig.menuTreeselect(this.queryParams).then((res) => {
+        console.log(res);
+        this.treeData = res.data;
+      });
     },
-    handleQuery() {},
+    // 表单重置
+    reset() {
+      // if (this.$refs.tree != undefined) {
+      //   this.$refs.tree.setCheckedKeys([]);
+      // }
+      this.formDialog = {
+        id: undefined,
+        roleName: undefined,
+        roleKey: undefined,
+        roleSort: 0,
+        status: '0',
+        menuIds: [],
+        deptIds: [],
+        remark: undefined,
+      };
+      // this.resetForm("formModel");
+    },
+    handleQuery() {
+      this.queryParams.pageNum = 1;
+      this.getRoleList();
+    },
     resetQuery() {
       this.queryParams = {
         pageNum: 1,
@@ -311,8 +250,9 @@ export default {
     },
     handleSelectChange() {},
     handleAdd() {
-      this.getTreeSelect()
-      this.dialogTitle = '添加用户';
+      this.reset();
+      this.getMenuTreeselect();
+      this.dialogTitle = '添加角色';
       this.visibleModel = true;
     },
     handleOk() {
@@ -328,8 +268,8 @@ export default {
               }
             });
           } else {
-            console.log(this.formDialog)
-            this.formDialog.menuIds = []
+            console.log(this.formDialog);
+            this.formDialog.menuIds = [];
             hongtuConfig.roleConfigEdit(this.formDialog).then((res) => {
               console.log(res);
               if (res.code == 200) {
@@ -344,17 +284,60 @@ export default {
     },
     handleCancel() {},
     handleStatus(row) {
-      row.status = !row.status;
+      console.log(row);
+      row.status = row.status == '0' ? '1' : '0';
+      let text = row.status === '0' ? '启用' : '停用';
+      let statusData = {
+        id: row.id,
+        status: row.status,
+      };
+      this.$confirm({
+        title: '确认要"' + text + '""' + row.roleName + '"用户吗?',
+        content: '',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: () => {
+          console.log(statusData);
+          hongtuConfig.editRoleStatus(statusData).then((res) => {
+            if (res.code == 200) {
+              this.$message.success('修改状态成功');
+              this.getRoleList();
+            }
+          });
+        },
+        onCancel() {},
+      });
     },
     onExpand() {},
     onSelect() {},
-    handleEdit(row) {
-      hongtuConfig.roleCofigSearchById(row.id).then((res) => {
+    // 根据角色ID查询菜单树结构
+    getRoleMenuTreeselect(id) {
+      this.getMenuTreeselect();
+    },
+    handleUpdate(row) {
+      if(!row.id){
+        let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          this.ids.push(element.id);
+        });
+      }
+      this.reset();
+      const id = row.id || this.ids;
+      // this.ids = [];
+      // this.ids.push(id);
+      this.$nextTick(() => {
+        this.getRoleMenuTreeselect(id);
+      });
+      hongtuConfig.roleCofigSearchById(id).then((res) => {
         if (res.code == 200) {
           this.formDialog = res.data;
-          this.visibleModel = true;
-          this.dialogTitle = '编辑用户';
         }
+        hongtuConfig.roleMenuTreeselect(id).then((response) => {
+          console.log(response);
+        });
+        this.visibleModel = true;
+        this.dialogTitle = '编辑用户';
       });
     },
     handleDelete(row) {
@@ -389,9 +372,9 @@ export default {
     },
     handleUpload() {
       hongtuConfig.exportRole(this.queryParams).then((res) => {
-        console.log(res)
-        this.downloadfileCommon(res)
-      })
+        console.log(res);
+        this.downloadfileCommon(res);
+      });
     },
     // 分页事件
     handlePageChange({ currentPage, pageSize }) {
@@ -419,7 +402,7 @@ export default {
 }
 .ant-input {
   width: 240px;
-  margin-right: 20px;
+  margin: 0 20px 15px 0;
 }
 #linkrole_content {
   padding: 20px 0;

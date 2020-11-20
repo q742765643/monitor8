@@ -166,6 +166,17 @@
           <span class="iconfont">&#xe60c;</span>
           <router-link to="/departmentMonitoring"> 部门管理</router-link>
         </a-menu-item>
+        <a-sub-menu key="sub9" class="log">
+          <span slot="title" > <span class="iconfont">&#xe640;</span>日志管理</span>
+          <a-menu-item key="/operlog">
+            <span class="iconfont">&#xe616;</span>
+            <router-link to="/operlog"> 操作日志</router-link>
+          </a-menu-item>
+          <a-menu-item key="/loginlog">
+            <span class="iconfont">&#xe616;</span>
+            <router-link to="/loginlog"> 登录日志</router-link>
+          </a-menu-item>
+        </a-sub-menu>
         <a-menu-item key="/onlineUser">
           <span class="iconfont">&#xe60c;</span>
           <router-link to="/onlineUser"> 在线用户</router-link>
@@ -176,118 +187,119 @@
 </template>
 
 <script>
-  import moment from 'moment';
-  export default {
-    name: 'navbar',
-    data() {
-      return {
-        date: '',
-        week: '',
-        time: '',
-        timer: null,
-      };
-    },
-    created() {
-      this.getTime();
-    },
-    mounted() {
-      let data;
+import moment from 'moment';
+export default {
+  name: 'navbar',
+  data() {
+    return {
+      date: '',
+      week: '',
+      time: '',
+      timer: null,
+    };
+  },
+  created() {
+    this.getTime();
+  },
+  mounted() {
+    let data;
 
-      this.timer = setInterval(() => this.getTime(), 1000);
+    this.timer = setInterval(() => this.getTime(), 1000);
+  },
+  destroyed() {
+    clearInterval(this.timer); // 清除定时器
+    this.timer = null;
+  },
+  methods: {
+    getTime: function () {
+      moment.locale('zh-cn');
+      this.date = moment().format('YYYY-MM-DD');
+      this.week = moment().format('dddd');
+      this.time = moment().format('LTS');
     },
-    destroyed() {
-      clearInterval(this.timer); // 清除定时器
-      this.timer = null;
-    },
-    methods: {
-      getTime: function() {
-        moment.locale('zh-cn');
-        this.date = moment().format('YYYY-MM-DD');
-        this.week = moment().format('dddd');
-        this.time = moment().format('LTS');
-      },
-    },
-  };
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  #slider {
-    // width: 4.25rem !important;
-    width: 100% !important;
-    height: 100%;
-    flex: none !important;
-    max-width: none !important;
-    min-width: none !important;
-    background: #f1f2f4;
-    .timeBox {
-      height: 1rem;
+#slider {
+  // width: 4.25rem !important;
+  width: 100% !important;
+  height: 100%;
+  flex: none !important;
+  max-width: none !important;
+  min-width: none !important;
+  background: #f1f2f4;
+  .timeBox {
+    height: 1rem;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    &::after {
+      content: '';
+      height: 1px;
+      background: $borderColor;
+      width: calc(100% - 0.75rem);
+      position: absolute;
+      bottom: 0;
+      left: 0.375rem;
+    }
+    .date {
       display: flex;
-      position: relative;
       justify-content: center;
-      &::after {
-        content: '';
-        height: 1px;
-        background: $borderColor;
-        width: calc(100% - 0.75rem);
-        position: absolute;
-        bottom: 0;
-        left: 0.375rem;
-      }
-      .date {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        .day {
-          font-family: electronicFont;
-          font-size: 0.275rem;
-        }
-        .week {
-          font-family: Alibaba-PuHuiTi-Medium;
-          font-size: 0.225rem;
-        }
-      }
-      .time {
-        font-size: 0.375rem;
+      align-items: center;
+      flex-direction: column;
+      .day {
         font-family: electronicFont;
-        margin-left: 0.375rem;
-        //height: 100%;
-        line-height: 1rem;
+        font-size: 0.275rem;
+      }
+      .week {
+        font-family: Alibaba-PuHuiTi-Medium;
+        font-size: 0.225rem;
       }
     }
-
-    #menu {
-      font-family: Alibaba-PuHuiTi-Regular;
-      height: calc(100% - 2rem);
-      overflow-y: auto;
-      overflow-x: hidden;
-      background: #f1f2f4;
-      padding: 0.5rem 0.375rem 0.375rem 0.375rem;
-      color: $nav_textColor;
-      .iconfont {
-        font-size: 0.3rem !important;
-        margin-right: 0.25rem;
-      }
-      .expand {
-        position: absolute;
-        right: 0.275rem;
-        margin: 0;
-        padding-top: 0.0375rem;
-        font-size: 0.25rem !important;
-      }
-    }
-
-    #menu::-webkit-scrollbar {
-      width: 3px;
-      background-color: #f5f5f5;
-    }
-
-    #menu::-webkit-scrollbar-thumb {
-      background-color: #5aa6ee;
-    }
-    #menu::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-      background-color: #f5f5f5;
+    .time {
+      font-size: 0.375rem;
+      font-family: electronicFont;
+      margin-left: 0.375rem;
+      //height: 100%;
+      line-height: 1rem;
     }
   }
+
+  #menu {
+    font-family: Alibaba-PuHuiTi-Regular;
+    height: calc(100% - 2rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #f1f2f4;
+    padding: 0.5rem 0.375rem 0.375rem 0.375rem;
+    color: $nav_textColor;
+    .iconfont {
+      font-size: 0.3rem !important;
+      margin-right: 0.25rem;
+    }
+    .expand {
+      position: absolute;
+      right: 0.275rem;
+      margin: 0;
+      padding-top: 0.0375rem;
+      font-size: 0.25rem !important;
+    }
+  }
+
+  #menu::-webkit-scrollbar {
+    width: 3px;
+    background-color: #f5f5f5;
+  }
+
+  #menu::-webkit-scrollbar-thumb {
+    background-color: #5aa6ee;
+  }
+  #menu::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+    background-color: #f5f5f5;
+  }
+}
 </style>
+

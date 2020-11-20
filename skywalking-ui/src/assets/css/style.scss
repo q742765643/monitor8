@@ -83,6 +83,14 @@
     }
 }
 
+.log {
+    .ant-menu-submenu-title {
+        padding-left: 48px !important;
+        background-color: transparent !important;
+        color: #5d76ae !important;
+    }
+}
+
 .ant-menu-item[id='main'] {
     //padding-left:  !important;
     margin-top: 0px !important;
@@ -263,7 +271,6 @@
     src: url(../font/Alibaba-PuHuiTi-Regular.ttf);
 }
 
-
 .queryForm {
     padding-left: 2%;
 
@@ -284,7 +291,6 @@
     .ant-select {
         width: 2.05rem;
     }
-
 }
 
 .rowToolbar {
@@ -314,4 +320,19 @@
 
 .ant-calendar-range-picker-separator {
     line-height: 100%;
+}
+
+.el-input-number__decrease,
+.el-input-number__increase {
+    bottom: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#changeContab {
+    .el-tabs__content {
+        max-height: 300px;
+        overflow-y: auto;
+    }
 }
