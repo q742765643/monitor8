@@ -26,14 +26,14 @@
       <a-row type="flex" class="rowToolbar">
         <a-col :span="1.5">
           <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
-          <a-button type="primary" icon="edit" @click="handleUpdate"> 修改 </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
+          <a-button type="primary" icon="edit" :disabled="single" @click="handleUpdate"> 修改 </a-button>
+          <a-button type="danger" icon="delete" :disabled="single" @click="handleDelete"> 删除 </a-button>
           <a-button type="primary" icon="vertical-align-bottom" @click="handleUpload"> 导出 </a-button>
         </a-col>
       </a-row>
 
       <div id="tableDiv">
-        <vxe-table :data="roleListData" align="center" highlight-hover-row ref="roleListRef" border>
+        <vxe-table :data="roleListData" @checkbox-change="selectBox" align="center" highlight-hover-row ref="roleListRef" border>
           <vxe-table-column type="checkbox" width="50"></vxe-table-column>
           <vxe-table-column field="roleName" title="角色名称"></vxe-table-column>
           <vxe-table-column field="roleKey" title="权限字符"></vxe-table-column>
@@ -186,6 +186,7 @@ export default {
       },
       statusOptions: [],
       ids: [],
+      single: true,
     };
   },
   created() {
@@ -194,10 +195,13 @@ export default {
       if (res.code == 200) {
         this.statusOptions = res.data;
       }
-      console.log(this.statusOptions);
     });
   },
   methods: {
+    selectBox(selection) {
+      // console.log(selection.selection)
+      this.single = selection.selection.length > 0 ? false : true;
+    },
     getRoleList() {
       if (this.queryParams.dateRange) {
         this.dateRange = this.queryParams.dateRange;
@@ -274,6 +278,7 @@ export default {
               console.log(res);
               if (res.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
+                this.single = true
                 this.visibleModel = false;
                 this.getRoleList();
               }
@@ -282,7 +287,9 @@ export default {
         }
       });
     },
-    handleCancel() {},
+    handleCancel() {
+      
+    },
     handleStatus(row) {
       console.log(row);
       row.status = row.status == '0' ? '1' : '0';
@@ -316,12 +323,15 @@ export default {
       this.getMenuTreeselect();
     },
     handleUpdate(row) {
+      console.log(row)
       if(!row.id){
         let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
         cellsChecked.forEach((element) => {
+          this.ids = []
           this.ids.push(element.id);
         });
       }
+      console.log(this.ids)
       this.reset();
       const id = row.id || this.ids;
       // this.ids = [];
@@ -363,16 +373,19 @@ export default {
           hongtuConfig.roleConfigDelete(ids.join(',')).then((response) => {
             if (response.code == 200) {
               this.$message.success('删除成功');
+              this.single = true
               this.resetQuery();
             }
           });
         },
-        onCancel() {},
+        onCancel() {
+          
+        },
       });
     },
     handleUpload() {
       hongtuConfig.exportRole(this.queryParams).then((res) => {
-        console.log(res);
+        // console.log(res);
         this.downloadfileCommon(res);
       });
     },

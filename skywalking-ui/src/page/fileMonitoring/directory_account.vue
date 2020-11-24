@@ -230,3 +230,8 @@
     },
   };
 </script>
+<style scoped>
+.ant-row-flex .ant-btn {
+  margin: 15px 15px 15px 0;
+}
+</style>

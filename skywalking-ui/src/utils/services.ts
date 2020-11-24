@@ -724,12 +724,10 @@ const dataService = {
   },
 
   // 菜单管理-查询菜单树
-  menuTreeselect(params: Object) {
+  menuTreeselect() {
     return new Promise((resolve, reject) => {
       instance
-        .get('/system/menu/treeselect', {
-          params: params
-        })
+        .get('/system/menu/treeselect')
         .then((res) => {
           resolve(res)
         })
@@ -801,7 +799,7 @@ const dataService = {
   delMenu(params: String) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/system/menu/' + params)
+        .delete('/system/menu/' + params)
         .then((res) => {
           resolve(res)
         })

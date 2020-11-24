@@ -24,21 +24,21 @@
       </a-form-model-item>
     </a-form-model>
     <div id="tableDiv">
-      <vxe-table :data="departmentListData" align="center" highlight-hover-row ref="departmentListRef" border>
-        <vxe-table-column field="deptName" title="部门名称" width="400"></vxe-table-column>
-        <vxe-table-column field="orderNum" title="排序"></vxe-table-column>
-        <vxe-table-column field="status" title="状态" >
+      <vxe-table :data="departmentListData" :tree-config="{}" align="center" highlight-hover-row ref="departmentListRef" border>
+        <vxe-table-column field="deptName" title="部门名称" width="400" tree-node></vxe-table-column>
+        <vxe-table-column field="orderNum" title="排序" show-overflow></vxe-table-column>
+        <vxe-table-column field="status" title="状态" show-overflow>
           <template v-slot="{ row }">
               <span v-if="row.status == 0">正常 </span>
               <span v-if="row.status == 1">停用 </span>
             </template>
         </vxe-table-column>
-        <vxe-table-column field="createTime" title="创建时间">
+        <vxe-table-column field="createTime" title="创建时间" show-overflow>
           <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
         </vxe-table-column>
-        <vxe-table-column title="操作">
+        <vxe-table-column title="操作" align="left">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" @click="handleUpdate(row)">
               修改
@@ -46,7 +46,7 @@
             <a-button type="danger" icon="plus" @click="handleAdd(row)">
               新增
             </a-button>
-            <a-button type="danger" icon="delete" @click="handleDelete(row)">
+            <a-button type="danger" icon="delete" v-if="row.parentId != '0'" @click="handleDelete(row)">
               删除
             </a-button>
           </template>

@@ -1,12 +1,8 @@
 <template>
   <div class="login">
-    <a-row class="wrap">
-      <a-col :span="13">
-        <span style="opacity: 0">1</span>
-      </a-col>
-      <a-col :span="11">
-        <img src="@/assets/img/title.png" class="title" />
-        <a-form-model :model="loginForm" ref="loginForm">
+    <a-row>
+      <a-col>
+        <a-form-model :model="loginForm">
           <a-form-model-item>
             <a-input v-model.trim="loginForm.username" placeholder="账号">
               <a-icon slot="prefix" type="user" />
@@ -18,7 +14,7 @@
             </a-input>
           </a-form-model-item>
           <a-form-model-item>
-            <a-input v-model.trim="loginForm.code" style="width: 66%" placeholder="验证码">
+            <a-input v-model.trim="loginForm.code" style="width:60%" placeholder="验证码">
               <a-icon slot="prefix" type="code" />
             </a-input>
             <div class="login-code">
@@ -33,15 +29,12 @@
         </a-form-model>
       </a-col>
     </a-row>
-    <div class="el-login-footer">
-      <p>地址：北京海淀区中关村南大街46号 | 邮编：100081 | 电话 : 86-10-68407499</p>
-    </div>
   </div>
 </template>
 
 <script>
 import loginService from '@/utils/login';
-import request from '@/utils/request';
+import request from "@/utils/request";
 import hongtuConfig from '@/utils/services';
 export default {
   data() {
@@ -68,22 +61,22 @@ export default {
     },
     handleLogin() {
       request({
-        url: '/login',
-        method: 'post',
-        params: this.loginForm,
-      }).then((data) => {
-        window.sessionStorage.setItem('token', data.data.token);
-        this.$router.push({ path: '/home' });
-      });
-      // loginService.logins(this.loginForm).then((response) => {
-      //   console.log(response)
-      // })
+          url:'/login',
+          method: 'post',
+          params: this.loginForm
+        }).then(data => {
+          window.sessionStorage.setItem('token',data.data.token)
+           this.$router.push({path: '/home'})
+        });
+        // loginService.logins(this.loginForm).then((response) => {
+        //   console.log(response)
+        // })
     },
   },
 };
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
+<style scoped>
 .login {
   display: flex;
   justify-content: center;
@@ -100,55 +93,35 @@ export default {
     rgb(17, 139, 252) 85%,
     rgb(25, 150, 253) 85%
   );
-  .wrap {
-    width: 80%;
-    text-align: right;
-    background: url('../../assets/img/login-bg.png') no-repeat;
-    background-size: 100% 100%;
-    .title {
-      width: 60%;
-      display: block;
-      margin: auto;
-      margin-top: 70px;
-      margin-bottom: 40px;
-    }
-    .ant-form-item {
-      margin-bottom: 26px;
-    }
-    .ant-input {
-      height: 40px;
-      line-height: 40px;
-    }
-    .ant-form {
-      padding: 0 15%;
-    }
-    .loginBtn {
-      padding: 12px 20px;
-      width: 100%;
-      height: 40px;
-      margin-bottom: 80px;
-    }
-    .login-code {
-      width: 34%;
-      float: right;
-      height: 40px;
-      img {
-        cursor: pointer;
-        vertical-align: middle;
-      }
-    }
-  }
-  .el-login-footer {
-    color: #99d5fb;
-    position: fixed;
-    width: 100%;
-    bottom: 20px;
-    text-align: center;
-    font-size: 14px;
-    line-height: 24px;
-    p {
-      margin: 0;
-    }
-  }
+}
+.ant-row {
+  background: #fff;
+  padding: 10px 10px 0 0;
+  border-radius: 10px;
+}
+.ant-col {
+  width: 380px;
+}
+.ant-form-item-control {
+  height: 60px;
+}
+.ant-input {
+  height: 60px;
+}
+.ant-btn {
+  width: 100%;
+  height: 40px;
+  border-radius: 10px;
+}
+.ant-form-item {
+  margin-left: 20px;
+}
+.login-code {
+  width: 35%;
+  float: right;
+}
+.login-code img {
+  cursor: pointer;
+  vertical-align: middle;
 }
 </style>

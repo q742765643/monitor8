@@ -28,7 +28,7 @@
     <div id="linkrole_content">
       <a-row type="flex" class="rowToolbar">
         <a-col :span="1.5">
-          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
+          <a-button type="danger" icon="delete" :disabled="single" @click="handleDelete"> 删除 </a-button>
           <a-button type="danger" icon="delete" @click="handleClean"> 清空 </a-button>
           <a-button type="primary" icon="vertical-align-bottom" @click="handleUpload"> 导出 </a-button>
         </a-col>
@@ -38,6 +38,7 @@
         <vxe-table
           :data="operListData"
           align="center"
+          @checkbox-change="selectBox"
           highlight-hover-row
           ref="operListRef"
           border
@@ -164,6 +165,7 @@ export default {
       dateRange: [],
       form: {},
       open: false,
+      single: true,
     };
   },
   created() {
@@ -180,6 +182,10 @@ export default {
     });
   },
   methods: {
+    selectBox(selection) {
+      // console.log(selection.selection)
+      this.single = selection.selection.length > 0 ? false : true;
+    },
     getOperlogList() {
       if (this.queryParams.dateRange) {
         this.dateRange = this.queryParams.dateRange;
@@ -237,6 +243,7 @@ export default {
           hongtuConfig.delOperlog(ids).then((res) => {
             if(res.code == 200) {
               this.getOperlogList();
+              this.single = true
               this.$message.success('删除成功')
             }
           });

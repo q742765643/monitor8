@@ -20,7 +20,7 @@
           <span>{{ parseTime(scope.row.timestamp) }}</span>
         </template>
       </vxe-table-column>
-      <vxe-table-colgroup v-for="(item, index) in headers"  :title="item.title">
+      <vxe-table-colgroup v-for="(item, index) in headers" :key="index"  :title="item.title">
         <vxe-table-column :field="item.taskId+'_sumRealFileNum'" title="准时到"></vxe-table-column>
         <vxe-table-column :field="item.taskId+'_sumLateNum'"  title="晚到"></vxe-table-column>
         <vxe-table-column :field="item.taskId+'_sumFileNum'"  title="应到"></vxe-table-column>
@@ -91,3 +91,8 @@
     }
   };
 </script>
+<style scoped>
+.head .ant-btn {
+  margin-bottom: 0.1875rem;
+}
+</style>

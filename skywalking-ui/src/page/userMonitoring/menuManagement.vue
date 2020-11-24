@@ -266,8 +266,8 @@ export default {
     /* 重置 */
     resetQuery() {
       this.queryParams = {
-        beginTime: '',
-        endTime: '',
+        menuName: undefined,
+        visible: "",
       };
       this.queryTable();
     },
@@ -276,6 +276,7 @@ export default {
     queryTable() {
       hongtuConfig.menuList(this.queryParams).then((response) => {
         this.tableData = response.data;
+        console.log(response.data)
       });
     },
     /* 字典格式化 */
@@ -286,6 +287,7 @@ export default {
       /* 新增 */
       this.reset()
       this.getTreeselect()
+      console.log(this.menuOptions)
       this.dialogTitle = '新增';
       this.formDialog = {
         taskName: '',
@@ -299,6 +301,7 @@ export default {
     /** 查询菜单下拉树结构 */
     getTreeselect() {
       hongtuConfig.menuTreeselect().then((res) => {
+        console.log(res)
         this.menuOptions = [];
         const menu = { id: 0, label: '主类目', children: [] };
         if (this.dialogTitle == '修改菜单') {
@@ -406,11 +409,11 @@ export default {
         let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
         cellsChecked.forEach((element) => {
           ids.push(element.id);
-          taskNames.push(element.taskName);
+          taskNames.push(element.menuName);
         });
       } else {
         ids.push(row.id);
-        taskNames.push(row.taskName);
+        taskNames.push(row.menuName);
       }
       this.$confirm({
         title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
@@ -422,7 +425,7 @@ export default {
           hongtuConfig.delMenu(ids.join(',')).then((response) => {
             if (response.code == 200) {
               this.$message.success('删除成功');
-              this.resetQuery();
+              this.queryTable();
             }
           });
         },
@@ -481,5 +484,10 @@ export default {
   div {
     width: 20%;
   }
+}
+</style>
+<style scoped>
+.ant-radio-group {
+  padding-top: 0.13rem;
 }
 </style>
