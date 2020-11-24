@@ -294,7 +294,7 @@ export default {
   }
 
   #menu::-webkit-scrollbar-thumb {
-    background-color: #5aa6ee;
+    // background-color: #5aa6ee;
   }
   #menu::-webkit-scrollbar-track {
     box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);

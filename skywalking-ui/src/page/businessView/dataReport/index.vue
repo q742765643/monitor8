@@ -344,6 +344,7 @@
         }
       }
     }
+
     .content {
       -webkit-box-shadow: 0.0375rem 0.0375rem 0.3rem 0.1rem #5d77ae1c;
       box-shadow: 0.0375rem 0.0375rem 0.3rem 0.1rem #5d77ae1c;
@@ -360,6 +361,7 @@
       justify-content: space-between;
       overflow: auto;
       overflow-x: hidden;
+      // overflow-y: hidden;
       .title {
         margin: 0 auto;
         text-align: center;

@@ -549,7 +549,7 @@
         display: flex;
         flex-direction: column;
         #report_chartdiv {
-          flex: 3;
+          flex: 1;
           width: 100%;
           display: flex;
           #alarmChart {
@@ -560,6 +560,9 @@
             // height: calc(100% - 0.125rem);
             width: 50%;
           }
+        }
+        #table {
+          margin-left: 0.25rem;
         }
         #tablediv {
           // flex: 2;
