@@ -29,6 +29,7 @@ export default {
       charts: '',
       timeData: [],
       dataList:[],
+      longhoursList:[],
       types: [
         //{ name: '未监控', color: '#0CB218', color1: '#01F21D' },
         { name: '不在线', color: '#0063C8', color1: '#00C9FD' },
@@ -123,11 +124,11 @@ export default {
         tooltip: {
           formatter: function (params) {
             return (
-                    params.seriesName +
+                    params.name.name +
                     '</br>' +
-                    params.value[1] +
+                    that.longhoursList[params.value[1]] +
                     '~' +
-                    params.value[2]
+                    that.longhoursList[params.value[2]]
             );
           },
         },
@@ -259,6 +260,7 @@ export default {
       }).then(data => {
         this.categories = data.data.days;
         this.timeData = data.data.hours;
+        this.longhoursList=data.data.longhoursList;
         this.dataList = data.data.nums;
         this.drawBar('software_contnet');
       });

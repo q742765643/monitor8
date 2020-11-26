@@ -8,9 +8,14 @@ import com.piesat.util.page.PageForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName : JobInfoController
@@ -57,6 +62,26 @@ public class JobInfoController {
     public ResultT<String> remove(@PathVariable String[] ids) {
         ResultT<String> resultT = new ResultT<>();
         jobInfoService.deleteByIds(Arrays.asList(ids));
+        return resultT;
+    }
+    @GetMapping(value = "/getNextTime")
+    @ApiOperation(value = "计算下5次执行时间", notes = "计算下5次执行时间")
+    public ResultT<List<String>> getNextTime(String cronExpression){
+        ResultT< List<String>> resultT=new ResultT<>();
+        List<String> cronTimeList = new ArrayList<>();
+        try {
+            CronSequenceGenerator cronSequenceGenerator = new CronSequenceGenerator(cronExpression);
+            Date nextTimePoint = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (int i = 0; i < 5; i++) {
+                nextTimePoint = cronSequenceGenerator.next(nextTimePoint);
+                cronTimeList.add(sdf.format(nextTimePoint));
+            }
+            resultT.setData(cronTimeList);
+        } catch (Exception e) {
+            resultT.setErrorMessage("表达式错误");
+            e.printStackTrace();
+        }
         return resultT;
     }
 }

@@ -38,7 +38,7 @@ public class FileQReportController {
 
     @ApiOperation(value = "文件报表", notes = "文件报表")
     @GetMapping("/findFileReport")
-    public ResultT<List<Map<String, Object>>> findFileReport(@RequestBody SystemQueryDto systemQueryDto) {
+    public ResultT<List<Map<String, Object>>> findFileReport(SystemQueryDto systemQueryDto) {
         ResultT<List<Map<String, Object>>> resultT = new ResultT<>();
         List<Map<String, Object>> list = fileQReportService.findFileReport(systemQueryDto);
         resultT.setData(list);
@@ -52,6 +52,11 @@ public class FileQReportController {
         List<Map<String, Object>> list = fileQReportService.fileLineDiagram(taskId);
         resultT.setData(list);
         return resultT;
+    }
+    @ApiOperation(value = "导出文件报表", notes = "导出文件报表")
+    @GetMapping("/exportFileReport")
+    public void exportFileReport(SystemQueryDto systemQueryDto){
+        fileQReportService.exportFileReport(systemQueryDto);
     }
 }
 

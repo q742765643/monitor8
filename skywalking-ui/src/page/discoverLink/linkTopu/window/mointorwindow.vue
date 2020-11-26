@@ -74,20 +74,16 @@
               stripe
             >
               <vxe-table-column
-                field="name"
+                field="processName"
                 title="进程名称"
                 show-overflow
               ></vxe-table-column>
-              <vxe-table-column
-                field="time"
-                title="进程时间"
-                show-overflow
-              ></vxe-table-column>
-              <vxe-table-column
-                field="state"
-                title="进程状态"
-                show-overflow
-              ></vxe-table-column>
+              <vxe-table-column field="updateTime" title="进程时间" show-overflow>
+                <template slot-scope="scope">
+                  <span>{{ parseTime(scope.row.updateTime) }}</span>
+                </template>
+              </vxe-table-column>
+              <vxe-table-column field="currentStatus" title="进程状态" :formatter="formatAlarmLevel" show-overflow></vxe-table-column>
             </vxe-table>
           </div>
         </div>
@@ -101,47 +97,14 @@ import moment from 'moment';
 import echarts from 'echarts';
 import planeTitle from '@/components/titile/planeTitle.vue';
 import { remFontSize } from '@/components/utils/fontSize.js';
+import request from '@/utils/request';
 export default {
+  props: ['ip'],
   data() {
     return {
       table_height: null,
-      tableData: [
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-        {
-          name: 'java',
-          time: moment().format('YYYY-MM-DD HH:mm:ss'),
-          state: '正常',
-        },
-      ],
+      tableData: [],
+      alarmLevelOptions:[],
       timer: null,
       XAxisData: [],
       chart0: '',
@@ -152,9 +115,14 @@ export default {
       chart5: '',
     };
   },
+  created() {
+    this.getDicts("alarm_level").then(response => {
+      this.alarmLevelOptions = response.data;
+    });
+  },
   mounted() {
     //let now = moment().format('HH:mm:ss');
-
+    this.fetch();
     this.initXdata();
     this.drawChart0('cpuChart');
     this.drawChart1('romChart');
@@ -169,6 +137,9 @@ export default {
   },
   components: { planeTitle },
   methods: {
+    formatAlarmLevel({ cellValue }) {
+      return this.selectDictLabel(this.alarmLevelOptions, cellValue);
+    },
     setTableHeight() {
       let h = document.getElementById('tableChart').clientHeight;
       this.table_height = h - 3;
@@ -188,398 +159,477 @@ export default {
     },
     drawChart0(id) {
       this.chart0 = echarts.init(document.getElementById(id));
+      let params={
+         "ip":this.ip,
+         "startTime":this.parseTime(new Date().getTime() - 10 * 1000 * 60),
+         "endTime":this.parseTime(new Date().getTime())
+      }
+      let XAxisData = [];
       let YAxisData = [];
-      this.XAxisData.forEach((index) => {
-        YAxisData.push((Math.random() * 100).toFixed(2));
+      request({
+        url: '/system/getCpu',
+        method: 'get',
+        params: params
+      }).then((data) => {
+        let result = data.data;
+        result.forEach((item) => {
+          XAxisData.push(item.timestamp)
+          YAxisData.push(item.usage);
+        });
+        let option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Regular',
+          },
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            boundaryGap: false,
+            type: 'category',
+            data: XAxisData,
+            axisTick: { show: false },
+
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+            },
+          },
+          grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
+          color: '#15E125',
+
+          yAxis: {
+            type: 'value',
+            max: 100,
+            axisTick: { show: false },
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(65,65,65,0.35)',
+                width: 0.5,
+              },
+            },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+              formatter: function(value) {
+                return value + '%';
+              },
+            },
+          },
+          series: [
+            {
+              lineStyle: { width: 1 },
+              data: YAxisData,
+              type: 'line',
+              //symbol: 'none',
+              symbolSize: 3,
+              // smooth: true,
+            },
+          ],
+        };
+        this.chart0.setOption(option);
       });
-      let option = {
-        textStyle: {
-          fontFamily: 'Alibaba-PuHuiTi-Regular',
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        xAxis: {
-          boundaryGap: false,
-          type: 'category',
-          data: this.XAxisData,
-          axisTick: { show: false },
 
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
-          },
-        },
-        grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
-        color: '#15E125',
-
-        yAxis: {
-          type: 'value',
-          // boundaryGap: [0, '60%'],
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(65,65,65,0.35)',
-              width: 0.5,
-            },
-          },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
-            formatter: function(value) {
-              return value + '%';
-            },
-          },
-        },
-        series: [
-          {
-            lineStyle: { width: 1 },
-            data: YAxisData,
-            type: 'line',
-            //symbol: 'none',
-            symbolSize: 3,
-            // smooth: true,
-          },
-        ],
-      };
-      this.chart0.setOption(option);
     },
     drawChart1(id) {
       this.chart1 = echarts.init(document.getElementById(id));
+      let params={
+        "ip":this.ip,
+        "startTime":this.parseTime(new Date().getTime() - 10 * 1000 * 60),
+        "endTime":this.parseTime(new Date().getTime())
+      }
+      let XAxisData = [];
       let YAxisData = [];
-      this.XAxisData.forEach((index) => {
-        YAxisData.push((Math.random() * 100).toFixed(2));
-      });
-      let option = {
-        textStyle: {
-          fontFamily: 'Alibaba-PuHuiTi-Regular',
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        xAxis: {
-          boundaryGap: false,
-          type: 'category',
-          data: this.XAxisData,
-          axisTick: { show: false },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
+      request({
+        url: '/system/getMemory',
+        method: 'get',
+        params: params
+      }).then((data) => {
+        let result = data.data;
+        result.forEach((item) => {
+          XAxisData.push(item.timestamp)
+          YAxisData.push(item.usage);
+        });
+        let option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Regular',
           },
-        },
-        grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
-        color: '#15E125',
-
-        yAxis: {
-          type: 'value',
-          // boundaryGap: [0, '60%'],
-          axisTick: { show: false },
-
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(65,65,65,0.35)',
-              width: 0.5,
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            boundaryGap: false,
+            type: 'category',
+            data: XAxisData,
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
             },
           },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
-            formatter: function(value) {
-              return value + '%';
+          grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
+          color: '#15E125',
+
+          yAxis: {
+            type: 'value',
+            // boundaryGap: [0, '60%'],
+            axisTick: { show: false },
+
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(65,65,65,0.35)',
+                width: 0.5,
+              },
             },
-          },
-        },
-        series: [
-          {
-            data: YAxisData,
-            type: 'line',
-            color: '#7c80f4',
-            lineStyle: { width: 1 },
-            areaStyle: {
-              //区域填充样式
-              normal: {
-                color: new echarts.graphic.LinearGradient(
-                  0,
-                  0,
-                  0,
-                  1,
-                  [
-                    {
-                      offset: 0,
-                      color: 'rgba(124, 128, 244,.5)',
-                    },
-                    {
-                      offset: 1,
-                      color: 'rgba(124, 128, 244, 0.1)',
-                    },
-                  ],
-                  false
-                ),
-                shadowColor: 'rgba(53,142,215, 0.9)',
-                shadowBlur: 20,
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+              formatter: function(value) {
+                return value + '%';
               },
             },
           },
-        ],
-      };
-      this.chart1.setOption(option);
+          series: [
+            {
+              data: YAxisData,
+              type: 'line',
+              color: '#7c80f4',
+              lineStyle: { width: 1 },
+              areaStyle: {
+                //区域填充样式
+                normal: {
+                  color: new echarts.graphic.LinearGradient(
+                          0,
+                          0,
+                          0,
+                          1,
+                          [
+                            {
+                              offset: 0,
+                              color: 'rgba(124, 128, 244,.5)',
+                            },
+                            {
+                              offset: 1,
+                              color: 'rgba(124, 128, 244, 0.1)',
+                            },
+                          ],
+                          false
+                  ),
+                  shadowColor: 'rgba(53,142,215, 0.9)',
+                  shadowBlur: 20,
+                },
+              },
+            },
+          ],
+        };
+        this.chart1.setOption(option);
+      });
+
     },
     drawChart2(id) {
-      this.chart1 = echarts.init(document.getElementById(id));
+      this.chart2 = echarts.init(document.getElementById(id));
+      let params={
+        "ip":this.ip,
+        "startTime":this.parseTime(new Date().getTime() - 10 * 1000 * 60),
+        "endTime":this.parseTime(new Date().getTime())
+      }
+      let XAxisData = [];
       let YAxisData1 = [];
-      this.XAxisData.forEach((index) => {
-        YAxisData1.push(((Math.random() * 10000000) / 2).toFixed(2));
-      });
-
       let YAxisData2 = [];
-      this.XAxisData.forEach((index) => {
-        YAxisData2.push(((Math.random() * 1000000) / 2).toFixed(2));
-      });
-
-      let option = {
-        textStyle: {
-          fontFamily: 'Alibaba-PuHuiTi-Regular',
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        xAxis: {
-          boundaryGap: false,
-          type: 'category',
-          data: this.XAxisData,
-          axisTick: { show: false },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
+      request({
+        url: '/system/getNetwork',
+        method: 'get',
+        params: params
+      }).then((data) => {
+        let result = data.data;
+        result.forEach((item) => {
+          XAxisData.push(item.timestamp)
+          YAxisData1.push(item.inSpeed);
+          YAxisData2.push(item.outSpeed);
+        });
+        let option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Regular',
           },
-        },
-        grid: { left: '20%', top: '10%', right: '5%', bottom: '15%' },
-        color: '#15E125',
-
-        yAxis: {
-          boundaryGap: [0, '60%'],
-          type: 'value',
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(65,65,65,0.35)',
-              width: 0.5,
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            boundaryGap: false,
+            type: 'category',
+            data: XAxisData,
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
             },
           },
-          axisTick: { show: false },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
-            formatter: function(value) {
-              return value + 'kb';
+          grid: { left: '20%', top: '10%', right: '5%', bottom: '15%' },
+          color: '#15E125',
+
+          yAxis: {
+            boundaryGap: [0, '60%'],
+            type: 'value',
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(65,65,65,0.35)',
+                width: 0.5,
+              },
             },
-          },
-        },
-        series: [
-          {
-            data: YAxisData1,
-            type: 'line',
-            color: '#0AA190',
-            lineStyle: { width: 1 },
-            areaStyle: {
-              //区域填充样式
-              normal: {
-                color: new echarts.graphic.LinearGradient(
-                  0,
-                  0,
-                  0,
-                  1,
-                  [
-                    {
-                      offset: 0,
-                      color: 'rgba(10, 161, 144,.5)',
-                    },
-                    {
-                      offset: 1,
-                      color: 'rgba(10, 161, 144, 0.1)',
-                    },
-                  ],
-                  false
-                ),
-                shadowColor: 'rgba(10, 161, 144, 0.9)',
-                shadowBlur: 20,
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+              formatter: function(value) {
+                return value + 'kb';
               },
             },
           },
-          {
-            lineStyle: { width: 1 },
-            data: YAxisData2,
-            type: 'line',
-            color: '#158CEB',
-          },
-        ],
-      };
-      this.chart1.setOption(option);
+          series: [
+            {
+              data: YAxisData1,
+              type: 'line',
+              color: '#0AA190',
+              lineStyle: { width: 1 },
+              areaStyle: {
+                //区域填充样式
+                normal: {
+                  color: new echarts.graphic.LinearGradient(
+                          0,
+                          0,
+                          0,
+                          1,
+                          [
+                            {
+                              offset: 0,
+                              color: 'rgba(10, 161, 144,.5)',
+                            },
+                            {
+                              offset: 1,
+                              color: 'rgba(10, 161, 144, 0.1)',
+                            },
+                          ],
+                          false
+                  ),
+                  shadowColor: 'rgba(10, 161, 144, 0.9)',
+                  shadowBlur: 20,
+                },
+              },
+            },
+            {
+              lineStyle: { width: 1 },
+              data: YAxisData2,
+              type: 'line',
+              color: '#158CEB',
+            },
+          ],
+        };
+        this.chart2.setOption(option);
+      });
+
     },
     drawChart3(id) {
       this.chart3 = echarts.init(document.getElementById(id));
-      let c = [
-        '/dev/mapper/docker',
-        '/dev/mapper/docker',
-        '/dev/mapper/docker',
-        '/dev/mapper/docker',
-        '/dev/mapper/docker',
-        '/dev/mapper/docker',
-        '/dev/mapper/docker',
-      ];
-      let color = [];
-      let color1 = new echarts.graphic.LinearGradient(1, 0, 0, 0, [
-        { offset: 0, color: '#83bff6' },
-        { offset: 0.5, color: '#188df0' },
-        { offset: 1, color: '#188df0' },
-      ]);
+      let params={
+        "ip":this.ip,
+        "startTime":this.parseTime(new Date().getTime() - 10 * 1000 * 60),
+        "endTime":this.parseTime(new Date().getTime())
+      }
+      let XAxisData = [];
+      let YAxisData = [];
+      request({
+        url: '/system/getFileSystem',
+        method: 'get',
+        params: params
+      }).then((data) => {
+        let result = data.data;
+        result.forEach((item) => {
+          XAxisData.push(item.diskName)
+          YAxisData.push(item.useByte);
+        });
+        let color = [];
+        let color1 = new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+          { offset: 0, color: '#83bff6' },
+          { offset: 0.5, color: '#188df0' },
+          { offset: 1, color: '#188df0' },
+        ]);
 
-      let color2 = new echarts.graphic.LinearGradient(1, 0, 0, 0, [
-        { offset: 0, color: '#ED0DEF' },
-        { offset: 0.5, color: '#EE73EF' },
-        { offset: 1, color: '#F3AFF3' },
-      ]);
+        let color2 = new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+          { offset: 0, color: '#ED0DEF' },
+          { offset: 0.5, color: '#EE73EF' },
+          { offset: 1, color: '#F3AFF3' },
+        ]);
 
-      color.push(color1, color2);
+        color.push(color1, color2);
 
-      let option = {
-        textStyle: {
-          fontFamily: 'Alibaba-PuHuiTi-Regular',
-        },
-        tooltip: {
-          show: true,
+        let option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Regular',
+          },
+          tooltip: {
+            show: true,
 
-          formatter: function(data) {
-            return c[data.dataIndex] + '<br>' + '已用空间:' + data.data + 'GB';
-          },
-        },
-        xAxis: {
-          type: 'value',
-          boundaryGap: [0, 0.01],
-          splitLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLine: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-        },
-        grid: { left: '20%', top: '10%', right: '5%', bottom: '15%' },
-
-        yAxis: {
-          type: 'category',
-          data: ['750', '750', '750', '750', '750', '750', '750'],
-          splitLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLine: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-            textStyle: {
-              color: '#FF0000',
+            formatter: function(data) {
+              return XAxisData[data.dataIndex] + '<br>' + '已用空间:' + data.data + 'GB';
             },
           },
-        },
-        series: [
-          {
-            barWidth: 20,
-            name: '前',
-            type: 'bar',
-            barGap: 0,
-            zlevel: 1,
-            itemStyle: {
-              color: function(para) {
-                if (para.dataIndex < 2) {
-                  return color[1];
-                } else {
-                  return color[0];
-                }
+          xAxis: {
+            type: 'value',
+            boundaryGap: [0, 0.01],
+            splitLine: {
+              show: false,
+            },
+            axisTick: {
+              show: false,
+            },
+            axisLine: {
+              show: false,
+            },
+            axisLabel: {
+              show: false,
+            },
+          },
+          grid: { left: '20%', top: '10%', right: '5%', bottom: '15%' },
+
+          yAxis: {
+            type: 'category',
+            data: ['750', '750', '750', '750', '750', '750', '750'],
+            splitLine: {
+              show: false,
+            },
+            axisTick: {
+              show: false,
+            },
+            axisLine: {
+              show: false,
+            },
+            axisLabel: {
+              show: false,
+              textStyle: {
+                color: '#FF0000',
               },
             },
-            label: {
-              show: true,
-              position: 'insideleft',
-              offset: [10, 5],
-              formatter: function(data) {
-                return c[data.dataIndex];
+          },
+          series: [
+            {
+              barWidth: 20,
+              name: '前',
+              type: 'bar',
+              barGap: 0,
+              zlevel: 1,
+              itemStyle: {
+                color: function(para) {
+                  if (para.dataIndex < 2) {
+                    return color[1];
+                  } else {
+                    return color[0];
+                  }
+                },
               },
+              label: {
+                show: true,
+                position: 'insideleft',
+                offset: [10, 5],
+                formatter: function(data) {
+                  return XAxisData[data.dataIndex];
+                },
+              },
+              data: YAxisData,
             },
-            data: [7.74, 8.74, 9.74, 9.74, 9.74, 9.74, 9.74],
-          },
-          {
-            barWidth: 20,
-            name: '背景',
-            type: 'bar',
-            color: 'RGBA(25,25,25,0.3)',
-            barGap: '-100%',
-            label: {
-              show: true,
-              position: 'left',
-              color: '#000000',
-              formatter: '{c}' + 'GB',
+            {
+              barWidth: 20,
+              name: '背景',
+              type: 'bar',
+              color: 'RGBA(25,25,25,0.3)',
+              barGap: '-100%',
+              label: {
+                show: true,
+                position: 'left',
+                color: '#000000',
+                formatter: '{c}' + 'GB',
+              },
+              data: YAxisData,
             },
-            data: [9.74, 9.74, 9.74, 9.74, 9.74, 9.74, 9.74],
-          },
-        ],
-      };
-      this.chart3.setOption(option);
+          ],
+        };
+        this.chart3.setOption(option);
+      });
+
+
     },
     drawChart4(id) {
       this.chart4 = echarts.init(document.getElementById(id));
+      let params={
+        "ip":this.ip,
+        "startTime":this.parseTime(new Date().getTime() - 30 * 1000 * 60),
+        "endTime":this.parseTime(new Date().getTime())
+      }
+      let XAxisData = [];
       let YAxisData = [];
-      this.XAxisData.forEach((index) => {
-        YAxisData.push((Math.random() * 100).toFixed(2));
-      });
-      let option = {
-        textStyle: {
-          fontFamily: 'Alibaba-PuHuiTi-Regular',
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        xAxis: {
-          boundaryGap: false,
-          type: 'category',
-          data: this.XAxisData,
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(65,65,65,0.35)',
-              width: 0.5,
+      request({
+        url: '/system/getPacketLoss',
+        method: 'get',
+        params: params
+      }).then((data) => {
+        let result = data.data;
+        result.forEach((item) => {
+          XAxisData.push(item.timestamp)
+          YAxisData.push(item.usage);
+        });
+        let option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Regular',
+          },
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            boundaryGap: false,
+            type: 'category',
+            data: XAxisData,
+            axisTick: { show: false },
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(65,65,65,0.35)',
+                width: 0.5,
+              },
+            },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
             },
           },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
-          },
-        },
-        grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
-        color: '#15E125',
+          grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
+          color: '#15E125',
 
-        yAxis: {
-          type: 'value',
-          // boundaryGap: [0, '60%'],
-          axisTick: { show: false },
-          axisLabel: {
-            fontSize: remFontSize(12 / 64),
-            formatter: function(value) {
-              return value + '%';
+          yAxis: {
+            type: 'value',
+            // boundaryGap: [0, '60%'],
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+              formatter: function(value) {
+                return value + '%';
+              },
             },
           },
-        },
-        series: [
-          {
-            lineStyle: { width: 1 },
-            data: YAxisData,
-            type: 'line',
-          },
-        ],
-      };
-      this.chart4.setOption(option);
+          series: [
+            {
+              lineStyle: { width: 1 },
+              data: YAxisData,
+              type: 'line',
+            },
+          ],
+        };
+        this.chart4.setOption(option);
+      });
+
     },
     drawChart5() {},
+    fetch() {
+      let params={
+        "ip":this.ip
+      }
+      request({
+        url:'/system/getProcess',
+        method: 'get',
+        params: params
+      }).then(data => {
+        this.tableData = data.data;
+      });
+    },
   },
 };
 </script>

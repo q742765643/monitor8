@@ -69,6 +69,7 @@ public class AlarmProcessService extends AlarmBaseService {
         alarmLogDto.setDeviceType(2);
         this.fitAlarmLog(alarmConfigDto, alarmLogDto);
         this.judgeAlarm(alarmLogDto);
+        processConfigDto.setCurrentStatus(3);
         if (alarmLogDto.isAlarm()) {
             String message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+"未采集到进程信息,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
@@ -76,9 +77,11 @@ public class AlarmProcessService extends AlarmBaseService {
             }
             alarmLogDto.setMessage(message);
             this.insertEs(alarmLogDto);
+            processConfigDto.setCurrentStatus(alarmLogDto.getLevel());
         }
         this.outageStatistics(processConfigDto,alarmLogDto);
         this.insertUnprocessed(alarmLogDto);
+        processConfigService.save(processConfigDto);
     }
 
 

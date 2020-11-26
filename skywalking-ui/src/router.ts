@@ -208,6 +208,10 @@ const router = new Router({
           name: 'loginlog',
           component: () => import('@/page/userMonitoring/record/loginLog.vue')
         },
+        {
+          path: '/job',
+          component: () => import('@/views/containers/home/right/job/index.vue'),
+        },
       ],
     },
   ],

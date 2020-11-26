@@ -71,7 +71,7 @@ public class AlarmDiskService extends AlarmBaseService {
             this.insertUnprocessed(alarmLogDto);
         }else {
             for(int i=0;i<fileSystemVos.size();i++){
-                alarmLogDto.setUsage(fileSystemVos.get(i).getUsage());
+                alarmLogDto.setUsage(fileSystemVos.get(i).getUsage().floatValue());
                 this.fitAlarmLog(alarmConfigDto, alarmLogDto);
                 this.judgeAlarm(alarmLogDto);
                 if (alarmLogDto.isAlarm()) {
@@ -146,8 +146,8 @@ public class AlarmDiskService extends AlarmBaseService {
                     Map<String, Object> filesystem = (Map<String, Object>) system.get("filesystem");
                     Map<String, Object> used = (Map<String, Object>) filesystem.get("used");
                     fileSystemVo.setDiskName((String) filesystem.get("mount_point"));
-                    fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, BigDecimal.ROUND_HALF_UP).floatValue());
-                    fileSystemVo.setUsage((new BigDecimal(String.valueOf(used.get("pct"))).setScale(4,BigDecimal.ROUND_HALF_UP)).floatValue()*100);
+                    fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, BigDecimal.ROUND_HALF_UP));
+                    fileSystemVo.setUsage((new BigDecimal(String.valueOf(used.get("pct"))).multiply(new BigDecimal(100)).setScale(4,BigDecimal.ROUND_HALF_UP)));
                     fileSystemVos.add(fileSystemVo);
                 }
 

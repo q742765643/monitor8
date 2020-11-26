@@ -229,8 +229,7 @@ public class MainService {
 
         Calendar calendarTemp = Calendar.getInstance();
         calendarTemp.setTimeInMillis(startTime);
-        for(int i=0;i<24;i++){
-             calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
+        for(int i=0;i<=24;i++){
              int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
              if(i==0||hour==0){
                  hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -238,7 +237,7 @@ public class MainService {
                  hoursList.add(String.valueOf(hour));
              }
              hoursMap.put(qh.format(calendarTemp.getTimeInMillis()),String.valueOf(i));
-
+             calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
         }
 
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
@@ -305,6 +304,7 @@ public class MainService {
         long startTime = endTime - 86400 * 1000;
 
         List<String> hoursList=new ArrayList<>();
+        List<String> longhoursList=new ArrayList<>();
         Map<String,String> hoursMap=new HashMap<>();
         SimpleDateFormat qh=new SimpleDateFormat("d/H");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -312,8 +312,7 @@ public class MainService {
 
         Calendar calendarTemp = Calendar.getInstance();
         calendarTemp.setTimeInMillis(startTime);
-        for(int i=0;i<24;i++){
-            calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
+        for(int i=0;i<=24;i++){
             int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
             if(i==0||hour==0){
                 hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -321,6 +320,8 @@ public class MainService {
                 hoursList.add(String.valueOf(hour));
             }
             hoursMap.put(qh.format(calendarTemp.getTimeInMillis()),String.valueOf(i));
+            longhoursList.add(format.format(calendarTemp.getTimeInMillis()));
+            calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
 
         }
         ProcessConfigDto pro=new ProcessConfigDto();
@@ -430,6 +431,7 @@ public class MainService {
         returnMap.put("days",daysList);
         returnMap.put("hours",hoursList);
         returnMap.put("nums",nums);
+        returnMap.put("longhoursList",longhoursList);
         return returnMap;
     }
 

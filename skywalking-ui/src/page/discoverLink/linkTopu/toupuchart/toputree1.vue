@@ -25,7 +25,7 @@
       </div>
     </div>
     <!--   <editWindow :showEditWindow="showEditWindow"></editWindow> -->
-    <mointorWindow v-if="showMointorWindow"></mointorWindow>
+    <mointorWindow v-if="showMointorWindow" :ip="ip"></mointorWindow>
 
     <!--  编辑框 -->
     <template>
@@ -133,6 +133,7 @@
         showEditWindow: false,
         showMointorWindow: false,
         data: {},
+        ip:"",
       };
     },
     components: { mointorWindow },
@@ -299,6 +300,7 @@
         graph.on('node:dblclick', (ev) => {
           clearTimeout(this.timeer);
           clearTimeout(this.timeer);
+          this.ip=ev.item._cfg.id;
           this.showMointorWindow = true;
         });
       },

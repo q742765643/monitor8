@@ -1,8 +1,11 @@
 package com.piesat.skywalking.service.system;
 
 import com.piesat.constant.IndexNameConstant;
+import com.piesat.skywalking.api.host.ProcessConfigService;
+import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.vo.*;
+import com.piesat.util.NullUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -46,6 +49,8 @@ import java.util.Map;
 public class SystemService {
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @Autowired
+    private ProcessConfigService processConfigService;
 
     public List<NetworkVo> getNetwork(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -121,11 +126,11 @@ public class SystemService {
                     networkVo.setTimestamp(formatter.format(date));
                     ParsedSimpleValue inSpeedParsed = bucket.getAggregations().get("inSpeed");
                     if (inSpeedParsed != null) {
-                        networkVo.setInSpeed(new BigDecimal(inSpeedParsed.getValueAsString()).doubleValue());
+                        networkVo.setInSpeed(new BigDecimal(inSpeedParsed.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP));
                     }
                     ParsedSimpleValue outSpeedParsed = bucket.getAggregations().get("outSpeed");
                     if (outSpeedParsed != null) {
-                        networkVo.setOutSpeed(new BigDecimal(outSpeedParsed.getValueAsString()).doubleValue());
+                        networkVo.setOutSpeed(new BigDecimal(outSpeedParsed.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP));
                     }
                     networkVos.add(networkVo);
 
@@ -281,7 +286,7 @@ public class SystemService {
                     cpuVo.setTimestamp(formatter.format(date));
                     ParsedAvg parsedAvg = bucket.getAggregations().get("usage");
                     if (parsedAvg != null) {
-                        cpuVo.setUsage(new BigDecimal(parsedAvg.getValueAsString()).doubleValue());
+                        cpuVo.setUsage(new BigDecimal(parsedAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
                     }
                     cpuVos.add(cpuVo);
 
@@ -342,7 +347,7 @@ public class SystemService {
                 memoryVo.setTimestamp(formatter.format(date));
                 ParsedAvg parsedAvg = bucket.getAggregations().get("usage");
                 if (parsedAvg != null) {
-                    memoryVo.setUsage(new BigDecimal(parsedAvg.getValueAsString()).doubleValue());
+                    memoryVo.setUsage(new BigDecimal(parsedAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
                 }
                 memoryVos.add(memoryVo);
 
@@ -380,7 +385,7 @@ public class SystemService {
             BoolQueryBuilder boolFileBuilder = QueryBuilders.boolQuery();
             QueryBuilder queryBuilder = QueryBuilders.termQuery("@timestamp", timestamp);
             WildcardQueryBuilder wildDocker = QueryBuilders.wildcardQuery("system.filesystem.mount_point", "*docker*");
-            WildcardQueryBuilder wildKubernetes = QueryBuilders.wildcardQuery("system.filesystem.mount_point", "*kubernetes*");
+            WildcardQueryBuilder wildKubernetes = QueryBuilders.wildcardQuery("system.filesystem.mount_point", "*kube*");
             boolFileBuilder.must(queryBuilder);
             boolFileBuilder.must(matchEvent);
             boolFileBuilder.must(matchIp);
@@ -388,7 +393,7 @@ public class SystemService {
             boolFileBuilder.mustNot(wildKubernetes);
             SearchSourceBuilder fileSearch = new SearchSourceBuilder();
             fileSearch.query(boolFileBuilder);
-            String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct"};
+            String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct","system.filesystem.used.bytes"};
             fileSearch.fetchSource(fields, null);
             fileSearch.size(1000);
             SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", fileSearch);
@@ -401,8 +406,9 @@ public class SystemService {
                 Map<String, Object> filesystem = (Map<String, Object>) system.get("filesystem");
                 Map<String, Object> used = (Map<String, Object>) filesystem.get("used");
                 fileSystemVo.setDiskName((String) filesystem.get("mount_point"));
-                fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, BigDecimal.ROUND_HALF_UP).floatValue());
-                fileSystemVo.setUsage(new BigDecimal(String.valueOf(used.get("pct"))).floatValue());
+                fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024)).setScale(2,BigDecimal.ROUND_HALF_UP));
+                fileSystemVo.setUsage(new BigDecimal(String.valueOf(used.get("pct"))).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
+                fileSystemVo.setUseByte(new BigDecimal(String.valueOf(used.get("bytes"))).divide(new BigDecimal(1024 * 1024 * 1024)).setScale(2,BigDecimal.ROUND_HALF_UP));
                 fileSystemVos.add(fileSystemVo);
             }
 
@@ -414,6 +420,14 @@ public class SystemService {
     }
 
     @SneakyThrows
+    public List<ProcessConfigDto> getProcess(SystemQueryDto systemQueryDto) {
+        ProcessConfigDto processConfigDto=new ProcessConfigDto();
+        NullUtil.changeToNull(processConfigDto);
+        processConfigDto.setIp(systemQueryDto.getIp());
+        List<ProcessConfigDto> processConfigDtos=processConfigService.selectBySpecification(processConfigDto);
+        return processConfigDtos;
+    }
+/*
     public List<ProcessVo> getProcess(SystemQueryDto systemQueryDto) {
         List<ProcessVo> processVos = new ArrayList<>();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
@@ -467,5 +481,67 @@ public class SystemService {
 
         return processVos;
 
+    }
+*/
+
+
+    public List<CpuVo> getPacketLoss(SystemQueryDto systemQueryDto) {
+        List<CpuVo> cpuVos = new ArrayList<>();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.packet");
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", systemQueryDto.getIp());
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        searchSourceBuilder.query(boolBuilder);
+
+        DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
+        dateHis.field("@timestamp");
+        dateHis.dateHistogramInterval(DateHistogramInterval.minutes(3));
+
+        AvgAggregationBuilder avgCpu = AggregationBuilders.avg("usage");
+        avgCpu.field("loss");
+        avgCpu.format("0.0000");
+
+        Script selectCpu = new Script("params.usage>=0");
+        Map<String, String> selectCpuMap = new HashMap<>();
+        selectCpuMap.put("usage", "usage");
+        BucketSelectorPipelineAggregationBuilder bucketSelector = PipelineAggregatorBuilders.bucketSelector("selectCpu", selectCpuMap, selectCpu);
+
+        dateHis.subAggregation(avgCpu);
+        dateHis.subAggregation(bucketSelector);
+        searchSourceBuilder.aggregation(dateHis);
+        searchSourceBuilder.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
+
+            Aggregations aggregations = searchResponse.getAggregations();
+            ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
+            List<? extends Histogram.Bucket> buckets = parsedDateHistogram.getBuckets();
+            if (buckets.size() > 0) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Shanghai"));
+                for (int i = 0; i < buckets.size(); i++) {
+                    CpuVo cpuVo = new CpuVo();
+                    Histogram.Bucket bucket = buckets.get(i);
+                    ZonedDateTime date = (ZonedDateTime) bucket.getKey();
+                    cpuVo.setTimestamp(formatter.format(date));
+                    ParsedAvg parsedAvg = bucket.getAggregations().get("usage");
+                    if (parsedAvg != null) {
+                        cpuVo.setUsage(new BigDecimal(parsedAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
+                    }
+                    cpuVos.add(cpuVo);
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return cpuVos;
     }
 }

@@ -1,5 +1,6 @@
 package com.piesat.skywalking.web.system;
 
+import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.service.system.SystemService;
 import com.piesat.skywalking.vo.*;
@@ -67,9 +68,18 @@ public class SystemController {
 
     @ApiOperation(value = "查询进程", notes = "查询进程")
     @GetMapping("/getProcess")
-    public ResultT<List<ProcessVo>> getProcess(SystemQueryDto systemQueryDto) {
-        ResultT<List<ProcessVo>> resultT = new ResultT<>();
-        List<ProcessVo> list = systemService.getProcess(systemQueryDto);
+    public ResultT<List<ProcessConfigDto>> getProcess(SystemQueryDto systemQueryDto) {
+        ResultT<List<ProcessConfigDto>> resultT = new ResultT<>();
+        List<ProcessConfigDto> list = systemService.getProcess(systemQueryDto);
+        resultT.setData(list);
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询丢包率", notes = "查询丢包率")
+    @GetMapping("/getPacketLoss")
+    public ResultT<List<CpuVo>> getPacketLoss(SystemQueryDto systemQueryDto){
+        ResultT<List<CpuVo>> resultT = new ResultT<>();
+        List<CpuVo> list = systemService.getPacketLoss(systemQueryDto);
         resultT.setData(list);
         return resultT;
     }

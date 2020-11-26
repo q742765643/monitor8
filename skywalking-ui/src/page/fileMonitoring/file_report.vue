@@ -10,6 +10,9 @@
             <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
               重置
             </a-button>
+            <a-button type="primary" @click="exportEventXls">
+              导出excel
+            </a-button>
           </a-col>
         </a-form-model-item>
       </a-form-model>
@@ -78,6 +81,16 @@
         this.dateRange = [];
         this.$refs.queryForm.resetFields();
         this.handleQuery();
+      },
+      exportEventXls(){
+        request({
+          url:  '/fileQReport/exportFileReport',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+          responseType: "arraybuffer"
+        }).then((res) => {
+          this.downloadfileCommon(res);
+        });
       },
       fetch() {
         request({
