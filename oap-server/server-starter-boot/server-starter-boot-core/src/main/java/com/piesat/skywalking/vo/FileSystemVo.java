@@ -3,6 +3,8 @@ package com.piesat.skywalking.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class FileSystemVo {
     @ApiModelProperty(value = "时间")
@@ -10,7 +12,9 @@ public class FileSystemVo {
     @ApiModelProperty(value = "磁盘名称")
     private String diskName;
     @ApiModelProperty(value = "磁盘使用率")
-    private float usage;
+    private BigDecimal usage;
     @ApiModelProperty(value = "磁盘空闲 GB")
-    private float free;
+    private BigDecimal free;
+    @ApiModelProperty(value = "磁盘使用率")
+    private BigDecimal useByte;
 }

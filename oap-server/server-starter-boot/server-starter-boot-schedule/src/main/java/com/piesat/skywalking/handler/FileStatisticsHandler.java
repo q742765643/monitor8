@@ -15,10 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
@@ -90,9 +92,13 @@ public class FileStatisticsHandler implements BaseHandler {
         }
 
         BulkRequest request = new BulkRequest();
-        String indexName = IndexNameUtil.getIndexName(IndexNameConstant.T_MT_FILE_STATISTICS, new Date(startTime));
+        String indexName = IndexNameConstant.T_MT_FILE_STATISTICS;
         for (FileStatisticsDto fileStatisticsDto : fileStatisticsDtos) {
             Map<String, Object> source = new HashMap<>();
+            boolean flag=this.findById(fileStatisticsDto.getId());
+            if(flag){
+                continue;
+            }
             source.put("task_id", fileStatisticsDto.getTaskId());
             source.put("filename_regular", fileStatisticsDto.getFilenameRegular());
             source.put("file_num", fileStatisticsDto.getFileNum());
@@ -111,5 +117,14 @@ public class FileStatisticsHandler implements BaseHandler {
         if (request.requests().size() > 0) {
             elasticSearch7Client.synchronousBulk(request);
         }
+    }
+    public boolean findById(String id){
+        try {
+            GetResponse response = elasticSearch7Client.get(IndexNameConstant.T_MT_FILE_STATISTICS,id);
+            return response.isExists();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
