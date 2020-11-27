@@ -62,9 +62,12 @@
 
 <style lang="scss" scoped>
   #main_content {
-    background: #fff;
+    // background: #fff;
+    background: $container_backColor;
     height: 100%;
     width: 100%;
-    padding: 0.5rem 0.375rem 0.375rem 0.25rem;
+    // padding: 0.5rem 0.375rem 0.375rem 0.25rem;
+    padding: 30px 20px 20px 20px 15px;
+    margin-left: 18px;
   }
 </style>

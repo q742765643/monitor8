@@ -16,7 +16,11 @@
  */
 
 module.exports = {
-  plugins: {
-    autoprefixer: {}
-  }
+    plugins: {
+        autoprefixer: {},
+        "postcss-px2rem-exclude": {
+            remUnit: 192, //1920的设计稿
+            exclude: /node_modules|folder_name/i
+        }
+    }
 }

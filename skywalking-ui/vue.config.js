@@ -60,6 +60,16 @@ module.exports = {
                                                          CssRule.uses.clear();
                                                          CssRule.loader('css-loader')
                                                          CssRule.loader('style-loader') */
+        config.module
+            .rule('css')
+            .test(/\.css$/)
+            .oneOf('vue')
+            .resourceQuery(/\?vue/)
+            .use('px2rem')
+            .loader('px2rem-loader')
+            .options({
+                remUnit: 192
+            })
     },
     css: {
         loaderOptions: {

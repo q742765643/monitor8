@@ -5,7 +5,8 @@
         <span style="opacity: 0">1</span>
       </a-col>
       <a-col :span="11">
-        <img src="@/assets/img/title.png" class="title" />
+        <!-- <img src="@/assets/img/title.png" class="title" /> -->
+        <div class="title">气象海洋空间天气信息系统综合监控平台</div>
         <a-form-model :model="loginForm" ref="loginForm">
           <a-form-model-item>
             <a-input v-model.trim="loginForm.username" placeholder="账号">
@@ -101,21 +102,25 @@ export default {
     rgb(25, 150, 253) 85%
   );
   .wrap {
-    width: 80%;
+    width: 60%;
     text-align: right;
     background: url('../../assets/img/login-bg.png') no-repeat;
     background-size: 100% 100%;
     .title {
+      font-size: 30px;
+      font-family: loginFont;
       width: 60%;
-      display: block;
       margin: auto;
-      margin-top: 70px;
+      color: #125df1;
+      text-align: center;
+      margin-top: 30px;
       margin-bottom: 40px;
     }
     .ant-form-item {
       margin-bottom: 26px;
     }
     .ant-input {
+      font-size: 12px;
       height: 40px;
       line-height: 40px;
     }
@@ -126,6 +131,8 @@ export default {
       padding: 12px 20px;
       width: 100%;
       height: 40px;
+      line-height: 20px;
+      font-size: 24px;
       margin-bottom: 80px;
     }
     .login-code {

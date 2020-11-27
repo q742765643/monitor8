@@ -283,31 +283,33 @@ export default {
 #softwareState {
   height: 4.375rem;
   width: 100%;
-  margin-top: 0.375rem;
+  margin-top: 30px;
   box-shadow: $plane_shadow;
   #software_contnet {
     height: calc(4.375rem - 0.75rem);
     width: 100%;
+    margin-top: 20px;
   }
 
   .lengend {
     display: flex;
     align-items: center;
     font-family: 'Alibaba-PuHuiTi-Regular';
-
+    margin-top: 50px;
     .item {
       display: flex;
       align-items: center;
-      height: 0.75rem;
+      height: 50px;
       .color {
-        margin-left: 0.2rem;
-        width: 0.175rem;
-        height: 0.175rem;
+        margin-left: 20px;
+        width: 20px;
+        height: 20px;
       }
       .text {
-        margin-left: 0.0625rem;
+        margin-left: 10px;
         font-weight: 600;
-        font-size: $ant_font_size;
+        // font-size: $ant_font_size;
+        font-size: 24px;
       }
     }
   }

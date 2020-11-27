@@ -639,60 +639,52 @@ export default {
   width: 100%;
   height: 100%;
   font-family: Alibaba-PuHuiTi-Regular;
-  padding: 0.375rem 0.25rem;
+  padding: 20px 0;
   box-shadow: $plane_shadow;
 
   .left {
-    width: 15%;
+    width: 16%;
     height: 100%;
-    padding: 0 0.125rem;
+    padding: 0 20px;
     border-right: 1px solid #ece;
   }
 
   .right {
-    padding-right: 0.25rem;
-
+    padding-right: 0;
+    height: 100%;
     .searchBox {
-      margin-left: 0.25rem;
-      height: 1.5rem;
+      margin-left: 20px;
+      height: 150px;
       width: 100%;
       background: #f2f2f2;
-      padding: 0.1875rem;
+      padding: 25px;
       border-radius: 0.1rem;
 
       .ant-input {
-        width: 3rem;
-        padding: 0 0.375rem 0 0.1875rem;
-        margin-bottom: 0.35rem;
+        width: 240px;
+        padding: 0 20px 0 15px;
+        margin-bottom: 30px;
       }
 
       .ant-calendar-range-picker-input {
-        height: 0.4rem;
-      }
-
-      .ant-btn {
-        width: 1rem;
+        height: 30px;
       }
     }
 
     #linkUser_content {
-      margin: 0.25rem 0.1875rem 0.25rem 0.25rem;
-
-      .ant-btn {
-        width: 1rem;
-        margin: 0 0.125rem 0.125rem 0;
-      }
+      margin: 10px 10px 10px 20px;
+      height: calc(100%-150px);
     }
   }
   .dialogBox {
     .ant-form-item {
-      margin-bottom: 0.5rem;
+      margin-bottom: 30px;
     }
   }
 }
 </style>
 <style scoped>
 .ant-radio-group {
-  padding-top: 0.13rem;
+  padding-top: 10px;
 }
 </style>

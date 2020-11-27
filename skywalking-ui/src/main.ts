@@ -44,7 +44,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import Pagination from '@/components/Pagination/index.vue';
 import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel, downloadfileCommon } from '@/components/util';
 import '@/assets/iconfont/iconfont.css';
-import 'lib-flexible';
+// import 'lib-flexible';
+import './views/utils/flexible'
 import { Button } from 'ant-design-vue';
 
 //VXETable
