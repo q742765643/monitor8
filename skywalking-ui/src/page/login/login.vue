@@ -128,11 +128,12 @@ export default {
       padding: 0 15%;
     }
     .loginBtn {
-      padding: 12px 20px;
       width: 100%;
-      height: 40px;
-      line-height: 20px;
-      font-size: 24px;
+      height: 46px;
+      border-radius: 4px;
+      line-height: 46px;
+      font-size: 20px;
+      background-color: #1890ff;
       margin-bottom: 80px;
     }
     .login-code {
