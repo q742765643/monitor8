@@ -1,7 +1,6 @@
 <template>
   <a-layout id="components-layout">
-    <div id="leftPlane"><navbar /></div>
-
+    <div class="leftAside"><navbar /></div>
     <a-layout id="rightPalne">
       <div id="top"><upper></upper></div>
       <div id="center"><container></container></div>
@@ -27,19 +26,36 @@
   #components-layout {
     width: 100%;
     height: 100%;
-    #leftPlane {
-      width: 380px;
-      padding: 30px 30px;
+    .ant-layout-sider {
+      width: 100% !important;
+      height: 100%;
+      -webkit-box-flex: 0 !important;
+      -ms-flex: none !important;
+      flex: none !important;
+      max-width: none !important;
+      min-width: 100% !important;
+      background: #f0f2f3;
     }
-
+    .leftAside {
+      width: 340px;
+      background: #f0f2f3;
+    }
     #rightPalne {
-      width: calc(100% - 380px);
+      width: calc(100% - 340px);
       background: #f6fbfc;
-    }
-    #center {
-      height: calc(100% - 89px);
-      // background: #fff;
-      // padding-right: 30px;
+      #top {
+        width: calc(100% - 340px);
+        height: 80px;
+        background: #fff;
+        position: fixed;
+        top: 0;
+        z-index: 10000;
+      }
+      #center {
+        width: 100%;
+        margin-top: 110px;
+        padding: 0 30px 20px 18px;
+      }
     }
     ::-webkit-scrollbar {
       width: 3px;

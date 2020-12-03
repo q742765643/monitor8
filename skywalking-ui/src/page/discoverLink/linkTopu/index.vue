@@ -146,7 +146,7 @@
             trigger: 'item',
             formatter: '{b} : {c} ({d}%)',
           },
-
+          grid: { top: '10%' },
           color: linearcolor,
           series: [
             {
@@ -194,57 +194,40 @@
 
 <style lang="scss" scoped>
   .topu {
-    // padding: 0 0.375rem 0.375rem 0rem;
     display: flex;
-    //background: #eef5fd;
     width: 100%;
-    height: calc(12.5rem - 0.5rem - 0.375rem);
+    height: calc(100vh - 130px);
     display: flex;
     justify-content: space-between;
     #column1 {
-      width: calc(12.875rem - 0.25rem);
-      height: calc(12.5rem - 0.5rem - 0.375rem);
+      width: 70%;
+      height: 100%;
       background-color: #ffffff;
       box-shadow: $plane_shadow;
     }
     #column2 {
-      width: calc(6.3375rem - 0.25rem);
-      height: calc(12.5rem - 0.5rem - 0.375rem);
-      font-family: 'Alibaba-PuHuiTi-Medium';
+      width: 29%;
+      height: 100%;
       #deviceState {
-        height: 4.5rem;
         background-color: #ffffff;
         box-shadow: $plane_shadow;
         #pieChart {
-          height: 3.75rem;
-          width: 6.3375rem;
+          width: 100%;
+          height: 300px;
         }
       }
       #devideInfo {
-        margin-top: 0.5rem;
-        height: 6.625rem;
+        height: calc(100% - 376px);
+        margin-top: 20px;
         background-color: #ffffff;
         box-shadow: $plane_shadow;
       }
     }
 
-    /* .title {
-    font-family: Georgia;
-    font-weight: 600;
-    height: 0.75rem;
-    padding-left: 0.25rem;
-    font-size: 0.25rem;
-    border-bottom: solid 0.025rem #eef5fd;
-    span {
-      line-height: 0.75rem;
-    }
-  } */
-
     .info {
-      padding: 0.5rem 1rem;
+      padding: 40px 80px;
 
       .column {
-        height: 4.875rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -253,7 +236,7 @@
           display: flex;
           span:first-child {
             font-size: $ant_font_size;
-            width: 1.125rem;
+            width: 90px;
             display: inline-block;
             font-weight: 600;
             text-align: justify;
@@ -264,7 +247,7 @@
           }
 
           span:last-child {
-            margin-left: 0.125rem;
+            margin-left: 10px;
           }
         }
       }

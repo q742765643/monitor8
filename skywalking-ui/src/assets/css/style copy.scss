@@ -1,0 +1,481 @@
+.ant-menu-inline {
+    border-right: none !important;
+}
+
+.ant-menu-inline>.ant-menu-submenu>.ant-menu-submenu-title {
+    // height: 0.625rem;
+    // line-height: 0.625rem;
+    // margin-top: 0.25rem;
+    height: 48px;
+    line-height: 48px;
+    margin-top: 15px;
+}
+
+.ant-menu-submenu-title {
+    padding-left: 30px !important;
+    font-size: $nav_fontSize;
+    border-radius: 0.0625rem;
+
+    .ant-menu-submenu-arrow {
+        right: 35px !important;
+    }
+}
+
+.ant-menu-submenu-selected {
+    .ant-menu-submenu-title {
+        box-shadow: $main_shadow;
+        color: #fff !important;
+        background: $main_color !important;
+        border-radius: 10px;
+    }
+
+    .ant-menu-submenu-arrow {
+        color: #fff !important;
+    }
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    background: #b8e3f6;
+    color: $main_color;
+
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        border-right: 0.1rem solid #00c0ff;
+        content: '';
+    }
+}
+
+.ant-menu-inline .ant-menu-item {
+    margin-top: 15px;
+}
+
+.ant-menu-inline .ant-menu-item:last-child {
+    margin-bottom: 20px;
+}
+
+.ant-menu-submenu>.ant-menu {
+    background: #e5ecf4;
+    border-radius: 10px;
+}
+
+.ant-menu-inline .ant-menu-item::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    border: none;
+    content: '';
+}
+
+.ant-menu-item-selected[id='main'] {
+    //padding-left:  !important;
+    margin-top: 0px !important;
+    box-shadow: $main_shadow;
+    color: #fff !important;
+    background-color: $main_color !important;
+    border-radius: 10px;
+    height: 48px;
+    line-height: 48px;
+
+    &::before {
+        border: none !important;
+    }
+
+    a {
+        color: #fff !important;
+        text-decoration: none;
+    }
+}
+
+.log {
+    .ant-menu-submenu-title {
+        padding-left: 45px !important;
+        background-color: transparent !important;
+        color: #5d76ae !important;
+    }
+}
+
+.ant-menu-item[id='main'] {
+    //padding-left:  !important;
+    margin-top: 0px !important;
+    border-radius: 10px;
+    height: 48px;
+    line-height: 48px;
+}
+
+.ant-menu-item {
+    color: $nav_textColor;
+    font-size: $nav_fontSize;
+    height: 48px !important;
+    line-height: 48px !important;
+
+    a {
+        display: inline-block;
+        text-decoration: none;
+    }
+}
+
+.ant-menu-item[id='main'] {
+    padding-left: 30px !important;
+
+    a {
+        color: $nav_textColor;
+        text-decoration: none;
+    }
+}
+
+
+/* .ant-menu-submenu-inline>.ant-menu-submenu-title .ant-menu-submenu-arrow {
+    display: none;
+} */
+
+.ant-btn {
+    padding: 0 5px;
+    height: 25px;
+    font-family: Alibaba-PuHuiTi-Regular;
+    font-size: $ant_font_size;
+    margin: 0 5px;
+    /*   color: #409eff;
+    background: #ecf5ff; */
+}
+
+.ant-tree {
+    font-family: Alibaba-PuHuiTi-Regular;
+    font-size: $ant_font_size;
+    /*   color: #409eff;
+    background: #ecf5ff; */
+}
+
+.ant-btn>.anticon+span {
+    margin-left: 0px;
+}
+
+.ant-table {
+    font-size: 16px !important;
+    font-family: Alibaba-PuHuiTi-Regular;
+}
+
+.ant-input-sm {
+    height: 30px;
+    padding: 0 10px;
+}
+
+.ant-input {
+    font-size: $ant_font_size;
+}
+
+.ant-select {
+    font-size: $ant_font_size !important;
+    height: 30px;
+    line-height: 30px;
+}
+
+.ant-select-dropdown-menu-item {
+    padding: 3px 12px;
+    font-size: $ant_font_size;
+    line-height: 30px;
+}
+
+.ant-select-sm .ant-select-selection--single {
+    height: 30px;
+    line-height: 30px;
+}
+
+.ant-select-sm .ant-select-selection__rendered {
+    margin-left: 7px;
+    line-height: 30px;
+    height: 30px;
+}
+
+//链路选择
+#treeSelect {
+    .ant-tree-child-tree>li:first-child {
+        padding-top: 0px !important;
+    }
+
+    .ant-tree li {
+        padding: 0 !important;
+    }
+
+    .ant-tree {
+        border: solid 1px #eee;
+        border-radius: 5px;
+    }
+}
+
+.ant-table-thead {
+    font-family: Alibaba-PuHuiTi-Medium;
+}
+
+::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+    background-color: #f6f7f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #d8dce8;
+}
+
+::-webkit-scrollbar-track {
+    //box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.3);
+    background-color: #f6f7f9;
+}
+
+.vxe-table .vxe-table--body-wrapper::-webkit-scrollbar {
+    width: 15px;
+    background-color: #f6f7f9;
+}
+
+.vxe-table .vxe-table--body-wrapper::-webkit-scrollbar-thumb {
+    background-color: #d8dce8;
+}
+
+.vxe-table .vxe-table--body-wrapper::-webkit-scrollbar-track {
+    //box-shadow: inset 0 0 0.2rem rgba(0, 0, 0, 0.3);
+    background-color: #f6f7f9;
+}
+
+.vxe-table .vxe-cell {
+    white-space: pre-line;
+    word-break: break-all;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 16px;
+    text-align: center;
+}
+
+//datapicker
+.date-picker--panel-header {
+    grid-template-columns: 18px auto 18px !important;
+    line-height: 30px !important;
+}
+
+.date-picker--panel-body table {
+    width: 250px !important;
+    height: 250px !important;
+}
+
+.popper {
+    font-size: 13px !important;
+    font-family: Alibaba-PuHuiTi-Regular !important;
+}
+
+@font-face {
+    font-family: loginFont;
+    src: url(../font/100号-方方先锋体.ttf);
+}
+
+@font-face {
+    font-family: electronicFont;
+    src: url(../font/DS-DIGIT.TTF);
+}
+
+@font-face {
+    font-family: Alibaba-PuHuiTi-Bold;
+    src: url(../font/Alibaba-PuHuiTi-Bold.ttf);
+}
+
+@font-face {
+    font-family: Alibaba-PuHuiTi-Heavy;
+    src: url(../font/Alibaba-PuHuiTi-Heavy.ttf);
+}
+
+@font-face {
+    font-family: Alibaba-PuHuiTi-Light;
+    src: url(../font/Alibaba-PuHuiTi-Light.ttf);
+}
+
+@font-face {
+    font-family: Alibaba-PuHuiTi-Medium;
+    src: url(../font/Alibaba-PuHuiTi-Medium.ttf);
+}
+
+@font-face {
+    font-family: Alibaba-PuHuiTi-Regular;
+    src: url(../font/Alibaba-PuHuiTi-Regular.ttf);
+}
+
+@font-face {
+    font-family: LCD-BOLD;
+    src: url(../font/LCD-BOLD.TTF);
+}
+
+@font-face {
+    font-family: LCD-L___;
+    src: url(../font/LCD-L___.TTF);
+}
+
+@font-face {
+    font-family: LCD-N___;
+    src: url(../font/LCD-N___.TTF);
+}
+
+@font-face {
+    font-family: LCD-U___;
+    src: url(../font/LCD-U___.TTF);
+}
+
+@font-face {
+    font-family: LCD2B___;
+    src: url(../font/LCD2B___.TTF);
+}
+
+@font-face {
+    font-family: LCD2L___;
+    src: url(../font/LCD2L___.TTF);
+}
+
+@font-face {
+    font-family: LCD2N___;
+    src: url(../font/LCD2N___.TTF);
+}
+
+@font-face {
+    font-family: LCD2U___;
+    src: url(../font/LCD2B___.TTF);
+}
+
+@font-face {
+    font-family: LCDM2B__;
+    src: url(../font/LCDM2B__.TTF);
+}
+
+@font-face {
+    font-family: LCDM2L__;
+    src: url(../font/LCDM2L__.TTF);
+}
+
+@font-face {
+    font-family: LCDM2N__;
+    src: url(../font/LCDM2N__.TTF);
+}
+
+@font-face {
+    font-family: LCDM2U__;
+    src: url(../font/LCDM2U__.TTF);
+}
+
+@font-face {
+    font-family: LCDMB___;
+    src: url(../font/LCDMB___.TTF);
+}
+
+@font-face {
+    font-family: LCDML___;
+    src: url(../font/LCDML___.TTF);
+}
+
+@font-face {
+    font-family: LCDMN___;
+    src: url(../font/LCDMN___.TTF);
+}
+
+@font-face {
+    font-family: LCDMU___;
+    src: url(../font/LCDMU___.TTF);
+}
+
+@font-face {
+    font-family: NotoSansHans-Black;
+    src: url(../font/NotoSansHans-Black.otf);
+}
+
+@font-face {
+    font-family: NotoSansHans-Bold;
+    src: url(../font/NotoSansHans-Bold.otf);
+}
+
+@font-face {
+    font-family: NotoSansHans-Demilight;
+    src: url(../font/NotoSansHans-DemiLight.otf);
+}
+
+@font-face {
+    font-family: NotoSansHans-Light;
+    src: url(../font/NotoSansHans-Light.otf);
+}
+
+@font-face {
+    font-family: NotoSansHans-Medium;
+    src: url(../font/NotoSansHans-Medium.otf);
+}
+
+@font-face {
+    font-family: NotoSansHans-Regular;
+    src: url(../font/NotoSansHans-Regular.otf);
+}
+
+@font-face {
+    font-family: NotoSansHans-Thin-Windows;
+    src: url(../font/NotoSansHans-Thin-Windows.otf);
+}
+
+.queryForm {
+    padding-left: 2%;
+
+    .ant-form-item-label,
+    .ant-form-item-control,
+    .ant-input,
+    .ant-select,
+    .ant-select-selection__rendered {
+        line-height: 30px;
+    }
+
+    .ant-input,
+    .ant-select,
+    .ant-select-selection--single {
+        height: 30px;
+    }
+
+    .ant-select {
+        width: 180px;
+    }
+}
+
+.rowToolbar {
+    margin-bottom: 20px;
+}
+
+.ant-modal-close-x {
+    padding-top: 16px;
+}
+
+.dialogBox {
+    .ant-form-item {
+        margin-bottom: 30px;
+    }
+}
+
+.ant-calendar-header .ant-calendar-prev-century-btn,
+.ant-calendar-header .ant-calendar-next-century-btn,
+.ant-calendar-header .ant-calendar-prev-decade-btn,
+.ant-calendar-header .ant-calendar-next-decade-btn,
+.ant-calendar-header .ant-calendar-prev-month-btn,
+.ant-calendar-header .ant-calendar-next-month-btn,
+.ant-calendar-header .ant-calendar-prev-year-btn,
+.ant-calendar-header .ant-calendar-next-year-btn {
+    top: 18px;
+}
+
+.ant-calendar-range-picker-separator {
+    line-height: 100%;
+}
+
+.el-input-number__decrease,
+.el-input-number__increase {
+    bottom: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#changeContab {
+    .el-tabs__content {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}

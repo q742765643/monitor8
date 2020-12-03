@@ -1,6 +1,6 @@
 <template>
   <a-layout-sider id="slider">
-    <!-- <div class="timeBox">
+    <div class="timeBox">
       <div class="date">
         <div class="day">{{ date }}</div>
         <div class="week">{{ week }}</div>
@@ -8,14 +8,8 @@
       <div class="time">
         <span>{{ time }}</span>
       </div>
-    </div> -->
-    <div class="left">
-      <span class="web_title"> 气象海洋空间天气信息系统综合监控平台 </span>
     </div>
-    <a-menu mode="inline" :default-open-keys="['sub1']" id="menu" :selectedKeys="[this.$route.path]">
-      <!--   :selectedKeys="[this.$route.path]" -->
-      <!--  :default-selected-keys="['1']" -->
-      <!--     :default-open-keys="['sub1']" -->
+    <a-menu mode="inline" :default-open-keys="['sub1']" id="menuNav" :selectedKeys="[this.$route.path]">
       <a-menu-item key="/mainMonitor" id="main">
         <span class="iconfont">&#xe60c;</span>
         <span> <router-link to="/mainMonitor"> 综合监控</router-link></span>
@@ -190,150 +184,165 @@
 </template>
 
 <script>
-import moment from 'moment';
-export default {
-  name: 'navbar',
-  data() {
-    return {
-      // date: '',
-      // week: '',
-      // time: '',
-      // timer: null,
-    };
-  },
-  created() {
-    // this.getTime();
-  },
-  mounted() {
-    // let data;
+  import moment from 'moment';
+  export default {
+    name: 'navbar',
+    data() {
+      return {
+        date: '',
+        week: '',
+        time: '',
+        timer: null,
+      };
+    },
+    created() {
+      this.getTime();
+    },
+    mounted() {
+      let data;
 
-    // this.timer = setInterval(() => this.getTime(), 1000);
-  },
-  destroyed() {
-    // clearInterval(this.timer); // 清除定时器
-    // this.timer = null;
-  },
-  methods: {
-    // getTime: function () {
-    //   moment.locale('zh-cn');
-    //   this.date = moment().format('YYYY-MM-DD');
-    //   this.week = moment().format('dddd');
-    //   this.time = moment().format('LTS');
-    // },
-  },
-};
+      this.timer = setInterval(() => this.getTime(), 1000);
+    },
+    destroyed() {
+      clearInterval(this.timer); // 清除定时器
+      this.timer = null;
+    },
+    methods: {
+      getTime: function() {
+        moment.locale('zh-cn');
+        this.date = moment().format('YYYY-MM-DD');
+        this.week = moment().format('dddd');
+        this.time = moment().format('LTS');
+      },
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-#slider {
-  // width: 4.25rem !important;
-  width: 100% !important;
-  height: 100%;
-  flex: none !important;
-  max-width: none !important;
-  min-width: none !important;
-  background: $nav_backColor;
-  .timeBox {
-    height: 100px;
-    display: flex;
-    position: relative;
-    justify-content: center;
-    &::after {
-      content: '';
-      height: 1px;
-      background: $borderColor;
-      // width: calc(100% - 0.75rem);
-      position: absolute;
-      bottom: 0;
-      left: 10px;
-    }
-    .date {
+  #slider {
+    .timeBox {
+      width: calc(100% - 60px);
+      padding: 10px 0 14px 0;
       display: flex;
+      position: relative;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
-      margin-left: 0px;
-      .day {
+      border-bottom: 1px solid #dae4ec;
+      margin: auto;
+      .date {
+        font-size: $ant_font_size;
+        .day {
+          font-size: 20px;
+          font-family: electronicFont;
+        }
+        .week {
+          text-align: center;
+          font-family: NotoSansHans-Regular;
+        }
+      }
+      .time {
+        font-size: 24px;
+        margin-left: 24px;
         font-family: electronicFont;
-        font-size: 28px;
-      }
-      .week {
-        font-family: Alibaba-PuHuiTi-Medium;
-        font-size: 28px;
       }
     }
-    .time {
-      font-size: 28px;
-      font-family: electronicFont;
-      margin-left: 100px;
-      //height: 100%;
-      line-height: 100px;
-    }
-  }
-  .left {
-      // float: left;
-      height: 100px;
-      // width: 342px;
-      padding: 0 24px;
-      border-bottom: 1px solid #d9e5ec;
-      .web_title {
-        display: block;
-        font-size: 30px;
-        color: $nav_textColor;
-        font-family: Alibaba-PuHuiTi-Medium;
-        height: 40px;
-        line-height: 40px
+    #menuNav {
+      height: calc(100% - 90px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #f1f2f4;
+      padding: 0 30px;
+      padding-top: 30px;
+      font-size: $nav_fontSize;
+      color: #5d76ae;
+      border: none;
+      font-family: Microsoft YaHei;
+      .ant-menu-submenu-title {
+        padding-left: 30px !important;
+        .ant-menu-submenu-arrow {
+          right: 10px !important;
+        }
       }
-    }
 
-  #menu {
-    font-family: Alibaba-PuHuiTi-Regular;
-    height: calc(100% - 100px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    background: $nav_backColor;
-    font-size: 20px;
-    width: 340px;
-    padding: 25px 0;
-    color: $nav_textColor;
-    .iconfont {
-      font-size: 26px !important;
-      margin-right: 20px;
-    }
-    .expand {
-      position: absolute;
-      right: 20px;
-      margin: 0;
-      padding-top: 10px;
-      font-size: 20px !important;
-    }
-    .ant-menu-item {
-      font-size: 20px !important;
-      height: 48px !important;
-      line-height: 48px !important;
-      width: 315px;
-    }
-    .ant-menu-submenu {
-      width: 315px;
-      .ant-menu-inline {
-        .ant-menu-submenu-title {
+      .ant-menu-item > a {
+        display: inline-block !important;
+        text-decoration: none;
+        color: rgba(0, 0, 0, 0.65);
+      }
+
+      .ant-menu-item {
+        font-size: $nav_fontSize;
+        height: 50px;
+        line-height: 50px;
+      }
+
+      .ant-menu-submenu-selected .ant-menu-submenu-title {
+        border-radius: 6px;
+        color: #fff !important;
+        background: linear-gradient(90deg, #428dff, #397dff) !important;
+        box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
+      }
+      .iconfont {
+        font-size: 22px;
+        margin-right: 18px;
+      }
+      .ant-menu-sub {
+        .iconfont {
+          color: #5d76ae;
           font-size: 20px !important;
         }
       }
+
+      .ant-menu-item-selected[id='main'] {
+        height: 50px;
+        line-height: 50px;
+        color: #fff !important;
+        background: linear-gradient(90deg, #428dff, #397dff) !important;
+        box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
+        border-radius: 6px;
+      }
+      .ant-menu-item-selected[id='main'] a {
+        color: #fff !important;
+      }
+
+      .ant-menu-item-selected,
+      .ant-menu-item-selected > a,
+      .ant-menu-item-selected > a:hover {
+        color: #1890ff !important;
+      }
+      .ant-menu:not(.ant-menu-horizontal) {
+        .ant-menu-item-selected {
+          background: #b8e3f6;
+          color: #1890ff;
+          .iconfont {
+            color: #1890ff;
+          }
+          &:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            border: none;
+            border-right: 8px solid #00c0ff;
+            content: '';
+          }
+
+          &:after {
+            display: none;
+          }
+        }
+      }
+      &::-webkit-scrollbar {
+        width: 3px;
+        background-color: #f5f5f5;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: #5aa6ee;
+      }
+      &::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+        background-color: #f5f5f5;
+      }
     }
   }
-
-  #menu::-webkit-scrollbar {
-    width: 3px;
-    background-color: #f5f5f5;
-  }
-
-  #menu::-webkit-scrollbar-thumb {
-    // background-color: #5aa6ee;
-  }
-  #menu::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-    background-color: #f5f5f5;
-  }
-}
 </style>

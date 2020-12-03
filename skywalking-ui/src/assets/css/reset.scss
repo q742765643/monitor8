@@ -18,8 +18,8 @@ select,
 textarea
 /* for ie */
 
-{
-    font-family: Alibaba-PuHuiTi-Regular;
+    {
+    font-family: NotoSansHans-Medium, MicrosoftYaHei;
 }
 
 dl,
@@ -48,7 +48,7 @@ th,
 td
 /* table elements 表格元素 */
 
-{
+    {
     margin: 0;
     padding: 0;
 }
@@ -106,10 +106,11 @@ ol {
 
 a {
     text-decoration: none;
+    color: #5d76ae;
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 

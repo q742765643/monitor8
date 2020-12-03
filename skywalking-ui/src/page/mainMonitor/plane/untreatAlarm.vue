@@ -21,80 +21,79 @@
 </template>
 
 <script>
-import planeTitle from '@/components/titile/planeTitle.vue';
-import request from '@/utils/request';
-// 接口地址
-import hongtuConfig from '@/utils/services';
-export default {
-  data() {
-    return {
-      table_height: 220,
-      tableData: [],
-      alarmLevelOptions: [],
-    };
-  },
-  name: 'untreatAlarm',
-  components: { planeTitle },
-  created() {
-    this.getDicts('alarm_level').then((response) => {
-      this.alarmLevelOptions = response.data;
-    });
-  },
-  mounted() {
-    this.fetch();
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-
-    window.addEventListener('resize', () => {
-      setTimeout(() => {
-        this.setTableHeight();
-      }, 500);
-    });
-  },
-  methods: {
-    formatAlarmLevel({ cellValue }) {
-      return this.selectDictLabel(this.alarmLevelOptions, cellValue);
+  import planeTitle from '@/components/titile/planeTitle.vue';
+  import request from '@/utils/request';
+  // 接口地址
+  import hongtuConfig from '@/utils/services';
+  export default {
+    data() {
+      return {
+        table_height: 220,
+        tableData: [],
+        alarmLevelOptions: [],
+      };
     },
-    fetch() {
-      request({
-        url: '/main/getAlarm',
-        method: 'get',
-      }).then((data) => {
-        this.tableData = data.data;
+    name: 'untreatAlarm',
+    components: { planeTitle },
+    created() {
+      this.getDicts('alarm_level').then((response) => {
+        this.alarmLevelOptions = response.data;
       });
     },
-    setTableHeight() {
-      let h = document.getElementById('alarmContnet').clientHeight;
-      let computedStyle = getComputedStyle(document.getElementById('alarmContnet'), null);
-      this.table_height = h - 2 * parseInt(computedStyle.paddingTop);
+    mounted() {
+      this.fetch();
+      this.$nextTick(() => {
+        this.setTableHeight();
+      });
+
+      window.addEventListener('resize', () => {
+        setTimeout(() => {
+          this.setTableHeight();
+        }, 500);
+      });
     },
-  },
-};
+    methods: {
+      formatAlarmLevel({ cellValue }) {
+        return this.selectDictLabel(this.alarmLevelOptions, cellValue);
+      },
+      fetch() {
+        request({
+          url: '/main/getAlarm',
+          method: 'get',
+        }).then((data) => {
+          this.tableData = data.data;
+        });
+      },
+      setTableHeight() {
+        let h = document.getElementById('alarmContnet').clientHeight;
+        let computedStyle = getComputedStyle(document.getElementById('alarmContnet'), null);
+        this.table_height = h - 2 * parseInt(computedStyle.paddingTop);
+      },
+    },
+  };
 </script>
 
 <style lang="scss" scoped>
-#untreatAlarm {
-  height: 4.375rem;
-  width: 100%;
-  margin-top: 30px;
-  box-shadow: $plane_shadow;
-
-  #alarmContnet {
-    padding: 0 0.0625rem 0.125rem 0.0625rem;
+  #untreatAlarm {
     width: 100%;
-    height: calc(4.375rem - 0.75rem);
-    ::-webkit-scrollbar {
-      width: 3px;
-      background-color: #f5f5f5;
-    }
-    ::-webkit-scrollbar-thumb {
-      // background-color: #5aa6ee;
-    }
-    ::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-      background-color: #f5f5f5;
+    margin-top: 20px;
+    box-shadow: $plane_shadow;
+
+    #alarmContnet {
+      padding: 0 5px 10px 5px;
+      width: 100%;
+      height: 240px;
+      ::-webkit-scrollbar {
+        width: 3px;
+        background-color: #f5f5f5;
+      }
+      ::-webkit-scrollbar-thumb {
+        // background-color: #5aa6ee;
+      }
+      ::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+        background-color: #f5f5f5;
+      }
     }
   }
-}
 </style>

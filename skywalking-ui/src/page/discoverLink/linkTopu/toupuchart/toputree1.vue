@@ -4,23 +4,23 @@
     <div id="legend">
       <span class="titile">图例</span>
       <div>
-        <span class="lgd1"></span>
+        <span class="lgd1 lgd"></span>
         <span>值班区</span>
       </div>
       <div>
-        <span class="lgd2"></span>
+        <span class="lgd2 lgd"></span>
         <span>办公区4楼</span>
       </div>
       <div>
-        <span class="lgd3"></span>
+        <span class="lgd3 lgd"></span>
         <span>办公区3楼</span>
       </div>
       <div>
-        <span class="lgd4"></span>
+        <span class="lgd4 lgd"></span>
         <span>机房区</span>
       </div>
       <div>
-        <span class="lgd5"></span>
+        <span class="lgd5 lgd"></span>
         <span>其他区</span>
       </div>
     </div>
@@ -133,7 +133,7 @@
         showEditWindow: false,
         showMointorWindow: false,
         data: {},
-        ip:"",
+        ip: '',
       };
     },
     components: { mointorWindow },
@@ -159,6 +159,7 @@
       drawRectTree() {
         let sortByCombo = true;
         let width = document.getElementById('mountNode').clientWidth - 20;
+        var g6Height = document.getElementById('mountNode').clientHeight - 20;
         G6.registerNode(
           'card-node',
           {
@@ -235,7 +236,7 @@
         var graph = new G6.Graph({
           width,
           container: 'mountNode',
-          height: window.innerHeight,
+          height: g6Height,
           modes: {
             default: [
               'drag-node',
@@ -300,7 +301,7 @@
         graph.on('node:dblclick', (ev) => {
           clearTimeout(this.timeer);
           clearTimeout(this.timeer);
-          this.ip=ev.item._cfg.id;
+          this.ip = ev.item._cfg.id;
           this.showMointorWindow = true;
         });
       },
@@ -318,79 +319,70 @@
 <style lang="scss" scoped>
   #left {
     position: relative;
-    width: 12.875rem;
-    height: 11.625rem;
+    width: 100%;
+    height: 100%;
+    #mountNode {
+      width: 100%;
+      height: 100%;
+    }
   }
   #treeChart {
-    width: 12.875rem;
-    height: 11.625rem;
+    width: 100%;
+    height: 100%;
   }
 
   #legend {
+    width: 150px;
     user-select: none;
     z-index: 500;
     position: absolute;
-    left: 0.25rem;
-    bottom: 0.25rem;
-    width: 1.875rem;
-    box-shadow: 0.0125rem 0.0125rem 0.125rem 0 #ccc;
-
+    left: 20px;
+    bottom: 20px;
+    box-shadow: 1px 1px 10px 0 #ccc;
+    background: #fff;
     div {
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: Alibaba-PuHuiTi-Medium;
-
-      .lgd1 {
-        width: 0.625rem;
-        background-color: #edfbed;
-        height: 0.25rem;
-        border: solid 0.0125rem #01a1ff;
+      .lgd {
+        width: 50px;
+        height: 20px;
+        border: solid 1px #01a1ff;
       }
-
+      .lgd1 {
+        background-color: #edfbed;
+      }
       .lgd2 {
-        width: 0.625rem;
         background-color: #eeedfb;
-        height: 0.25rem;
-        border: solid 0.0125rem #01a1ff;
       }
 
       .lgd3 {
-        width: 0.625rem;
         background-color: #fbfdef;
-        height: 0.25rem;
-        border: solid 0.0125rem #01a1ff;
       }
 
       .lgd4 {
-        width: 0.625rem;
         background-color: #fcf3ee;
-        height: 0.25rem;
-        border: solid 0.0125rem #01a1ff;
       }
 
       .lgd5 {
-        width: 0.625rem;
         background-color: #a183a3;
-        height: 0.25rem;
-        border: solid 0.0125rem #01a1ff;
       }
       span:nth-child(2) {
-        margin-left: 0.0625rem;
+        margin-left: 5px;
         flex: 2;
         display: block;
-        line-height: 0.4rem;
+        line-height: 32px;
       }
       span:nth-child(1) {
-        margin-left: 0.0625rem;
+        margin-left: 5px;
         flex: 1;
         display: block;
-        line-height: 0.4rem;
+        line-height: 32px;
       }
     }
     .titile {
-      margin-left: 0.125rem;
-      font-size: 0.2rem;
+      font-size: 16px;
+      margin-left: 10px;
       font-weight: 600;
     }
   }

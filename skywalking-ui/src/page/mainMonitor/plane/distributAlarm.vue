@@ -9,7 +9,7 @@
   import echarts from 'echarts';
   import planeTitle from '@/components/titile/planeTitle.vue';
   import { remFontSize } from '@/components/utils/fontSize.js';
-  import request from "@/utils/request";
+  import request from '@/utils/request';
   // 接口地址
   import hongtuConfig from '@/utils/services';
   export default {
@@ -26,7 +26,7 @@
     async mounted() {
       this.getMonitorView();
       this.getAlarmDistribution();
-/*
+      /*
       await hongtuConfig.getAlarmDistribution().then((res) => {
         if (res.status == 200 && res.data.code == 200) {
           let dataarray = res.data.data;
@@ -51,42 +51,45 @@
     methods: {
       getMonitorView() {
         request({
-          url:'/main/getMonitorViewVo',
-          method: 'get'
-        }).then(data => {
-          this.peiData = data.data
+          url: '/main/getMonitorViewVo',
+          method: 'get',
+        }).then((data) => {
+          this.peiData = data.data;
           this.drawPie('alarmChart');
         });
       },
       getAlarmDistribution() {
         request({
-          url:'/main/getAlarmDistribution',
-          method: 'get'
-        }).then(data => {
-          this.alarmData = data.data
+          url: '/main/getAlarmDistribution',
+          method: 'get',
+        }).then((data) => {
+          this.alarmData = data.data;
           this.drawPie('alarmChart');
         });
       },
       drawPie(id) {
         this.alarmCharts = echarts.init(document.getElementById(id));
         let option = {
-          title: [{
-            text: '监控总览',
-            left: '25%',
-            textAlign: 'center',
-            textStyle: {
-              fontSize: remFontSize(0.175),
+          title: [
+            {
+              text: '监控总览',
+              left: '25%',
+              textAlign: 'center',
+              textStyle: {
+                fontSize: remFontSize(0.175),
+              },
             },
-          }, {
-            text: '告警分布',
-            left: '75%',
-            textAlign: 'center',
-            textStyle: {
-              fontSize: remFontSize(0.175),
+            {
+              text: '告警分布',
+              left: '75%',
+              textAlign: 'center',
+              textStyle: {
+                fontSize: remFontSize(0.175),
+              },
             },
-          }],
+          ],
           textStyle: {
-            fontFamily: ' Alibaba-PuHuiTi-Medium',
+            fontFamily: 'NotoSansHans-Medium',
           },
           legend: {
             //type: 'plain',
@@ -100,7 +103,7 @@
               fontSize: remFontSize(0.15),
             },
 
-            data: ['主机设备','链路设备','进程任务','数据任务'],
+            data: ['主机设备', '链路设备', '进程任务', '数据任务'],
           },
           color: this.pieColor,
           tooltip: {
@@ -109,7 +112,7 @@
             padding: [5, 30, 5, 5],
             textStyle: {
               fontSize: remFontSize(0.15),
-              fontFamily: ' Alibaba-PuHuiTi-Medium',
+              fontFamily: ' NotoSansHans-Medium',
             },
           },
           series: [
@@ -178,12 +181,11 @@
 
 <style lang="scss" scoped>
   #distributAlarm {
-    height: 3.75rem;
     width: 100%;
-    //margin-top: 0.5rem;
     box-shadow: $plane_shadow;
+    margin-bottom: 10px;
     #alarmChart {
-      height: 3rem;
+      height: 210px;
       width: 100%;
     }
   }

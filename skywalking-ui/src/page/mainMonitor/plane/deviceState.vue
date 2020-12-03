@@ -3,7 +3,6 @@
     <div><planeTitle titleName="设备状态"></planeTitle></div>
     <div id="device_contnet">
       <div id="device_pieChart"></div>
-      <!--   <div id="totalNumber">{{ this.showData.length }}</div> -->
       <div id="heatChart">
         <div class="box" v-for="(item, index) in showData" :style="{ backgroundColor: item.color }" :key="index">
           <div class="tooltip">
@@ -324,38 +323,30 @@
 
 <style lang="scss" scoped>
   #deviceState {
-    height: 2.6875rem;
+    //height: 2.6875rem;
     width: 100%;
     box-shadow: $plane_shadow;
 
     #device_contnet {
-      height: calc(2.6875rem - 0.75rem);
+      //height: calc(2.6875rem - 0.75rem);
       width: 100%;
       display: flex;
       align-items: center;
-      #totalNumber {
-        position: relative;
-        z-index: 1001;
-        left: -1.5rem;
-        line-height: calc(2.6875rem - 0.75rem);
-        font-family: Alibaba-PuHuiTi-Regular;
-        font-size: 0.3rem;
-      }
       #device_pieChart {
         flex: 1;
-        height: calc(2.6875rem - 0.75rem);
+        height: 130px;
       }
       #heatChart {
         flex: 1;
-        padding: 0 0.25rem;
+        padding: 0 20px;
         display: flex;
         align-content: flex-start;
         align-items: center;
         flex-wrap: wrap;
         .box {
-          height: 0.3rem;
-          width: 0.3rem;
-          margin: 0.025rem;
+          height: 24px;
+          width: 24px;
+          margin: 2px;
           border-radius: 20%;
           &:hover .tooltip {
             display: block;
@@ -367,16 +358,14 @@
 
   .tooltip {
     display: none;
-    padding: 0.125rem;
-    border-radius: 0.0375rem;
+    padding: 10px;
+    border-radius: 4px;
     position: absolute;
     color: white;
-    box-shadow: 0.0125rem 0.0125rem 0.125rem 0 #ccc;
     background: rgba($color: #353535, $alpha: 0.75);
-    transform: translate(-35%, -100%);
+    transform: translate(-29%, -112%);
 
     .text {
-      font-family: Alibaba-PuHuiTi-Regular;
       font-size: $ant_font_size;
       font-weight: 300;
       .column {
@@ -386,18 +375,17 @@
           display: flex;
           span:first-child {
             font-size: $ant_font_size;
-            width: 1rem;
+            width: 80px;
             display: inline-block;
             font-weight: 600;
             text-align: justify;
             i {
-              /*  width: 50%; */
               display: inline-block;
             }
           }
 
           span:last-child {
-            margin-left: 0.125rem;
+            margin-left: 10px;
           }
         }
       }
@@ -405,12 +393,12 @@
 
     .arrow {
       position: absolute;
-      margin: 0.125rem 0 0 0.625rem;
+      margin: 10px 0 0 50px;
       width: 0;
       height: 0;
-      border-left: 0.125rem solid transparent;
-      border-right: 0.125rem solid transparent;
-      border-top: 0.125rem solid rgba($color: #353535, $alpha: 0.75);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 12px solid rgba($color: #353535, $alpha: 0.75);
     }
   }
 </style>
