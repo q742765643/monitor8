@@ -6,13 +6,17 @@ import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.constant.IndexNameConstant;
+import com.piesat.skywalking.api.alarm.AlarmEsLogService;
+import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.api.host.ProcessConfigService;
 import com.piesat.skywalking.dao.ProcessConfigDao;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessDetailsDto;
 import com.piesat.skywalking.entity.ProcessConfigEntity;
 import com.piesat.skywalking.mapstruct.ProcessConfigMapstruct;
 import com.piesat.util.JsonParseUtil;
+import com.piesat.util.NullUtil;
 import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -44,6 +48,10 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
     private ProcessConfigMapstruct processConfigMapstruct;
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @Autowired
+    private AlarmEsLogService alarmEsLogService;
+    @Autowired
+    private HostConfigService hostConfigService;
 
     @Override
     public BaseDao<ProcessConfigEntity> getBaseDao() {
@@ -107,7 +115,9 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
     @Override
     @Transactional
     public ProcessConfigDto save(ProcessConfigDto processConfigDto) {
-
+        if(null==processConfigDto.getCurrentStatus()){
+            processConfigDto.setCurrentStatus(11);
+        }
         ProcessConfigEntity processConfigEntity = processConfigMapstruct.toEntity(processConfigDto);
         processConfigEntity = super.saveNotNull(processConfigEntity);
         return processConfigDto;
@@ -119,8 +129,10 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
     }
 
     @Override
+    @Transactional
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
+        alarmEsLogService.deleteAlarm(ids);
     }
 
     public ProcessDetailsDto getDetail(ProcessConfigDto processConfigDto) {
@@ -205,5 +217,13 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         }
         Specification specification = specificationBuilder.generateSpecification();
         return super.count(specification);
+    }
+
+    public List<HostConfigDto> findIp(){
+        HostConfigDto hostConfigdto=new HostConfigDto();
+        NullUtil.changeToNull(hostConfigdto);
+        hostConfigdto.setDeviceType(0);
+        List<HostConfigDto> hostConfigDtos=hostConfigService.selectBySpecification(hostConfigdto);
+        return hostConfigDtos;
     }
 }

@@ -89,6 +89,7 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
             alarmConfigDto1.setGenerals(JSON.parseArray(alarmConfigEntity.getGeneral(), ConditionDto.class));
             alarmConfigDto1.setDangers(JSON.parseArray(alarmConfigEntity.getDanger(), ConditionDto.class));
             alarmConfigDto1.setSeveritys(JSON.parseArray(alarmConfigEntity.getSeverity(), ConditionDto.class));
+            alarmConfigDto1.setJobCron(alarmConfigEntity.getJobCron());
             alarmConfigDtos.add(alarmConfigDto1);
         }
         return alarmConfigDtos;
@@ -114,6 +115,13 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         alarmConfigEntity.setGeneral(JSON.toJSONString(alarmConfigDto.getGenerals()));
         alarmConfigEntity.setDanger(JSON.toJSONString(alarmConfigDto.getDangers()));
         alarmConfigEntity.setSeverity(JSON.toJSONString(alarmConfigDto.getSeveritys()));
+        alarmConfigEntity = super.saveNotNull(alarmConfigEntity);
+        alarmConfigQuartzService.handleJob(alarmConfigMapstruct.toDto(alarmConfigEntity));
+        return alarmConfigDto;
+    }
+
+    public AlarmConfigDto updateAlarm(AlarmConfigDto alarmConfigDto) {
+        AlarmConfigEntity alarmConfigEntity = alarmConfigMapstruct.toEntity(alarmConfigDto);
         alarmConfigEntity = super.saveNotNull(alarmConfigEntity);
         alarmConfigQuartzService.handleJob(alarmConfigMapstruct.toDto(alarmConfigEntity));
         return alarmConfigDto;

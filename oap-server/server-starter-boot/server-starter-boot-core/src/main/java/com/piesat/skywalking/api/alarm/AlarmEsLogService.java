@@ -17,4 +17,6 @@ public interface AlarmEsLogService {
     public List<Map<String,Object>> selectAlarmList(AlarmLogDto query);
 
     public Map<String,Long> selectAlarmNum(AlarmLogDto query);
+
+    public void deleteAlarm(List<String> ids);
 }

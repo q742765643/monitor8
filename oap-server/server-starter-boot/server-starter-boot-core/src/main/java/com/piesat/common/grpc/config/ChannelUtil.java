@@ -121,6 +121,9 @@ public class ChannelUtil {
         List<String> addressList = new ArrayList<>();
         addressList.addAll(Arrays.asList(addresss.split(";")));
         Map<String, ManagedChannel> map = channel.get(name);
+        if(map==null){
+            return null;
+        }
         //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題
         Map<String, Integer> serverMap = new HashMap<String, Integer>();
         map.forEach((k, v) -> {
@@ -143,6 +146,9 @@ public class ChannelUtil {
             }
         }
         Random random = new Random();
+        if(serverList.size()==0){
+            return null;
+        }
         int randomPos = random.nextInt(serverList.size());
 
         String server = serverList.get(randomPos);
@@ -151,6 +157,9 @@ public class ChannelUtil {
 
     public Channel selectChannel(String name) {
         Map<String, ManagedChannel> map = channel.get(name);
+        if(map==null){
+            return null;
+        }
         //重新建立一個map,避免出現由於服務器上線和下線導致的並發問題
         Map<String, Integer> serverMap = new HashMap<String, Integer>();
         map.forEach((k, v) -> {
@@ -170,6 +179,10 @@ public class ChannelUtil {
             }
         }
         Random random = new Random();
+
+        if(serverList.size()==0){
+            return null;
+        }
         int randomPos = random.nextInt(serverList.size());
 
         String server = serverList.get(randomPos);

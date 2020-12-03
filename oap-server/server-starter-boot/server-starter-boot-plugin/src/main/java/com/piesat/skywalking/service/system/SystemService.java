@@ -539,7 +539,7 @@ public class SystemService {
 
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return cpuVos;

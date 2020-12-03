@@ -10,5 +10,6 @@ public class IndexNameConstant {
     public static final String T_MT_MEDIA_OVERVIEW = "t_mt_media_overview";
     public static final String T_MT_HOST_DOWN_LOG = "t_mt_host_down_log";
     public static final String T_MT_PROCESS_DOWN_LOG = "t_mt_process_down_log";
+    public static final String T_MT_PROCESS_REPORT="t_mt_process_report";
 
 }

@@ -4,6 +4,7 @@ import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.om.protocol.snmp.SNMPConstants;
 import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
 import com.piesat.skywalking.util.IdUtils;
+import com.piesat.sso.client.util.RedisUtil;
 import com.piesat.util.IndexNameUtil;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -27,6 +28,9 @@ public class SNMPService {
     private ElasticSearch7Client elasticSearch7Client;
     private ConcurrentHashMap<String, ArrayList<String>> lastCpu = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, List<TableEvent>> lastProcess = new ConcurrentHashMap<>();
+    protected static String PROCESSKEY="PROCESSKEY:";
+    @Autowired
+    protected RedisUtil redisUtil;
 
     @SneakyThrows
     public void getSystemInfo(String hostComputer, String port, String version, Date date, SNMPSessionUtil snmp) {
@@ -374,6 +378,8 @@ public class SNMPService {
         system.put("memory", memory);
         source.put("system", system);
         esList.add(source);
+        basicInfo.put("memory", memTotalReal.longValue());
+
 
     }
 
@@ -497,50 +503,46 @@ public class SNMPService {
                 "1.3.6.1.2.1.25.5.1.1.2" //memory
 
         };
-        String ip = (String) basicInfo.get("ip");
-        List<TableEvent> tableEventsPre = new ArrayList<>();
-        if (null == lastProcess.get(ip)) {
-            tableEventsPre = snmp.snmpWalk(sysProcess);
-            lastProcess.put(ip, tableEventsPre);
-            return;
-        } else {
-            tableEventsPre = lastProcess.get(ip);
-        }
-
-        Map<String, Long> differenceMap = new HashMap<>();
-        Map<String, Long> tableEventsPreMap = new HashMap<>();
-        long cores = (long) basicInfo.get("cores");
-        BigDecimal memoryTotal = (BigDecimal) basicInfo.get("memoryTotal");
-        for (TableEvent event : tableEventsPre) {
-            VariableBinding[] values = event.getColumns();
-            long cpu = new BigDecimal(values[5].getVariable().toString()).longValue();
-            String id = values[0].getVariable().toString();
-            tableEventsPreMap.put(id, cpu);
-        }
         List<TableEvent> tableEvents = snmp.snmpWalk(sysProcess);
-        lastProcess.put(ip, tableEvents);
-        long totalCpuTime = 0;
+        long cores= (long) basicInfo.get("cores");
+        long memoryTotal=(long)basicInfo.get("memory");
+        HashMap<String, String> mapInterval=new HashMap<>();
+        long totalInterval=1;
         for (TableEvent event : tableEvents) {
             VariableBinding[] values = event.getColumns();
             String id = values[0].getVariable().toString();
-            long oldCpu = 0;
-            if (null != tableEventsPreMap.get(id)) {
-                oldCpu = tableEventsPreMap.get(id);
+            String cpu = values[5].getVariable().toString();
+            String key= PROCESSKEY+snmp.getHostComputer()+":"+id;
+            String runPath = values[2].getVariable().toString();
+            String type = values[4].getVariable().toString();
+            if (id == null) {
+                continue;
             }
-            long cpu = new BigDecimal(values[5].getVariable().toString()).longValue();
-            long difference = cpu - oldCpu;
-            differenceMap.put(id, difference);
-            totalCpuTime += difference;
+            if (!"4".equals(type)) {
+                continue;
+            }
+            if (runPath == null || runPath.length() < 2) {
+                continue;
+            }
+            if(redisUtil.hasKey(key)){
+                long lastTime= new BigDecimal(String.valueOf(redisUtil.get(key))).longValue();
+                long nextTime=new BigDecimal(cpu).longValue();
+                long interval=(nextTime - lastTime);
+                mapInterval.put(id,String.valueOf(interval));
+                totalInterval=totalInterval+interval;
+            }
+
         }
-        Map<String, String> exits = new HashMap<>();
+
         for (TableEvent event : tableEvents) {
             Map<String, Object> source = this.metricbeatMap("process", basicInfo);
             VariableBinding[] values = event.getColumns();
-            String cpu = values[5].getVariable().toString();
+            String id = values[0].getVariable().toString();
+            if (id == null) {
+                continue;
+            }
             String runPath = values[2].getVariable().toString();
             String parameters = values[3].getVariable().toString();
-            String name = values[1].getVariable().toString();
-            String id = values[0].getVariable().toString();
             String type = values[4].getVariable().toString();
             if (!"4".equals(type)) {
                 continue;
@@ -551,11 +553,17 @@ public class SNMPService {
             if (parameters == null) {
                 parameters = "";
             }
-            String[] args = {runPath, parameters};
-            BigDecimal mem = new BigDecimal(values[6].getVariable().toString()).multiply(new BigDecimal(1024));
-            if (mem.longValue() == 0 && differenceMap.get(id) == 0) {
+            String cpu = values[5].getVariable().toString();
+
+            String name = values[1].getVariable().toString();
+
+            String key= PROCESSKEY+snmp.getHostComputer()+":"+id;
+            redisUtil.set(key,new BigDecimal(cpu).longValue(),60);
+            if(null==mapInterval.get(id)){
                 continue;
             }
+            String[] args = {runPath, parameters};
+            BigDecimal mem = new BigDecimal(values[6].getVariable().toString()).multiply(new BigDecimal(1024));
             Map<String, Object> processSource = new HashMap<>();
             processSource.put("pid", new BigDecimal(id).longValue());
             processSource.put("args", parameters);
@@ -565,24 +573,21 @@ public class SNMPService {
             Map<String, Object> system = new HashMap<>();
             Map<String, Object> process = new HashMap<>();
             process.put("cmdline", args);
-            BigDecimal normPct = new BigDecimal(0);
-            if (totalCpuTime != 0) {
-                normPct = new BigDecimal(differenceMap.get(id)).divide(new BigDecimal(totalCpuTime), 4, BigDecimal.ROUND_HALF_UP);
-            }
+            BigDecimal normPct = new BigDecimal(mapInterval.get(id)).divide(new BigDecimal(totalInterval*cores),4,BigDecimal.ROUND_HALF_UP);
 
             Map<String, Object> cpuEs = new HashMap<>();
             Map<String, Object> cpuEsTotal = new HashMap<>();
             Map<String, Object> cpuEsTotalNorm = new HashMap<>();
             cpuEsTotalNorm.put("pct", normPct.floatValue());
             cpuEsTotal.put("norm", cpuEsTotalNorm);
-            cpuEsTotal.put("pct", normPct.floatValue() * cores);
+            cpuEsTotal.put("pct", normPct.floatValue()*cores);
             cpuEsTotal.put("value", new BigDecimal(cpu).longValue());
             cpuEs.put("total", cpuEsTotal);
             process.put("cpu", cpuEs);
             Map<String, Object> memory = new HashMap<>();
             Map<String, Object> rss = new HashMap<>();
             rss.put("bytes", mem.longValue());
-            rss.put("pct", mem.divide(memoryTotal, 4, BigDecimal.ROUND_HALF_UP).floatValue());
+            rss.put("pct", mem.divide(new BigDecimal(memoryTotal),4,BigDecimal.ROUND_HALF_UP));
             memory.put("rss", rss);
             process.put("memory", memory);
             system.put("process", process);
@@ -675,7 +680,6 @@ public class SNMPService {
                 ".1.3.6.1.2.1.25.1.1.0", //name
         };
         ArrayList<Long> list = snmp.getSnmpGetV(PDU.GET, oid);
-        System.out.println(list.get(0));
         Map<String, Object> system = new HashMap<>();
         Map<String, Object> uptime = new HashMap<>();
         Map<String, Object> duration = new HashMap<>();

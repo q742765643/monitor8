@@ -25,7 +25,6 @@ public class DeviceReportHandler implements BaseHandler {
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         String starTime = DateExpressionEngine.formatDateExpression("${yyyy-MM-dd 00:00:00,-0d}", time);
-        System.out.println(starTime);
     }
 
     @Override

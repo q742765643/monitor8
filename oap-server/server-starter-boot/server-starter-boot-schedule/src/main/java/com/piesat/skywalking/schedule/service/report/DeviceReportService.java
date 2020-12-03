@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -74,7 +75,7 @@ public class DeviceReportService {
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(IndexNameConstant.T_MT_MEDIA_REPORT, hostConfigDto.getIp() + "_" + systemQueryDto.getStartTime()).source(source);
             request.add(indexRequest);
         }
-        try {
+      /*  try {
             boolean flag = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_MEDIA_REPORT);
             if (!flag) {
                 Map<String, Object> ip = new HashMap<>();
@@ -87,7 +88,7 @@ public class DeviceReportService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         elasticSearch7Client.synchronousBulk(request);
 
     }
@@ -391,20 +392,26 @@ public class DeviceReportService {
 
     }
     public void getDown(SystemQueryDto systemQueryDto,Map<String, Map<String, Object>> baseInfo){
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
-        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
-        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
-        rangeQueryBuilder.timeZone("+08:00");
-        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
-        boolBuilder.filter(rangeQueryBuilder);
+        try {
+            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("end_time");
+            rangeQueryBuilder.gt(format.parse(systemQueryDto.getStartTime()).getTime());
+            rangeQueryBuilder.lte(format.parse(systemQueryDto.getEndTime()).getTime());
+            boolBuilder.filter(rangeQueryBuilder);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         search.query(boolBuilder);
         ValueCountAggregationBuilder sumDownNum = AggregationBuilders.count("sumDownNum").field("duration");
         SumAggregationBuilder sumDownTime=AggregationBuilders.sum("sumDownTime").field("duration");
+        MinAggregationBuilder minStartTime=AggregationBuilders.min("minStartTime").field("start_time");
         TermsAggregationBuilder groupById = AggregationBuilders.terms("groupby_ip").field("ip").size(10000);
         groupById.subAggregation(sumDownNum);
         groupById.subAggregation(sumDownTime);
+        groupById.subAggregation(minStartTime);
         search.aggregation(groupById);
         search.size(0);
         try {
@@ -420,8 +427,15 @@ public class DeviceReportService {
                 String ip = bucket.getKeyAsString();
                 ParsedValueCount parsedValueCount = bucket.getAggregations().get("sumDownNum");
                 ParsedSum parsedSumDownTime= bucket.getAggregations().get("sumDownTime");
-                long num = new BigDecimal(parsedValueCount.getValueAsString()).longValue();
+                ParsedMin parsedMinStartTime= bucket.getAggregations().get("minStartTime");
+                String date=parsedMinStartTime.getValueAsString();
+                long startL=format.parse(systemQueryDto.getStartTime()).getTime();
+                long dateL=new BigDecimal(date).longValue();
                 long time= new BigDecimal(parsedSumDownTime.getValueAsString()).longValue();
+                if(dateL<startL){
+                    time=time-(startL-dateL);
+                }
+                long num = new BigDecimal(parsedValueCount.getValueAsString()).longValue();
                 Map<String, Object> value = this.getValueMap(baseInfo, ip);
                 value.put("down.num", num);
                 value.put("down.time", time);

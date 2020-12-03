@@ -53,4 +53,12 @@ public class AutoDiscoveryController {
         autoDiscoveryService.deleteByIds(Arrays.asList(ids));
         return resultT;
     }
+
+    @ApiOperation(value = "启动停止接口", notes = "启动停止接口")
+    @PostMapping("/updateAutoDiscovery")
+    public ResultT<String> updateAutoDiscovery(@RequestBody AutoDiscoveryDto autoDiscoveryDto) {
+        ResultT<String> resultT = new ResultT<>();
+        autoDiscoveryService.updateAutoDiscovery(autoDiscoveryDto);
+        return resultT;
+    }
 }

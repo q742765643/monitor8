@@ -27,6 +27,7 @@ import java.util.Map;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.management.ui.template.mt.MediaOverviewTemplate;
 
 public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
@@ -67,6 +68,18 @@ public class DefaultScopeDefine {
     public static final int SERVICE_INSTANCE_UPDATE = 30;
     public static final int NETWORK_ADDRESS_ALIAS = 31;
     public static final int UI_TEMPLATE = 32;
+
+    public static final int ALARM_TEMPLATE = 33;
+    public static final int ALARM_LOG_TEMPLATE = 34;
+    public static final int HOST_DWON_TEMPLATE = 35;
+    public static final int PROCESS_DWON_TEMPLATE = 36;
+    public static final int MEDIA_REPORT_TEMPLATE = 37;
+    public static final int MEDIA_OVERVIEW_TEMPLATE = 38;
+    public static final int FILE_STATISTICS_TEMPLATE = 39;
+    public static final int FILE_MONITOR_TEMPLATE = 40;
+    public static final int METRICBEAT = 41;
+    public static final int PROCESS_REPORT_TEMPLATE = 42;
+
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

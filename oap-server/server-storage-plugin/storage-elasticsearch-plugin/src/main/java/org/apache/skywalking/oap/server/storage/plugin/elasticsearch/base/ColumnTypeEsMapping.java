@@ -23,6 +23,8 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
+import java.util.Date;
+
 public class ColumnTypeEsMapping implements DataTypeMapping {
 
     @Override
@@ -31,6 +33,8 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
             return "integer";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return "long";
+        }else if (Float.class.equals(type) || float.class.equals(type)) {
+            return "float";
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "double";
         } else if (String.class.equals(type)) {
@@ -41,7 +45,9 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
             return "binary";
         } else if (JsonObject.class.equals(type)) {
             return "text";
-        } else {
+        } else if (Date.class.equals(type)) {
+            return "date";
+        }else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
     }

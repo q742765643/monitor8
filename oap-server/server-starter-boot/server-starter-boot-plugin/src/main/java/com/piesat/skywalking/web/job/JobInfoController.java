@@ -84,5 +84,21 @@ public class JobInfoController {
         }
         return resultT;
     }
+
+    @ApiOperation(value = "启动停止", notes = "启动停止")
+    @PostMapping("/updateJob")
+    public ResultT<String> updateJob(@RequestBody HtJobInfoDto htJobInfoDto) {
+        ResultT<String> resultT = new ResultT<>();
+        jobInfoService.updateJob(htJobInfoDto);
+        return resultT;
+    }
+
+    @ApiOperation(value = "立即执行", notes = "立即执行")
+    @GetMapping("/trigger/{id:.+}")
+    public ResultT<String> trigger(@PathVariable("id") String id){
+        ResultT<String> resultT = new ResultT<>();
+        jobInfoService.trigger(id);
+        return resultT;
+    }
 }
 

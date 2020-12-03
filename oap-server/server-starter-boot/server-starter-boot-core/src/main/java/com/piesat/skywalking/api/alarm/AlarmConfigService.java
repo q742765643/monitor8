@@ -20,4 +20,6 @@ public interface AlarmConfigService {
     public AlarmConfigDto findById(String id);
 
     public void deleteByIds(List<String> ids);
+
+    public AlarmConfigDto updateAlarm(AlarmConfigDto alarmConfigDto);
 }

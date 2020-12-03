@@ -116,7 +116,7 @@ export default {
     };
   },
   created() {
-    this.getDicts("alarm_level").then(response => {
+    this.getDicts("current_status").then(response => {
       this.alarmLevelOptions = response.data;
     });
   },

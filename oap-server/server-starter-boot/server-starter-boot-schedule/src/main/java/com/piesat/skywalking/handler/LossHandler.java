@@ -10,6 +10,8 @@ import com.piesat.skywalking.schedule.service.snmp.*;
 import com.piesat.skywalking.util.IdUtils;
 import com.piesat.skywalking.vo.FileSystemVo;
 import com.piesat.sso.client.util.RedisUtil;
+import com.piesat.ucenter.rpc.api.system.DictDataService;
+import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.util.IndexNameUtil;
 import com.piesat.util.PingUtil;
 import com.piesat.util.ResultT;
@@ -50,27 +52,30 @@ public class LossHandler implements BaseHandler {
     private ElasticSearch7Client elasticSearch7Client;
     @Autowired
     private RedisUtil redisUtil;
+    @GrpcHthtClient
+    private DictDataService dictDataService;
 
     private static String HOST_EXCEPTION="HTHT.HOST_EXCEPTION";
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
         List<HostConfigDto> hostConfigDtos =hostConfigService.selectOnineAll();
+        List<DictDataDto> dictDataDtoList = dictDataService.selectDictDataByType("packet_loss_regular");
         if(null!=hostConfigDtos&&hostConfigDtos.size()>0){
             for(int i=0;i<hostConfigDtos.size();i++){
                 HostConfigDto hostConfigDto=hostConfigDtos.get(i);
-                this.insertPacket(hostConfigDto);
+                this.insertPacket(hostConfigDto,dictDataDtoList);
             }
         }
 
     }
-    public void insertPacket(HostConfigDto hostConfigDto) {
+    public void insertPacket(HostConfigDto hostConfigDto,List<DictDataDto> dictDataDtoList) {
         try {
             Map<String, Object> basicInfo = new HashMap<>();
             basicInfo.put("ip", hostConfigDto.getIp());
             basicInfo.put("@timestamp", new Date());
             basicInfo.put("hostname", hostConfigDto.getIp());
             Map<String, Object> source = snmpWindowsService.metricbeatMap("packet", basicInfo);
-            float usage = this.selectPing(hostConfigDto.getIp());
+            float usage = this.selectPing(hostConfigDto.getIp(),dictDataDtoList);
             source.put("loss", (float) (Math.round(usage * 100) / 100));
             boolean flag=false;
             if (usage > -1) {
@@ -87,7 +92,7 @@ public class LossHandler implements BaseHandler {
         }
     }
 
-    public float selectPing(String ip) {
+    public float selectPing(String ip,List<DictDataDto> dictDataDtoList) {
         float usage = -1;
         try {
             ResultT<String> resultT = PingUtil.ping(ip);
@@ -95,11 +100,18 @@ public class LossHandler implements BaseHandler {
                 return usage;
             }
             //Pattern pattern = Pattern.compile("[\\w\\W]*丢失 = ([0-9]\\d*)[\\w\\W]*");
-            Pattern pattern = Pattern.compile("([0-9]\\d*)% 丢失");
-            Matcher matcher = pattern.matcher(resultT.getData());
-            while (matcher.find()) {
-                usage = Float.parseFloat(matcher.group(1)) / 100;
+            if(null!=dictDataDtoList&&dictDataDtoList.size()>0){
+                for(DictDataDto dictDataDto:dictDataDtoList){
+                    Pattern pattern = Pattern.compile(dictDataDto.getDictValue());
+                    Matcher matcher = pattern.matcher(resultT.getData());
+                    while (matcher.find()) {
+                        usage = Float.parseFloat(matcher.group(1)) / 100;
+                        break;
+                    }
+                }
+
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,28 +150,18 @@ public class LossHandler implements BaseHandler {
         }
     }
     public long findLevel(String id){
-        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
-        String endTime=format.format(date);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.MINUTE, -5);
-        String beginTime=format.format(calendar.getTime());
+
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         MatchQueryBuilder matchId = QueryBuilders.matchQuery("related_id", id);
+        MatchQueryBuilder matchStatus = QueryBuilders.matchQuery("status", 0);
         boolBuilder.must(matchId);
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
-        rangeQueryBuilder.gte(beginTime);
-        rangeQueryBuilder.lte(endTime);
-        rangeQueryBuilder.timeZone("+08:00");
-        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
-        boolBuilder.filter(rangeQueryBuilder);
+        boolBuilder.must(matchStatus);
         search.query(boolBuilder).sort("level",SortOrder.DESC);
         search.size(1);
         long level=3;
         try {
-            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG, search);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM, search);
             SearchHits hits = response.getHits();
             SearchHit[] searchHits = hits.getHits();
             if(searchHits.length>0){
@@ -179,7 +181,7 @@ public class LossHandler implements BaseHandler {
             if(StringUtil.isEmpty(indexId)){
                 indexId=IdUtils.fastUUID();
             }
-            boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG);
+      /*      boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG);
             if (!isExistsIndex) {
                 Map<String, Object> ip = new HashMap<>();
                 ip.put("type", "keyword");
@@ -191,7 +193,7 @@ public class LossHandler implements BaseHandler {
                 Map<String, Object> mapping = new HashMap<>();
                 mapping.put("properties", properties);
                 elasticSearch7Client.createIndex(IndexNameConstant.T_MT_HOST_DOWN_LOG, new HashMap<>(), mapping);
-            }
+            }*/
             elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_HOST_DOWN_LOG, indexId, source);
         } catch (Exception e) {
             e.printStackTrace();

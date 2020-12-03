@@ -2,6 +2,7 @@ package com.piesat.skywalking.api.host;
 
 import com.piesat.common.grpc.annotation.GrpcHthtService;
 import com.piesat.common.grpc.constant.SerializeType;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessDetailsDto;
 import com.piesat.util.constant.GrpcConstant;
@@ -25,4 +26,6 @@ public interface ProcessConfigService {
     public ProcessDetailsDto getDetail(ProcessConfigDto processConfigDto);
 
     public long selectCount(ProcessConfigDto processConfigDto);
+
+    public List<HostConfigDto> findIp();
 }

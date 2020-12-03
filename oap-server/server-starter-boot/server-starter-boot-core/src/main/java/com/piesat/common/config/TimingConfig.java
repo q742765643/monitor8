@@ -18,6 +18,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -45,24 +47,22 @@ public class TimingConfig implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         Map<String, String> server = grpcProperties.getServer();
         Map<String, Map<String, Object>> client = grpcProperties.getClient();
-        Map<String, String> hosts = grpcProperties.getHosts();
+        //Map<String, String> hosts = grpcProperties.getHosts();
         ThreadFactory timingPoolFactory = new ThreadFactoryBuilder().setNameFormat("grpc-worker-timing-pool-%d").build();
         ChannelUtil channelUtil = ChannelUtil.getInstance();
         timingPool = Executors.newScheduledThreadPool(3, timingPoolFactory);
         timingPool.scheduleWithFixedDelay(() -> {
-            String host = server.get("host");
-            String grpcPort = server.get("port");
-            if (null != hosts && null != hosts.get(host)) {
-                host = hosts.get(host);
+            String hosts = server.get("host");
+            List<String> grpcHosts=new ArrayList<>();
+            if(StringUtil.isNotEmpty(hosts)){
+                grpcHosts.addAll(Arrays.asList(hosts.split(",")));
             }
-            if (StringUtil.isEmpty(host)) {
-                List<String> grpcHosts = NetUtils.getLocalIP();
-                for (int i = 0; i < grpcHosts.size(); i++) {
-                    redisUtil.hset("GRPC.SERVER:" + name, grpcHosts.get(i) + ":" + grpcPort, 1);
-                }
-            } else {
-                String grpcHost = host;
-                redisUtil.hset("GRPC.SERVER:" + name, grpcHost + ":" + grpcPort, 1);
+            String grpcPort = server.get("port");
+            if (grpcHosts.size()==0) {
+                grpcHosts = NetUtils.getLocalIP();
+            }
+            for (int i = 0; i < grpcHosts.size(); i++) {
+                redisUtil.hset("GRPC.SERVER:" + name, grpcHosts.get(i) + ":" + grpcPort, 1);
             }
 
         }, 0, 60, TimeUnit.SECONDS);
@@ -144,32 +144,6 @@ public class TimingConfig implements ApplicationRunner {
                                 }
                                 channelUtil.getChannel().get(k).remove(a);
                                 redisUtil.hdel("GRPC.SERVER:" + k, a);
-                           /*     executorService.execute(
-                                        ()->{
-                                            boolean flag=false;
-                                            int i=0;
-                                            while (i<5){
-                                                i++;
-                                                try {
-                                                    HealthCheckRequest request= HealthCheckRequest.newBuilder().build();
-                                                    HealthGrpc.HealthBlockingStub stub=HealthGrpc.newBlockingStub(b);
-                                                    HealthCheckResponse response=stub.check(request);
-                                                    String check=response.getStatus().getValueDescriptor().toString();
-                                                    if(check.equals("SERVING")){
-                                                        flag=true;
-                                                        break;
-                                                    }
-                                                    Thread.sleep(500);
-                                                } catch (Exception e) {
-                                                    log.info("grpc {} 心跳检测失败",a);
-                                                }
-
-                                            }
-                                            if(!flag){
-                                                redisUtil.hdel("GRPC.SERVER:"+name,k);
-                                            }
-                                        }
-                                );*/
                             }
                         }
 

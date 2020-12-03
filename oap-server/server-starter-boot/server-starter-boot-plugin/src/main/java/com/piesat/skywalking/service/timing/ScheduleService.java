@@ -2,6 +2,7 @@ package com.piesat.skywalking.service.timing;
 
 import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
+import com.piesat.skywalking.service.trigger.TriggerService;
 import com.piesat.sso.client.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public class ScheduleService {
     protected static final String QUARTZ_HTHT_JOBDETAIL = "QUARTZ.HTHT.JOBDETAIL";
     @Autowired
     protected RedisUtil redisUtil;
+    @Autowired
+    protected TriggerService triggerService;
 
     public void handleJob(HtJobInfoDto jobInfo) {
         if (jobInfo.getTriggerStatus() == null || StringUtils.isEmpty(jobInfo.getJobCron())) {
@@ -51,5 +54,9 @@ public class ScheduleService {
         for (int i = 0; i < ids.size(); i++) {
             this.deleteJob(ids.get(i));
         }
+    }
+
+    public void trigger(HtJobInfoDto jobInfo){
+        triggerService.trigger(jobInfo);
     }
 }

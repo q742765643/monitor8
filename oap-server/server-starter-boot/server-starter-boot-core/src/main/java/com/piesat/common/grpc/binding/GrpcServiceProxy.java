@@ -65,7 +65,7 @@ public class GrpcServiceProxy<T> implements InvocationHandler {
 
         if (GrpcResponseStatus.SUCCESS.getCode() != response.getStatus()) {
             if (response.getStatus() == -2) {
-                throw new RuntimeException("gprc 未发现可用服务");
+                throw new Exception("gprc 未发现可用服务");
             }
             Throwable throwable = response.getException();
             GrpcException exception = new GrpcException(throwable.getClass().getName() + ": " + throwable.getMessage());

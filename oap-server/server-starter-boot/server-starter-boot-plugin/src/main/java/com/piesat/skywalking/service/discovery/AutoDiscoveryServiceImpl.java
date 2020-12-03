@@ -101,6 +101,13 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
         return autoDiscoveryDto;
     }
 
+    public AutoDiscoveryDto updateAutoDiscovery(AutoDiscoveryDto autoDiscoveryDto) {
+        AutoDiscoveryEntity autoDiscoveryEntity = autoDiscoveryMapstruct.toEntity(autoDiscoveryDto);
+        autoDiscoveryEntity = super.saveNotNull(autoDiscoveryEntity);
+        autoDiscoveryQuartzService.handleJob(autoDiscoveryMapstruct.toDto(autoDiscoveryEntity));
+        return autoDiscoveryDto;
+    }
+
     @Override
     public AutoDiscoveryDto findById(String discoveryId) {
         return autoDiscoveryMapstruct.toDto(super.getById(discoveryId));

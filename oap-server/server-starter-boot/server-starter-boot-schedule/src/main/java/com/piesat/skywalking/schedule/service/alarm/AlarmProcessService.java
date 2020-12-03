@@ -115,15 +115,22 @@ public class AlarmProcessService extends AlarmBaseService {
             SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
             SearchHits hits = response.getHits();
             SearchHit[] searchHits = hits.getHits();
+            boolean flag=false;
             if(searchHits.length>0){
                 Set<String> stringSet=new HashSet<>();
                 for (SearchHit hit : searchHits) {
                     Map<String, Object> map = hit.getSourceAsMap();
+                    Map<String, Object> pro = (Map<String, Object>) map.get("process");
                     Map<String, Object> system = (Map<String, Object>) map.get("system");
                     Map<String, Object> process = (Map<String, Object>) system.get("process");
                     Map<String, Object> cpu = (Map<String, Object>) process.get("cpu");
                     Map<String, Object> total = (Map<String, Object>) cpu.get("total");
                     stringSet.add(String.valueOf(total.get("value")));
+                    if(!flag){
+                        processConfigDto.setPid(Integer.parseInt(String.valueOf(pro.get("pid"))));
+                        processConfigDto.setCmdline(String.valueOf(process.get("cmdline")));
+                    }
+                    flag=true;
                 }
                 usage=(new BigDecimal(stringSet.size()).divide(new BigDecimal(searchHits.length),4,BigDecimal.ROUND_HALF_UP)).floatValue()*100;
             }
@@ -201,7 +208,7 @@ public class AlarmProcessService extends AlarmBaseService {
             if(StringUtil.isEmpty(indexId)){
                 indexId=IdUtils.fastUUID();
             }
-            boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG);
+    /*        boolean isExistsIndex = elasticSearch7Client.isExistsIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG);
             if (!isExistsIndex) {
                 Map<String, Object> ip = new HashMap<>();
                 ip.put("type", "keyword");
@@ -213,7 +220,7 @@ public class AlarmProcessService extends AlarmBaseService {
                 Map<String, Object> mapping = new HashMap<>();
                 mapping.put("properties", properties);
                 elasticSearch7Client.createIndex(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, new HashMap<>(), mapping);
-            }
+            }*/
             elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_PROCESS_DOWN_LOG, indexId, source);
         } catch (Exception e) {
             e.printStackTrace();

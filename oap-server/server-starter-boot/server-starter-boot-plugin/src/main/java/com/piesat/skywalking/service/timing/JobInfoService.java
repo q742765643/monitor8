@@ -17,4 +17,8 @@ public interface JobInfoService {
     public HtJobInfoDto findById(String id);
 
     public void deleteByIds(List<String> ids);
+
+    public HtJobInfoDto updateJob(HtJobInfoDto htJobInfoDto);
+
+    public void trigger(String id);
 }

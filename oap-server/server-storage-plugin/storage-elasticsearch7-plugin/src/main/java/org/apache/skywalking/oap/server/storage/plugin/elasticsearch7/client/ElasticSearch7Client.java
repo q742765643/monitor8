@@ -65,6 +65,7 @@ import org.elasticsearch.client.indices.IndexTemplatesExistRequest;
 import org.elasticsearch.client.indices.PutIndexTemplateRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -309,5 +310,10 @@ public class ElasticSearch7Client extends ElasticSearchClient {
             log.error("es查询异常{}", e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void deleteByQueryRequest(DeleteByQueryRequest request) throws IOException {
+        BulkByScrollResponse resp = client.deleteByQuery(request, RequestOptions.DEFAULT);
+        System.out.println(resp.getStatus().getUpdated());
     }
 }

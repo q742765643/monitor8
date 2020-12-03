@@ -139,11 +139,11 @@ const router = new Router({
           component: () => import('@/page/alarmMonitoring/index.vue'),
         },
         {
-          path: 'dictType',
+          path: '/dictType',
           component: () => import('./views/containers/home/right/dict/index.vue'),
         },
         {
-          path: 'dictData/:dictId',
+          path: '/dictData/:dictId',
           component: () => import('./views/containers/home/right/dict/data.vue'),
         },
         {
@@ -160,7 +160,7 @@ const router = new Router({
         },
         {
           path: '/fileMonitoring/file_report',
-          component: () => import('@/page/fileMonitoring/file_report.vue'),
+          component: () => import('@/page/fileMonitoring/file_report_row.vue'),
         },
         {
           path: '/fileMonitoring/file_log',
@@ -211,6 +211,14 @@ const router = new Router({
         {
           path: '/job',
           component: () => import('@/views/containers/home/right/job/index.vue'),
+        },
+        {
+          path: '/process/processConfig',
+          component: () => import('@/page/process/processConfig.vue'),
+        },
+        {
+          path: '/process/processReport',
+          component: () => import('@/page/process/processReport.vue'),
         },
       ],
     },

@@ -1,6 +1,7 @@
 package com.piesat.skywalking.web.host;
 
 import com.piesat.skywalking.api.host.ProcessConfigService;
+import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessDetailsDto;
 import com.piesat.util.ResultT;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @Api(value = "进程配置接口", tags = {"进程配置接口"})
@@ -60,6 +62,14 @@ public class ProcessConfigController {
     public ResultT<ProcessDetailsDto> getDetail(ProcessConfigDto processConfigDto) {
         ResultT<ProcessDetailsDto> resultT = new ResultT<>();
         resultT.setData(processConfigService.getDetail(processConfigDto));
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询可选ip", notes = "查询可选ip")
+    @GetMapping("/findIp")
+    public  ResultT<List<HostConfigDto>> findIp(){
+        ResultT<List<HostConfigDto>> resultT = new ResultT<>();
+        resultT.setData(processConfigService.findIp());
         return resultT;
     }
 }

@@ -47,13 +47,12 @@ public class FileStatisticsHandler implements BaseHandler {
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
         FileMonitorDto fileMonitorQDto = new FileMonitorDto();
-        fileMonitorQDto.setTriggerStatus(1);
         NullUtil.changeToNull(fileMonitorQDto);
+        fileMonitorQDto.setTriggerStatus(1);
         List<FileMonitorDto> fileMonitorDtos = fileMonitorService.selectBySpecification(fileMonitorQDto);
         List<FileStatisticsDto> fileStatisticsDtos = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.set(Calendar.DATE, 1);
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -115,6 +114,20 @@ public class FileStatisticsHandler implements BaseHandler {
             request.add(indexRequest);
         }
         if (request.requests().size() > 0) {
+        /*    try {
+                boolean flag = elasticSearch7Client.isExistsIndex(indexName);
+                if (!flag) {
+                    Map<String, Object> taskId = new HashMap<>();
+                    taskId.put("type", "keyword");
+                    Map<String, Object> properties = new HashMap<>();
+                    properties.put("task_id", taskId);
+                    Map<String, Object> mapping = new HashMap<>();
+                    mapping.put("properties", properties);
+                    elasticSearch7Client.createIndex(indexName, new HashMap<>(), mapping);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
             elasticSearch7Client.synchronousBulk(request);
         }
     }

@@ -278,6 +278,8 @@ public class SNMPWindowsService extends SNMPService {
         system.put("memory", memory);
         source.put("system", system);
         esList.add(source);
+        basicInfo.put("memory", memTotalReal.longValue());
+
 
     }
 
@@ -294,6 +296,35 @@ public class SNMPWindowsService extends SNMPService {
 
         };
         List<TableEvent> tableEvents = snmp.snmpWalk(sysProcess);
+        long cores= (long) basicInfo.get("cores");
+        long memoryTotal=(long)basicInfo.get("memory");
+        HashMap<String, String> mapInterval=new HashMap<>();
+        long totalInterval=1;
+        for (TableEvent event : tableEvents) {
+            VariableBinding[] values = event.getColumns();
+            String id = values[0].getVariable().toString();
+            String cpu = values[5].getVariable().toString();
+            String key= PROCESSKEY+snmp.getHostComputer()+":"+id;
+            String runPath = values[2].getVariable().toString();
+            String type = values[4].getVariable().toString();
+            if (id == null) {
+                continue;
+            }
+            if (!"4".equals(type)) {
+                continue;
+            }
+            if (runPath == null || runPath.length() < 2) {
+                continue;
+            }
+            if(redisUtil.hasKey(key)){
+                long lastTime= new BigDecimal(String.valueOf(redisUtil.get(key))).longValue();
+                long nextTime=new BigDecimal(cpu).longValue();
+                long interval=(nextTime - lastTime);
+                mapInterval.put(id,String.valueOf(interval));
+                totalInterval=totalInterval+interval;
+            }
+
+        }
 
         for (TableEvent event : tableEvents) {
             Map<String, Object> source = this.metricbeatMap("process", basicInfo);
@@ -318,7 +349,11 @@ public class SNMPWindowsService extends SNMPService {
 
             String name = values[1].getVariable().toString();
 
-
+            String key= PROCESSKEY+snmp.getHostComputer()+":"+id;
+            redisUtil.set(key,new BigDecimal(cpu).longValue(),60);
+            if(null==mapInterval.get(id)){
+                continue;
+            }
             String[] args = {runPath, parameters};
             BigDecimal mem = new BigDecimal(values[6].getVariable().toString()).multiply(new BigDecimal(1024));
             Map<String, Object> processSource = new HashMap<>();
@@ -330,21 +365,21 @@ public class SNMPWindowsService extends SNMPService {
             Map<String, Object> system = new HashMap<>();
             Map<String, Object> process = new HashMap<>();
             process.put("cmdline", args);
-            BigDecimal normPct = new BigDecimal(0);
+            BigDecimal normPct = new BigDecimal(mapInterval.get(id)).divide(new BigDecimal(totalInterval*cores),4,BigDecimal.ROUND_HALF_UP);
 
             Map<String, Object> cpuEs = new HashMap<>();
             Map<String, Object> cpuEsTotal = new HashMap<>();
             Map<String, Object> cpuEsTotalNorm = new HashMap<>();
             cpuEsTotalNorm.put("pct", normPct.floatValue());
             cpuEsTotal.put("norm", cpuEsTotalNorm);
-            cpuEsTotal.put("pct", 0f);
+            cpuEsTotal.put("pct", normPct.floatValue()*cores);
             cpuEsTotal.put("value", new BigDecimal(cpu).longValue());
             cpuEs.put("total", cpuEsTotal);
             process.put("cpu", cpuEs);
             Map<String, Object> memory = new HashMap<>();
             Map<String, Object> rss = new HashMap<>();
             rss.put("bytes", mem.longValue());
-            rss.put("pct", 0f);
+            rss.put("pct", mem.divide(new BigDecimal(memoryTotal),4,BigDecimal.ROUND_HALF_UP));
             memory.put("rss", rss);
             process.put("memory", memory);
             system.put("process", process);

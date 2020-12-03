@@ -5,14 +5,21 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
+import com.piesat.constant.IndexNameConstant;
+import com.piesat.skywalking.api.alarm.AlarmEsLogService;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dao.HostConfigDao;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.entity.HostConfigEntity;
+import com.piesat.skywalking.mapper.HostConfigMapper;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
+import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HostConfigServiceImpl extends BaseService<HostConfigEntity> implements HostConfigService {
@@ -30,6 +38,10 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
     private HostConfigQuartzService hostConfigQuartzService;
     @Autowired
     private HostConfigMapstruct hostConfigMapstruct;
+    @Autowired
+    private HostConfigMapper hostConfigMapper;
+    @Autowired
+    private AlarmEsLogService alarmEsLogService;
 
     @Override
     public BaseDao<HostConfigEntity> getBaseDao() {
@@ -130,6 +142,17 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         }
         return hostConfigMapstruct.toDto(hostConfig);
     }
+    public HostConfigDto updateHost(HostConfigDto hostConfigDto) {
+        HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
+        hostConfig = super.saveNotNull(hostConfig);
+        if(hostConfig.getMonitoringMethods()==2){
+            hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        }else{
+            hostConfig.setTriggerStatus(0);
+            hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        }
+        return hostConfigMapstruct.toDto(hostConfig);
+    }
 
     public List<HostConfigDto> selectAll() {
         Sort sort = Sort.by("area");
@@ -142,10 +165,13 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         return hostConfigMapstruct.toDto(super.getById(id));
     }
 
+    @SneakyThrows
+    @Transactional
     @Override
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
         hostConfigQuartzService.deleteJob(ids);
+        alarmEsLogService.deleteAlarm(ids);
     }
 
     public List<String> selectOnine() {
@@ -214,6 +240,39 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         Specification specification = specificationBuilder.generateSpecification();
         return super.count(specification);
     }
-
+    public List<Map<String,Object>> findStateStatistics(){
+        List<Map<String, Object>> mapList=hostConfigMapper.findStateStatistics();
+        if(null!=mapList&&mapList.size()>0){
+            for(Map<String,Object> map:mapList){
+                String name=String.valueOf(map.get("name"));
+                if("11".equals(name)){
+                    map.put("name","未知");
+                    map.put("color1","#FC000D");
+                    map.put("color2","#E10008");
+                }
+                if("0".equals(name)){
+                    map.put("name","一般");
+                    map.put("color1","#E4A302");
+                    map.put("color2","#FDF901");
+                }
+                if("1".equals(name)){
+                    map.put("name","危险");
+                    map.put("color1","#329A2E");
+                    map.put("color2","#5DFC57");
+                }
+                if("2".equals(name)){
+                    map.put("name","故障");
+                    map.put("color1","#0063F2");
+                    map.put("color2","#0065F5");
+                }
+                if("3".equals(name)){
+                    map.put("name","正常");
+                    map.put("color1","#FF00FF");
+                    map.put("color2","#FF00FF");
+                }
+            }
+        }
+        return mapList;
+    }
 
 }

@@ -22,7 +22,6 @@ public class SNMP {
         try {
             ArrayList<String> list = snmp.getSnmpGet(PDU.GET, oid);
             ArrayList<String> ss = snmp.snmpWalk2(sw);
-            System.out.println(list.get(0));
         } catch (Exception e) {
             e.printStackTrace();
         }

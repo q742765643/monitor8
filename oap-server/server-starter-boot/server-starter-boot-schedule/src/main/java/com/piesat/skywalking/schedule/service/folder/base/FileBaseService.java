@@ -181,7 +181,7 @@ public abstract class FileBaseService {
             source.put("end_time_a", new Date());
             source.put("@timestamp", new Date());
             String statisticsIndexName = IndexNameConstant.T_MT_FILE_STATISTICS;
-            try {
+   /*         try {
                 boolean flag = elasticSearch7Client.isExistsIndex(statisticsIndexName);
                 if (!flag) {
                     Map<String, Object> taskId = new HashMap<>();
@@ -194,7 +194,7 @@ public abstract class FileBaseService {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
             elasticSearch7Client.forceInsert(statisticsIndexName, fileStatisticsDto.getId(), source);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
