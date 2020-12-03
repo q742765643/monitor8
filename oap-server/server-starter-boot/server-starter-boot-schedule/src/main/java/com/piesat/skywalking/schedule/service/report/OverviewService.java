@@ -360,9 +360,9 @@ public class OverviewService {
         map.put("filesystem.size", 0l);
         map.put("process.size", 0l);
         map.put("cpu.cores", 0l);
-        map.put("cpu.use", 0l);
+        map.put("cpu.use", 0f);
         map.put("memory.total", 0l);
-        map.put("memory.use", 0l);
+        map.put("memory.use", 0f);
         map.put("online", 1l);
         return map;
     }

@@ -14,4 +14,10 @@ public class ProcessConfigDto extends BaseDto {
     private String hostId;
     @ApiModelProperty(value = "设备当前状态 0 一般 1 危险 2故障 3正常")
     private Integer currentStatus = -1;
+    @ApiModelProperty(value = "执行命令")
+    private String cmdline;
+    @ApiModelProperty(value = "进程pid")
+    private Integer pid;
+
+    private String processChart;
 }

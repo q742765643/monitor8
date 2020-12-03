@@ -64,4 +64,12 @@ public class FileMonitorController {
         }
         return resultT;
     }
+
+    @ApiOperation(value = "启动停止", notes = "启动停止")
+    @PostMapping("/updateFileMonitor")
+    public ResultT<String> updateFileMonitor(@RequestBody FileMonitorDto fileMonitorDto) {
+        ResultT<String> resultT = new ResultT<>();
+        fileMonitorService.updateFileMonitor(fileMonitorDto);
+        return resultT;
+    }
 }

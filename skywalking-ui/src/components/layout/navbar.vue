@@ -179,6 +179,17 @@
           <router-link to="/onlineUser"> 在线用户</router-link>
         </a-menu-item>
       </a-sub-menu>
+      <a-sub-menu key="sub10">
+        <span slot="title"> <span class="iconfont">&#xe640;</span>进程监控</span>
+        <a-menu-item key="/process/processConfig">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/process/processConfig">进程配置</router-link>
+        </a-menu-item>
+        <a-menu-item key="/process/processReport">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/process/processReport">进程报表</router-link>
+        </a-menu-item>
+      </a-sub-menu>
     </a-menu>
   </a-layout-sider>
 </template>

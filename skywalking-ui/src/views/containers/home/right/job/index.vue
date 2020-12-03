@@ -42,6 +42,15 @@
         {{ parseTime(text) }}
       </span>
       <span slot="operate" slot-scope="text, record">
+        <a-button type="primary" icon="edit" v-if="record.triggerStatus == 0" @click="startJob(record)">
+          启动
+        </a-button>
+        <a-button type="primary" icon="edit" v-if="record.triggerStatus == 1" @click="endJob(record)">
+          停止
+        </a-button>
+        <a-button type="primary" icon="edit" @click="trigger(record)">
+          立即执行
+        </a-button>
         <a-button icon="edit" size="small" @click="handleUpdate(record)"> 编辑 </a-button>
         <a-button icon="delete" size="small" @click="handleDelete(record)"> 删除 </a-button>
       </span>
@@ -265,6 +274,38 @@
             }
           });
         }
+      },
+      startJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+        request({
+          url: '/jobInfo/updateJob',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('启动成功');
+          this.handleQuery();
+        });
+      },
+      endJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+        request({
+          url: '/jobInfo/updateJob',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('停止成功');
+          this.handleQuery();
+        });
+      },
+      trigger(row) {
+        request({
+          url: '/jobInfo/trigger/' + row.id,
+          method: 'get',
+        }).then((response) => {
+          this.$message.success('执行成功');
+        });
       },
     },
   };

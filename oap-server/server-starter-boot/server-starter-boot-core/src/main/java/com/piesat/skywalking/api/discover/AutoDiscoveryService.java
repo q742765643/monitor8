@@ -20,4 +20,6 @@ public interface AutoDiscoveryService {
     public AutoDiscoveryDto findById(String discoveryId);
 
     public void deleteByIds(List<String> ids);
+
+    public AutoDiscoveryDto updateAutoDiscovery(AutoDiscoveryDto autoDiscoveryDto);
 }

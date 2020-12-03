@@ -58,5 +58,20 @@ public class FileQReportController {
     public void exportFileReport(SystemQueryDto systemQueryDto){
         fileQReportService.exportFileReport(systemQueryDto);
     }
+
+    @ApiOperation(value = "文件报表-按行合并", notes = "文件报表-按行合并")
+    @GetMapping("/findFileReportRow")
+    public ResultT<Map<String, Object> > findFileReportRow(SystemQueryDto systemQueryDto) {
+        ResultT<Map<String, Object> > resultT = new ResultT<>();
+        Map<String, Object>  map = fileQReportService.findFileReportRow(systemQueryDto);
+        resultT.setData(map);
+        return resultT;
+    }
+
+    @ApiOperation(value = "导出文件报表-按行合并", notes = "导出文件报表-按行合并")
+    @GetMapping("/exportFileReportRow")
+    public void exportFileReportRow(SystemQueryDto systemQueryDto){
+        fileQReportService.exportFileReportRow(systemQueryDto);
+    }
 }
 

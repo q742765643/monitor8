@@ -64,7 +64,7 @@ public class AlarmUnServiceImpl implements AlarmUnService {
             MatchQueryBuilder status = QueryBuilders.matchQuery("status", query.getStatus());
             boolBuilder.must(status);
         }
-        search.query(boolBuilder).sort("@timestamp", SortOrder.DESC);
+        search.query(boolBuilder).sort("end_time", SortOrder.DESC);
         search.size(100);
         try {
             SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM, search);

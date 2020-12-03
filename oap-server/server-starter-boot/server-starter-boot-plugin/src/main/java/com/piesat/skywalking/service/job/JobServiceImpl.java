@@ -74,6 +74,12 @@ public class JobServiceImpl extends BaseService<HtJobInfo> implements JobInfoSer
         return htJobInfoMapstruct.toDto(htJobInfo);
     }
 
+    public HtJobInfoDto updateJob(HtJobInfoDto htJobInfoDto) {
+        HtJobInfo htJobInfo = htJobInfoMapstruct.toEntity(htJobInfoDto);
+        htJobInfo = super.saveNotNull(htJobInfo);
+        jobInfoQuartzService.handleJob(htJobInfoMapstruct.toDto(htJobInfo));
+        return htJobInfoMapstruct.toDto(htJobInfo);
+    }
 
     @Override
     public HtJobInfoDto findById(String id) {
@@ -84,6 +90,9 @@ public class JobServiceImpl extends BaseService<HtJobInfo> implements JobInfoSer
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
         jobInfoQuartzService.deleteJob(ids);
+    }
+    public void trigger(String id){
+        jobInfoQuartzService.trigger(this.findById(id));
     }
 }
 

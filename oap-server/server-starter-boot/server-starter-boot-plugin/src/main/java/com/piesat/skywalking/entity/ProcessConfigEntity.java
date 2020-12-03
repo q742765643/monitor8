@@ -20,4 +20,10 @@ public class ProcessConfigEntity extends BaseEntity {
     @Column(name = "current_status", length = 10)
     private Integer currentStatus = -1;
 
+    @Column(name = "cmdline", columnDefinition = "TEXT")
+    private String cmdline;
+
+    @Column(name = "pid")
+    private Integer pid;
+
 }

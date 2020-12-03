@@ -89,4 +89,13 @@ public class AlarmCofigController {
         resultT.setData(list);
         return resultT;
     }
+
+    @ApiOperation(value = "启动停止", notes = "启动停止")
+    @PostMapping("/updateAlarm")
+    public ResultT<String> updateAlarm(@RequestBody AlarmConfigDto alarmConfigDto) {
+        ResultT<String> resultT = new ResultT<>();
+        alarmConfigService.updateAlarm(alarmConfigDto);
+        return resultT;
+    }
+
 }

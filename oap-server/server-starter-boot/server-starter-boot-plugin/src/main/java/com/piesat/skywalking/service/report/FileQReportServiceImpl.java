@@ -111,7 +111,7 @@ public class FileQReportServiceImpl implements FileQReportService {
     public List<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
-        dateHis.field("@timestamp");
+        dateHis.field("start_time_s");
         dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
         dateHis.format("yyyy-MM-dd HH:mm:ss");
         dateHis.timeZone(ZoneId.of("Asia/Shanghai"));
@@ -186,7 +186,345 @@ public class FileQReportServiceImpl implements FileQReportService {
         return searchSourceBuilder;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static SXSSFWorkbook createCSVUtilRow(String sheetName, SXSSFWorkbook wb, List<CellModel> cellModelList,
+                                              String[] headers, List<LinkedHashMap> exportData)throws Exception {
+        Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        Font dataFont = wb.createFont();
+        dataFont.setFontName("宋体");
+        dataFont.setFontHeightInPoints((short) 10);
+        style.setFont(dataFont);
+        style.setWrapText(true);
+        styles.put("data", style);
 
+        style = wb.createCellStyle();
+        style.cloneStyleFrom(styles.get("data"));
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setWrapText(true);
+        Font headerFont = wb.createFont();
+        headerFont.setFontName("宋体");
+        headerFont.setFontHeightInPoints((short) 10);
+        headerFont.setBold(true);
+        //headerFont.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(headerFont);
+        styles.put("header", style);
+        //设置表格名称
+        Sheet sheet = wb.createSheet(sheetName);
+        sheet.setDefaultColumnWidth(20);
+        Row row =  sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            // 遍历插入表头
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(styles.get("header"));
+        }
+        int rowNum=1;
+        for (LinkedHashMap hashMap : exportData) {
+            Row rowValue = sheet.createRow(rowNum);
+            rowNum++;
+            Iterator<Map.Entry> iteratorRow = hashMap.entrySet().iterator();
+            while (iteratorRow.hasNext()) {
+                Map.Entry entryRow = iteratorRow.next();
+                Integer key = Integer.valueOf(entryRow.getKey().toString());
+                String value = "";
+                if (entryRow.getValue() != null) {
+                    value = entryRow.getValue().toString();
+                } else {
+                    value = "";
+                }
+                Cell cellValue =  rowValue.createCell(key - 1);
+                cellValue.setCellValue(value);
+                cellValue.setCellStyle(styles.get("data"));
+            }
+        }
+
+        for (CellModel cellModel : cellModelList) {
+            if(cellModel.getEndColumn()-cellModel.getStartColumn()>0||cellModel.getEndRow()-cellModel.getStartRow()>0){
+                sheet.addMergedRegion(new CellRangeAddress(cellModel.getStartRow(),
+                        cellModel.getEndRow(), cellModel.getStartColumn(), cellModel.getEndColumn()));
+            }
+        }
+
+        return wb;
+    }
+    public void exportFileReportRow(SystemQueryDto systemQueryDto){
+        HttpServletResponse response = ServletUtils.getResponse();
+
+        OutputStream out = null;
+        //设置最大数据行数
+        SXSSFWorkbook wb = new SXSSFWorkbook(5000);
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+
+        try {
+            String  filename = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_文件报表.xlsx";
+            List<CellModel> cellModelList = new ArrayList<>();
+            Map<String, Object> fileList=this.findFileReportRow(systemQueryDto);
+            List<Map<String, Object>> list= (List<Map<String, Object>>) fileList.get("tableData");
+            List<Map<String,Object>> mergeCells= (List<Map<String, Object>>) fileList.get("mergeCells");
+            List<LinkedHashMap> exportData = new ArrayList<LinkedHashMap>();
+            if(null!=list&&list.size()>0){
+                for(Map<String,Object> dataMap:list){
+                    LinkedHashMap<String,String> rowPut=new LinkedHashMap<>();
+                    rowPut.put("1", !String.valueOf(dataMap.get("taskName")).equals("null")?String.valueOf(dataMap.get("taskName")):"");
+                    rowPut.put("2", !String.valueOf(dataMap.get("timestamp")).equals("null")?String.valueOf(dataMap.get("timestamp")):"");
+                    rowPut.put("3", !String.valueOf(dataMap.get("sumRealFileNum")).equals("null")?String.valueOf(dataMap.get("sumRealFileNum")):"");
+                    rowPut.put("4", !String.valueOf(dataMap.get("sumLateNum")).equals("null")?String.valueOf(dataMap.get("sumLateNum")):"");
+                    rowPut.put("5", !String.valueOf(dataMap.get("sumFileNum")).equals("null")?String.valueOf(dataMap.get("sumFileNum")):"");
+                    rowPut.put("6", !String.valueOf(dataMap.get("sumRealFileSize")).equals("null")?String.valueOf(dataMap.get("sumRealFileSize")):"");
+                    rowPut.put("7", !String.valueOf(dataMap.get("toQuoteRate")).equals("null")?String.valueOf(dataMap.get("toQuoteRate")):"");
+                    exportData.add(rowPut);
+                }
+            }
+            if(null!=mergeCells&&mergeCells.size()>0){
+                for(Map<String,Object> dataMap:mergeCells){
+                    CellModel cellModel=new CellModel();
+                    cellModel.setStartColumn((Integer) dataMap.get("col"));
+                    cellModel.setEndColumn((Integer) dataMap.get("col"));
+                    cellModel.setStartRow((Integer) dataMap.get("row")+1);
+                    cellModel.setEndRow((Integer) dataMap.get("rowspan")+cellModel.getStartRow()-1);
+                    cellModelList.add(cellModel);
+                }
+            }
+            String[] headers=new String[]{"名称","时间","准时到","晚到","应到","大小kb","到报率"};
+            wb = this.createCSVUtilRow("文件报表",wb, cellModelList, headers, exportData);
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.addHeader("Access-Control-Expose-Headers", "content-disposition");
+            response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+            out = response.getOutputStream();
+            wb.write(out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (wb != null) {
+                try {
+                    wb.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+
+    }
+    /**
+     * 生成表格（用于生成复杂表头）
+     *
+     * @param sheetName sheet名称
+     * @param wb 表对象
+     * @param cellListMap 表头数据 {key=cellRowNum-1}
+     * @param cellRowNum 表头总占用行数
+     * @param exportData 行数据
+     * @param
+     * @return
+     * @throws Exception
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static SXSSFWorkbook createCSVUtil(String sheetName, SXSSFWorkbook wb, Map<String,List<CellModel>> cellListMap,
+                                              Integer cellRowNum, List<LinkedHashMap> exportData)throws Exception {
+        Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        Font dataFont = wb.createFont();
+        dataFont.setFontName("宋体");
+        dataFont.setFontHeightInPoints((short) 10);
+        style.setFont(dataFont);
+        style.setWrapText(true);
+        styles.put("data", style);
+
+        style = wb.createCellStyle();
+        style.cloneStyleFrom(styles.get("data"));
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setWrapText(true);
+        Font headerFont = wb.createFont();
+        headerFont.setFontName("宋体");
+        headerFont.setFontHeightInPoints((short) 10);
+        headerFont.setBold(true);
+        //headerFont.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(headerFont);
+        styles.put("header", style);
+        //设置表格名称
+        Sheet sheet = wb.createSheet(sheetName);
+        for (LinkedHashMap hashMap : exportData) {
+            Row rowValue = sheet.createRow(cellRowNum);
+            Iterator<Map.Entry> iteratorRow = hashMap.entrySet().iterator();
+            while (iteratorRow.hasNext()) {
+                Map.Entry entryRow = iteratorRow.next();
+                Integer key = Integer.valueOf(entryRow.getKey().toString());
+                String value = "";
+                if (entryRow.getValue() != null) {
+                    value = entryRow.getValue().toString();
+                } else {
+                    value = "";
+                }
+                Cell cellValue =  rowValue.createCell(key - 1);
+                cellValue.setCellValue(value);
+                cellValue.setCellStyle(styles.get("data"));
+            }
+            cellRowNum++;
+        }
+        for(int t = 0; t < cellRowNum; t++) {
+            Row row =  sheet.createRow(t);
+            List<CellModel> cellNameList = cellListMap.get(String.valueOf(t));
+            for (CellModel cellModel : cellNameList) {
+                if(cellModel.getEndColumn()-cellModel.getStartColumn()>0||cellModel.getEndRow()-cellModel.getStartRow()>0){
+                    sheet.addMergedRegion(new CellRangeAddress(cellModel.getStartRow(),
+                            cellModel.getEndRow(), cellModel.getStartColumn(), cellModel.getEndColumn()));
+                }
+            }
+            for (int i = 0; i < cellNameList.size(); i++) {
+                CellModel cellModel = cellNameList.get(i);
+                // 遍历插入表头
+                Cell cell = row.createCell(cellModel.getStartColumn());
+                cell.setCellValue(cellModel.getCellName());
+                cell.setCellStyle(styles.get("header"));
+            }
+        }
+        return wb;
+    }
+    public Map<String, String> findHeaderRow() {
+        Map<String, String> map = new HashMap<>();
+        List<Map<String, String>> list = new ArrayList<>();
+        FileMonitorDto fileMonitorDto = new FileMonitorDto();
+        NullUtil.changeToNull(fileMonitorDto);
+        List<FileMonitorDto> fileMonitorDtos = fileMonitorService.selectBySpecification(fileMonitorDto);
+        for (int i = 0; i < fileMonitorDtos.size(); i++) {
+            FileMonitorDto file = fileMonitorDtos.get(i);
+            map.put(file.getId(), file.getTaskName());
+        }
+        return map;
+    }
+    public Map<String, Object> findFileReportRow(SystemQueryDto systemQueryDto) {
+        Map<String, String> mapTaskName=this.findHeaderRow();
+        List<Map<String,Object>> mergeCells=new ArrayList<>();
+        SearchSourceBuilder search = this.buildWhere(systemQueryDto);
+        DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
+        dateHis.field("@timestamp");
+        dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
+        dateHis.format("yyyy-MM-dd HH:mm:ss");
+        dateHis.timeZone(ZoneId.of("Asia/Shanghai"));
+        TermsAggregationBuilder groupByTaskId = AggregationBuilders.terms("groupByTaskId").field("task_id").size(10000);
+        SumAggregationBuilder sumRealFileSize = AggregationBuilders.sum("sumRealFileSize").field("real_file_size").format("0.0000");
+        SumAggregationBuilder sumRealFileNum = AggregationBuilders.sum("sumRealFileNum").field("real_file_num").format("0.0000");
+        SumAggregationBuilder sumLateNum = AggregationBuilders.sum("sumLateNum").field("late_num").format("0.0000");
+        SumAggregationBuilder sumFileNum = AggregationBuilders.sum("sumFileNum").field("file_num").format("0.0000");
+        dateHis.subAggregation(sumRealFileNum);
+        dateHis.subAggregation(sumRealFileSize);
+        dateHis.subAggregation(sumLateNum);
+        dateHis.subAggregation(sumFileNum);
+        groupByTaskId.subAggregation(dateHis);
+        search.aggregation(groupByTaskId);
+        List<Map<String, Object>> list = new ArrayList<>();
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            ParsedStringTerms parsedStringTerms = aggregations.get("groupByTaskId");
+            List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Shanghai"));
+            int k=0;
+            if (buckets.size() > 0) {
+                for (int i = 0; i < buckets.size(); i++) {
+                    Terms.Bucket bucket = buckets.get(i);
+                    Map<String, Aggregation> agg = bucket.getAggregations().asMap();
+                    ParsedDateHistogram parsedDateHistogram = (ParsedDateHistogram) agg.get("@timestamp");
+                    List<? extends Histogram.Bucket> bucketSum = parsedDateHistogram.getBuckets();
+                    if(bucketSum.size()>0){
+                        Map<String,Object> mergeCell=new HashMap<>();
+                        mergeCell.put("row",k);
+                        mergeCell.put("rowspan",bucketSum.size());
+                        mergeCell.put("col",0);
+                        mergeCell.put("colspan",1);
+                        k=k+bucketSum.size();
+                        mergeCells.add(mergeCell);
+                    }
+                    if(bucketSum.size()==0){
+
+                    }
+                    for (int j = 0; j < bucketSum.size(); j++) {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("taskId", bucket.getKeyAsString());
+                        map.put("taskName", mapTaskName.get(bucket.getKeyAsString()));
+                        Histogram.Bucket bucketV = bucketSum.get(j);
+                        ZonedDateTime date = (ZonedDateTime) bucketV.getKey();
+                        map.put("timestamp", formatter.format(date));
+                        ParsedSum sumRealFileNumV = bucketV.getAggregations().get("sumRealFileNum");
+                        ParsedSum sumLateNumV = bucketV.getAggregations().get("sumLateNum");
+                        ParsedSum sumRealFileSizeV = bucketV.getAggregations().get("sumRealFileSize");
+                        ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
+                        long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
+                        long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
+                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_HALF_UP).longValue();
+                        long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
+                        if (sumFileNumL > 0) {
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                            map.put("toQuoteRate", toQuoteRate);
+                        }else {
+                            map.put("toQuoteRate", 1);
+                        }
+                        map.put("sumRealFileNum", sumRealFileNumL);
+                        map.put("sumLateNum", sumLateNumL);
+                        map.put("sumRealFileSize", sumRealFileSizeL);
+                        map.put("sumFileNum", sumFileNumL);
+                        list.add(map);
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Map<String, Object> result=new HashMap<>();
+        result.put("tableData",list);
+        result.put("mergeCells",mergeCells);
+        return result;
+
+    }
     public void exportFileReport(SystemQueryDto systemQueryDto){
         HttpServletResponse response = ServletUtils.getResponse();
 
@@ -306,99 +644,6 @@ public class FileQReportServiceImpl implements FileQReportService {
             }
         }
 
-    }
-    /**
-     * 生成表格（用于生成复杂表头）
-     *
-     * @param sheetName sheet名称
-     * @param wb 表对象
-     * @param cellListMap 表头数据 {key=cellRowNum-1}
-     * @param cellRowNum 表头总占用行数
-     * @param exportData 行数据
-     * @param
-     * @return
-     * @throws Exception
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static SXSSFWorkbook createCSVUtil(String sheetName, SXSSFWorkbook wb, Map<String,List<CellModel>> cellListMap,
-                                              Integer cellRowNum, List<LinkedHashMap> exportData)throws Exception {
-        Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
-        CellStyle style = wb.createCellStyle();
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderTop(BorderStyle.THIN);
-        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        Font dataFont = wb.createFont();
-        dataFont.setFontName("宋体");
-        dataFont.setFontHeightInPoints((short) 10);
-        style.setFont(dataFont);
-        style.setWrapText(true);
-        styles.put("data", style);
-
-        style = wb.createCellStyle();
-        style.cloneStyleFrom(styles.get("data"));
-        style.setAlignment(HorizontalAlignment.CENTER);
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderRight(BorderStyle.THIN);
-        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderTop(BorderStyle.THIN);
-        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderBottom(BorderStyle.THIN);
-        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setWrapText(true);
-        Font headerFont = wb.createFont();
-        headerFont.setFontName("宋体");
-        headerFont.setFontHeightInPoints((short) 10);
-        headerFont.setBold(true);
-        //headerFont.setColor(IndexedColors.WHITE.getIndex());
-        style.setFont(headerFont);
-        styles.put("header", style);
-        //设置表格名称
-        Sheet sheet = wb.createSheet(sheetName);
-        for(int t = 0; t < cellRowNum; t++) {
-            Row row =  sheet.createRow(t);
-            List<CellModel> cellNameList = cellListMap.get(String.valueOf(t));
-            for (CellModel cellModel : cellNameList) {
-                if(cellModel.getEndColumn()-cellModel.getStartColumn()>0||cellModel.getEndRow()-cellModel.getStartRow()>0){
-                    sheet.addMergedRegion(new CellRangeAddress(cellModel.getStartRow(),
-                            cellModel.getEndRow(), cellModel.getStartColumn(), cellModel.getEndColumn()));
-                }
-            }
-            for (int i = 0; i < cellNameList.size(); i++) {
-                CellModel cellModel = cellNameList.get(i);
-                // 遍历插入表头
-                Cell cell = row.createCell(cellModel.getStartColumn());
-                cell.setCellValue(cellModel.getCellName());
-                cell.setCellStyle(styles.get("header"));
-            }
-        }
-        for (LinkedHashMap hashMap : exportData) {
-            Row rowValue = sheet.createRow(cellRowNum);
-            Iterator<Map.Entry> iteratorRow = hashMap.entrySet().iterator();
-            while (iteratorRow.hasNext()) {
-                Map.Entry entryRow = iteratorRow.next();
-                Integer key = Integer.valueOf(entryRow.getKey().toString());
-                String value = "";
-                if (entryRow.getValue() != null) {
-                    value = entryRow.getValue().toString();
-                } else {
-                    value = "";
-                }
-                Cell cellValue =  rowValue.createCell(key - 1);
-                cellValue.setCellValue(value);
-                cellValue.setCellStyle(styles.get("data"));
-            }
-            cellRowNum++;
-        }
-        return wb;
     }
 }
 

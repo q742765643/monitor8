@@ -1,6 +1,8 @@
 package com.piesat.skywalking.om.protocol.snmp;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.snmp4j.*;
 import org.snmp4j.event.ResponseEvent;
 import org.snmp4j.mp.SnmpConstants;
@@ -18,6 +20,8 @@ import java.util.Vector;
 public class SNMPSessionUtil {
     private Snmp snmp;
     private Address targetAddress;
+    @Getter
+    @Setter
     private String hostComputer;
     private String port;
     private String community;

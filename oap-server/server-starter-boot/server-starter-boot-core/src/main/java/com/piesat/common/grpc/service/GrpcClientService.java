@@ -45,8 +45,15 @@ public class GrpcClientService {
             } else {
                 channel = channelUtil.selectChannel(serverName);
             }
+            if(channel==null){
+                //log.error("{},{},无可用grpc服务", grpcRequest.getClazz(), grpcRequest.getMethod());
+                GrpcResponse response = new GrpcResponse();
+                response.setStatus(-2);
+                response.setMessage("grpc无服务异常");
+                return response;
+            }
         } catch (Exception e) {
-            log.error("通道为null{},{}", grpcRequest.getClazz(), grpcRequest.getMethod());
+            //log.error("{},{}", grpcRequest.getClazz(), grpcRequest.getMethod());
             GrpcResponse response = new GrpcResponse();
             response.setStatus(-2);
             response.setMessage("grpc无服务异常");

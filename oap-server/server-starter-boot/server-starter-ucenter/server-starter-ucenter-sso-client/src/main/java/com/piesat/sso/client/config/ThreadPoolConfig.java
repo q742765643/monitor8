@@ -26,7 +26,7 @@ public class ThreadPoolConfig {
 
     @Bean
     public ExecutorService executorTriggerService() {
-        return new ThreadPoolExecutor(200, 200,
+        return new ThreadPoolExecutor(200, 800,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(5000), new ThreadFactoryBuilder().setNameFormat("trigger-log-%d").build(), new ThreadPoolExecutor.AbortPolicy());
     }

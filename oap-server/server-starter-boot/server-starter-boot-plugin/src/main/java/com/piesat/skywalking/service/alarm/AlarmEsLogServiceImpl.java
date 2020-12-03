@@ -14,9 +14,11 @@ import com.piesat.util.JsonParseUtil;
 import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -80,7 +82,7 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
             MatchQueryBuilder status = QueryBuilders.matchQuery("status", query.getStatus());
             boolBuilder.must(status);
         }
-        search.query(boolBuilder).sort("@timestamp", SortOrder.DESC);
+        search.query(boolBuilder).sort("end_time", SortOrder.DESC);
         search.trackTotalHits(true);
         try {
             int startIndex=(pageForm.getCurrentPage()-1)*pageForm.getPageSize();
@@ -256,7 +258,7 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         search.query(boolBuilder);
         search.size(100);
-        search.sort("@timestamp",SortOrder.DESC);
+        search.sort("end_time",SortOrder.DESC);
         List<Map<String,Object>> list=new ArrayList<>();
         try {
             SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM, search);
@@ -304,6 +306,21 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         map.put("deviceNum", (long) deviceNum.size());
         map.put("faultNum", faultNum);
         return map;
+    }
+
+    @SneakyThrows
+    public void deleteAlarm(List<String> ids){
+        for(int i=0;i<ids.size();i++){
+            DeleteByQueryRequest requestAlarm = new DeleteByQueryRequest(IndexNameConstant.T_MT_ALARM);
+            requestAlarm.setQuery(new TermQueryBuilder("related_id", ids.get(i)));
+            requestAlarm.setSize(1000);
+            elasticSearch7Client.deleteByQueryRequest(requestAlarm);
+
+            DeleteByQueryRequest requestAlarmLog = new DeleteByQueryRequest(IndexNameConstant.T_MT_ALARM_LOG);
+            requestAlarmLog.setQuery(new TermQueryBuilder("related_id", ids.get(i)));
+            requestAlarmLog.setSize(1000);
+            elasticSearch7Client.deleteByQueryRequest(requestAlarmLog);
+        }
     }
 }
 

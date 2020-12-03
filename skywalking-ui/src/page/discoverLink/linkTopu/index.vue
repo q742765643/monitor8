@@ -90,6 +90,8 @@
   import topuTree from './toupuchart/toputree1';
   import planeTitle from '@/components/titile/planeTitle.vue';
   import { remFontSize } from '@/components/utils/fontSize.js';
+  import request from '@/utils/request';
+
   export default {
     data() {
       return {
@@ -105,16 +107,21 @@
           time: '20天30时45分',
         },
         charts: '',
-        pieData: [
-          { value: 210, name: '良好', color1: '#329A2E', color2: '#5DFC57' },
-          { value: 735, name: '一般', color1: '#E4A302', color2: '#FDF901' },
-          { value: 834, name: '未知', color1: '#FC000D', color2: '#E10008' },
-          { value: 535, name: '严重', color1: '#0063F2', color2: '#0065F5' },
-        ],
+        pieData: [],
       };
     },
     components: { /* toupuChart ,*/ topuTree, planeTitle },
     methods: {
+      findStateStatistics() {
+        request({
+          url: '/networkTopy/findStateStatistics',
+          method: 'get',
+        }).then((response) => {
+          this.pieData = response.data;
+          console.log(this.pieData);
+          this.drawPie('pieChart');
+        });
+      },
       drawPie(id) {
         var linearcolor = [];
         this.pieData.map((item) => {
@@ -182,9 +189,8 @@
       },
     },
     mounted() {
-      this.$nextTick(() => {
-        this.drawPie('pieChart');
-      });
+      this.findStateStatistics();
+      this.$nextTick(() => {});
       window.addEventListener('resize', () => {
         this.charts.resize();
       });

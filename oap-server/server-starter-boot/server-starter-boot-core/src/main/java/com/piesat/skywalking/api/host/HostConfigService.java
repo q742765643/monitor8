@@ -8,6 +8,7 @@ import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 
 import java.util.List;
+import java.util.Map;
 
 @GrpcHthtService(server = GrpcConstant.SCHEDULE_SERVER, serialization = SerializeType.PROTOSTUFF)
 public interface HostConfigService {
@@ -16,6 +17,8 @@ public interface HostConfigService {
     public List<HostConfigDto> selectBySpecification(HostConfigDto hostConfigdto);
 
     public HostConfigDto save(HostConfigDto hostConfigDto);
+
+    public HostConfigDto updateHost(HostConfigDto hostConfigDto);
 
     public List<HostConfigDto> selectAll();
 
@@ -30,4 +33,6 @@ public interface HostConfigService {
     public List<HostConfigDto> selectOnineAll();
 
     public long selectCount(HostConfigDto hostConfigdto);
+
+    public List<Map<String,Object>> findStateStatistics();
 }

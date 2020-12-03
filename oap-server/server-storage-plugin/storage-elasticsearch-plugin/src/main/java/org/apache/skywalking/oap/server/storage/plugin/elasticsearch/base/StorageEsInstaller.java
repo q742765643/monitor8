@@ -19,9 +19,14 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.gson.Gson;
-import java.io.IOException;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.MonitorConstant;
@@ -32,6 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.elasticsearch.common.unit.TimeValue;
 
@@ -60,7 +66,7 @@ public class StorageEsInstaller extends ModelInstaller {
                     model.getName();
             if (!MonitorConstant.ISENABLE) {
                 boolean flag = esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
-                if (timeSeriesIndexName.indexOf("ui_template") > -1) {
+                if (timeSeriesIndexName.indexOf("ui_template") > -1 || timeSeriesIndexName.indexOf("t_mt") > -1 || timeSeriesIndexName.indexOf("metricbeat") > -1 ) {
                     return flag;
                 }
                 return true;
@@ -86,7 +92,18 @@ public class StorageEsInstaller extends ModelInstaller {
                 indexName = model.getName();
             } else {
                 if (!esClient.isExistsTemplate(model.getName())) {
-                    boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
+                    indexName=model.getName();
+                    if(model.getName().indexOf("metricbeat")>-1){
+                        InputStream inputStream = ResourceUtils.readToStream("metricbeat.json");
+                        String json = new BufferedReader(new InputStreamReader(inputStream))
+                                .lines().collect(Collectors.joining(System.lineSeparator()));
+                        Gson gson = new Gson();
+                        mapping=gson.fromJson(json,Map.class);
+                        settings.put("index.mapping.total_fields.limit",30000);
+                        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                        indexName = model.getName() + "-" + format.format(new Date());
+                    }
+                    boolean isAcknowledged = esClient.createTemplate(indexName, settings, mapping);
                     log.info(
                         "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
                     if (!isAcknowledged) {
@@ -96,11 +113,16 @@ public class StorageEsInstaller extends ModelInstaller {
                 indexName = TimeSeriesUtils.latestWriteIndexName(model);
             }
             if (!esClient.isExistsIndex(indexName)) {
-                boolean isAcknowledged = esClient.createIndex(indexName);
-                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
-                if (!isAcknowledged) {
-                    throw new StorageException("create " + indexName + " time series index failure, ");
+                if(indexName.indexOf("t_mt")>-1){
+                    esClient.createIndex(indexName,settings,mapping);
+                }else {
+                    boolean isAcknowledged = esClient.createIndex(indexName);
+                    log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+                    if (!isAcknowledged) {
+                        throw new StorageException("create " + indexName + " time series index failure, ");
+                    }
                 }
+
             }
 
         } catch (IOException e) {

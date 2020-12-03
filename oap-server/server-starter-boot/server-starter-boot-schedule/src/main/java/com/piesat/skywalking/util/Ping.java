@@ -41,8 +41,10 @@ public class Ping {
         try {
             Process pro = Runtime.getRuntime().exec("ping " + ipAddress);
             BufferedReader buf = new BufferedReader(new InputStreamReader(pro.getInputStream(), Charset.forName("GBK")));
-            while ((line = buf.readLine()) != null)
-                System.out.println(line);
+            while ((line = buf.readLine()) != null){
+
+            }
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }

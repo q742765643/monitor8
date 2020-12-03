@@ -293,6 +293,7 @@
 
         graph.on('node:click', (ev) => {
           clearTimeout(this.timeer);
+          this.ip = ev.item._cfg.ip;
           this.timeer = setTimeout(() => {
             this.showEditWindow = true;
           }, 300);
@@ -300,8 +301,7 @@
 
         graph.on('node:dblclick', (ev) => {
           clearTimeout(this.timeer);
-          clearTimeout(this.timeer);
-          this.ip = ev.item._cfg.id;
+          this.ip = ev.item._cfg.model.ip;
           this.showMointorWindow = true;
         });
       },

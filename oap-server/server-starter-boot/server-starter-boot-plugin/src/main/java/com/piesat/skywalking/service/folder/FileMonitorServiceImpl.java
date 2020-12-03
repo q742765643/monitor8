@@ -5,6 +5,7 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
+import com.piesat.skywalking.api.alarm.AlarmEsLogService;
 import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.dao.FileMonitorDao;
 import com.piesat.skywalking.dto.FileMonitorDto;
@@ -34,6 +35,8 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     private FileMonitorMapstruct fileMonitorMapstruct;
     @Autowired
     private FileMonitorQuartzService fileMonitorQuartzService;
+    @Autowired
+    private AlarmEsLogService alarmEsLogService;
 
     @Override
     public BaseDao<FileMonitorEntity> getBaseDao() {
@@ -117,16 +120,23 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         fileMonitorQuartzService.handleJob(fileMonitorMapstruct.toDto(fileMonitorEntity));
         return fileMonitorDto;
     }
-
+    public FileMonitorDto updateFileMonitor(FileMonitorDto fileMonitorDto) {
+        FileMonitorEntity fileMonitorEntity = fileMonitorMapstruct.toEntity(fileMonitorDto);
+        fileMonitorEntity = super.saveNotNull(fileMonitorEntity);
+        fileMonitorQuartzService.handleJob(fileMonitorMapstruct.toDto(fileMonitorEntity));
+        return fileMonitorDto;
+    }
     @Override
     public FileMonitorDto findById(String id) {
         return fileMonitorMapstruct.toDto(super.getById(id));
     }
 
     @Override
+    @Transactional
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
         fileMonitorQuartzService.deleteJob(ids);
+        alarmEsLogService.deleteAlarm(ids);
     }
 
     public long selectCount(FileMonitorDto fileMonitorDto) {

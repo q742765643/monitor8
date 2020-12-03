@@ -14,4 +14,8 @@ public interface FileQReportService {
     public List<Map<String, Object>> fileLineDiagram(String taskId);
 
     public void exportFileReport(SystemQueryDto systemQueryDto);
+
+    public Map<String, Object>  findFileReportRow(SystemQueryDto systemQueryDto);
+
+    public void exportFileReportRow(SystemQueryDto systemQueryDto);
 }

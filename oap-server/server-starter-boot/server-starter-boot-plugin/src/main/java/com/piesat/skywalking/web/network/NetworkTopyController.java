@@ -45,7 +45,7 @@ public class NetworkTopyController {
             HostConfigDto hostConfig = list.get(i - 1);
             Map<String, Object> node = new HashMap<>();
             areaIds.add(String.valueOf(hostConfig.getArea()));
-            node.put("id", hostConfig.getIp());
+            node.put("id", hostConfig.getId());
             node.put("ip", hostConfig.getIp());
             if (!"null".equals(String.valueOf(hostConfig.getArea()))) {
                 node.put("comboId", String.valueOf(hostConfig.getArea()));
@@ -135,6 +135,15 @@ public class NetworkTopyController {
         map.put("edges", callList);
         //map.put("groups", groupList);
         resultT.setData(map);
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询监控总览", notes = "查询监控总览")
+    @GetMapping("/findStateStatistics")
+    public ResultT<List<Map<String,Object>>> findStateStatistics(){
+        ResultT<List<Map<String,Object>>> resultT=new ResultT<>();
+        List<Map<String,Object>> mapList=hostConfigService.findStateStatistics();
+        resultT.setData(mapList);
         return resultT;
     }
 }

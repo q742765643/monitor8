@@ -21,6 +21,7 @@ import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -144,30 +145,32 @@ public class MainService {
 
     public List<AlarmDistributionVo> getAlarmDistribution(AlarmLogDto alarmLogDto) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
+  /*      Date date = new Date();
         String endTime = format.format(date);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.MINUTE, -60*24);
-        String beginTime = format.format(calendar.getTime());
+        String beginTime = format.format(calendar.getTime());*/
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder status = QueryBuilders.matchQuery("status", 0);
+        boolBuilder.must(status);
         Map<String, Object> paramt = new HashMap<>();
-        if (!StringUtil.isEmpty(alarmLogDto.getParams())) {
+         /*if (!StringUtil.isEmpty(alarmLogDto.getParams())) {
             paramt = JSON.parseObject(alarmLogDto.getParams(), Map.class);
         }
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+       RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
         rangeQueryBuilder.gte(beginTime);
-        rangeQueryBuilder.lte(endTime);
+        rangeQueryBuilder.lte(endTime);*/
        /* if (StringUtils.isNotNullString((String) paramt.get("beginTime"))) {
             rangeQueryBuilder.gte((String) paramt.get("beginTime"));
         }
         if (StringUtils.isNotNullString((String) paramt.get("endTime"))) {
             rangeQueryBuilder.lte((String) paramt.get("endTime"));
         }*/
-        rangeQueryBuilder.timeZone("+08:00");
+       /* rangeQueryBuilder.timeZone("+08:00");
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
-        boolBuilder.filter(rangeQueryBuilder);
+        boolBuilder.filter(rangeQueryBuilder);*/
 
         ValueCountAggregationBuilder countByType = AggregationBuilders.count("count").field("device_type");
         TermsAggregationBuilder gourpByType = AggregationBuilders.terms("device_type").field("device_type")
@@ -178,7 +181,7 @@ public class MainService {
         List<AlarmDistributionVo> list = new ArrayList<>();
         Map<String,String> map=new HashMap<>();
         try {
-            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM_LOG, searchSourceBuilder);
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_ALARM, searchSourceBuilder);
             Aggregations aggregations = searchResponse.getAggregations();
             ParsedLongTerms parsedLongTerms = aggregations.get("device_type");
             if (parsedLongTerms == null) {
@@ -222,14 +225,14 @@ public class MainService {
         long startTime = endTime - 86400 * 1000;
 
         List<String> hoursList=new ArrayList<>();
-        Map<String,String> hoursMap=new HashMap<>();
+        Map<String,String> hoursMap=new LinkedHashMap<>();
         SimpleDateFormat qh=new SimpleDateFormat("d/H");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
         Calendar calendarTemp = Calendar.getInstance();
-        calendarTemp.setTimeInMillis(startTime);
-        for(int i=0;i<=24;i++){
+        calendarTemp.setTimeInMillis(startTime+3600*1000);
+        for(int i=0;i<24;i++){
              int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
              if(i==0||hour==0){
                  hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -305,14 +308,14 @@ public class MainService {
 
         List<String> hoursList=new ArrayList<>();
         List<String> longhoursList=new ArrayList<>();
-        Map<String,String> hoursMap=new HashMap<>();
+        Map<String,String> hoursMap=new LinkedHashMap<>();
         SimpleDateFormat qh=new SimpleDateFormat("d/H");
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
         Calendar calendarTemp = Calendar.getInstance();
-        calendarTemp.setTimeInMillis(startTime);
-        for(int i=0;i<=24;i++){
+        calendarTemp.setTimeInMillis(startTime+3600*1000*2);
+        for(int i=0;i<24;i++){
             int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
             if(i==0||hour==0){
                 hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -407,7 +410,7 @@ public class MainService {
                     if(j==list.size()-1){
                         start=list.get(j)[2];
                         end=23;
-                        if(start!=end){
+                        if(start!=end&&end>start){
                             Integer[] d=new Integer[]{i,start,end,2};
                             nums.add(d);
                         }

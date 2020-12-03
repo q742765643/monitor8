@@ -25,4 +25,6 @@ public interface FileMonitorService {
 
     public boolean regularCheck(FileMonitorDto fileMonitorDto);
 
+    public FileMonitorDto updateFileMonitor(FileMonitorDto fileMonitorDto);
+
 }

@@ -13,9 +13,9 @@ public class FileMonitorDto extends HtJobInfoDto {
     @ApiModelProperty(value = "文件路径样例")
     private String fileSample;
     @ApiModelProperty(value = "应到数量")
-    private long fileNum;
+    private Integer fileNum;
     @ApiModelProperty(value = "应到大小")
-    private long fileSize;
+    private Integer fileSize;
     @ApiModelProperty(value = "是否补偿 0否 1是")
     private Integer isCompensation;
     @ApiModelProperty(value = "是否补偿 0本地 1远程")

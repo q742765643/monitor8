@@ -52,6 +52,12 @@
           </vxe-table-column>
           <vxe-table-column width="160" field="date" title="操作">
             <template v-slot="{ row }">
+              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
+                启动
+              </a-button>
+              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)">
+                停止
+              </a-button>
               <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
               <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
             </template>
@@ -259,6 +265,7 @@
   // 接口地址
   import hongtuConfig from '@/utils/services';
   import moment from 'moment';
+  import request from '@/utils/request';
   export default {
     data() {
       //校验是否为cron表达式
@@ -537,6 +544,31 @@
 
         // let chartHeight = document.getElementById("chartdiv").clientHeight;
         this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
+      },
+      startJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+        console.log(data);
+        request({
+          url: '/alarmCofig/updateAlarm',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('启动成功');
+          this.handleQuery();
+        });
+      },
+      endJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+        request({
+          url: '/alarmCofig/updateAlarm',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('停止成功');
+          this.handleQuery();
+        });
       },
     },
   };

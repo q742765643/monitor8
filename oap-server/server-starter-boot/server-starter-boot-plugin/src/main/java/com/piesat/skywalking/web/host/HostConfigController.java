@@ -46,6 +46,14 @@ public class HostConfigController {
         return resultT;
     }
 
+    @ApiOperation(value = "修改链路或者主机，启动停止", notes = "修改链路或者主机，启动停止")
+    @PostMapping("/updateHost")
+    public ResultT<String> updateHost(@RequestBody HostConfigDto hostConfigDto) {
+        ResultT<String> resultT = new ResultT<>();
+        hostConfigService.updateHost(hostConfigDto);
+        return resultT;
+    }
+
     @ApiOperation(value = "删除主机", notes = "删除主机")
     @DeleteMapping("/{ids:.+}")
     public ResultT<String> remove(@PathVariable String[] ids) {

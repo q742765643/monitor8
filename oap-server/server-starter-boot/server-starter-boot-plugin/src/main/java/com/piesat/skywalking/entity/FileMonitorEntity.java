@@ -24,10 +24,10 @@ public class FileMonitorEntity extends HtJobInfo {
     private String fileSample;
 
     @Column(name = "file_num", length = 255)
-    private long fileNum;
+    private Integer fileNum;
 
     @Column(name = "file_size", length = 255)
-    private long fileSize;
+    private Integer fileSize;
 
     @Column(name = "scan_type", length = 1)
     private Integer scanType;

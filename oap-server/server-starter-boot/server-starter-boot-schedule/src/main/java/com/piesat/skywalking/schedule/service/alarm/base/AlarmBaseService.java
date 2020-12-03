@@ -136,7 +136,7 @@ public abstract class AlarmBaseService {
         String indexName = IndexNameConstant.T_MT_ALARM_LOG;
         try {
 
-            boolean isExistsIndex = elasticSearch7Client.isExistsIndex(indexName);
+          /*  boolean isExistsIndex = elasticSearch7Client.isExistsIndex(indexName);
             if (!isExistsIndex) {
                 Map<String, Object> ip = new HashMap<>();
                 ip.put("type", "keyword");
@@ -145,7 +145,7 @@ public abstract class AlarmBaseService {
                 Map<String, Object> mapping = new HashMap<>();
                 mapping.put("properties", properties);
                 elasticSearch7Client.createIndex(indexName, new HashMap<>(), mapping);
-            }
+            }*/
             elasticSearch7Client.forceInsert(indexName, IdUtils.fastUUID(), source);
         } catch (IOException e) {
             e.printStackTrace();
@@ -158,6 +158,7 @@ public abstract class AlarmBaseService {
             Map<String,Object> source=this.findAalarm(alarmLogDto);
             String indexId= (String) source.get("index_id");
             source.put("end_time", System.currentTimeMillis());
+            source.put("device_type", alarmLogDto.getDeviceType());
             if(alarmLogDto.isAlarm()) {
                 source.put("level", alarmLogDto.getLevel());
                 source.put("usage", alarmLogDto.getUsage());
