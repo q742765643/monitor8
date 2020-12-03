@@ -470,9 +470,7 @@ const dataService = {
   resetUserPwd(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .put('/system/user/resetPwd', {
-          params: params,
-        })
+        .put('/system/user/resetPwd', params)
         .then((res) => {
           resolve(res);
         })
@@ -726,12 +724,10 @@ const dataService = {
   },
 
   // 菜单管理-查询菜单树
-  menuTreeselect(params: Object) {
+  menuTreeselect() {
     return new Promise((resolve, reject) => {
       instance
-        .get('/system/menu/treeselect', {
-          params: params
-        })
+        .get('/system/menu/treeselect')
         .then((res) => {
           resolve(res)
         })
@@ -785,11 +781,69 @@ const dataService = {
     })
   },
 
+  // 菜单管理-查询菜单
+  getMenu(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/menu/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 菜单管理-删除菜单
+  delMenu(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/system/menu/' + params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+  // 菜单管理-修改
+  updateMenu(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/menu' , params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
+
+
+  // 菜单管理-新增菜单
+  addMenu(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/system/menu' , params)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+
   // 登录日志-分页查询登录日志
   getLogin(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/monitor/logininfor/list',{
+        .get('/monitor/logininfor/list', {
           params: params
         })
         .then((res) => {
@@ -843,7 +897,7 @@ const dataService = {
   getOperlog(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/monitor/operlog/list',{
+        .get('/monitor/operlog/list', {
           params: params
         })
         .then((res) => {
@@ -898,7 +952,7 @@ const dataService = {
     const baseURL = '/monitor'
     window.location.href = baseURL + "/api/com/downloadByPath?filePath=" + params;
   },
-  
+
 
   exportRole(query: object) {
     return request({
@@ -908,6 +962,22 @@ const dataService = {
       responseType: "arraybuffer"
     })
   },
+
+  // 获取验证码
+  captchaImage() {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/captchaImage')
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
 };
+
+
 
 export default dataService;

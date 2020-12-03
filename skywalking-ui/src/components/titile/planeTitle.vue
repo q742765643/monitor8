@@ -14,16 +14,16 @@ export default {
 <style lang="scss" scoped>
 #palne_titile {
   display: flex;
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
+  padding-left: 18px;
+  padding-right: 30px;
   border-bottom: solid 2px $plane_border_color;
-  height: 0.75rem;
-  line-height: 0.75rem;
+  height: 80px;
+  line-height: 80px;
   justify-content: space-between;
 }
 #name {
-  color: #323232;
+  color: #333;
   font-family: Alibaba-PuHuiTi-Medium;
-  font-size: 0.275rem;
+  font-size: 23px;
 }
 </style>

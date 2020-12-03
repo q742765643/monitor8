@@ -1,21 +1,27 @@
 <template>
   <div class="userMonitorTemplate">
     <div class="left">
-      <a-input-search style="margin-bottom: 8px" placeholder="请输入部门名称" @change="onChange" />
+      <a-input-search
+        style="margin-bottom: 8px"
+        allow-clear
+        v-model="searchStr"
+        placeholder="请输入部门名称"
+        @change="onChange"
+      />
       <a-tree
+        v-model="checkedKeys"
+        :selectedKeys="selectedKeys"
         :expanded-keys="expandedKeys"
         :auto-expand-parent="autoExpandParent"
         :tree-data="deptOptions"
         :replaceFields="replaceFields"
+        @select="onSelect"
         @expand="onExpand"
       >
-        <template slot="title" slot-scope="{ title }">
-          <span v-if="title.indexOf(searchValue) > -1">
-            {{ title.substr(0, title.indexOf(searchValue)) }}
-            <span style="color: #f50">{{ searchValue }}</span>
-            {{ title.substr(title.indexOf(searchValue) + searchValue.length) }}
-          </span>
-          <span v-else>{{ title }}</span>
+        <template slot="title" slot-scope="{ label }">
+          <span
+            v-html="label.replace(new RegExp(searchValue, 'g'), '<span style=color:#f50>' + searchValue + '</span>')"
+          ></span>
         </template>
       </a-tree>
     </div>
@@ -37,7 +43,7 @@
           </a-form-model-item>
           <a-form-model-item label="创建时间">
             <a-range-picker
-              style="width: 240px"
+              style="width: 295px"
               v-model="queryParams.dateRange"
               @change="onTimeChange"
               :show-time="{
@@ -64,7 +70,14 @@
           </a-col>
         </a-row>
         <div id="tableDiv">
-          <vxe-table :data="userListData" align="center" @checkbox-change="selectBox" highlight-hover-row ref="userListRef" border>
+          <vxe-table
+            :data="userListData"
+            align="center"
+            @checkbox-change="selectBox"
+            highlight-hover-row
+            ref="userListRef"
+            border
+          >
             <vxe-table-column type="checkbox" width="50"></vxe-table-column>
             <vxe-table-column field="userName" width="80" title="用户名称"></vxe-table-column>
             <vxe-table-column field="nickName" title="用户昵称"></vxe-table-column>
@@ -80,7 +93,7 @@
                 <span>{{ parseTime(scope.row.createTime) }}</span>
               </template>
             </vxe-table-column>
-            <vxe-table-column field="userOperation" title="操作" width="">
+            <vxe-table-column field="userOperation" title="操作" width="240">
               <template v-slot="{ row }">
                 <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
                 <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
@@ -110,15 +123,15 @@
       @cancel="handleCancel"
       okText="确定"
       cancelText="取消"
-      width="40%"
+      width="45%"
       :maskClosable="false"
       :centered="true"
       class="dialogBox"
     >
       <a-form-model
         v-if="visibleModel"
-        :label-col="{ span: 6 }"
-        :wrapperCol="{ span: 17 }"
+        :label-col="{ span: 8 }"
+        :wrapperCol="{ span: 15 }"
         :model="formDialog"
         ref="formModel"
         :rules="rules"
@@ -172,7 +185,9 @@
           <a-col :span="12">
             <a-form-model-item label="状态">
               <a-radio-group name="radioGroup" v-model="formDialog.status">
-                <a-radio v-for="dict in statusOptions" :key="dict.dictValue" :value="dict.dictValue"> {{ dict.dictLabel }} </a-radio>
+                <a-radio v-for="dict in statusOptions" :key="dict.dictValue" :value="dict.dictValue">
+                  {{ dict.dictLabel }}
+                </a-radio>
               </a-radio-group>
             </a-form-model-item>
           </a-col>
@@ -211,10 +226,10 @@
       @ok="handlePsd"
       @cancel="handleCancelPsd"
     >
-    <div>
-      <span>请输入"{{this.name}}"的新密码 </span>
-      <a-input v-model="psdForm.password"></a-input>
-    </div>
+      <div>
+        <span>请输入"{{ this.name }}"的新密码 </span>
+        <a-input v-model="psdForm.password"></a-input>
+      </div>
     </a-modal>
   </div>
 </template>
@@ -225,111 +240,22 @@ import hongtuConfig from '@/utils/services';
 import moment from 'moment';
 import Treeselect from '@riophae/vue-treeselect';
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-const gData = [
-  {
-    key: '0-0',
-    scopedSlots: {
-      title: 'title',
-    },
-    title: '0-0',
-    children: [
-      {
-        key: '0-0-0',
-        scopedSlots: {
-          title: 'title',
-        },
-        title: '0-0-0',
-      },
-      {
-        key: '0-0-1',
-        scopedSlots: {
-          title: 'title',
-        },
-        title: '0-0-1',
-      },
-      {
-        key: '0-0-2',
-        scopedSlots: {
-          title: 'title',
-        },
-        title: '0-0-2',
-      },
-    ],
-  },
-  {
-    key: '0-1',
-    scopedSlots: {
-      title: 'title',
-    },
-    title: '0-1',
-    children: [
-      {
-        key: '0-1-0',
-        scopedSlots: {
-          title: 'title',
-        },
-        title: '0-1-0',
-      },
-      {
-        key: '0-1-1',
-        scopedSlots: {
-          title: 'title',
-        },
-        title: '0-1-1',
-      },
-      {
-        key: '0-1-2',
-        scopedSlots: {
-          title: 'title',
-        },
-        title: '0-1-2',
-      },
-    ],
-  },
-  {
-    key: '0-2',
-    scopedSlots: {
-      title: '0-2',
-    },
-    title: '0-2',
-  },
-];
-
-const dataList = [];
-const generateList = (data) => {
-  for (let i = 0; i < data.length; i++) {
-    const node = data[i];
-    const key = node.key;
-    dataList.push({ key, title: key });
-    if (node.children) {
-      generateList(node.children);
-    }
-  }
-};
-generateList(gData);
-
-const getParentKey = (key, tree) => {
-  let parentKey;
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i];
-    if (node.children) {
-      if (node.children.some((item) => item.key === key)) {
-        parentKey = node.key;
-      } else if (getParentKey(key, node.children)) {
-        parentKey = getParentKey(key, node.children);
-      }
-    }
-  }
-  return parentKey;
-};
 export default {
   components: { Treeselect },
   data() {
     return {
       expandedKeys: [],
+      backupsExpandedKeys: [],
       searchValue: '',
-      autoExpandParent: true,
-      gData,
+      autoExpandParent: false,
+      checkedKeys: [],
+      selectedKeys: [],
+      searchStr: '',
+      replaceFields: {
+        children: 'children',
+        title: 'label',
+        key: 'id',
+      },
       queryParams: {
         userName: undefined,
         phonenumber: undefined,
@@ -345,11 +271,6 @@ export default {
       visibleModel: false, // 弹出框
       dialogTitle: '',
       deptOptions: [], // 部门下拉框数组
-      replaceFields: {
-        children: 'children',
-        title: 'label',
-        key: 'id',
-      },
       roleOptions: [],
       ids: [],
       formDialog: {},
@@ -382,27 +303,102 @@ export default {
   methods: {
     selectBox(selection) {
       // console.log(selection.selection)
-      this.single = selection.selection.length > 0 ? false: true
+      this.single = selection.selection.length > 0 ? false : true;
+    },
+    onChange() {
+      var vm = this;
+      //添加这行代码是为了只点击搜索才触发
+      vm.searchValue = vm.searchStr;
+      //如果搜索值为空，则不展开任何项，expandedKeys置为空
+      //如果搜索值不位空，则expandedKeys的值要为搜索值的父亲及其所有祖先
+      if (vm.searchValue === '') {
+        vm.expandedKeys = [];
+      } else {
+        //首先将展开项与展开项副本置为空
+        vm.expandedKeys = [];
+        vm.backupsExpandedKeys = [];
+        //获取所有存在searchValue的节点
+        let candidateKeysList = vm.getkeyList(vm.searchValue, vm.deptOptions, []);
+        //遍历满足条件的所有节点
+        candidateKeysList.map((item) => {
+          //获取每个节点的母亲节点
+          var key = vm.getParentKey(item, vm.deptOptions);
+          //当item是最高一级，父key为undefined，将不放入到数组中
+          //如果母亲已存在于数组中，也不放入到数组中
+          if (key && !vm.backupsExpandedKeys.some((item) => item === key)) vm.backupsExpandedKeys.push(key);
+        });
+        let length = this.backupsExpandedKeys.length;
+        for (let i = 0; i < length; i++) {
+          vm.getAllParentKey(vm.backupsExpandedKeys[i], vm.deptOptions);
+        }
+        vm.expandedKeys = vm.backupsExpandedKeys.slice();
+      }
+    },
+    //获取节点中含有value的所有id集合
+    getkeyList(value, tree, keyList) {
+      //遍历所有同一级的树
+      for (let i = 0; i < tree.length; i++) {
+        let node = tree[i];
+        //如果该节点存在value值则push
+        if (node.label.indexOf(value) > -1) {
+          keyList.push(node.id);
+        }
+        //如果拥有孩子继续遍历
+        if (node.children) {
+          this.getkeyList(value, node.children, keyList);
+        }
+      }
+      //因为是引用类型，所有每次递归操作的都是同一个数组
+      return keyList;
+    },
+    //该递归主要用于获取key的父亲节点的key值
+    getParentKey(key, tree) {
+      let parentKey, temp;
+      //遍历同级节点
+      for (let i = 0; i < tree.length; i++) {
+        const node = tree[i];
+        if (node.children) {
+          //如果该节点的孩子中存在该key值，则该节点就是我们要找的父亲节点
+          //如果不存在，继续遍历其子节点
+          if (node.children.some((item) => item.id === key)) {
+            parentKey = node.id;
+          } else if ((temp = this.getParentKey(key, node.children))) {
+            //parentKey = this.getParentKey(key,node.children)
+            //改进，避免二次遍历
+            parentKey = temp;
+          }
+        }
+      }
+      return parentKey;
+    },
+    //获取该节点的所有祖先节点
+    getAllParentKey(key, tree) {
+      var parentKey;
+      if (key) {
+        //获得父亲节点
+        parentKey = this.getParentKey(key, tree);
+        if (parentKey) {
+          //如果父亲节点存在，判断是否已经存在于展开列表里，不存在就进行push
+          if (!this.backupsExpandedKeys.some((item) => item === parentKey)) {
+            this.backupsExpandedKeys.push(parentKey);
+          }
+          //继续向上查找祖先节点
+          this.getAllParentKey(parentKey, tree);
+        }
+      }
     },
     onExpand(expandedKeys) {
+      //用户点击展开时，取消自动展开效果
       this.expandedKeys = expandedKeys;
       this.autoExpandParent = false;
     },
-    onChange(e) {
-      const value = e.target.value;
-      const expandedKeys = dataList
-        .map((item) => {
-          if (item.title.indexOf(value) > -1) {
-            return getParentKey(item.key, gData);
-          }
-          return null;
-        })
-        .filter((item, i, self) => item && self.indexOf(item) === i);
-      Object.assign(this, {
-        expandedKeys,
-        searchValue: value,
-        autoExpandParent: true,
-      });
+    onCheck(checkedKeys) {
+      // console.log('onCheck', checkedKeys);
+      this.checkedKeys = checkedKeys;
+    },
+    onSelect(selectedKeys, info) {
+      console.log('onSelect', info);
+      this.selectedKeys = selectedKeys;
     },
     // 获取表格数据
     getUserList() {
@@ -510,6 +506,7 @@ export default {
       if (!row.id) {
         let cellsChecked = this.$refs.userListRef.getCheckboxRecords();
         cellsChecked.forEach((element) => {
+          this.ids = [];
           this.ids.push(element.id);
         });
       }
@@ -519,6 +516,7 @@ export default {
       const id = row.id || this.ids;
       // this.ids = [];
       // this.ids.push(id);
+      console.log(id);
       hongtuConfig.userCofigSearchById(id).then((response) => {
         if (response.code == 200) {
           console.log(response);
@@ -548,6 +546,7 @@ export default {
             hongtuConfig.userCofigEdit(this.formDialog).then((response) => {
               if (response.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
+                this.$refs.formModel.resetFields();
                 this.visibleModel = false;
                 this.getUserList();
               }
@@ -556,9 +555,7 @@ export default {
         }
       });
     },
-    handleCancel() {
-      this.$refs.formModel.resetFields();
-    },
+    handleCancel() {},
     handleSelect() {},
     // 删除
     handleDelete(row) {
@@ -606,25 +603,27 @@ export default {
       this.getUserList();
     },
     handleResetPwd(row) {
-      this.name = row.userName
-      this.psdForm = row
-      console.log(this.psdForm)
-      this.psdForm.password = ''
-      this.visible = true
+      this.name = row.userName;
+      this.psdForm = row;
+      console.log(this.psdForm);
+      this.psdForm.password = '';
+      this.visible = true;
     },
     handlePsd() {
       let data = {
         id: this.psdForm.id,
-        password:this.psdForm.password
-      }
+        password: this.psdForm.password,
+      };
       hongtuConfig.resetUserPwd(data).then((res) => {
-        if(res.code == 200) {
-          this.$message.success('重置密码成功！')
+        if (res.code == 200) {
+          this.$message.success('重置密码成功！');
         }
-      })
-      this.visible = false
+      });
+      this.visible = false;
     },
-    handleCancelPsd() {},
+    handleCancelPsd() {
+      this.visible = false;
+    },
     handleExport() {
       hongtuConfig.exportUser(this.queryParams).then((res) => {
         this.downloadfileCommon(res);
@@ -640,55 +639,52 @@ export default {
   width: 100%;
   height: 100%;
   font-family: Alibaba-PuHuiTi-Regular;
-  padding: 0.375rem 0.25rem;
+  padding: 20px 0;
   box-shadow: $plane_shadow;
 
   .left {
-    width: 15%;
+    width: 16%;
     height: 100%;
-    padding: 0 0.125rem;
+    padding: 0 20px;
     border-right: 1px solid #ece;
   }
 
   .right {
-    padding-right: 0.25rem;
-
+    padding-right: 0;
+    height: 100%;
     .searchBox {
-      margin-left: 0.25rem;
-      height: 1.5rem;
+      margin-left: 20px;
+      height: 150px;
       width: 100%;
       background: #f2f2f2;
-      padding: 0.1875rem;
+      padding: 25px;
       border-radius: 0.1rem;
 
       .ant-input {
-        width: 3rem;
-        padding: 0 0.375rem 0 0.1875rem;
-        margin-bottom: 0.375rem;
+        width: 240px;
+        padding: 0 20px 0 15px;
+        margin-bottom: 30px;
       }
 
       .ant-calendar-range-picker-input {
-        height: 0.4rem;
-      }
-
-      .ant-btn {
-        width: 1rem;
+        height: 30px;
       }
     }
 
     #linkUser_content {
-      margin: 0.25rem --0.1875rem 0.25rem 0.25rem;
-
-      .ant-btn {
-        width: 1rem;
-        margin: 0 0.125rem 0.125rem 0;
-      }
+      margin: 10px 10px 10px 20px;
+      height: calc(100%-150px);
+    }
+  }
+  .dialogBox {
+    .ant-form-item {
+      margin-bottom: 30px;
     }
   }
 }
 </style>
 <style scoped>
 .ant-radio-group {
-  padding-top: 0.13rem;
+  padding-top: 10px;
 }
 </style>

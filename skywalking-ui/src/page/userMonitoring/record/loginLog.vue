@@ -25,14 +25,14 @@
     <div id="linkrole_content">
       <a-row type="flex" class="rowToolbar">
         <a-col :span="1.5">
-          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
+          <a-button type="danger" icon="delete" :disabled="single" @click="handleDelete"> 删除 </a-button>
           <a-button type="danger" icon="delete" @click="handleClean"> 清空 </a-button>
           <a-button type="primary" icon="vertical-align-bottom" @click="handleExport"> 导出 </a-button>
         </a-col>
       </a-row>
 
       <div id="tableDiv">
-        <vxe-table :data="loginListData" align="center" highlight-hover-row ref="loginListRef" border>
+        <vxe-table :data="loginListData" @checkbox-change="selectBox" align="center" highlight-hover-row ref="loginListRef" border>
           <vxe-table-column type="checkbox" width="50"></vxe-table-column>
           <vxe-table-column field="userName" title="用户名称"></vxe-table-column>
           <vxe-table-column field="ipaddr" title="登录地址"></vxe-table-column>
@@ -88,6 +88,7 @@ export default {
       paginationTotal: 0,
       statusOptions: [],
       dateRange: [],
+      single: true,
     };
   },
   created() {
@@ -99,6 +100,10 @@ export default {
     });
   },
   methods: {
+    selectBox(selection) {
+      // console.log(selection.selection)
+      this.single = selection.selection.length > 0 ? false : true;
+    },
     // 导出
     handleExport() {
       hongtuConfig.exportLogininfor(this.queryParams).then((res) => {
@@ -174,6 +179,7 @@ export default {
           hongtuConfig.delLogininfor(ids).then((res) => {
             if(res.code == 200) {
               this.getLoginList();
+              this.single = true;
               this.$message.success('删除成功')
             }
           });

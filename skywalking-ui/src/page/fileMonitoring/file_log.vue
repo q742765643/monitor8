@@ -195,3 +195,8 @@
     },
   };
 </script>
+<style scoped>
+.head .ant-form-item {
+  margin-bottom: 0.1895rem;
+}
+</style>

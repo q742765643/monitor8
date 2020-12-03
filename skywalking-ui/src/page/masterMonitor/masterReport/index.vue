@@ -544,12 +544,12 @@
         border-bottom: 1px solid #bddfeb8f;
       }
       #dataPlane {
-        height: calc(100% - 0.75rem);
+        // height: calc(100% - 0.75rem);
         width: 100%;
         display: flex;
         flex-direction: column;
         #report_chartdiv {
-          flex: 3;
+          flex: 1;
           width: 100%;
           display: flex;
           #alarmChart {
@@ -561,8 +561,11 @@
             width: 50%;
           }
         }
+        #table {
+          margin-left: 0.25rem;
+        }
         #tablediv {
-          flex: 2;
+          // flex: 2;
           width: 100%;
           padding: 0.25rem;
           //background: pink;
