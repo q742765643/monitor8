@@ -4,6 +4,7 @@ package com.piesat.sso.client.config;
 import com.piesat.sso.client.shiro.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
@@ -69,7 +70,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/api/**", "anon");
         filterChainDefinitionMap.put("/upload/**", "anon");
         filterChainDefinitionMap.put("/**", "anon");
-        //filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "authc");
         LinkedHashMap<String, Filter> filtsMap = new LinkedHashMap<>();
         // 这里使用自定义的filter
         filtsMap.put("authc", new HtAuthenticationFilter());
@@ -211,19 +212,27 @@ public class ShiroConfig {
      * @param securityManager
      * @return
      */
-/*    @Bean
+    /**
+     * 开启shiro aop注解支持.
+     * 使用代理方式;所以需要开启代码支持;
+     *
+     * @param securityManager
+     * @return
+     */
+    @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
         return authorizationAttributeSourceAdvisor;
-    }*/
+    }
 
     /*@Bean
     public  LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
     }*/
+
     @Bean(name = "exceptionHandler")
-    public HtExceptionHandler handlerExceptionResolver() {
+    public HtExceptionHandler handlerExceptionResolver(){
         return new HtExceptionHandler();
     }
 

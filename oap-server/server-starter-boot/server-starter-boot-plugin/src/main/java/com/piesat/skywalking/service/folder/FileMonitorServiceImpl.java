@@ -180,5 +180,8 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         return matcher.matches();
     }
 
+    public void trigger(String id){
+        fileMonitorQuartzService.trigger(this.findById(id));
+    }
 
 }

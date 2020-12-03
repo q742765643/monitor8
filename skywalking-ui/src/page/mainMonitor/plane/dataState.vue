@@ -34,7 +34,7 @@
           { label: '严重', value: 1, color: '#FD651A' },
           { label: '故障', value: 2, color: '#9C82ED' },
           { label: '正常', value: 3, color: '#2BB9F7' },
-          { label: '未执行', value: 4, color: '#9C82ED' },
+          { label: '未执行', value: 4, color: '#FF0000' },
         ];
 
         let option = {

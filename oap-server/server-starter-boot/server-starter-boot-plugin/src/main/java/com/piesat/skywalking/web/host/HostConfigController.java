@@ -61,4 +61,12 @@ public class HostConfigController {
         hostConfigService.deleteByIds(Arrays.asList(ids));
         return resultT;
     }
+
+    @ApiOperation(value = "立即执行", notes = "立即执行")
+    @GetMapping("/trigger/{id:.+}")
+    public ResultT<String> trigger(@PathVariable("id") String id){
+        ResultT<String> resultT = new ResultT<>();
+        hostConfigService.trigger(id);
+        return resultT;
+    }
 }

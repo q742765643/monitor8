@@ -146,4 +146,8 @@ public class AlarmConfigServiceImpl extends BaseService<AlarmConfigEntity> imple
         alarmConfigQuartzService.deleteJob(ids);
     }
 
+    public void trigger(String id){
+        alarmConfigQuartzService.trigger(this.findById(id));
+    }
+
 }

@@ -313,12 +313,12 @@ public class AlarmEsLogServiceImpl implements AlarmEsLogService {
         for(int i=0;i<ids.size();i++){
             DeleteByQueryRequest requestAlarm = new DeleteByQueryRequest(IndexNameConstant.T_MT_ALARM);
             requestAlarm.setQuery(new TermQueryBuilder("related_id", ids.get(i)));
-            requestAlarm.setSize(1000);
+            //requestAlarm.setSize(1);
             elasticSearch7Client.deleteByQueryRequest(requestAlarm);
 
             DeleteByQueryRequest requestAlarmLog = new DeleteByQueryRequest(IndexNameConstant.T_MT_ALARM_LOG);
             requestAlarmLog.setQuery(new TermQueryBuilder("related_id", ids.get(i)));
-            requestAlarmLog.setSize(1000);
+            //requestAlarmLog.setSize(1);
             elasticSearch7Client.deleteByQueryRequest(requestAlarmLog);
         }
     }

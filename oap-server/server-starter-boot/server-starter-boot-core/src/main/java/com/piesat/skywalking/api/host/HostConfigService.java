@@ -35,4 +35,6 @@ public interface HostConfigService {
     public long selectCount(HostConfigDto hostConfigdto);
 
     public List<Map<String,Object>> findStateStatistics();
+
+    public void trigger(String id);
 }

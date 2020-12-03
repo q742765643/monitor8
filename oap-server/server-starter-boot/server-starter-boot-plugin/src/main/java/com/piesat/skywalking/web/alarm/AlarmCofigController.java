@@ -98,4 +98,12 @@ public class AlarmCofigController {
         return resultT;
     }
 
+    @ApiOperation(value = "立即执行", notes = "立即执行")
+    @GetMapping("/trigger/{id:.+}")
+    public ResultT<String> trigger(@PathVariable("id") String id){
+        ResultT<String> resultT = new ResultT<>();
+        alarmConfigService.trigger(id);
+        return resultT;
+    }
+
 }

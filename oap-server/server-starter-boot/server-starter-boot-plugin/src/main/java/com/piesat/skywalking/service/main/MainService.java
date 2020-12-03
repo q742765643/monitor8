@@ -231,8 +231,8 @@ public class MainService {
 
 
         Calendar calendarTemp = Calendar.getInstance();
-        calendarTemp.setTimeInMillis(startTime+3600*1000);
-        for(int i=0;i<24;i++){
+        calendarTemp.setTimeInMillis(startTime);
+        for(int i=0;i<25;i++){
              int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
              if(i==0||hour==0){
                  hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -314,7 +314,7 @@ public class MainService {
 
 
         Calendar calendarTemp = Calendar.getInstance();
-        calendarTemp.setTimeInMillis(startTime+3600*1000*2);
+        calendarTemp.setTimeInMillis(startTime);
         for(int i=0;i<24;i++){
             int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
             if(i==0||hour==0){
@@ -349,7 +349,7 @@ public class MainService {
 
         try {
             BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-            boolBuilder.should(QueryBuilders.rangeQuery("start_time").from(startTime).includeLower(true));
+            //boolBuilder.should(QueryBuilders.rangeQuery("start_time").from(startTime).includeLower(true));
             boolBuilder.should(QueryBuilders.rangeQuery("end_time").from(startTime).includeLower(true));
             searchSourceBuilder.size(1000);
             searchSourceBuilder.query(boolBuilder).sort("start_time", SortOrder.ASC);

@@ -275,4 +275,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         return mapList;
     }
 
+    public void trigger(String id){
+        hostConfigQuartzService.trigger(this.findById(id));
+    }
 }

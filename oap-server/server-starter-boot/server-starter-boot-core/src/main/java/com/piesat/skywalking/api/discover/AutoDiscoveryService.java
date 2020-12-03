@@ -22,4 +22,6 @@ public interface AutoDiscoveryService {
     public void deleteByIds(List<String> ids);
 
     public AutoDiscoveryDto updateAutoDiscovery(AutoDiscoveryDto autoDiscoveryDto);
+
+    public void trigger(String id);
 }

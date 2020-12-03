@@ -118,4 +118,9 @@ public class AutoDiscoveryServiceImpl extends BaseService<AutoDiscoveryEntity> i
         super.deleteByIds(ids);
         autoDiscoveryQuartzService.deleteJob(ids);
     }
+
+    public void trigger(String id){
+        autoDiscoveryQuartzService.trigger(this.findById(id));
+    }
+
 }

@@ -22,4 +22,6 @@ public interface AlarmConfigService {
     public void deleteByIds(List<String> ids);
 
     public AlarmConfigDto updateAlarm(AlarmConfigDto alarmConfigDto);
+
+    public void trigger(String id);
 }
