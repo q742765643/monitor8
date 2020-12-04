@@ -29,6 +29,7 @@
       </a-row>
       <vxe-table show-overflow :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column type="checkbox" width="160"></vxe-table-column>
+        <vxe-table-column field="ip" title="ip地址" show-overflow width="160"></vxe-table-column>
         <vxe-table-column field="taskName" title="设备别名" width="160"></vxe-table-column>
         <vxe-table-column field="jobCron" title="监控策略" show-overflow width="160"></vxe-table-column>
         <vxe-table-column field="currentStatus" title="设备状态" show-overflow width="160">
@@ -37,7 +38,6 @@
           </template>
         </vxe-table-column>
         <vxe-table-column field="hostName" title="设备名称" show-overflow width="160"></vxe-table-column>
-        <vxe-table-column field="ip" title="ip地址" show-overflow width="160"></vxe-table-column>
         <vxe-table-column field="monitoringMethods" title="监控方式" show-overflow width="160">
           <template v-slot="{ row }">
             <span> {{ statusFormat(monitoringMethodsOptions, row.monitoringMethods) }}</span>
