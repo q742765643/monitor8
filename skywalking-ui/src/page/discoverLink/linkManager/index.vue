@@ -1,113 +1,93 @@
 <template>
   <div class="managerTemplate">
-    <div class="head">
-      <a-form-model layout="inline" :model="queryParams" class="queryForm">
-        <a-form-model-item label="ip地址">
-          <a-input v-model="queryParams.ip" placeholder="请输入ip地址"> </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="运行状态">
-          <a-select v-model="queryParams.triggerStatus">
-            <a-select-option value="">全部</a-select-option>
-            <a-select-option v-for="(dict, index) in triggerStatusOptions" :value="dict.dictValue" :key="index">
-              {{ dict.dictLabel }}
-            </a-select-option>
-          </a-select>
-        </a-form-model-item>
-        <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery">
-            搜索
-          </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-            重置
-          </a-button>
-        </a-form-model-item>
-      </a-form-model>
-    </div>
+    <a-form-model layout="inline" :model="queryParams" class="queryForm">
+      <a-form-model-item label="ip地址">
+        <a-input v-model="queryParams.ip" placeholder="请输入ip地址"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="运行状态">
+        <a-select v-model="queryParams.triggerStatus">
+          <a-select-option value="">全部</a-select-option>
+          <a-select-option v-for="(dict, index) in triggerStatusOptions" :value="dict.dictValue" :key="index">
+            {{ dict.dictLabel }}
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item>
+        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+      </a-form-model-item>
+    </a-form-model>
 
-    <div id="linkManger_content">
-      <a-row type="flex" class="rowToolbar">
+    <div class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleAdd">
-            新增
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete">
-            删除
-          </a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
-      <div id="tablediv">
-        <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
-          <vxe-table-column type="checkbox"></vxe-table-column>
-          <vxe-table-column field="taskName" title="设备别名"></vxe-table-column>
-          <vxe-table-column field="jobCron" title="监控策略" show-overflow></vxe-table-column>
-          <vxe-table-column field="currentStatus" title="设备状态" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(currentStatusOptions, row.currentStatus) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="hostName" title="设备名称" show-overflow></vxe-table-column>
-          <vxe-table-column field="ip" title="ip地址" show-overflow></vxe-table-column>
-          <vxe-table-column field="monitoringMethods" title="监控方式" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(monitoringMethodsOptions, row.monitoringMethods) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="mediaType" title="设备类型" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(mediaTypeOptions, row.mediaType) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="gateway" title="网关" show-overflow></vxe-table-column>
-          <vxe-table-column field="mac" title="mac地址" show-overflow></vxe-table-column>
-          <vxe-table-column field="area" title="区域" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(areaOptions, row.area) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="location" title="地址" show-overflow></vxe-table-column>
-          <vxe-table-column field="triggerStatus" title="运行状态" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(triggerStatusOptions, row.triggerStatus) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="createTime" title="发现时间" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ parseTime(row.createTime) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column width="160" field="date" title="操作">
-            <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" @click="updateAsHost(row)">
-                设为主机
-              </a-button>
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
-                启动
-              </a-button>
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)">
-                停止
-              </a-button>
-              <a-button type="primary" icon="edit" @click="handleEdit(row)">
-                编辑
-              </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)">
-                删除
-              </a-button>
-            </template>
-          </vxe-table-column>
-        </vxe-table>
+      <vxe-table show-overflow :data="tableData" align="center" highlight-hover-row ref="tablevxe">
+        <vxe-table-column type="checkbox" width="160"></vxe-table-column>
+        <vxe-table-column field="taskName" title="设备别名" width="160"></vxe-table-column>
+        <vxe-table-column field="jobCron" title="监控策略" show-overflow width="160"></vxe-table-column>
+        <vxe-table-column field="currentStatus" title="设备状态" show-overflow width="160">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(currentStatusOptions, row.currentStatus) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="hostName" title="设备名称" show-overflow width="160"></vxe-table-column>
+        <vxe-table-column field="ip" title="ip地址" show-overflow width="160"></vxe-table-column>
+        <vxe-table-column field="monitoringMethods" title="监控方式" show-overflow width="160">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(monitoringMethodsOptions, row.monitoringMethods) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="mediaType" title="设备类型" show-overflow width="160">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(mediaTypeOptions, row.mediaType) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="gateway" title="网关" show-overflow width="160"></vxe-table-column>
+        <vxe-table-column field="mac" title="mac地址" show-overflow width="160"></vxe-table-column>
+        <vxe-table-column field="area" title="区域" show-overflow width="160">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(areaOptions, row.area) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="location" title="地址" show-overflow width="160"></vxe-table-column>
+        <vxe-table-column field="triggerStatus" title="运行状态" show-overflow width="120">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(triggerStatusOptions, row.triggerStatus) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="createTime" title="发现时间" width="160" show-overflow>
+          <template v-slot="{ row }">
+            <span> {{ parseTime(row.createTime) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column width="320" field="date" title="操作" fixed="right">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" @click="updateAsHost(row)"> 设为主机 </a-button>
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
+            <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
 
-        <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="queryParams.pageNum"
-          :page-size.sync="queryParams.pageSize"
-          :total="paginationTotal"
-          :page-sizes="[10, 20, 100]"
-          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-          @page-change="handlePageChange"
-        >
-        </vxe-pager>
-      </div>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="paginationTotal"
+        :page-sizes="[10, 20, 100]"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+        @page-change="handlePageChange"
+      >
+      </vxe-pager>
     </div>
 
     <a-modal
@@ -459,29 +439,5 @@
 
 <style lang="scss" scoped>
   .managerTemplate {
-    // background: #eef5fd;
-    //width: 20rem;
-    width: 100%;
-    height: 100%;
-    font-family: Alibaba-PuHuiTi-Regular;
-
-    .head {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      height: 1.25rem;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.1rem;
-    }
-
-    #linkManger_content {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      // height: calc(100% - 1.5rem);
-      background: white;
-      padding: 0.25rem;
-      overflow: hidden;
-    }
   }
 </style>
