@@ -67,24 +67,65 @@
             :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
     ></vxe-pager>
       <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消"
-             width="50%" >
-      <a-form-model  :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" :model="form" ref="form" >
-        <a-form-model-item  label="名称"  prop="name">
-          <a-input v-model="form.name" placeholder="请输入名称">
-          </a-input>
-        </a-form-model-item>
-        <a-form-model-item  label="远程ip"  prop="ip">
-          <a-input v-model="form.ip" placeholder="请输入ip">
-          </a-input>
-        </a-form-model-item>
-        <a-form-model-item  label="用户名"  prop="user">
-          <a-input v-model="form.user" placeholder="请输入用户名">
-          </a-input>
-        </a-form-model-item>
-        <a-form-model-item  label="密码"  prop="pass">
-          <a-input v-model="form.pass" placeholder="请输入密码">
-          </a-input>
-        </a-form-model-item>
+             width="70%" >
+      <a-form-model    :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form" >
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item label="任务名称" prop="taskName">
+              <a-input v-model="form.taskName" placeholder="请输入任务名称"> </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="corn表达式" prop="jobCron">
+              <a-input v-model="form.jobCron" placeholder="corn表达式"> </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item label="资料文件目录规则" prop="folderRegular">
+              <a-input v-model="form.folderRegular" placeholder="资料文件目录规则"> </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="资料文件名规则 " prop="filenameRegular">
+              <a-input v-model="form.filenameRegular" placeholder="资料文件名规则 "> </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="应到数量" prop="fileNum">
+              <a-input v-model="form.fileNum" placeholder="请输入应到数量"> </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="应到大小" prop="fileSize">
+              <a-input v-model="form.fileSize" placeholder="请输入应到大小"> </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="远程目录" prop="remotePath">
+              <a-input v-model="form.remotePath" > </a-input>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="时区" prop="isUt">
+              <a-select v-model="form.isUt">
+                <a-select-option :value="0">
+                  北京时
+                </a-select-option>
+                <a-select-option :value="1">
+                  世界时
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+
+          <a-col :span="24" >
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg" >
+              <a-input type="textarea" v-model="form.handleMsg" > </a-input>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
       </a-form-model>
     </a-modal>
   </div>
