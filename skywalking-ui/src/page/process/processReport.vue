@@ -24,7 +24,7 @@
       </div>
       <!--   -->
       <vxe-table border ref="xTable" :height="tableheight" :data="tableData" stripe align="center">
-        <vxe-table-column field="processName" title="进程名称"></vxe-table-column>
+        <vxe-table-column field="processName" title="进程名称" width="170"></vxe-table-column>
         <vxe-table-column field="ip" title="IP地址"></vxe-table-column>
         <vxe-table-column field="maxUptimePct" title="在线时长" show-overflow></vxe-table-column>
         <vxe-table-column field="downTime" title="离线时长"></vxe-table-column>
