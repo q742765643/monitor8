@@ -6,6 +6,7 @@ import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.skywalking.vo.*;
 import com.piesat.util.NullUtil;
+import com.piesat.util.StringUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -380,7 +381,7 @@ public class SystemService {
         SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
         Aggregations aggregations = searchResponse.getAggregations();
         ParsedMax parsedMax = aggregations.get("@timestamp");
-        if (parsedMax != null) {
+        if (parsedMax != null&& !"-Infinity".equals(parsedMax.getValueAsString())) {
             String timestamp = parsedMax.getValueAsString();
             BoolQueryBuilder boolFileBuilder = QueryBuilders.boolQuery();
             QueryBuilder queryBuilder = QueryBuilders.termQuery("@timestamp", timestamp);
