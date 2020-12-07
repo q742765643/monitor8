@@ -63,10 +63,10 @@ public abstract class FileBaseService {
             while (m.find()) {
                 String expression1 = m.group(2);
                 if (expression1.length() > expression.length()) {
-                    expression = expression1;
+                    expression = expression1.split(",")[0];
                 }
-                String replaceMent = expression1.replaceAll("[ymdhsYMDHS]", "\\\\d");
-                ;
+                fileMonitorLogDto.setAllExpression("${" + expression1 + "}");
+                String replaceMent = expression1.split(",")[0].replaceAll("[ymdhsYMDHS]", "\\\\d");
                 filenameRegular = filenameRegular.replace("${" + expression1 + "}", replaceMent);
             }
             /*while (m.find()){

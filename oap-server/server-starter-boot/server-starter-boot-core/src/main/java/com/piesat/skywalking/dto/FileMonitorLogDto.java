@@ -52,5 +52,7 @@ public class FileMonitorLogDto extends BaseDto {
     @ApiModelProperty(value = "任务名称")
     private String taskName;
     private Integer status;
+    @ApiModelProperty(value = "提取全正则")
+    private String allExpression;
 }
 

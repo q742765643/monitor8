@@ -57,6 +57,7 @@
         </a-menu-item>
       </a-sub-menu>
 
+<!--
       <a-sub-menu key="sub4">
         <span slot="title"> <span class="iconfont">&#xe6d4;</span>业务视图</span>
 
@@ -81,6 +82,7 @@
           <router-link to="/businessView/softwareReport"> 软件报表</router-link>
         </a-menu-item>
       </a-sub-menu>
+-->
 
       <a-sub-menu key="sub5">
         <span slot="title"> <span class="iconfont">&#xe61b;</span>文件监控</span>
@@ -101,6 +103,10 @@
         <a-menu-item key="/fileMonitoring/file_log">
           <span class="iconfont">&#xe611;</span>
           <router-link to="/fileMonitoring/file_log"> 文件调度日志</router-link>
+        </a-menu-item>
+        <a-menu-item key="/businessView/dataView">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/businessView/dataView"> 数据视图</router-link>
         </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="sub6">
