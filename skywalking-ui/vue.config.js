@@ -18,17 +18,35 @@
 var webpack = require('webpack');
 
 module.exports = {
-  configureWebpack: {
-    plugins: [
-      new webpack.ProvidePlugin({
-        $: 'jquery',
-        jQuery: 'jquery',
-        'windows.jQuery': 'jquery',
-        Popper: ['popper.js', 'default'],
-      }),
-    ],
-  },
+    configureWebpack: {
+        plugins: [
+            new webpack.ProvidePlugin({
+                $: 'jquery',
+                jQuery: 'jquery',
+                'windows.jQuery': 'jquery',
+                Popper: ['popper.js', 'default'],
+            }),
+        ],
+    },
 
+<<<<<<< HEAD
+    //publicPath: '/',
+    publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
+    lintOnSave: false,
+    devServer: {
+        proxy: {
+            '/graphql': {
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
+                changeOrigin: true,
+            },
+            '/monitor': {
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
+                changeOrigin: true,
+                pathRewrite: {
+                    ['^/monitor']: '',
+                },
+            },
+=======
   //publicPath: '/',
   publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
   lintOnSave: false,
@@ -43,39 +61,38 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: {
           ['^/monitor']: '',
+>>>>>>> 738f616b6b65c2d28c5eca0dd9704de479570475
         },
-      },
     },
-  },
-  chainWebpack: (config) => {
-    /* const svgRule = config.module.rule('svg');
-                                                        svgRule.uses.clear();
-                                                        svgRule
-                                                            .use('svg-sprite-loader')
-                                                            .loader('svg-sprite-loader')
-                                                            .options({
-                                                                symbolId: '[name]',
-                                                            }); */
-    /*  const CssRule = config.module.rule('css');
-                                                         CssRule.uses.clear();
-                                                         CssRule.loader('css-loader')
-                                                         CssRule.loader('style-loader') */
-    config.module
-      .rule('css')
-      .test(/\.css$/)
-      .oneOf('vue')
-      .resourceQuery(/\?vue/)
-      .use('px2rem')
-      .loader('px2rem-loader')
-      .options({
-        remUnit: 192,
-      });
-  },
-  css: {
-    loaderOptions: {
-      sass: {
-        data: `@import "./src/assets/css/global.scss";`,
-      },
+    chainWebpack: (config) => {
+        /* const svgRule = config.module.rule('svg');
+                                                            svgRule.uses.clear();
+                                                            svgRule
+                                                                .use('svg-sprite-loader')
+                                                                .loader('svg-sprite-loader')
+                                                                .options({
+                                                                    symbolId: '[name]',
+                                                                }); */
+        /*  const CssRule = config.module.rule('css');
+                                                             CssRule.uses.clear();
+                                                             CssRule.loader('css-loader')
+                                                             CssRule.loader('style-loader') */
+        config.module
+            .rule('css')
+            .test(/\.css$/)
+            .oneOf('vue')
+            .resourceQuery(/\?vue/)
+            .use('px2rem')
+            .loader('px2rem-loader')
+            .options({
+                remUnit: 192,
+            });
     },
-  },
+    css: {
+        loaderOptions: {
+            sass: {
+                data: `@import "./src/assets/css/global.scss";`,
+            },
+        },
+    },
 };

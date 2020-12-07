@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="operLogTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
       <a-form-model-item label="系统模块">
         <a-input v-model="queryParams.title" placeholder="请输入系统模块"> </a-input>

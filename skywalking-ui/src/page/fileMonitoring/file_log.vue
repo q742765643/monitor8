@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="fileLogTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
       <a-form-model-item label="目录名称" prop="name">
         <a-input v-model="queryParams.name" placeholder="请输入目录名称"> </a-input>
@@ -18,7 +18,7 @@
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
-        <vxe-table-column field="folderRegular" title="文件目录"> </vxe-table-column>
+        <vxe-table-column field="folderRegular" title="文件目录" width="270"> </vxe-table-column>
         <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
         <vxe-table-column field="isCompensation" title="是否补偿">
           <template v-slot="{ row }">

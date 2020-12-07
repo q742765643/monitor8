@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="directoryAccountTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
       <a-form-model-item label="目录名称" prop="name">
         <a-input v-model="queryParams.name" placeholder="请输入目录名称"> </a-input>

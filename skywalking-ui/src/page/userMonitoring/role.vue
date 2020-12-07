@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="roleTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="角色名称">
         <a-input v-model="queryParams.roleName" placeholder="请输入角色名称"> </a-input>
@@ -38,45 +38,45 @@
         </a-col>
       </a-row>
 
-      <vxe-table
-        :data="roleListData"
-        @checkbox-change="selectBox"
-        align="center"
-        highlight-hover-row
-        ref="roleListRef"
-        border
-      >
-        <vxe-table-column type="checkbox" width="50"></vxe-table-column>
-        <vxe-table-column field="roleName" title="角色名称"></vxe-table-column>
-        <vxe-table-column field="roleKey" title="权限字符"></vxe-table-column>
-        <vxe-table-column field="status" title="状态">
-          <template v-slot="{ row }">
-            <a-switch :checked="row.status == '0' ? true : false" @change="handleStatus(row)" />
-          </template>
-        </vxe-table-column>
-        <vxe-table-column field="createTime" title="创建时间">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
-          </template>
-        </vxe-table-column>
-        <vxe-table-column title="操作">
-          <template v-slot="{ row }">
-            <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
-            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
-          </template>
-        </vxe-table-column>
-      </vxe-table>
-      <vxe-pager
-        id="page_table"
-        perfect
-        :current-page.sync="queryParams.pageNum"
-        :page-size.sync="queryParams.pageSize"
-        :total="paginationTotal"
-        :page-sizes="[10, 20, 100]"
-        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-        @page-change="handlePageChange"
-      >
-      </vxe-pager>
+        <vxe-table
+          :data="roleListData"
+          @checkbox-change="selectBox"
+          align="center"
+          highlight-hover-row
+          ref="roleListRef"
+          border
+        >
+          <vxe-table-column type="checkbox" width="50"></vxe-table-column>
+          <vxe-table-column field="roleName" title="角色名称"></vxe-table-column>
+          <vxe-table-column field="roleKey" title="权限字符"></vxe-table-column>
+          <vxe-table-column field="status" title="状态">
+            <template v-slot="{ row }">
+              <a-switch :checked="row.status == '0' ? true : false" @change="handleStatus(row)" />
+            </template>
+          </vxe-table-column>
+          <vxe-table-column field="createTime" title="创建时间">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createTime) }}</span>
+            </template>
+          </vxe-table-column>
+          <vxe-table-column title="操作">
+            <template v-slot="{ row }">
+              <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
+              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+            </template>
+          </vxe-table-column>
+        </vxe-table>
+        <vxe-pager
+          id="page_table"
+          perfect
+          :current-page.sync="queryParams.pageNum"
+          :page-size.sync="queryParams.pageSize"
+          :total="paginationTotal"
+          :page-sizes="[10, 20, 100]"
+          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+          @page-change="handlePageChange"
+        >
+        </vxe-pager>
     </div>
     <a-modal
       v-model="visibleModel"
@@ -164,250 +164,260 @@
 </template>
 
 <script>
-  import hongtuConfig from '@/utils/services';
-  import request from '@/utils/request';
-  export default {
-    data() {
-      return {
-        queryParams: {
-          roleName: undefined,
-          roleKey: undefined,
-          status: undefined,
-          pageNum: 1,
-          pageSize: 10,
-        },
-        roleListData: [],
-        paginationTotal: 0,
-        visibleModel: false,
-        dialogTitle: '',
-        formDialog: {},
-        rules: {
-          roleName: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }],
-          roleKey: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
-        },
-        checkedKeys: [],
-        expandedKeys: [],
-        autoExpandParent: true,
-        selectedKeys: [],
-        treeData: [],
-        replaceFields: {
-          children: 'children',
-          title: 'label',
-          key: 'id',
-        },
-        statusOptions: [],
-        ids: [],
-        single: true,
-      };
+import hongtuConfig from '@/utils/services';
+import request from '@/utils/request';
+export default {
+  data() {
+    return {
+      queryParams: {
+        roleName: undefined,
+        roleKey: undefined,
+        status: undefined,
+        pageNum: 1,
+        pageSize: 10,
+      },
+      roleListData: [],
+      paginationTotal: 0,
+      visibleModel: false,
+      dialogTitle: '',
+      formDialog: {},
+      rules: {
+        roleName: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }],
+        roleKey: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
+      },
+      checkedKeys: [],
+      expandedKeys: [],
+      autoExpandParent: true,
+      selectedKeys: [],
+      treeData: [],
+      replaceFields: {
+        children: 'children',
+        title: 'label',
+        key: 'id',
+      },
+      statusOptions: [],
+      ids: [],
+      single: true,
+    };
+  },
+  created() {
+    this.getRoleList();
+    hongtuConfig.getDicts('sys_normal_disable').then((res) => {
+      if (res.code == 200) {
+        this.statusOptions = res.data;
+      }
+    });
+  },
+  methods: {
+    selectBox(selection) {
+      // console.log(selection.selection)
+      this.single = selection.selection.length > 0 ? false : true;
     },
-    created() {
-      this.getRoleList();
-      hongtuConfig.getDicts('sys_normal_disable').then((res) => {
-        if (res.code == 200) {
-          this.statusOptions = res.data;
-        }
+    getRoleList() {
+      if (this.queryParams.dateRange) {
+        this.dateRange = this.queryParams.dateRange;
+      } else {
+        this.dateRange = [];
+      }
+      hongtuConfig.roleConfigList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
+        console.log(res);
+        this.roleListData = res.data.pageData;
+        this.paginationTotal = res.data.totalCount;
       });
     },
-    methods: {
-      selectBox(selection) {
-        // console.log(selection.selection)
-        this.single = selection.selection.length > 0 ? false : true;
-      },
-      getRoleList() {
-        if (this.queryParams.dateRange) {
-          this.dateRange = this.queryParams.dateRange;
-        } else {
-          this.dateRange = [];
-        }
-        hongtuConfig.roleConfigList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
-          console.log(res);
-          this.roleListData = res.data.pageData;
-          this.paginationTotal = res.data.totalCount;
-        });
-      },
-      // 查询菜单树结构
-      getMenuTreeselect() {
-        hongtuConfig.menuTreeselect(this.queryParams).then((res) => {
-          console.log(res);
-          this.treeData = res.data;
-        });
-      },
-      // 表单重置
-      reset() {
-        // if (this.$refs.tree != undefined) {
-        //   this.$refs.tree.setCheckedKeys([]);
-        // }
-        this.formDialog = {
-          id: undefined,
-          roleName: undefined,
-          roleKey: undefined,
-          roleSort: 0,
-          status: '0',
-          menuIds: [],
-          deptIds: [],
-          remark: undefined,
-        };
-        // this.resetForm("formModel");
-      },
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.getRoleList();
-      },
-      resetQuery() {
-        this.queryParams = {
-          pageNum: 1,
-          pageSize: 10,
-          roleName: undefined,
-          roleKey: undefined,
-          status: undefined,
-        };
-        this.getRoleList();
-      },
-      handleSelectChange() {},
-      handleAdd() {
-        this.reset();
-        this.getMenuTreeselect();
-        this.dialogTitle = '添加角色';
-        this.visibleModel = true;
-      },
-      handleOk() {
-        this.$refs.formModel.validate((valid) => {
-          if (valid) {
-            if (!this.formDialog.id) {
-              console.log(this.formDialog);
-              hongtuConfig.roleConfigAdd(this.formDialog).then((res) => {
-                if (res.code == 200) {
-                  this.$message.success(this.dialogTitle + '成功');
-                  this.visibleModel = false;
-                  this.getRoleList();
-                }
-              });
-            } else {
-              console.log(this.formDialog);
-              this.formDialog.menuIds = [];
-              hongtuConfig.roleConfigEdit(this.formDialog).then((res) => {
-                console.log(res);
-                if (res.code == 200) {
-                  this.$message.success(this.dialogTitle + '成功');
-                  this.single = true;
-                  this.visibleModel = false;
-                  this.getRoleList();
-                }
-              });
-            }
-          }
-        });
-      },
-      handleCancel() {},
-      handleStatus(row) {
-        console.log(row);
-        row.status = row.status == '0' ? '1' : '0';
-        let text = row.status === '0' ? '启用' : '停用';
-        let statusData = {
-          id: row.id,
-          status: row.status,
-        };
-        this.$confirm({
-          title: '确认要"' + text + '""' + row.roleName + '"用户吗?',
-          content: '',
-          okText: '确定',
-          okType: 'danger',
-          cancelText: '取消',
-          onOk: () => {
-            console.log(statusData);
-            hongtuConfig.editRoleStatus(statusData).then((res) => {
+    // 查询菜单树结构
+    getMenuTreeselect() {
+      hongtuConfig.menuTreeselect(this.queryParams).then((res) => {
+        console.log(res);
+        this.treeData = res.data;
+      });
+    },
+    // 表单重置
+    reset() {
+      // if (this.$refs.tree != undefined) {
+      //   this.$refs.tree.setCheckedKeys([]);
+      // }
+      this.formDialog = {
+        id: undefined,
+        roleName: undefined,
+        roleKey: undefined,
+        roleSort: 0,
+        status: '0',
+        menuIds: [],
+        deptIds: [],
+        remark: undefined,
+      };
+      // this.resetForm("formModel");
+    },
+    handleQuery() {
+      this.queryParams.pageNum = 1;
+      this.getRoleList();
+    },
+    resetQuery() {
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10,
+        roleName: undefined,
+        roleKey: undefined,
+        status: undefined,
+      };
+      this.getRoleList();
+    },
+    handleSelectChange() {},
+    handleAdd() {
+      this.reset();
+      this.getMenuTreeselect();
+      this.dialogTitle = '添加角色';
+      this.visibleModel = true;
+    },
+    handleOk() {
+      this.$refs.formModel.validate((valid) => {
+        if (valid) {
+          if (!this.formDialog.id) {
+            console.log(this.formDialog);
+            hongtuConfig.roleConfigAdd(this.formDialog).then((res) => {
               if (res.code == 200) {
-                this.$message.success('修改状态成功');
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
                 this.getRoleList();
               }
             });
-          },
-          onCancel() {},
-        });
-      },
-      onExpand() {},
-      onSelect() {},
-      // 根据角色ID查询菜单树结构
-      getRoleMenuTreeselect(id) {
-        this.getMenuTreeselect();
-      },
-      handleUpdate(row) {
-        console.log(row);
-        if (!row.id) {
-          let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            this.ids = [];
-            this.ids.push(element.id);
-          });
-        }
-        console.log(this.ids);
-        this.reset();
-        const id = row.id || this.ids;
-        // this.ids = [];
-        // this.ids.push(id);
-        this.$nextTick(() => {
-          this.getRoleMenuTreeselect(id);
-        });
-        hongtuConfig.roleCofigSearchById(id).then((res) => {
-          if (res.code == 200) {
-            this.formDialog = res.data;
-          }
-          hongtuConfig.roleMenuTreeselect(id).then((response) => {
-            console.log(response);
-          });
-          this.visibleModel = true;
-          this.dialogTitle = '编辑用户';
-        });
-      },
-      handleDelete(row) {
-        let ids = [];
-        let deletName = [];
-        if (!row.id) {
-          let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            ids.push(element.id);
-            deletName.push(element.roleName);
-          });
-        } else {
-          ids.push(row.id);
-          deletName.push(row.roleName);
-        }
-        this.$confirm({
-          title: '是否确认删除用户名称为' + deletName.join(',') + '的数据项',
-          content: '',
-          okText: '确定',
-          okType: 'danger',
-          cancelText: '取消',
-          onOk: () => {
-            hongtuConfig.roleConfigDelete(ids.join(',')).then((response) => {
-              if (response.code == 200) {
-                this.$message.success('删除成功');
+          } else {
+            console.log(this.formDialog);
+            this.formDialog.menuIds = [];
+            hongtuConfig.roleConfigEdit(this.formDialog).then((res) => {
+              console.log(res);
+              if (res.code == 200) {
+                this.$message.success(this.dialogTitle + '成功');
                 this.single = true;
-                this.resetQuery();
+                this.visibleModel = false;
+                this.getRoleList();
               }
             });
-          },
-          onCancel() {},
-        });
-      },
-      handleUpload() {
-        hongtuConfig.exportRole(this.queryParams).then((res) => {
-          // console.log(res);
-          this.downloadfileCommon(res);
-        });
-      },
-      // 分页事件
-      handlePageChange({ currentPage, pageSize }) {
-        this.queryParams.pageNum = currentPage;
-        this.queryParams.pageSize = pageSize;
-        this.getRoleList();
-      },
+          }
+        }
+      });
     },
-  };
+    handleCancel() {},
+    handleStatus(row) {
+      console.log(row);
+      row.status = row.status == '0' ? '1' : '0';
+      let text = row.status === '0' ? '启用' : '停用';
+      let statusData = {
+        id: row.id,
+        status: row.status,
+      };
+      this.$confirm({
+        title: '确认要"' + text + '""' + row.roleName + '"用户吗?',
+        content: '',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: () => {
+          console.log(statusData);
+          hongtuConfig.editRoleStatus(statusData).then((res) => {
+            if (res.code == 200) {
+              this.$message.success('修改状态成功');
+              this.getRoleList();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+    onExpand(expandedKeys) {
+      this.expandedKeys = expandedKeys;
+      this.autoExpandParent = false;
+    },
+    onCheck(checkedKeys) {
+      console.log('onCheck', checkedKeys);
+      this.checkedKeys = checkedKeys;
+    },
+    onSelect(selectedKeys, info) {
+      console.log('onSelect', info);
+      this.selectedKeys = selectedKeys;
+    },
+    // 根据角色ID查询菜单树结构
+    getRoleMenuTreeselect(id) {
+      this.getMenuTreeselect();
+    },
+    handleUpdate(row) {
+      console.log(row);
+      if (!row.id) {
+        let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          this.ids = [];
+          this.ids.push(element.id);
+        });
+      }
+      console.log(this.ids);
+      this.reset();
+      const id = row.id || this.ids;
+      // this.ids = [];
+      // this.ids.push(id);
+      this.$nextTick(() => {
+        this.getRoleMenuTreeselect(id);
+      });
+      hongtuConfig.roleCofigSearchById(id).then((res) => {
+        if (res.code == 200) {
+          this.formDialog = res.data;
+        }
+        hongtuConfig.roleMenuTreeselect(id).then((response) => {
+          console.log(response);
+        });
+        this.visibleModel = true;
+        this.dialogTitle = '编辑用户';
+      });
+    },
+    handleDelete(row) {
+      let ids = [];
+      let deletName = [];
+      if (!row.id) {
+        let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+          deletName.push(element.roleName);
+        });
+      } else {
+        ids.push(row.id);
+        deletName.push(row.roleName);
+      }
+      this.$confirm({
+        title: '是否确认删除用户名称为' + deletName.join(',') + '的数据项',
+        content: '',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: () => {
+          hongtuConfig.roleConfigDelete(ids.join(',')).then((response) => {
+            if (response.code == 200) {
+              this.$message.success('删除成功');
+              this.single = true;
+              this.resetQuery();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+    handleUpload() {
+      hongtuConfig.exportRole(this.queryParams).then((res) => {
+        // console.log(res);
+        this.downloadfileCommon(res);
+      });
+    },
+    // 分页事件
+    handlePageChange({ currentPage, pageSize }) {
+      this.queryParams.pageNum = currentPage;
+      this.queryParams.pageSize = pageSize;
+      this.getRoleList();
+    },
+  },
+};
 </script>
 
 <style scoped>
-  /* .roleMonitorTemplate {
+/* .roleMonitorTemplate {
   width: 100%;
   height: 100%;
   padding: 20px;

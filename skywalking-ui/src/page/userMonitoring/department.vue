@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="departmentTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="部门名称">
         <a-input v-model="queryParams.deptName" placeholder="请输入部门名称"> </a-input>

@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="loginLogTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="登录地址">
         <a-input v-model="queryParams.ipaddr" placeholder="请输入登录地址"> </a-input>
