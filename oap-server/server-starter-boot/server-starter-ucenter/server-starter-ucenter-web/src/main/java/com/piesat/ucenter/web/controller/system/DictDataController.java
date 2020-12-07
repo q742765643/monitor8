@@ -62,7 +62,7 @@ public class DictDataController {
      */
     @ApiOperation(value = "根据字典类型查询字典数据信息", notes = "根据字典类型查询字典数据信息")
     @GetMapping(value = "/dictType/{dictType}")
-    @RequiresPermissions("system:dict:dictType")
+    //@RequiresPermissions("system:dict:dictType")
     public ResultT<List<DictDataDto>> dictType(@PathVariable String dictType) {
         ResultT<List<DictDataDto>> resultT = new ResultT<>();
         List<DictDataDto> dictDataDtoList = dictDataService.selectDictDataByType(dictType);

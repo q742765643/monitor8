@@ -2,11 +2,14 @@ package com.piesat.skywalking.web.job;
 
 import com.piesat.skywalking.dto.model.HtJobInfoDto;
 import com.piesat.skywalking.service.timing.JobInfoService;
+import com.piesat.sso.client.annotation.Log;
+import com.piesat.sso.client.enums.BusinessType;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +54,8 @@ public class JobInfoController {
 
     @ApiOperation(value = "添加任务或者修改任务", notes = "添加任务或者修改任务")
     @PostMapping
+    @RequiresPermissions("jobInfo:jobInfo:add")
+    @Log(title = "通用调度管理", businessType = BusinessType.INSERT)
     public ResultT<String> add(@RequestBody HtJobInfoDto htJobInfoDto) {
         ResultT<String> resultT = new ResultT<>();
         jobInfoService.save(htJobInfoDto);
@@ -59,6 +64,8 @@ public class JobInfoController {
 
     @ApiOperation(value = "删除任务", notes = "删除任务")
     @DeleteMapping("/{ids:.+}")
+    @RequiresPermissions("jobInfo:jobInfo:remove")
+    @Log(title = "通用调度管理", businessType = BusinessType.DELETE)
     public ResultT<String> remove(@PathVariable String[] ids) {
         ResultT<String> resultT = new ResultT<>();
         jobInfoService.deleteByIds(Arrays.asList(ids));
@@ -87,6 +94,8 @@ public class JobInfoController {
 
     @ApiOperation(value = "启动停止", notes = "启动停止")
     @PostMapping("/updateJob")
+    @RequiresPermissions("jobInfo:jobInfo:updateJob")
+    @Log(title = "通用调度管理", businessType = BusinessType.UPDATE)
     public ResultT<String> updateJob(@RequestBody HtJobInfoDto htJobInfoDto) {
         ResultT<String> resultT = new ResultT<>();
         jobInfoService.updateJob(htJobInfoDto);
@@ -95,6 +104,7 @@ public class JobInfoController {
 
     @ApiOperation(value = "立即执行", notes = "立即执行")
     @GetMapping("/trigger/{id:.+}")
+    @RequiresPermissions("jobInfo:jobInfo:trigger")
     public ResultT<String> trigger(@PathVariable("id") String id){
         ResultT<String> resultT = new ResultT<>();
         jobInfoService.trigger(id);

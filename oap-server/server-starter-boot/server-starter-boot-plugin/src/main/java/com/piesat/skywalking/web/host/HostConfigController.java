@@ -2,11 +2,14 @@ package com.piesat.skywalking.web.host;
 
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dto.HostConfigDto;
+import com.piesat.sso.client.annotation.Log;
+import com.piesat.sso.client.enums.BusinessType;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +43,8 @@ public class HostConfigController {
 
     @ApiOperation(value = "添加主机或者修改主机", notes = "添加主机或者修改主机")
     @PostMapping
+    @RequiresPermissions("hostConfig:hostConfig:add")
+    @Log(title = "主机和链路管理", businessType = BusinessType.INSERT)
     public ResultT<String> add(@RequestBody HostConfigDto hostConfigDto) {
         ResultT<String> resultT = new ResultT<>();
         hostConfigService.save(hostConfigDto);
@@ -48,6 +53,8 @@ public class HostConfigController {
 
     @ApiOperation(value = "修改链路或者主机，启动停止", notes = "修改链路或者主机，启动停止")
     @PostMapping("/updateHost")
+    @RequiresPermissions("hostConfig:hostConfig:updateHost")
+    @Log(title = "主机和链路管理", businessType = BusinessType.UPDATE)
     public ResultT<String> updateHost(@RequestBody HostConfigDto hostConfigDto) {
         ResultT<String> resultT = new ResultT<>();
         hostConfigService.updateHost(hostConfigDto);
@@ -56,6 +63,8 @@ public class HostConfigController {
 
     @ApiOperation(value = "删除主机", notes = "删除主机")
     @DeleteMapping("/{ids:.+}")
+    @RequiresPermissions("hostConfig:hostConfig:remove")
+    @Log(title = "主机和链路管理", businessType = BusinessType.DELETE)
     public ResultT<String> remove(@PathVariable String[] ids) {
         ResultT<String> resultT = new ResultT<>();
         hostConfigService.deleteByIds(Arrays.asList(ids));
@@ -64,6 +73,7 @@ public class HostConfigController {
 
     @ApiOperation(value = "立即执行", notes = "立即执行")
     @GetMapping("/trigger/{id:.+}")
+    @RequiresPermissions("hostConfig:hostConfig:trigger")
     public ResultT<String> trigger(@PathVariable("id") String id){
         ResultT<String> resultT = new ResultT<>();
         hostConfigService.trigger(id);

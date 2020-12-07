@@ -45,6 +45,7 @@
   import loginService from '@/utils/login';
   import request from '@/utils/request';
   import hongtuConfig from '@/utils/services';
+  import {setToken} from "@/utils/auth";
   export default {
     data() {
       return {
@@ -74,7 +75,7 @@
           method: 'post',
           params: this.loginForm,
         }).then((data) => {
-          window.sessionStorage.setItem('token', data.data.token);
+          setToken(data.data.token)
           this.$router.push({ path: '/home' });
         });
         // loginService.logins(this.loginForm).then((response) => {

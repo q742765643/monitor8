@@ -218,9 +218,9 @@ public class MainService {
     public Map<String,Object> getFileStatus() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        //calendar.set(Calendar.MINUTE, 0);
+        //calendar.set(Calendar.SECOND, 0);
+        //calendar.set(Calendar.MILLISECOND, 0);
         long endTime = calendar.getTime().getTime();
         long startTime = endTime - 86400 * 1000;
 
@@ -232,7 +232,10 @@ public class MainService {
 
         Calendar calendarTemp = Calendar.getInstance();
         calendarTemp.setTimeInMillis(startTime);
-        for(int i=0;i<25;i++){
+        for(int i=0;i<30;i++){
+             if(calendarTemp.getTime().getTime()>endTime){
+                break;
+             }
              int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
              if(i==0||hour==0){
                  hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -299,10 +302,10 @@ public class MainService {
 
     public Map<String,Object> getProcess(){
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        //calendar.setTime(new Date());
+        //calendar.set(Calendar.MINUTE, 0);
+        //calendar.set(Calendar.SECOND, 0);
+        //calendar.set(Calendar.MILLISECOND, 0);
         long endTime = calendar.getTime().getTime();
         long startTime = endTime - 86400 * 1000;
 
@@ -315,7 +318,10 @@ public class MainService {
 
         Calendar calendarTemp = Calendar.getInstance();
         calendarTemp.setTimeInMillis(startTime);
-        for(int i=0;i<24;i++){
+        for(int i=0;i<30;i++){
+            if(calendarTemp.getTime().getTime()>endTime){
+                break;
+            }
             int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
             if(i==0||hour==0){
                 hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
@@ -393,7 +399,7 @@ public class MainService {
             try {
                 List<Integer[]> list=all.get(i);
                 if(list.size()==0){
-                    Integer[] d=new Integer[]{i,0,23,2};
+                    Integer[] d=new Integer[]{i,0,hoursList.size()-1,2};
                     nums.add(d);
                 }
                 int start=0;
@@ -409,7 +415,7 @@ public class MainService {
                     }
                     if(j==list.size()-1){
                         start=list.get(j)[2];
-                        end=23;
+                        end=hoursList.size()-1;
                         if(start!=end&&end>start){
                             Integer[] d=new Integer[]{i,start,end,2};
                             nums.add(d);

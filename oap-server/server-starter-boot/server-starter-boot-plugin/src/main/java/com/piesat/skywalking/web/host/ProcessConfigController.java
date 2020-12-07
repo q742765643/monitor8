@@ -4,11 +4,14 @@ import com.piesat.skywalking.api.host.ProcessConfigService;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessDetailsDto;
+import com.piesat.sso.client.annotation.Log;
+import com.piesat.sso.client.enums.BusinessType;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +46,8 @@ public class ProcessConfigController {
 
     @ApiOperation(value = "添加进程或者修改进程", notes = "添加进程或者修改进程")
     @PostMapping
+    @RequiresPermissions("processConfig:processConfig:add")
+    @Log(title = "进程管理", businessType = BusinessType.INSERT)
     public ResultT<String> add(@RequestBody ProcessConfigDto processConfigDto) {
         ResultT<String> resultT = new ResultT<>();
         processConfigService.save(processConfigDto);
@@ -51,6 +56,8 @@ public class ProcessConfigController {
 
     @ApiOperation(value = "删除进程", notes = "删除进程")
     @DeleteMapping("/{ids}")
+    @RequiresPermissions("processConfig:processConfig:remove")
+    @Log(title = "进程管理", businessType = BusinessType.DELETE)
     public ResultT<String> remove(@PathVariable String[] ids) {
         ResultT<String> resultT = new ResultT<>();
         processConfigService.deleteByIds(Arrays.asList(ids));

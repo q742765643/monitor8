@@ -147,17 +147,17 @@ public class MenuServiceImpl extends BaseService<MenuEntity> implements MenuServ
     @Override
     public Set<String> getMenuPermission(UserDto user) {
         Set<String> roles = new HashSet<String>();
-        roles.add("*:*:*");
+        //roles.add("*:*:*");
         //String a="dm:databaseDefine:page";
         // 管理员拥有所有权限
-      /*  if (user.getId().equals("1"))
+        if (user.getId().equals("1"))
         {
             roles.add("*:*:*");
         }
         else
         {
             roles.addAll(this.selectMenuPermsByUserId(user.getId()));
-        }*/
+        }
         return roles;
     }
 

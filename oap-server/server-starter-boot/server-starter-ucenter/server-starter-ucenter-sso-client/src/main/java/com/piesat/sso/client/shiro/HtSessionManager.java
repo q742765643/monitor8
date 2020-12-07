@@ -42,28 +42,17 @@ public class HtSessionManager extends DefaultWebSessionManager {
         }
         System.out.println("id2:"+id);*/
         if (!StringUtils.isEmpty(id)) {
-            if (id.equals("88888888")) {
-                return super.getSessionId(request, response);
-            }
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, id);
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);
             return id;
         } else {
-            String appId = WebUtils.toHttp(request).getHeader(APP_ID);
-            RedisUtil redisUtil = SpringUtil.getBean(RedisUtil.class);
-            boolean has = redisUtil.hasKey(THRID_LOGIN_APP_ID + appId);
-            if (has) {
-                String appSessionId = (String) redisUtil.get(THRID_LOGIN_APP_ID + appId);
-                boolean checkSession = redisUtil.hasKey("shiro:session:" + appSessionId);
-                if (checkSession) {
-                    request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);
-                    request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, appSessionId);
-                    request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);
-                    return appSessionId;
-                }
-            }
-            return super.getSessionId(request, response);
+          /*  RedisUtil redisUtil=SpringUtil.getBean(RedisUtil.class);
+            id= (String) redisUtil.get("GUEST");
+            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE, REFERENCED_SESSION_ID_SOURCE);
+            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID, id);
+            request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID, Boolean.TRUE);*/
+            return super.getSessionId(request,response);
         }
     }
 }

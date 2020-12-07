@@ -4,11 +4,14 @@ import com.piesat.enums.MonitorConditionEnum;
 import com.piesat.enums.MonitorTypeEnum;
 import com.piesat.skywalking.api.alarm.AlarmConfigService;
 import com.piesat.skywalking.dto.AlarmConfigDto;
+import com.piesat.sso.client.annotation.Log;
+import com.piesat.sso.client.enums.BusinessType;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +44,8 @@ public class AlarmCofigController {
     }
 
     @ApiOperation(value = "添加或者修改告警配置", notes = "添加或者修改告警配置")
+    @RequiresPermissions("alarm:alarmCofig:add")
+    @Log(title = "告警管理", businessType = BusinessType.INSERT)
     @PostMapping
     public ResultT<String> add(@RequestBody AlarmConfigDto alarmConfigDto) {
         ResultT<String> resultT = new ResultT<>();
@@ -51,6 +56,8 @@ public class AlarmCofigController {
 
     @ApiOperation(value = "删除告警配置", notes = "删除告警配置")
     @DeleteMapping("/{ids}")
+    @RequiresPermissions("alarm:alarmCofig:remove")
+    @Log(title = "告警管理", businessType = BusinessType.DELETE)
     public ResultT<String> remove(@PathVariable String[] ids) {
         ResultT<String> resultT = new ResultT<>();
         alarmConfigService.deleteByIds(Arrays.asList(ids));
@@ -92,6 +99,8 @@ public class AlarmCofigController {
 
     @ApiOperation(value = "启动停止", notes = "启动停止")
     @PostMapping("/updateAlarm")
+    @RequiresPermissions("alarm:alarmCofig:updateAlarm")
+    @Log(title = "告警管理", businessType = BusinessType.UPDATE)
     public ResultT<String> updateAlarm(@RequestBody AlarmConfigDto alarmConfigDto) {
         ResultT<String> resultT = new ResultT<>();
         alarmConfigService.updateAlarm(alarmConfigDto);
@@ -100,6 +109,7 @@ public class AlarmCofigController {
 
     @ApiOperation(value = "立即执行", notes = "立即执行")
     @GetMapping("/trigger/{id:.+}")
+    @RequiresPermissions("alarm:alarmCofig:trigger")
     public ResultT<String> trigger(@PathVariable("id") String id){
         ResultT<String> resultT = new ResultT<>();
         alarmConfigService.trigger(id);

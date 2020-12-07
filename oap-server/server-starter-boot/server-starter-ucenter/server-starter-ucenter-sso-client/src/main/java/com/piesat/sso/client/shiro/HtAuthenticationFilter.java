@@ -43,53 +43,20 @@ public class HtAuthenticationFilter extends FormAuthenticationFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject subject = getSubject(request, response);
-        String appId = WebUtils.toHttp(request).getHeader("appId");
-        String tokenId = WebUtils.toHttp(request).getHeader("authorization");
-        if (null != tokenId && tokenId.equals("88888888")) {
-            boolean isLogin = subject.isAuthenticated();
-            if (!isLogin) {
-                UsernamePasswordToken token = new UsernamePasswordToken("admin", "111111");
-                token.setLoginType("0");
-                token.setRequest(ServletUtils.getRequest());
-                token.setOperatorType(OperatorType.MANAGE.ordinal());
-                subject.login(token);
-            }
-
-            return true;
+        boolean isLogin = subject.isAuthenticated();
+        return true;
+ /*       if (!isLogin) {
+            UsernamePasswordToken token = new UsernamePasswordToken("guest", "guest");
+            token.setLoginType("2");
+            token.setRequest(ServletUtils.getRequest());
+            token.setOperatorType(OperatorType.MANAGE.ordinal());
+            subject.login(token);
+            RedisUtil redisUtil=SpringUtil.getBean(RedisUtil.class);
+            redisUtil.set("GUEST",subject.getSession().getId(),-1);
         }
+        return true;*/
 
-        if (null != appId && !"".equals(appId)) {
-            RedisUtil redisUtil = SpringUtil.getBean(RedisUtil.class);
-            boolean check = this.validatAppId(appId);
-            if (check) {
-                check = subject.isAuthenticated();
-            }
-            if (check) {
-                return check;
-            }
-            ResultT<Map<String, Object>> resultT = new ResultT<>();
-            HttpServletRequest req = (HttpServletRequest) request;
-            try {
-                String pwd = WebUtils.toHttp(request).getHeader("pwd");
-                pwd = StringUtils.isEmpty(pwd) ? "1111" : pwd;
-                UsernamePasswordToken utoken = new UsernamePasswordToken(appId, pwd);
-                utoken.setLoginType("1");
-                utoken.setRequest(req);
-                utoken.setOperatorType(OperatorType.CAS.ordinal());
-                subject.login(utoken);
-                redisUtil.set(THRID_LOGIN_APP_ID + appId, subject.getSession().getId(), 1800);
-                this.recordLogininfor(req, appId, resultT);
-                return true;
-            } catch (Exception e) {
-                resultT.setErrorMessage("接口登陆失败");
-                this.recordLogininfor(req, appId, resultT);
-                logger.error(OwnException.get(e));
-                return false;
-            }
 
-        } else {
-            return subject.isAuthenticated();
-        }
 
     }
 

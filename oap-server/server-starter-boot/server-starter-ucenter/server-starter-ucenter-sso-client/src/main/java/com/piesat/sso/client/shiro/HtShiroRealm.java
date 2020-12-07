@@ -103,6 +103,18 @@ public class HtShiroRealm extends AuthorizingRealm {
                     getName());
             return authenticationInfo;
         }
+        if ("2".equals(token.getLoginType())) {
+            userDto=new UserDto();
+            userDto.setId("guest");
+            userDto.setUserName("guest");
+            userDto.setPassword("");
+            SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(
+                    userDto, //用户名
+                    new Md5Hash("guest", username, 2).toString(), //密码
+                    salt,
+                    getName());
+            return authenticationInfo;
+        }
 
         return null;
     }

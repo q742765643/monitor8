@@ -70,7 +70,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/api/**", "anon");
         filterChainDefinitionMap.put("/upload/**", "anon");
         filterChainDefinitionMap.put("/**", "anon");
-        filterChainDefinitionMap.put("/**", "authc");
+        //filterChainDefinitionMap.put("/**", "authc");
         LinkedHashMap<String, Filter> filtsMap = new LinkedHashMap<>();
         // 这里使用自定义的filter
         filtsMap.put("authc", new HtAuthenticationFilter());
@@ -169,6 +169,7 @@ public class ShiroConfig {
         HtRedisSessionDAO redisSessionDAO = new HtRedisSessionDAO();
         redisSessionDAO.setRedisManager(redisManager());
         redisSessionDAO.setExpire(sessionTimeout * 1000);
+        //redisSessionDAO.setSessionIdGenerator(new CustomSessionIdGenerator());
         return redisSessionDAO;
     }
 

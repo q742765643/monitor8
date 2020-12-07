@@ -46,7 +46,7 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      redirect: '/login',
+      redirect: '/home',
     },
     {
       path: '/login',
@@ -132,6 +132,11 @@ const router = new Router({
           path: '/alarmMonitoring/alarmReport',
           name: 'alarmReport',
           component: () => import('@/page/alarmMonitoring/alarmReport/index.vue'),
+        },
+        {
+          path: '/alarmMonitoring/alarmReportTable',
+          name: 'alarmReport',
+          component: () => import('@/page/alarmMonitoring/alarmReport.vue'),
         },
         {
           path: '/alarmMonitoring',
@@ -226,18 +231,18 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const token = window.localStorage.getItem('skywalking-authority');
+/*  const token = window.localStorage.getItem('skywalking-authority');
   if (window.axiosCancel.length !== 0) {
     for (const func of window.axiosCancel) {
       setTimeout(func(), 0);
     }
     window.axiosCancel = [];
-  }
+  }*/
 
-  if (to.path === '/login') return next();
+  //if (to.path === '/login') return next();
   // 获取token
-  const tokenstr = window.sessionStorage.getItem('token');
-  if (!tokenstr) return next('/login');
+  //const tokenstr = window.sessionStorage.getItem('token');
+  //if (!tokenstr) return next('/login');
   // if (to.meta.login && (token === null || token === 'guest')) {
   //   next();
   // } else if (token === null || token === 'guest') {
