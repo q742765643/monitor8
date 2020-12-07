@@ -9,22 +9,12 @@
         <div id="toolbar">
           <vxe-toolbar custom>
             <template v-slot:buttons>
-              <!--   <vxe-button @click="exportEventXls">导出excel</vxe-button>
-              <vxe-button @click="exportEventPdf">导出pdf</vxe-button> -->
-              <a-button type="primary" @click="exportEventXls">
-                导出excel
-              </a-button>
-              <a-button type="primary"  @click="exportEventPdf">
-                导出pdf
-              </a-button>
+              <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
+              <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
             </template>
           </vxe-toolbar>
         </div>
-        <!--   -->
         <vxe-table border ref="xTable" :height="tableheight" :data="tableData" stripe align="center">
-          <!--   :checkbox-config="{ labelField: 'number' }" -->
-          <!--   <vxe-table-column type="checkbox" width="80" title="序号"></vxe-table-column> -->
-          <!--          <vxe-table-column field="number" title="序号"></vxe-table-column>-->
           <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
           <vxe-table-column field="currentStatus" title="当前状态" :formatter="formatCurrentStatus"> </vxe-table-column>
           <vxe-table-column field="ip" title="IP地址"></vxe-table-column>
@@ -44,18 +34,6 @@
           <vxe-table-column field="area" title="区域" :formatter="formatArea" show-overflow></vxe-table-column>
           <vxe-table-column field="location" title="详细地址" show-overflow></vxe-table-column>
         </vxe-table>
-
-      <!--  <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="queryParams.pageNum"
-          :page-size.sync="queryParams.pageSize"
-          :total="total"
-          :page-sizes="[10, 20, 100]"
-          @page-change="fetch"
-          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-        >
-        </vxe-pager>-->
       </div>
     </div>
   </div>
@@ -90,7 +68,7 @@
         name: ['在线时长', '平均丢包率', '最大丢包率'],
         tableheight: null,
         tableData: [],
-        dateRange:[],
+        dateRange: [],
       };
     },
     components: { selectDate },
@@ -113,55 +91,59 @@
       });
     },
     methods: {
-      exportEventPdf(){
-        this.queryParams.alarmChart=this.getFullCanvasDataURL('barlineChart');
-        let params=this.addDateRange(this.queryParams, this.dateRange)
-        params.params=JSON.stringify(params.params);
+      exportEventPdf() {
+        this.queryParams.alarmChart = this.getFullCanvasDataURL('barlineChart');
+        let params = this.addDateRange(this.queryParams, this.dateRange);
+        params.params = JSON.stringify(params.params);
         request({
-          url:  '/report/exportPdfLink',
+          url: '/report/exportPdfLink',
           method: 'post',
-          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           data: Qs.stringify(params),
-          responseType: "arraybuffer"
+          responseType: 'arraybuffer',
         }).then((res) => {
           this.downloadfileCommon(res);
         });
       },
-      exportEventXls(){
-        this.queryParams.alarmChart=this.getFullCanvasDataURL('barlineChart');
-        let params=this.addDateRange(this.queryParams, this.dateRange)
-        params.params=JSON.stringify(params.params);
+      exportEventXls() {
+        this.queryParams.alarmChart = this.getFullCanvasDataURL('barlineChart');
+        let params = this.addDateRange(this.queryParams, this.dateRange);
+        params.params = JSON.stringify(params.params);
         request({
-          url:  '/report/exportExcelLink',
+          url: '/report/exportExcelLink',
           method: 'post',
-          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           data: Qs.stringify(params),
-          responseType: "arraybuffer"
+          responseType: 'arraybuffer',
         }).then((res) => {
           this.downloadfileCommon(res);
         });
       },
-      getFullCanvasDataURL(divId){
+      getFullCanvasDataURL(divId) {
         //将第一个画布作为基准。
-        var baseCanvas = $("#"+divId).find("canvas").first()[0];
-        if(!baseCanvas){
+        var baseCanvas = $('#' + divId)
+          .find('canvas')
+          .first()[0];
+        if (!baseCanvas) {
           return false;
-        };
+        }
         var width = baseCanvas.width;
         var height = baseCanvas.height;
-        var ctx = baseCanvas.getContext("2d");
+        var ctx = baseCanvas.getContext('2d');
         //遍历，将后续的画布添加到在第一个上
-        $("#"+divId).find("canvas").each(function(i,canvasObj){
-          if(i>0){
-            var canvasTmp = $(canvasObj)[0];
-            ctx.drawImage(canvasTmp,0,0,width,height);
-          }
-        });
+        $('#' + divId)
+          .find('canvas')
+          .each(function(i, canvasObj) {
+            if (i > 0) {
+              var canvasTmp = $(canvasObj)[0];
+              ctx.drawImage(canvasTmp, 0, 0, width, height);
+            }
+          });
         //获取base64位的url
         return baseCanvas.toDataURL();
       },
-      changeDate(data){
-        this.dateRange=data;
+      changeDate(data) {
+        this.dateRange = data;
         this.fetch();
       },
       formatCurrentStatus({ cellValue }) {
@@ -180,7 +162,7 @@
         let h_report = document.getElementById('linkReport_chart').clientHeight;
         let barHeight = document.getElementById('toolbar').clientHeight;
         //let h_page = document.getElementById('page_table').offsetHeight;
-        let h_page=0;
+        let h_page = 0;
         this.tableheight = h - h_report - barHeight - 2 * parseInt(padding) - h_page - 1;
       },
       drawChart(id) {
@@ -265,10 +247,9 @@
         };
 
         this.charts.setOption(options);
-
       },
       fetch() {
-        this.queryParams.alarmChart='';
+        this.queryParams.alarmChart = '';
         hongtuConfig.reportList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
           if (res.code == 200) {
             this.total = res.data.totalCount;

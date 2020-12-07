@@ -1,87 +1,69 @@
 <template>
   <div class="linkConfigTemplate">
-    <div class="head">
-      <a-form-model layout="inline" :model="queryParams" class="queryForm">
-        <a-form-model-item label="网段名称">
-          <a-input v-model="queryParams.taskName" placeholder="请输入网段名称"> </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="运行状态">
-          <a-select v-model="queryParams.triggerStatus">
-            <a-select-option value="">全部</a-select-option>
-            <a-select-option v-for="(dict, index) in triggerStatusOptions" :value="dict.dictValue" :key="index">
-              {{ dict.dictLabel }}
-            </a-select-option>
-          </a-select>
-        </a-form-model-item>
-        <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery">
-            搜索
-          </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-            重置
-          </a-button>
-        </a-form-model-item>
-      </a-form-model>
-    </div>
+    <a-form-model layout="inline" :model="queryParams" class="queryForm">
+      <a-form-model-item label="网段名称">
+        <a-input v-model="queryParams.taskName" placeholder="请输入网段名称"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="运行状态">
+        <a-select v-model="queryParams.triggerStatus">
+          <a-select-option value="">全部</a-select-option>
+          <a-select-option v-for="(dict, index) in triggerStatusOptions" :value="dict.dictValue" :key="index">
+            {{ dict.dictLabel }}
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item>
+        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+      </a-form-model-item>
+    </a-form-model>
 
-    <div id="linkManger_content">
-      <a-row type="flex" class="rowToolbar">
+    <div id="tablediv" class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleAdd">
-            新增
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete">
-            删除
-          </a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
-      <div id="tablediv">
-        <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
-          <vxe-table-column type="checkbox"></vxe-table-column>
-          <vxe-table-column field="taskName" title="网段名称"></vxe-table-column>
-          <vxe-table-column field="jobCron" title="发现策略" show-overflow></vxe-table-column>
-          <vxe-table-column field="ipRange" title="ip范围" show-overflow></vxe-table-column>
-          <vxe-table-column field="triggerStatus" title="状态" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(triggerStatusOptions, row.triggerStatus) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="jobDesc" title="描述" show-overflow></vxe-table-column>
-          <vxe-table-column field="createTime" title="创建时间" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ parseTime(row.createTime) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column width="160" field="date" title="操作">
-            <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
-                启动
-              </a-button>
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)">
-                停止
-              </a-button>
-              <a-button type="primary" icon="edit" @click="handleEdit(row)">
-                编辑
-              </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)">
-                删除
-              </a-button>
-            </template>
-          </vxe-table-column>
-        </vxe-table>
+      <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
+        <vxe-table-column type="checkbox"></vxe-table-column>
+        <vxe-table-column field="taskName" title="网段名称"></vxe-table-column>
+        <vxe-table-column field="jobCron" title="发现策略" show-overflow></vxe-table-column>
+        <vxe-table-column field="ipRange" title="ip范围" show-overflow></vxe-table-column>
+        <vxe-table-column field="triggerStatus" title="状态" show-overflow>
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(triggerStatusOptions, row.triggerStatus) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="jobDesc" title="描述" show-overflow></vxe-table-column>
+        <vxe-table-column field="createTime" title="创建时间" show-overflow>
+          <template v-slot="{ row }">
+            <span> {{ parseTime(row.createTime) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column width="260" field="date" title="操作">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
+            <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
 
-        <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="queryParams.pageNum"
-          :page-size.sync="queryParams.pageSize"
-          :total="paginationTotal"
-          :page-sizes="[10, 20, 100]"
-          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-          @page-change="handlePageChange"
-        >
-        </vxe-pager>
-      </div>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="paginationTotal"
+        :page-sizes="[10, 20, 100]"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+        @page-change="handlePageChange"
+      >
+      </vxe-pager>
     </div>
 
     <a-modal
@@ -289,14 +271,14 @@
           onCancel() {},
         });
       },
-      setTableHeight() {
-        let h = document.getElementById('tablediv').offsetHeight;
-        let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
-        let h_page = document.getElementById('page_table').offsetHeight;
+      /* setTableHeight() {
+      let h = document.getElementById('tablediv').offsetHeight;
+      let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
+      let h_page = document.getElementById('page_table').offsetHeight;
 
-        // let chartHeight = document.getElementById("chartdiv").clientHeight;
-        this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
-      },
+      // let chartHeight = document.getElementById("chartdiv").clientHeight;
+      this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
+    }, */
       startJob(row) {
         const id = row.id;
         let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
