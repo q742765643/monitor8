@@ -1,11 +1,11 @@
 <template>
-  <div class="departmentMonitorTemplate">
+  <div class="managerTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="部门名称">
         <a-input v-model="queryParams.deptName" placeholder="请输入部门名称"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="状态">
-        <a-select v-model="queryParams.status" style="width: 240px" @change="handleSelectChange">
+        <a-select v-model="queryParams.status" style="width: 120px" @change="handleSelectChange">
           <a-select-option v-for="dict in statusOptions" :key="dict.dictValue">
             {{ dict.dictLabel }}
           </a-select-option>
@@ -23,10 +23,10 @@
         </a-button>
       </a-form-model-item>
     </a-form-model>
-    <div id="tableDiv">
+    <div class="tableDateBox">
       <vxe-table :data="departmentListData" :tree-config="{}" align="center" highlight-hover-row ref="departmentListRef" border>
         <vxe-table-column field="deptName" title="部门名称" width="400" tree-node></vxe-table-column>
-        <vxe-table-column field="orderNum" title="排序" show-overflow></vxe-table-column>
+        <vxe-table-column field="orderNum" title="排序" width="160" show-overflow></vxe-table-column>
         <vxe-table-column field="status" title="状态" show-overflow>
           <template v-slot="{ row }">
               <span v-if="row.status == 0">正常 </span>
@@ -38,7 +38,7 @@
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
         </vxe-table-column>
-        <vxe-table-column title="操作" align="left">
+        <vxe-table-column title="操作" width="400" align="left">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" @click="handleUpdate(row)">
               修改
@@ -297,26 +297,4 @@ export default {
 </script>
 
 <style scoped>
-.departmentMonitorTemplate {
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-  font-family: Alibaba-PuHuiTi-Regular;
-}
-.queryForm {
-  width: 100%;
-  height: 70px;
-  background-color: #f2f2f2;
-  padding-top: 20px;
-}
-.ant-input {
-  /* width: 240px; */
-  margin-right: 20px;
-}
-#tableDiv {
-  padding: 20px 0;
-}
-.ant-radio-group {
-  padding-top: 0.14rem;
-}
 </style>

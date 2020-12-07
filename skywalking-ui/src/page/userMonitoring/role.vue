@@ -1,5 +1,5 @@
 <template>
-  <div class="roleMonitorTemplate">
+  <div class="managerTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="角色名称">
         <a-input v-model="queryParams.roleName" placeholder="请输入角色名称"> </a-input>
@@ -8,7 +8,7 @@
         <a-input v-model="queryParams.roleKey" placeholder="请输入权限字符"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="状态">
-        <a-select v-model="queryParams.status" style="width: 240px">
+        <a-select v-model="queryParams.status" style="width: 120px">
           <a-select-option v-for="dict in statusOptions" :key="dict.dictValue">
             {{ dict.dictLabel }}
           </a-select-option>
@@ -17,23 +17,35 @@
       <a-form-model-item label="创建时间">
         <a-range-picker v-model.trim="queryParams.dateRange" />
       </a-form-model-item>
-      <a-form-model-item>
+      <a-form-model-item class="roleBtn">
         <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
         <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
       </a-form-model-item>
     </a-form-model>
-    <div id="linkrole_content">
-      <a-row type="flex" class="rowToolbar">
+    <div class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
           <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+        </a-col>
+        <a-col :span="1.5">
           <a-button type="primary" icon="edit" :disabled="single" @click="handleUpdate"> 修改 </a-button>
+        </a-col>
+        <a-col :span="1.5">
           <a-button type="danger" icon="delete" :disabled="single" @click="handleDelete"> 删除 </a-button>
+        </a-col>
+        <a-col :span="1.5">
           <a-button type="primary" icon="vertical-align-bottom" @click="handleUpload"> 导出 </a-button>
         </a-col>
       </a-row>
 
-      <div id="tableDiv">
-        <vxe-table :data="roleListData" @checkbox-change="selectBox" align="center" highlight-hover-row ref="roleListRef" border>
+        <vxe-table
+          :data="roleListData"
+          @checkbox-change="selectBox"
+          align="center"
+          highlight-hover-row
+          ref="roleListRef"
+          border
+        >
           <vxe-table-column type="checkbox" width="50"></vxe-table-column>
           <vxe-table-column field="roleName" title="角色名称"></vxe-table-column>
           <vxe-table-column field="roleKey" title="权限字符"></vxe-table-column>
@@ -65,7 +77,6 @@
           @page-change="handlePageChange"
         >
         </vxe-pager>
-      </div>
     </div>
     <a-modal
       v-model="visibleModel"
@@ -278,7 +289,7 @@ export default {
               console.log(res);
               if (res.code == 200) {
                 this.$message.success(this.dialogTitle + '成功');
-                this.single = true
+                this.single = true;
                 this.visibleModel = false;
                 this.getRoleList();
               }
@@ -287,9 +298,7 @@ export default {
         }
       });
     },
-    handleCancel() {
-      
-    },
+    handleCancel() {},
     handleStatus(row) {
       console.log(row);
       row.status = row.status == '0' ? '1' : '0';
@@ -323,15 +332,15 @@ export default {
       this.getMenuTreeselect();
     },
     handleUpdate(row) {
-      console.log(row)
-      if(!row.id){
+      console.log(row);
+      if (!row.id) {
         let cellsChecked = this.$refs.roleListRef.getCheckboxRecords();
         cellsChecked.forEach((element) => {
-          this.ids = []
+          this.ids = [];
           this.ids.push(element.id);
         });
       }
-      console.log(this.ids)
+      console.log(this.ids);
       this.reset();
       const id = row.id || this.ids;
       // this.ids = [];
@@ -373,14 +382,12 @@ export default {
           hongtuConfig.roleConfigDelete(ids.join(',')).then((response) => {
             if (response.code == 200) {
               this.$message.success('删除成功');
-              this.single = true
+              this.single = true;
               this.resetQuery();
             }
           });
         },
-        onCancel() {
-          
-        },
+        onCancel() {},
       });
     },
     handleUpload() {
@@ -400,7 +407,7 @@ export default {
 </script>
 
 <style scoped>
-.roleMonitorTemplate {
+/* .roleMonitorTemplate {
   width: 100%;
   height: 100%;
   padding: 20px;
@@ -431,5 +438,5 @@ export default {
 }
 .ant-radio-group {
   padding-top: 0.14rem;
-}
+} */
 </style>

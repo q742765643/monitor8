@@ -53,7 +53,6 @@ html.body {
 }
 
 // 菜单样式
-
 .ant-menu-submenu>.ant-menu {
     background: #e5ecf4;
     border-radius: 4px;
@@ -76,11 +75,9 @@ html.body {
 .vxe-table {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
     margin-top: 20px;
-
     th {
         font-size: 16px;
     }
-
     td {
         font-size: 14px;
     }
@@ -90,8 +87,6 @@ html.body {
 .backColorF {
     background: $container_backColor;
 }
-
-
 
 //重置input，btn，label
 .ant-form-item-control,
@@ -113,6 +108,10 @@ html.body {
 
 .ant-form label {
     font-size: 16px;
+}
+
+.roleBtn {
+    margin-top: 10px;
 }
 
 //带表格查询

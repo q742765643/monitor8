@@ -1,202 +1,181 @@
 <template>
-  <div>
-    <div  class="head">
-      <a-form-model layout="inline"  :model="queryParams"  class="queryForm" ref="queryForm" >
-        <a-form-model-item label="目录名称"  prop="name">
-          <a-input v-model="queryParams.name" placeholder="请输入目录名称">
-          </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="ip" prop="ip">
-          <a-input v-model="queryParams.ip" placeholder="请输入ip">
-          </a-input>
-        </a-form-model-item>
-        <a-form-model-item >
-          <a-col :span="24" :style="{ textAlign: 'right' }">
-            <a-button type="primary" html-type="submit" @click="handleQuery">
-              搜索
-            </a-button>
-            <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-              重置
-            </a-button>
-          </a-col>
-        </a-form-model-item>
-      </a-form-model>
+  <div class="managerTemplate">
+    <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
+      <a-form-model-item label="目录名称" prop="name">
+        <a-input v-model="queryParams.name" placeholder="请输入目录名称"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="ip" prop="ip">
+        <a-input v-model="queryParams.ip" placeholder="请输入ip"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item>
+        <a-col :span="24">
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        </a-col>
+      </a-form-model-item>
+    </a-form-model>
+    <div class="tableDateBox">
+      <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
+        <vxe-table-column type="checkbox" width="80"></vxe-table-column>
+        <vxe-table-column field="taskName" title="名称"></vxe-table-column>
+        <vxe-table-column field="folderRegular" title="文件目录"> </vxe-table-column>
+        <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
+        <vxe-table-column field="isCompensation" title="是否补偿">
+          <template v-slot="{ row }">
+            <span v-if="row.isCompensation == 0">否 </span>
+            <span v-if="row.isCompensation == 1">是 </span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="handleCode" title="执行状态">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(row.handleCode) }}</span>
+          </template>
+        </vxe-table-column>
+
+        <vxe-table-column field="createTime" title="创建时间" show-overflow>
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createTime) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column width="260" field="date" title="操作">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 查看 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
+
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 100]"
+        @page-change="fetch"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+      ></vxe-pager>
     </div>
-    <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
-      <vxe-table-column type="checkbox"></vxe-table-column>
-      <vxe-table-column field="taskName" title="名称"></vxe-table-column>
-      <vxe-table-column field="folderRegular" title="文件目录"> </vxe-table-column>
-      <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
-      <vxe-table-column field="isCompensation" title="是否补偿">
-        <template v-slot="{ row }">
-          <span v-if="row.isCompensation == 0">否 </span>
-          <span v-if="row.isCompensation == 1">是 </span>
-        </template>
-      </vxe-table-column>
-      <vxe-table-column field="handleCode" title="执行状态">
-        <template v-slot="{ row }">
-          <span> {{ statusFormat(row.handleCode) }}</span>
-        </template>
-      </vxe-table-column>
-
-      <vxe-table-column field="createTime" title="创建时间" show-overflow>
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </vxe-table-column>
-      <vxe-table-column width="160" field="date" title="操作">
-        <template v-slot="{ row }">
-          <a-button type="primary" icon="edit" @click="handleUpdate(row)">
-            查看
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete(row)">
-            删除
-          </a-button>
-        </template>
-      </vxe-table-column>
-    </vxe-table>
-
-    <vxe-pager
-            id="page_table"
-            perfect
-            :current-page.sync="queryParams.pageNum"
-            :page-size.sync="queryParams.pageSize"
-            :total="total"
-            :page-sizes="[10, 20, 100]"
-            @page-change="fetch"
-            :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-    ></vxe-pager>
-      <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消"
-             width="50%" >
-      <a-form-model  :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" :model="form" ref="form" >
-        <a-form-model-item  label="名称"  prop="name">
-          <a-input v-model="form.name" placeholder="请输入名称">
-          </a-input>
+    <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消" width="50%">
+      <a-form-model :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" :model="form" ref="form">
+        <a-form-model-item label="名称" prop="name">
+          <a-input v-model="form.name" placeholder="请输入名称"> </a-input>
         </a-form-model-item>
-        <a-form-model-item  label="远程ip"  prop="ip">
-          <a-input v-model="form.ip" placeholder="请输入ip">
-          </a-input>
+        <a-form-model-item label="远程ip" prop="ip">
+          <a-input v-model="form.ip" placeholder="请输入ip"> </a-input>
         </a-form-model-item>
-        <a-form-model-item  label="用户名"  prop="user">
-          <a-input v-model="form.user" placeholder="请输入用户名">
-          </a-input>
+        <a-form-model-item label="用户名" prop="user">
+          <a-input v-model="form.user" placeholder="请输入用户名"> </a-input>
         </a-form-model-item>
-        <a-form-model-item  label="密码"  prop="pass">
-          <a-input v-model="form.pass" placeholder="请输入密码">
-          </a-input>
+        <a-form-model-item label="密码" prop="pass">
+          <a-input v-model="form.pass" placeholder="请输入密码"> </a-input>
         </a-form-model-item>
       </a-form-model>
     </a-modal>
   </div>
-
 </template>
 
 <script>
-  import request from "@/utils/request";
-  export default {
-    data() {
-      return {
-        tableData: [],
-        total: 0,
-        // 日期范围
-        dateRange: [],
-        // 查询参数
-        queryParams: {
-          pageNum: 1,
-          pageSize: 10,
-          name: undefined,
-          ip: undefined
-        },
-        form: {},
-        title: "",
-        ids: [],
-        names: [],
-        visible : false,
-        handleCodeOptions:[]
-      };
-    },
-    created(){
-      this.getDicts("job_running_state").then(response => {
+import request from '@/utils/request';
+export default {
+  data() {
+    return {
+      tableData: [],
+      total: 0,
+      // 日期范围
+      dateRange: [],
+      // 查询参数
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+        name: undefined,
+        ip: undefined,
+      },
+      form: {},
+      title: '',
+      ids: [],
+      names: [],
+      visible: false,
+      handleCodeOptions: [],
+    };
+  },
+  created() {
+    this.getDicts('job_running_state').then((response) => {
+      if(response.code == 200) {
         this.handleCodeOptions = response.data;
-      });
+      }
+    });
+  },
+  mounted() {
+    this.fetch();
+  },
+  computed: {},
+  methods: {
+    statusFormat(status) {
+      return this.selectDictLabel(this.handleCodeOptions, status);
     },
-    mounted() {
+    rowSelection({ selection }) {
+      this.ids = selection.map((item) => item.id);
+      this.names = selection.map((item) => item.name);
+    },
+    handleQuery() {
+      this.queryParams.pageNum = 1;
       this.fetch();
     },
-    computed: {
-
+    resetQuery() {
+      this.dateRange = [];
+      this.$refs.queryForm.resetFields();
+      this.handleQuery();
     },
-    methods: {
-      statusFormat(status) {
-        return this.selectDictLabel(this.handleCodeOptions,status);
-      },
-      rowSelection({selection}) {
-        this.ids = selection.map(item => item.id);
-        this.names = selection.map(item => item.name);
-      },
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.fetch();
-      },
-      resetQuery() {
-        this.dateRange = [];
-        this.$refs.queryForm.resetFields();
-        this.handleQuery();
-      },
-      fetch() {
-        request({
-          url:'/fileMonitorLog/list',
-          method: 'get',
-          params: this.addDateRange(this.queryParams, this.dateRange)
-        }).then(data => {
-          this.tableData = data.data.pageData;
-          this.total = data.data.totalCount;
-        });
-      },
-      handleUpdate(row) {
-        this.form={};
-        const id = row.id || this.ids;
-        request({
-          url: '/fileMonitorLog/' + id,
-          method: 'get'
-        }).then(response => {
-          this.form = response.data;
-          this.visible = true;
-          this.title = "查看日志详情";
-        });
-      },
-      handleDelete(row) {
-        const ids = row.id || this.ids;
-        const names = row.name || this.names;
-        this.$confirm({
-          title:  '是否确认删除名称为"' + names + '"的数据项?',
-          content: '',
-          okText: '是',
-          okType: 'danger',
-          cancelText: '否',
-          onOk:()=> {
-            request({
-              url: '/fileMonitorLog/' + ids,
-              method: 'delete'
-            }).then((response) => {
-              if (response.code === 200) {
-                this.fetch();
-                this.msgError("删除成功!");
-              } else {
-                this.msgError(response.msg);
-              }
-            })
-          },
-          onCancel() {
-
-          },
-        });
-      }
+    fetch() {
+      request({
+        url: '/fileMonitorLog/list',
+        method: 'get',
+        params: this.addDateRange(this.queryParams, this.dateRange),
+      }).then((data) => {
+        this.tableData = data.data.pageData;
+        this.total = data.data.totalCount;
+      });
     },
-  };
+    handleUpdate(row) {
+      this.form = {};
+      const id = row.id || this.ids;
+      request({
+        url: '/fileMonitorLog/' + id,
+        method: 'get',
+      }).then((response) => {
+        this.form = response.data;
+        this.visible = true;
+        this.title = '查看日志详情';
+      });
+    },
+    handleDelete(row) {
+      const ids = row.id || this.ids;
+      const names = row.name || this.names;
+      this.$confirm({
+        title: '是否确认删除名称为"' + names + '"的数据项?',
+        content: '',
+        okText: '是',
+        okType: 'danger',
+        cancelText: '否',
+        onOk: () => {
+          request({
+            url: '/fileMonitorLog/' + ids,
+            method: 'delete',
+          }).then((response) => {
+            if (response.code === 200) {
+              this.fetch();
+              this.msgError('删除成功!');
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+  },
+};
 </script>
 <style scoped>
-.head .ant-form-item {
-  margin-bottom: 0.1895rem;
-}
 </style>

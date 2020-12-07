@@ -5,7 +5,7 @@
         <a-input v-model="queryParams.taskName" placeholder="请输入网段名称"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="运行状态">
-        <a-select v-model="queryParams.triggerStatus">
+        <a-select v-model="queryParams.triggerStatus" style="width: 120px">
           <a-select-option value="">全部</a-select-option>
           <a-select-option v-for="(dict, index) in triggerStatusOptions" :value="dict.dictValue" :key="index">
             {{ dict.dictLabel }}
@@ -196,6 +196,7 @@
           this.paginationTotal = response.data.totalCount;
         });
       },
+
       /* 字典格式化 */
       statusFormat(list, text) {
         return hongtuConfig.formatterselectDictLabel(list, text);
@@ -308,28 +309,4 @@
 </script>
 
 <style lang="scss" scoped>
-  .linkConfigTemplate {
-    width: 100%;
-    height: 100%;
-    font-family: Alibaba-PuHuiTi-Regular;
-
-    .head {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      height: 1.25rem;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.1rem;
-    }
-
-    #linkManger_content {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      // height: calc(100% - 1.5rem);
-      background: white;
-      padding: 0.25rem;
-      overflow: hidden;
-    }
-  }
 </style>

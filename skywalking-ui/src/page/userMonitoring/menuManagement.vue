@@ -1,27 +1,25 @@
 <template>
-  <div class="menuManTemplate">
-    <div class="head">
-      <a-form-model layout="inline" :model="queryParams" class="queryForm">
-        <a-form-model-item label="菜单名称">
-          <a-input v-model="queryParams.menuName" placeholder="请输入菜单名称"> </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="状态">
-          <a-select v-model="queryParams.visible">
-            <a-select-option value="">全部</a-select-option>
-            <a-select-option :value="dict.dictValue" v-for="dict in visibleOptions" :key="dict.dictValue">
-              {{ dict.dictLabel }}
-            </a-select-option>
-          </a-select>
-        </a-form-model-item>
-        <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-        </a-form-model-item>
-      </a-form-model>
-    </div>
+  <div class="managerTemplate">
+    <a-form-model layout="inline" :model="queryParams" class="queryForm">
+      <a-form-model-item label="菜单名称">
+        <a-input v-model="queryParams.menuName" placeholder="请输入菜单名称"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="状态">
+        <a-select v-model="queryParams.visible" style="width: 120px">
+          <a-select-option value="">全部</a-select-option>
+          <a-select-option :value="dict.dictValue" v-for="dict in visibleOptions" :key="dict.dictValue">
+            {{ dict.dictLabel }}
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item>
+        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+      </a-form-model-item>
+    </a-form-model>
 
-    <div id="linkManger_content">
-      <a-row type="flex" class="rowToolbar">
+    <div class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
           <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
         </a-col>
@@ -29,31 +27,29 @@
           <a-button type="primary" icon="plus" @click="handleLogin"> 登录 </a-button>
         </a-col> -->
       </a-row>
-      <div id="tablediv">
-        <vxe-table :data="tableData" align="center" :tree-config="{}" highlight-hover-row ref="tablevxe">
-          <vxe-table-column field="menuName" title="菜单名称" tree-node></vxe-table-column>
-          <vxe-table-column field="icon" title="图标" show-overflow></vxe-table-column>
-          <vxe-table-column field="orderNum" title="排序" show-overflow></vxe-table-column>
-          <vxe-table-column field="component" title="组件路径" show-overflow></vxe-table-column>
-          <vxe-table-column field="visible" title="可见" show-overflow>
-            <template v-slot="{ row }">
-              <span v-if="row.visible == 0">显示 </span>
-              <span v-if="row.visible == 1">隐藏 </span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="createTime" title="创建时间" show-overflow>
-            <template v-slot="{ row }">
-              <span> {{ parseTime(row.createTime) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column width="160" field="date" title="操作">
-            <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
-            </template>
-          </vxe-table-column>
-        </vxe-table>
-      </div>
+      <vxe-table :data="tableData" align="center" :tree-config="{}" highlight-hover-row ref="tablevxe">
+        <vxe-table-column field="menuName" title="菜单名称" tree-node></vxe-table-column>
+        <vxe-table-column field="icon" title="图标" show-overflow></vxe-table-column>
+        <vxe-table-column field="orderNum" title="排序" show-overflow></vxe-table-column>
+        <vxe-table-column field="component" title="组件路径" show-overflow></vxe-table-column>
+        <vxe-table-column field="visible" title="可见" show-overflow>
+          <template v-slot="{ row }">
+            <span v-if="row.visible == 0">显示 </span>
+            <span v-if="row.visible == 1">隐藏 </span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="createTime" title="创建时间" show-overflow>
+          <template v-slot="{ row }">
+            <span> {{ parseTime(row.createTime) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column width="260" field="date" title="操作">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
     </div>
     <a-modal
       v-model="visibleModel"
@@ -105,7 +101,12 @@
           </a-col>
 
           <a-col :span="24">
-            <a-form-model-item label="菜单图标" v-if="formDialog.menuType != 'F'" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item
+              label="菜单图标"
+              v-if="formDialog.menuType != 'F'"
+              :label-col="{ span: 3 }"
+              :wrapperCol="{ span: 20 }"
+            >
               <a-popover title="请选择菜单图标" trigger="click" placement="bottomLeft">
                 <div slot="content" class="iconFontBox">
                   <div
@@ -267,7 +268,7 @@ export default {
     resetQuery() {
       this.queryParams = {
         menuName: undefined,
-        visible: "",
+        visible: '',
       };
       this.queryTable();
     },
@@ -276,7 +277,7 @@ export default {
     queryTable() {
       hongtuConfig.menuList(this.queryParams).then((response) => {
         this.tableData = response.data;
-        console.log(response.data)
+        console.log(response.data);
       });
     },
     /* 字典格式化 */
@@ -285,9 +286,9 @@ export default {
     },
     handleAdd() {
       /* 新增 */
-      this.reset()
-      this.getTreeselect()
-      console.log(this.menuOptions)
+      this.reset();
+      this.getTreeselect();
+      console.log(this.menuOptions);
       this.dialogTitle = '新增';
       this.formDialog = {
         taskName: '',
@@ -301,7 +302,7 @@ export default {
     /** 查询菜单下拉树结构 */
     getTreeselect() {
       hongtuConfig.menuTreeselect().then((res) => {
-        console.log(res)
+        console.log(res);
         this.menuOptions = [];
         const menu = { id: 0, label: '主类目', children: [] };
         if (this.dialogTitle == '修改菜单') {
@@ -330,20 +331,19 @@ export default {
         parentId: 0,
         menuName: undefined,
         icon: undefined,
-        menuType: "M",
+        menuType: 'M',
         orderNum: undefined,
         isFrame: 1,
-        visible: "",
+        visible: '',
       };
       // this.resetForm("formModel");
       // this.formDialog.parentId = undefined
     },
     /* 编辑 */
     handleEdit(row) {
-      
-      this.reset()
-      console.log(this.formDialog.parentId)
-      this.getTreeselect()
+      this.reset();
+      console.log(this.formDialog.parentId);
+      this.getTreeselect();
       hongtuConfig.getMenu(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;
@@ -362,24 +362,23 @@ export default {
       console.log(this.formDialog);
       this.$refs.formModel.validate((valid) => {
         if (valid) {
-          if(this.formDialog.id){
+          if (this.formDialog.id) {
             hongtuConfig.updateMenu(this.formDialog).then((response) => {
-            if (response.code == 200) {
-              this.$message.success(this.dialogTitle + '成功');
-              this.visibleModel = false;
-              this.queryTable();
-            }
-          });
-          }else {
+              if (response.code == 200) {
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
+                this.queryTable();
+              }
+            });
+          } else {
             hongtuConfig.addMenu(this.formDialog).then((res) => {
-              if(res.code == 200) {
-                this.$message.success('新增成功')
-                this.visibleModel = false
-                this.queryTable()
-              } 
-            })
+              if (res.code == 200) {
+                this.$message.success('新增成功');
+                this.visibleModel = false;
+                this.queryTable();
+              }
+            });
           }
-          
         } else {
           console.log('error submit!!');
           return false;
@@ -387,7 +386,7 @@ export default {
       });
     },
     handleCancel() {
-      this.visibleModel = false
+      this.visibleModel = false;
       this.reset();
     },
     // handleLogin() {
@@ -437,57 +436,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.menuManTemplate {
-  width: 100%;
-  height: 100%;
-  font-family: Alibaba-PuHuiTi-Regular;
-
-  .head {
-    box-shadow: $plane_shadow;
-    width: 100%;
-    height: 1.25rem;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.1rem;
-  }
-
-  #linkManger_content {
-    box-shadow: $plane_shadow;
-    width: 100%;
-    // height: calc(100% - 1.5rem);
-    background: white;
-    padding: 0.25rem;
-    overflow: hidden;
-  }
-}
-.dialogBox {
-  .ant-input-number {
-    width: 100%;
-  }
-  .iconChosedBox {
-    position: absolute;
-    left: 10px;
-    bottom: -12px;
-    font-size: 0.1875rem;
-  }
-  .iconInput {
-    color: rgba(0, 0, 0, 0);
-  }
-}
-.iconFontBox {
-  width: 420px;
-  display: flex;
-  flex-wrap: wrap;
-  cursor: pointer;
-
-  div {
-    width: 20%;
-  }
-}
-</style>
-<style scoped>
-.ant-radio-group {
-  padding-top: 0.13rem;
-}
 </style>

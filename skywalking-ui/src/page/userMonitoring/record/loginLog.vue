@@ -1,5 +1,5 @@
 <template>
-  <div class="operlogMonitorTemplate">
+  <div class="managerTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="登录地址">
         <a-input v-model="queryParams.ipaddr" placeholder="请输入登录地址"> </a-input>
@@ -22,47 +22,56 @@
         <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
       </a-form-model-item>
     </a-form-model>
-    <div id="linkrole_content">
-      <a-row type="flex" class="rowToolbar">
+    <div class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
           <a-button type="danger" icon="delete" :disabled="single" @click="handleDelete"> 删除 </a-button>
+        </a-col>
+        <a-col :span="1.5">
           <a-button type="danger" icon="delete" @click="handleClean"> 清空 </a-button>
+        </a-col>
+        <a-col :span="1.5">
           <a-button type="primary" icon="vertical-align-bottom" @click="handleExport"> 导出 </a-button>
         </a-col>
       </a-row>
 
-      <div id="tableDiv">
-        <vxe-table :data="loginListData" @checkbox-change="selectBox" align="center" highlight-hover-row ref="loginListRef" border>
-          <vxe-table-column type="checkbox" width="50"></vxe-table-column>
-          <vxe-table-column field="userName" title="用户名称"></vxe-table-column>
-          <vxe-table-column field="ipaddr" title="登录地址"></vxe-table-column>
-          <vxe-table-column field="loginLocation" title="登录地点"></vxe-table-column>
-          <vxe-table-column field="browser" title="浏览器"></vxe-table-column>
-          <vxe-table-column field="os" title="操作系统"></vxe-table-column>
-          <vxe-table-column field="status" title="登录状态">
-            <template v-slot="{ row }">
-              <span> {{ statusFormat(statusOptions, row.status) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="msg" title="操作信息"></vxe-table-column>
-          <vxe-table-column field="loginTime" title="登录日期">
-            <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.loginTime) }}</span>
-            </template>
-          </vxe-table-column>
-        </vxe-table>
-        <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="queryParams.pageNum"
-          :page-size.sync="queryParams.pageSize"
-          :total="paginationTotal"
-          :page-sizes="[10, 20, 100]"
-          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-          @page-change="handlePageChange"
-        >
-        </vxe-pager>
-      </div>
+      <vxe-table
+        :data="loginListData"
+        @checkbox-change="selectBox"
+        align="center"
+        highlight-hover-row
+        ref="loginListRef"
+        border
+      >
+        <vxe-table-column type="checkbox" width="50"></vxe-table-column>
+        <vxe-table-column field="userName" title="用户名称"></vxe-table-column>
+        <vxe-table-column field="ipaddr" title="登录地址"></vxe-table-column>
+        <vxe-table-column field="loginLocation" title="登录地点"></vxe-table-column>
+        <vxe-table-column field="browser" title="浏览器"></vxe-table-column>
+        <vxe-table-column field="os" title="操作系统"></vxe-table-column>
+        <vxe-table-column field="status" title="登录状态">
+          <template v-slot="{ row }">
+            <span> {{ statusFormat(statusOptions, row.status) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="msg" title="操作信息"></vxe-table-column>
+        <vxe-table-column field="loginTime" width="160" title="登录日期">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.loginTime) }}</span>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="paginationTotal"
+        :page-sizes="[10, 20, 100]"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+        @page-change="handlePageChange"
+      >
+      </vxe-pager>
     </div>
   </div>
 </template>
@@ -108,7 +117,7 @@ export default {
     handleExport() {
       hongtuConfig.exportLogininfor(this.queryParams).then((res) => {
         this.downloadfileCommon(res);
-      })
+      });
     },
     getLoginList() {
       if (this.queryParams.dateRange) {
@@ -123,8 +132,8 @@ export default {
       });
     },
     handleQuery() {
-      this.queryParams.pageNum = 1
-      this.getLoginList()
+      this.queryParams.pageNum = 1;
+      this.getLoginList();
     },
     handleClean() {
       this.$confirm({
@@ -135,20 +144,20 @@ export default {
         cancelText: '取消',
         onOk: () => {
           hongtuConfig.cleanLogininfor().then((res) => {
-            if(res.code == 200) {
+            if (res.code == 200) {
               this.getLoginList();
-              this.$message.success('清空成功')
+              this.$message.success('清空成功');
             }
           });
         },
         onCancel() {},
       });
     },
-    statusFormat(list,text) {
-      return hongtuConfig.formatterselectDictLabel(list,text)
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
     },
     resetQuery() {
-      this.dateRange = []
+      this.dateRange = [];
       this.queryParams = {
         loginLocation: undefined,
         userName: undefined,
@@ -165,10 +174,10 @@ export default {
     },
     handleDelete() {
       let ids = [];
-      let cellsChecked = this.$refs.loginListRef.getCheckboxRecords()
+      let cellsChecked = this.$refs.loginListRef.getCheckboxRecords();
       cellsChecked.forEach((element) => {
-        ids.push(element.id)
-      })
+        ids.push(element.id);
+      });
       this.$confirm({
         title: '是否确认删除访问编号为"' + ids + '"的数据项?',
         content: '',
@@ -177,10 +186,10 @@ export default {
         cancelText: '取消',
         onOk: () => {
           hongtuConfig.delLogininfor(ids).then((res) => {
-            if(res.code == 200) {
+            if (res.code == 200) {
               this.getLoginList();
               this.single = true;
-              this.$message.success('删除成功')
+              this.$message.success('删除成功');
             }
           });
         },
@@ -198,30 +207,5 @@ export default {
 </script>
 
 <style scoped>
-.operlogMonitorTemplate {
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-  font-family: Alibaba-PuHuiTi-Regular;
-}
-.queryForm {
-  width: 100%;
-  height: 90px;
-  background: #f2f2f2;
-  border-radius: 8px;
-  padding-top: 20px;
-}
-.ant-form-item {
-  margin-bottom: 15px;
-}
-.ant-input {
-  width: 240px;
-  margin-right: 20px;
-}
-#linkrole_content {
-  padding: 20px 0;
-}
-#tableDiv {
-  margin-top: 20px;
-}
+
 </style>
