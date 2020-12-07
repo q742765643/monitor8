@@ -39,13 +39,13 @@ import 'echarts/lib/component/tooltip';
 import VModal from 'vue-js-modal';
 import { queryOAPTimeInfo } from './utils/localtime';
 import './assets';
-// import ElementUI from 'element-ui';
-// import 'element-ui/lib/theme-chalk/index.css';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 import Pagination from '@/components/Pagination/index.vue';
 import { parseTime, resetForm, addDateRange, getDicts, selectDictLabel, downloadfileCommon } from '@/components/util';
 import '@/assets/iconfont/iconfont.css';
 // import 'lib-flexible';
-import './views/utils/flexible'
+import './views/utils/flexible';
 import { Button } from 'ant-design-vue';
 
 //VXETable
@@ -57,7 +57,7 @@ import { FormModel } from 'ant-design-vue';
 //全局引入 cron表达式
 import VueCron from 'vue-cron';
 Vue.use(VueCron); //使用方式：<vueCron></vueCron>
-// Vue.use(ElementUI);
+Vue.use(ElementUI);
 Vue.use(FormModel);
 Vue.use(VXETable);
 Vue.use(Antd);
