@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="alarmMonitoringTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="任务名称">
         <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>

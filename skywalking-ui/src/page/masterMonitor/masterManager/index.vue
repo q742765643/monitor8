@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="masterManagerTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="ip地址">
         <a-input v-model="queryParams.ip" placeholder="请输入ip地址"> </a-input>

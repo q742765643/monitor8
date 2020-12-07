@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="fileLogTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
       <a-form-model-item label="目录名称" prop="name">
         <a-input v-model="queryParams.name" placeholder="请输入目录名称"> </a-input>
@@ -45,19 +45,19 @@
         </vxe-table-column>
       </vxe-table>
 
-    <vxe-pager
-            id="page_table"
-            perfect
-            :current-page.sync="queryParams.pageNum"
-            :page-size.sync="queryParams.pageSize"
-            :total="total"
-            :page-sizes="[10, 20, 100]"
-            @page-change="fetch"
-            :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-    ></vxe-pager>
-      <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消"
-             width="70%" >
-      <a-form-model    :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form" >
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 100]"
+        @page-change="fetch"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+      ></vxe-pager>
+    </div>
+    <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消" width="70%">
+      <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form">
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="任务名称" prop="taskName">
@@ -93,25 +93,21 @@
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="远程目录" prop="remotePath">
-              <a-input v-model="form.remotePath" > </a-input>
+              <a-input v-model="form.remotePath"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="时区" prop="isUt">
               <a-select v-model="form.isUt">
-                <a-select-option :value="0">
-                  北京时
-                </a-select-option>
-                <a-select-option :value="1">
-                  世界时
-                </a-select-option>
+                <a-select-option :value="0"> 北京时 </a-select-option>
+                <a-select-option :value="1"> 世界时 </a-select-option>
               </a-select>
             </a-form-model-item>
           </a-col>
 
-          <a-col :span="24" >
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg" >
-              <a-input type="textarea" v-model="form.handleMsg" > </a-input>
+          <a-col :span="24">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg">
+              <a-input type="textarea" v-model="form.handleMsg"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>

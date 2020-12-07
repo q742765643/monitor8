@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="roleTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="角色名称">
         <a-input v-model="queryParams.roleName" placeholder="请输入角色名称"> </a-input>
@@ -325,8 +325,18 @@ export default {
         onCancel() {},
       });
     },
-    onExpand() {},
-    onSelect() {},
+    onExpand(expandedKeys) {
+      this.expandedKeys = expandedKeys;
+      this.autoExpandParent = false;
+    },
+    onCheck(checkedKeys) {
+      console.log('onCheck', checkedKeys);
+      this.checkedKeys = checkedKeys;
+    },
+    onSelect(selectedKeys, info) {
+      console.log('onSelect', info);
+      this.selectedKeys = selectedKeys;
+    },
     // 根据角色ID查询菜单树结构
     getRoleMenuTreeselect(id) {
       this.getMenuTreeselect();

@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="menuManagementTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="菜单名称">
         <a-input v-model="queryParams.menuName" placeholder="请输入菜单名称"> </a-input>
