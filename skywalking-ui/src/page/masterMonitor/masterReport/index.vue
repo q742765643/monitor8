@@ -1,58 +1,45 @@
 <template>
-  <div id="reportMater">
+  <div id="reportMaterTemplate">
     <selectDate @changeDate="changeDate"></selectDate>
 
-    <div id="content">
-      <div id="title">服务器监视情况</div>
+    <div class="tableDateBox">
+      <p id="title">服务器监视情况</p>
       <div id="dataPlane">
         <div id="report_chartdiv">
           <div id="alarmChart"></div>
           <div id="useageChart"></div>
         </div>
-        <div id="table">
-          <div id="toolbar">
-            <vxe-toolbar custom>
-              <template v-slot:buttons>
-                <!--   <vxe-button @click="exportEventXls">导出excel</vxe-button>
-                <vxe-button @click="exportEventPdf">导出pdf</vxe-button> -->
-                <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
-                <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
-              </template>
-            </vxe-toolbar>
-          </div>
+        <div id="toolbar">
+          <vxe-toolbar custom>
+            <template v-slot:buttons>
+              <a-row type="flex" class="rowToolbar" :gutter="10">
+                <a-col :span="1.5">
+                  <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
+                </a-col>
+                <a-col :span="1.5">
+                  <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
+                </a-col>
+              </a-row>
+            </template>
+          </vxe-toolbar>
         </div>
-        <div id="tablediv">
-          <vxe-table border ref="xTable" :height="tableheight" :data="tableData">
-            <!--<vxe-table-column field="number" title="序号"></vxe-table-column>-->
-            <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
-            <vxe-table-column field="ip" title="IP地址" show-overflow></vxe-table-column>
-            <vxe-table-column field="updateTime" title="最新时间" show-overflow>
-              <template slot-scope="scope">
-                <span>{{ parseTime(scope.row.updateTime) }}</span>
-              </template>
-            </vxe-table-column>
-            <vxe-table-column field="maxUptime" title="连续在线时长(时)" show-overflow></vxe-table-column>
-            <vxe-table-column field="alarmCount" title="告警次数"></vxe-table-column>
-            <vxe-table-column field="downCount" title="宕机次数"></vxe-table-column>
-            <vxe-table-column field="downTime" title="宕机总时长(时)"></vxe-table-column>
-            <vxe-table-column field="maxCpuPct" title="CPU最高使用率(%)"></vxe-table-column>
-            <vxe-table-column field="maxMemoryPct" title="内存最高使用率(%)"></vxe-table-column>
-            <vxe-table-column field="maxFilesystemPct" title="磁盘最高占用率(%)"></vxe-table-column>
-            <vxe-table-column field="maxProcessSize" title="最多进程数"></vxe-table-column>
-          </vxe-table>
-
-          <!--        <vxe-pager
-            id="page_table"
-            perfect
-            :current-page.sync="queryParams.pageNum"
-            :page-size.sync="queryParams.pageSize"
-            :total="total"
-            :page-sizes="[10, 20, 100]"
-            @page-change="fetch"
-            :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-          >
-          </vxe-pager>-->
-        </div>
+        <vxe-table border ref="xTable" :height="tableheight" :data="tableData">
+          <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
+          <vxe-table-column field="ip" title="IP地址" show-overflow></vxe-table-column>
+          <vxe-table-column field="updateTime" title="最新时间" show-overflow>
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.updateTime) }}</span>
+            </template>
+          </vxe-table-column>
+          <vxe-table-column field="maxUptime" title="连续在线时长(时)" show-overflow></vxe-table-column>
+          <vxe-table-column field="alarmCount" title="告警次数"></vxe-table-column>
+          <vxe-table-column field="downCount" title="宕机次数"></vxe-table-column>
+          <vxe-table-column field="downTime" title="宕机总时长(时)"></vxe-table-column>
+          <vxe-table-column field="maxCpuPct" title="CPU最高使用率(%)"></vxe-table-column>
+          <vxe-table-column field="maxMemoryPct" title="内存最高使用率(%)"></vxe-table-column>
+          <vxe-table-column field="maxFilesystemPct" title="磁盘最高占用率(%)"></vxe-table-column>
+          <vxe-table-column field="maxProcessSize" title="最多进程数"></vxe-table-column>
+        </vxe-table>
       </div>
     </div>
   </div>
@@ -110,8 +97,6 @@
       this.$nextTick(() => {});
 
       window.addEventListener('resize', () => {
-        this.setTableHeight();
-
         setTimeout(() => {
           this.alarmChart.resize();
           this.useageChart.resize();
@@ -456,7 +441,6 @@
           this.total = data.data.totalCount;
           this.tableData = data.data.pageData;
           this.initData(); //数据
-          this.setTableHeight();
           this.initSeries(); //series
           this.initYaxis(); //Y轴
           this.drawChart(
@@ -482,93 +466,33 @@
 </script>
 
 <style lang="scss" scoped>
-  #reportMater {
-    select {
-      font-family: 'Alibaba-PuHuiTi-Regular' !important;
-    }
+  #reportMaterTemplate {
     width: 100%;
     height: 100%;
-
-    /*  padding: 0.5rem 0.375rem 0.375rem 0.2rem; */
-    #header {
-      z-index: 1;
-      width: 100%;
-      height: 1.25rem;
-      // line-height: 1.25rem;
-      font-size: 0.2rem;
-      //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
-      box-shadow: $plane_shadow;
-      margin-bottom: 0.1rem;
-      #selectType {
-        display: inline-block;
-        width: 50%;
-        line-height: 1.25rem;
-        text-align: center;
-        /*  #option {
-        margin-left: 0.1rem;
-        height: 0.375rem;
-        width: 3.2rem;
-        border: 1px solid #dcdfe6;
-        border-radius: 0.05rem;
-        &:focus {
-          outline: none !important;
-          border: 1px solid #0f9fec !important;
-        }
-      } */
-      }
-      #timePicker {
-        display: inline-block;
-        // width: 50%;
-        // line-height: 1.25rem;
-      }
+    #title {
+      border-bottom: solid 2px $plane_border_color;
+      font-size: 20px;
+      height: 56px;
+      line-height: 56px;
+      text-align: center;
     }
-    #content {
-      // overflow: hidden;
-      overflow-x: hidden;
-      // box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
-      box-shadow: $plane_shadow;
+    #dataPlane {
       width: 100%;
-      height: calc(100% - 1.35rem);
-      background: white;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      overflow: auto;
-      #title {
-        margin: 0 auto;
-        text-align: center;
-        width: 90%;
-        font-size: 0.3rem;
-        height: 0.75rem;
-        line-height: 0.75rem;
-        border-bottom: 1px solid #bddfeb8f;
-      }
-      #dataPlane {
-        // height: calc(100% - 0.75rem);
+      flex-direction: column;
+      #report_chartdiv {
+        flex: 1;
         width: 100%;
+        height: 360px;
         display: flex;
-        flex-direction: column;
-        #report_chartdiv {
-          flex: 1;
-          width: 100%;
-          display: flex;
-          #alarmChart {
-            // height: calc(100% - 0.125rem);
-            width: 59%;
-          }
-          #useageChart {
-            // height: calc(100% - 0.125rem);
-            width: 50%;
-          }
+        margin-bottom: 14px;
+        #alarmChart {
+          width: 50%;
+          height: 100%;
         }
-        #table {
-          margin-left: 0.25rem;
-        }
-        #tablediv {
-          // flex: 2;
-          width: 100%;
-          padding: 0.25rem;
-          //background: pink;
+        #useageChart {
+          height: 100%;
+          width: 50%;
         }
       }
     }

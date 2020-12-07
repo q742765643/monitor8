@@ -96,7 +96,9 @@ html.body {
 //重置input，btn，label
 .ant-form-item-control,
 .ant-form-item-label,
-.ant-select-selection__rendered {
+.ant-select-selection__rendered,
+.el-date-editor .el-range__icon,
+    {
     line-height: 32px;
 }
 
@@ -111,8 +113,18 @@ html.body {
     padding: 0 15px;
 }
 
+.el-input__inner {
+    height: 32px;
+    line-height: 32px;
+}
+
 .ant-form label {
     font-size: 16px;
+}
+
+.el-date-editor .el-range__icon,
+.el-date-editor .el-range-separator {
+    line-height: 24px;
 }
 
 //带表格查询
