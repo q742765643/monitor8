@@ -1,91 +1,75 @@
 <template>
   <div class="fileMonitorTemplate">
-    <div class="head">
-      <a-form-model layout="inline" :model="queryParams" class="queryForm">
-        <a-form-model-item label="任务名称">
-          <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="时间">
-          <a-range-picker
-            @change="onTimeChange"
-            :show-time="{
-              hideDisabledOptions: true,
-              defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-            }"
-            format="YYYY-MM-DD HH:mm:ss"
-          />
-        </a-form-model-item>
-        <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery">
-            搜索
-          </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-            重置
-          </a-button>
-        </a-form-model-item>
-      </a-form-model>
-    </div>
+    <a-form-model layout="inline" :model="queryParams" class="queryForm">
+      <a-form-model-item label="任务名称">
+        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="时间">
+        <a-range-picker
+          @change="onTimeChange"
+          :show-time="{
+            hideDisabledOptions: true,
+            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
+          }"
+          format="YYYY-MM-DD HH:mm:ss"
+        />
+      </a-form-model-item>
+      <a-form-model-item>
+        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+      </a-form-model-item>
+    </a-form-model>
 
-    <div id="linkManger_content">
-      <a-row type="flex" class="rowToolbar">
+    <div class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
-          <a-button type="primary" icon="plus" @click="handleAdd">
-            新增
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete">
-            删除
-          </a-button>
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
-      <div id="tablediv">
-        <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
-          <vxe-table-column type="checkbox"></vxe-table-column>
-          <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
-          <vxe-table-column field="triggerStatus" title="状态" show-overflow>
-            <template v-slot="{ row }">
-              <span v-if="row.triggerStatus == 0">未启动 </span>
-              <span v-if="row.triggerStatus == 1">启动 </span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="fileNum" title="应到数量" show-overflow></vxe-table-column>
-          <vxe-table-column field="fileSize" title="应到大小" show-overflow></vxe-table-column>
-          <vxe-table-column field="isUt" title="时区" show-overflow>
-            <template v-slot="{ row }">
-              <span v-if="row.isUt == 0">北京时 </span>
-              <span v-if="row.isUt == 1">世界时 </span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
-          <vxe-table-column width="160" field="date" title="操作">
-            <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
-                启动
-              </a-button>
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)">
-                停止
-              </a-button>
-              <a-button type="primary" icon="edit" @click="handleEdit(row)">
-                编辑
-              </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)">
-                删除
-              </a-button>
-            </template>
-          </vxe-table-column>
-        </vxe-table>
+      <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
+        <vxe-table-column type="checkbox"></vxe-table-column>
+        <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
+        <vxe-table-column field="triggerStatus" title="状态" show-overflow>
+          <template v-slot="{ row }">
+            <span v-if="row.triggerStatus == 0">未启动 </span>
+            <span v-if="row.triggerStatus == 1">启动 </span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="fileNum" title="应到数量" show-overflow></vxe-table-column>
+        <vxe-table-column field="fileSize" title="应到大小" show-overflow></vxe-table-column>
+        <vxe-table-column field="isUt" title="时区" show-overflow>
+          <template v-slot="{ row }">
+            <span v-if="row.isUt == 0">北京时 </span>
+            <span v-if="row.isUt == 1">世界时 </span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
+        <vxe-table-column width="320" field="date" title="操作">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
+              启动
+            </a-button>
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
+            <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
 
-        <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="queryParams.pageNum"
-          :page-size.sync="queryParams.pageSize"
-          :total="paginationTotal"
-          :page-sizes="[10, 20, 100]"
-          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-          @page-change="handlePageChange"
-        >
-        </vxe-pager>
-      </div>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="paginationTotal"
+        :page-sizes="[10, 20, 100]"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+        @page-change="handlePageChange"
+      >
+      </vxe-pager>
     </div>
 
     <a-modal
@@ -116,12 +100,8 @@
           <a-col :span="12">
             <a-form-model-item label="状态" prop="triggerStatus">
               <a-select v-model="formDialog.triggerStatus" placeholder="字典状态">
-                <a-select-option :value="0">
-                  未启动
-                </a-select-option>
-                <a-select-option :value="1">
-                  启动
-                </a-select-option>
+                <a-select-option :value="0"> 未启动 </a-select-option>
+                <a-select-option :value="1"> 启动 </a-select-option>
               </a-select>
             </a-form-model-item>
           </a-col>
@@ -165,9 +145,7 @@
               prop="fileSample"
             >
               <a-input-search v-model="formDialog.fileSample" placeholder="请输入文件路径样例" @search="regularCheck">
-                <a-button slot="enterButton">
-                  校验
-                </a-button>
+                <a-button slot="enterButton"> 校验 </a-button>
               </a-input-search>
             </a-form-model-item>
           </a-col>
@@ -184,12 +162,8 @@
           <a-col :span="12">
             <a-form-model-item label="时区" prop="isUt">
               <a-select v-model="formDialog.isUt">
-                <a-select-option :value="0">
-                  北京时
-                </a-select-option>
-                <a-select-option :value="1">
-                  世界时
-                </a-select-option>
+                <a-select-option :value="0"> 北京时 </a-select-option>
+                <a-select-option :value="1"> 世界时 </a-select-option>
               </a-select>
             </a-form-model-item>
           </a-col>
@@ -424,29 +398,4 @@
   };
 </script>
 
-<style lang="scss" scoped>
-  .fileMonitorTemplate {
-    width: 100%;
-    height: 100%;
-    font-family: Alibaba-PuHuiTi-Regular;
-
-    .head {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      height: 1.25rem;
-      background: #fff;
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.1rem;
-    }
-
-    #linkManger_content {
-      box-shadow: $plane_shadow;
-      width: 100%;
-      // height: calc(100% - 1.5rem);
-      background: white;
-      padding: 0.25rem;
-      overflow: hidden;
-    }
-  }
-</style>
+<style lang="scss" scoped></style>

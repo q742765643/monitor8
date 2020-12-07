@@ -53,7 +53,6 @@ html.body {
 }
 
 // 菜单样式
-
 .ant-menu-submenu>.ant-menu {
     background: #e5ecf4;
     border-radius: 4px;
@@ -91,8 +90,6 @@ html.body {
     background: $container_backColor;
 }
 
-
-
 //重置input，btn，label
 .ant-form-item-control,
 .ant-form-item-label,
@@ -125,6 +122,10 @@ html.body {
 .el-date-editor .el-range__icon,
 .el-date-editor .el-range-separator {
     line-height: 24px;
+}
+
+.roleBtn {
+    margin-top: 10px;
 }
 
 //带表格查询

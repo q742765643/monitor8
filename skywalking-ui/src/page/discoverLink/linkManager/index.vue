@@ -5,7 +5,7 @@
         <a-input v-model="queryParams.ip" placeholder="请输入ip地址"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="运行状态">
-        <a-select v-model="queryParams.triggerStatus">
+        <a-select v-model="queryParams.triggerStatus" style="width: 120px">
           <a-select-option value="">全部</a-select-option>
           <a-select-option v-for="(dict, index) in triggerStatusOptions" :value="dict.dictValue" :key="index">
             {{ dict.dictLabel }}
@@ -27,7 +27,7 @@
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
-      <vxe-table show-overflow :data="tableData" align="center" highlight-hover-row ref="tablevxe">
+      <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column type="checkbox" width="160"></vxe-table-column>
         <vxe-table-column field="ip" title="ip地址" show-overflow width="160"></vxe-table-column>
         <vxe-table-column field="taskName" title="设备别名" width="160"></vxe-table-column>
@@ -66,7 +66,7 @@
             <span> {{ parseTime(row.createTime) }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column width="320" field="date" title="操作" fixed="right">
+        <vxe-table-column width="400" field="date" title="操作" fixed="right">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" @click="updateAsHost(row)"> 设为主机 </a-button>
             <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
@@ -141,6 +141,7 @@
               <a-input v-model="formDialog.jobCron" placeholder="请输入监控策略"> </a-input>
             </a-form-model-item>
           </a-col>
+
           <a-col :span="12">
             <a-form-model-item label="mac地址" prop="mac">
               <a-input v-model="formDialog.mac" placeholder="请输入mac地址"> </a-input>
@@ -254,19 +255,29 @@
     },
     created() {
       hongtuConfig.getDicts('job_trigger_status').then((res) => {
-        this.triggerStatusOptions = res.data;
+        if (res.code == 200) {
+          this.triggerStatusOptions = res.data;
+        }
       });
-      hongtuConfig.getDicts('current_status').then((response) => {
-        this.currentStatusOptions = response.data;
+      hongtuConfig.getDicts('current_status').then((res) => {
+        if (res.code == 200) {
+          this.currentStatusOptions = res.data;
+        }
       });
-      hongtuConfig.getDicts('media_type').then((response) => {
-        this.mediaTypeOptions = response.data;
+      hongtuConfig.getDicts('media_type').then((res) => {
+        if (res.code == 200) {
+          this.mediaTypeOptions = res.data;
+        }
       });
-      hongtuConfig.getDicts('monitoring_methods').then((response) => {
-        this.monitoringMethodsOptions = response.data;
+      hongtuConfig.getDicts('monitoring_methods').then((res) => {
+        if (res.code == 200) {
+          this.monitoringMethodsOptions = res.data;
+        }
       });
-      hongtuConfig.getDicts('media_area').then((response) => {
-        this.areaOptions = response.data;
+      hongtuConfig.getDicts('media_area').then((res) => {
+        if (res.code == 200) {
+          this.areaOptions = res.data;
+        }
       });
       this.queryTable();
     },
@@ -437,7 +448,4 @@
   };
 </script>
 
-<style lang="scss" scoped>
-  .managerTemplate {
-  }
-</style>
+<style lang="scss" scoped></style>

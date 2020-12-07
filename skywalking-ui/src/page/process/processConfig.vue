@@ -1,69 +1,59 @@
 <template>
-  <div>
-    <div class="head">
-      <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
-        <a-form-model-item label="进程名称" prop="processName">
-          <a-input v-model="queryParams.processName" placeholder="请输入进程名称"> </a-input>
-        </a-form-model-item>
-        <a-form-model-item label="ip" prop="ip">
-          <a-input v-model="queryParams.ip" placeholder="请输入ip"> </a-input>
-        </a-form-model-item>
-        <a-form-model-item>
-          <a-col :span="24" :style="{ textAlign: 'right' }">
-            <a-button type="primary" html-type="submit" @click="handleQuery">
-              搜索
-            </a-button>
-            <a-button :style="{ marginLeft: '8px' }" @click="resetQuery">
-              重置
-            </a-button>
-          </a-col>
-        </a-form-model-item>
-      </a-form-model>
-    </div>
-    <a-row type="flex" style="margin-left: 2% ">
-      <a-col :span="1.5">
-        <a-button type="primary" icon="plus" @click="handleAdd">
-          新增
-        </a-button>
-        <a-button type="danger" icon="delete" @click="handleDelete">
-          删除
-        </a-button>
-      </a-col>
-    </a-row>
-    <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
-      <vxe-table-column type="checkbox"></vxe-table-column>
-      <vxe-table-column field="processName" title="名称"></vxe-table-column>
-      <vxe-table-column field="ip" title="ip"> </vxe-table-column>
-      <vxe-table-column field="pid" title="进程id"> </vxe-table-column>
-      <vxe-table-column field="cmdline" title="命令" show-overflow> </vxe-table-column>
-      <vxe-table-column field="currentStatus" title="状态" :formatter="formatAlarmLevel"></vxe-table-column>
-      <vxe-table-column field="createTime" title="创建时间" show-overflow>
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </vxe-table-column>
-      <vxe-table-column width="160" field="date" title="操作">
-        <template v-slot="{ row }">
-          <a-button type="primary" icon="edit" @click="handleUpdate(row)">
-            编辑
-          </a-button>
-          <a-button type="danger" icon="delete" @click="handleDelete(row)">
-            删除
-          </a-button>
-        </template>
-      </vxe-table-column>
-    </vxe-table>
+  <div class="managerTemplate">
+    <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
+      <a-form-model-item label="进程名称" prop="processName">
+        <a-input v-model="queryParams.processName" placeholder="请输入进程名称"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="ip" prop="ip">
+        <a-input v-model="queryParams.ip" placeholder="请输入ip"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item>
+        <a-col :span="24">
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        </a-col>
+      </a-form-model-item>
+    </a-form-model>
+    <div class="tableDateBox">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
+        </a-col>
+      </a-row>
+      <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
+        <vxe-table-column type="checkbox" width="80"></vxe-table-column>
+        <vxe-table-column field="processName" title="名称"></vxe-table-column>
+        <vxe-table-column field="ip" title="ip"> </vxe-table-column>
+        <vxe-table-column field="pid" title="进程id"> </vxe-table-column>
+        <vxe-table-column field="cmdline" title="命令" show-overflow> </vxe-table-column>
+        <vxe-table-column field="currentStatus" title="状态" :formatter="formatAlarmLevel"></vxe-table-column>
+        <vxe-table-column field="createTime" title="创建时间" show-overflow>
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createTime) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column width="260" field="date" title="操作">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 编辑 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
 
-    <vxe-pager
-      id="page_table"
-      perfect
-      :current-page.sync="queryParams.pageNum"
-      :page-size.sync="queryParams.pageSize"
-      :total="total"
-      :page-sizes="[10, 20, 100]"
-      @page-change="fetch"
-      :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-    ></vxe-pager>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 100]"
+        @page-change="fetch"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+      ></vxe-pager>
+    </div>
     <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消" width="50%" @ok="submitForm">
       <a-form-model :label-col="{ span: 5 }" :wrapper-col="{ span: 12 }" :model="form" ref="form">
         <a-form-model-item label="进程名称" prop="name">
@@ -108,7 +98,9 @@
     },
     created() {
       this.getDicts('current_status').then((response) => {
-        this.alarmLevelOptions = response.data;
+        if (response.code == 200) {
+          this.alarmLevelOptions = response.data;
+        }
       });
     },
     mounted() {
