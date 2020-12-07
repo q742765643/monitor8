@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -95,11 +96,13 @@ public class FileLocalService extends FileBaseService {
         if (!resultT.isSuccess()) {
             return null;
         }
-        long endTime = fileMonitorLogDto.getTriggerTime();
-        long beginTime = CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
-        List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
         FileFilter fileFilter = null;
         try {
+            SimpleDateFormat format = new SimpleDateFormat(expression);
+            long endTime = format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),fileMonitorLogDto.getTriggerTime())).getTime();
+            long beginTime =format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime))).getTime();
+            List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
+
             fileFilter = new FileFilter() {
                 @Override
                 public boolean accept(File file) {

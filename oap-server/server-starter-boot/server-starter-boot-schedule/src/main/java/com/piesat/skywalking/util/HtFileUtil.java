@@ -28,8 +28,7 @@ public class HtFileUtil extends FileUtil {
 
     }
 
-    public static void loopFiles(SmbFile file, SmbFileFilter fileFilter) {
-        try {
+    public static void loopFiles(SmbFile file, SmbFileFilter fileFilter) throws Exception{
             if (file.isDirectory()) {
                 SmbFile[] files = file.listFiles(fileFilter);
                 if (null != files && ArrayUtil.isNotEmpty(files)) {
@@ -38,10 +37,6 @@ public class HtFileUtil extends FileUtil {
                     }
                 }
             }
-        } catch (SmbException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public static Long getCreateTime(Path path) {

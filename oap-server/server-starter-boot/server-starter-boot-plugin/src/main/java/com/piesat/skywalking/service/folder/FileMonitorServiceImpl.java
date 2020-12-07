@@ -170,8 +170,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         Matcher m = PATTERN.matcher(regular);
         while (m.find()) {
             String expression = m.group(2);
-            String replaceMent = expression.replaceAll("[ymdhsYMDHS]", "\\\\d");
-            ;
+            String replaceMent = expression.split(",")[0].replaceAll("[ymdhsYMDHS]", "\\\\d");
             regular = regular.replace("${" + expression + "}", replaceMent);
         }
         regular = regular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
