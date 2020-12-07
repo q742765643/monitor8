@@ -1,40 +1,42 @@
 <template>
-  <div id="report">
+  <div id="reportTemplate">
     <selectDate @changeDate="changeDate"></selectDate>
-    <div id="content">
-      <div id="linkReport_chart">
-        <div id="barlineChart"></div>
+    <div class="tableDateBox">
+      <div id="barlineChart"></div>
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons>
+            <a-row type="flex" class="rowToolbar" :gutter="10">
+              <a-col :span="1.5">
+                <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
+              </a-col>
+              <a-col :span="1.5">
+                <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
+              </a-col>
+            </a-row>
+          </template>
+        </vxe-toolbar>
       </div>
-      <div id="table">
-        <div id="toolbar">
-          <vxe-toolbar custom>
-            <template v-slot:buttons>
-              <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
-              <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
-            </template>
-          </vxe-toolbar>
-        </div>
-        <vxe-table border ref="xTable" :height="tableheight" :data="tableData" stripe align="center">
-          <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
-          <vxe-table-column field="currentStatus" title="当前状态" :formatter="formatCurrentStatus"> </vxe-table-column>
-          <vxe-table-column field="ip" title="IP地址"></vxe-table-column>
-          <vxe-table-column
-            field="monitoringMethods"
-            title="监视方式"
-            :formatter="formatMonitoringMethods"
-          ></vxe-table-column>
-          <vxe-table-column field="createTime" title="采集时间" show-overflow>
-            <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.createTime) }}</span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="maxUptime" title="连续在线时长" show-overflow></vxe-table-column>
-          <vxe-table-column field="avgPacketPct" title="平均丢包率"></vxe-table-column>
-          <vxe-table-column field="maxPacketPct" title="最大丢包率"></vxe-table-column>
-          <vxe-table-column field="area" title="区域" :formatter="formatArea" show-overflow></vxe-table-column>
-          <vxe-table-column field="location" title="详细地址" show-overflow></vxe-table-column>
-        </vxe-table>
-      </div>
+      <vxe-table border ref="xTable" :height="tableheight" :data="tableData" stripe align="center">
+        <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
+        <vxe-table-column field="currentStatus" title="当前状态" :formatter="formatCurrentStatus"> </vxe-table-column>
+        <vxe-table-column field="ip" title="IP地址"></vxe-table-column>
+        <vxe-table-column
+          field="monitoringMethods"
+          title="监视方式"
+          :formatter="formatMonitoringMethods"
+        ></vxe-table-column>
+        <vxe-table-column field="createTime" title="采集时间" show-overflow>
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.createTime) }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="maxUptime" title="连续在线时长" show-overflow></vxe-table-column>
+        <vxe-table-column field="avgPacketPct" title="平均丢包率"></vxe-table-column>
+        <vxe-table-column field="maxPacketPct" title="最大丢包率"></vxe-table-column>
+        <vxe-table-column field="area" title="区域" :formatter="formatArea" show-overflow></vxe-table-column>
+        <vxe-table-column field="location" title="详细地址" show-overflow></vxe-table-column>
+      </vxe-table>
     </div>
   </div>
 </template>
@@ -174,6 +176,7 @@
           title: {
             text: '全网链路运行情况表',
             left: 'center',
+            top: '10px',
             textStyle: {
               fontSize: remFontSize(14 / 64),
             },
@@ -305,36 +308,15 @@
 </script>
 
 <style lang="scss" scoped>
-  #report {
-    //background: #eef5fd;
-    //width: 20rem;
+  #reportTemplate {
     width: 100%;
-    #content {
-      box-shadow: $plane_shadow;
-      height: 11.625rem;
-      //width: 19.625rem;
-      width: 100%;
-      background: white;
-      padding: 0.25rem;
-      display: flex;
-      flex-direction: column;
-      #linkReport_chart {
-        margin: 0 auto;
-        width: 70%;
-        height: 50%;
-        //background: pink;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        #barlineChart {
-          width: 100%;
-          height: 100%;
-        }
-      }
-      #table {
-        width: 100%;
-        // height: 50%;
-      }
+    .tableDataBox {
+      background: #fff;
+    }
+    #barlineChart {
+      width: 900px;
+      height: 400px;
+      margin: auto;
     }
   }
 </style>

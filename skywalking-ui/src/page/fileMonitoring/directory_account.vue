@@ -72,135 +72,134 @@
 </template>
 
 <script>
-import request from '@/utils/request';
-export default {
-  data() {
-    return {
-      tableData: [],
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        name: undefined,
-        ip: undefined,
-      },
-      form: {},
-      title: '',
-      ids: [],
-      names: [],
-      visible: false,
-    };
-  },
-  created() {},
-  mounted() {
-    this.fetch();
-  },
-  computed: {},
-  methods: {
-    statusFormat(status) {
-      return this.selectDictLabel(this.statusOptions, status);
+  import request from '@/utils/request';
+  export default {
+    data() {
+      return {
+        tableData: [],
+        total: 0,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          name: undefined,
+          ip: undefined,
+        },
+        form: {},
+        title: '',
+        ids: [],
+        names: [],
+        visible: false,
+      };
     },
-    rowSelection({ selection }) {
-      this.ids = selection.map((item) => item.id);
-      this.names = selection.map((item) => item.name);
-    },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    created() {},
+    mounted() {
       this.fetch();
     },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
-    },
-    fetch() {
-      request({
-        url: '/directoryAccount/list',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        this.tableData = data.data.pageData;
-        this.total = data.data.totalCount;
-      });
-    },
-    handleAdd() {
-      this.form.id = undefined;
-      this.visible = true;
-      this.title = '添加共享目录';
-    },
-    handleUpdate(row) {
-      this.form = {};
-      const id = row.id || this.ids;
-      request({
-        url: '/directoryAccount/' + id,
-        method: 'get',
-      }).then((response) => {
-        this.form = response.data;
+    computed: {},
+    methods: {
+      statusFormat(status) {
+        return this.selectDictLabel(this.statusOptions, status);
+      },
+      rowSelection({ selection }) {
+        this.ids = selection.map((item) => item.id);
+        this.names = selection.map((item) => item.name);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        request({
+          url: '/directoryAccount/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          this.tableData = data.data.pageData;
+          this.total = data.data.totalCount;
+        });
+      },
+      handleAdd() {
+        this.form.id = undefined;
         this.visible = true;
-        this.title = '修改共享目录';
-      });
-    },
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      const names = row.name || this.names;
-      this.$confirm({
-        title: '是否确认删除字典标签为"' + names + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
+        this.title = '添加共享目录';
+      },
+      handleUpdate(row) {
+        this.form = {};
+        const id = row.id || this.ids;
+        request({
+          url: '/directoryAccount/' + id,
+          method: 'get',
+        }).then((response) => {
+          this.form = response.data;
+          this.visible = true;
+          this.title = '修改共享目录';
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        const names = row.name || this.names;
+        this.$confirm({
+          title: '是否确认删除字典标签为"' + names + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            request({
+              url: '/directoryAccount/' + ids,
+              method: 'delete',
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError('删除成功!');
+              } else {
+                this.msgError(response.msg);
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      submitForm() {
+        if (this.form.id != undefined) {
           request({
-            url: '/directoryAccount/' + ids,
-            method: 'delete',
+            url: '/directoryAccount',
+            method: 'post',
+            data: this.form,
           }).then((response) => {
             if (response.code === 200) {
+              this.msgSuccess('修改成功');
+              this.visible = false;
               this.fetch();
-              this.msgError('删除成功!');
             } else {
               this.msgError(response.msg);
             }
           });
-        },
-        onCancel() {},
-      });
+        } else {
+          request({
+            url: '/directoryAccount',
+            method: 'post',
+            data: this.form,
+          }).then((response) => {
+            if (response.code === 200) {
+              this.msgSuccess('新增成功');
+              this.visible = false;
+              this.fetch();
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        }
+      },
     },
-    submitForm() {
-      if (this.form.id != undefined) {
-        request({
-          url: '/directoryAccount',
-          method: 'post',
-          data: this.form,
-        }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('修改成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
-        });
-      } else {
-        request({
-          url: '/directoryAccount',
-          method: 'post',
-          data: this.form,
-        }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('新增成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
-        });
-      }
-    },
-  },
-};
+  };
 </script>
-<style scoped>
-</style>
+<style scoped></style>

@@ -75,9 +75,11 @@ html.body {
 .vxe-table {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
     margin-top: 20px;
+
     th {
         font-size: 16px;
     }
+
     td {
         font-size: 14px;
     }
@@ -91,7 +93,9 @@ html.body {
 //重置input，btn，label
 .ant-form-item-control,
 .ant-form-item-label,
-.ant-select-selection__rendered {
+.ant-select-selection__rendered,
+.el-date-editor .el-range__icon,
+    {
     line-height: 32px;
 }
 
@@ -107,8 +111,18 @@ html.body {
     margin-right: 10px;
 }
 
+.el-input__inner {
+    height: 32px;
+    line-height: 32px;
+}
+
 .ant-form label {
     font-size: 16px;
+}
+
+.el-date-editor .el-range__icon,
+.el-date-editor .el-range-separator {
+    line-height: 24px;
 }
 
 .roleBtn {

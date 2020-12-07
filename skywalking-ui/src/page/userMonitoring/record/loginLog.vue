@@ -77,135 +77,133 @@
 </template>
 
 <script>
-import hongtuConfig from '@/utils/services';
-export default {
-  data() {
-    return {
-      queryParams: {
-        loginLocation: undefined,
-        userName: undefined,
-        status: undefined,
-        pageNum: 1,
-        pageSize: 10,
-        params: {
-          orderBy: {
-            loginTime: 'desc',
+  import hongtuConfig from '@/utils/services';
+  export default {
+    data() {
+      return {
+        queryParams: {
+          loginLocation: undefined,
+          userName: undefined,
+          status: undefined,
+          pageNum: 1,
+          pageSize: 10,
+          params: {
+            orderBy: {
+              loginTime: 'desc',
+            },
           },
         },
-      },
-      loginListData: [],
-      paginationTotal: 0,
-      statusOptions: [],
-      dateRange: [],
-      single: true,
-    };
-  },
-  created() {
-    this.getLoginList();
-    hongtuConfig.getDicts('sys_common_status').then((res) => {
-      if (res.code == 200) {
-        this.statusOptions = res.data;
-      }
-    });
-  },
-  methods: {
-    selectBox(selection) {
-      // console.log(selection.selection)
-      this.single = selection.selection.length > 0 ? false : true;
-    },
-    // 导出
-    handleExport() {
-      hongtuConfig.exportLogininfor(this.queryParams).then((res) => {
-        this.downloadfileCommon(res);
-      });
-    },
-    getLoginList() {
-      if (this.queryParams.dateRange) {
-        this.dateRange = this.queryParams.dateRange;
-      } else {
-        this.dateRange = [];
-      }
-      hongtuConfig.getLogin(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
-        //   console.log(res)
-        this.loginListData = res.data.pageData;
-        this.paginationTotal = res.data.totalCount;
-      });
-    },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getLoginList();
-    },
-    handleClean() {
-      this.$confirm({
-        title: '是否确认清空所有登录日志数据项?',
-        content: '',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: () => {
-          hongtuConfig.cleanLogininfor().then((res) => {
-            if (res.code == 200) {
-              this.getLoginList();
-              this.$message.success('清空成功');
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-    statusFormat(list, text) {
-      return hongtuConfig.formatterselectDictLabel(list, text);
-    },
-    resetQuery() {
-      this.dateRange = [];
-      this.queryParams = {
-        loginLocation: undefined,
-        userName: undefined,
-        status: undefined,
-        params: {
-          orderBy: {
-            loginTime: 'desc',
-          },
-        },
-        pageNum: 1,
-        pageSize: 10,
+        loginListData: [],
+        paginationTotal: 0,
+        statusOptions: [],
+        dateRange: [],
+        single: true,
       };
-      this.getLoginList();
     },
-    handleDelete() {
-      let ids = [];
-      let cellsChecked = this.$refs.loginListRef.getCheckboxRecords();
-      cellsChecked.forEach((element) => {
-        ids.push(element.id);
-      });
-      this.$confirm({
-        title: '是否确认删除访问编号为"' + ids + '"的数据项?',
-        content: '',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: () => {
-          hongtuConfig.delLogininfor(ids).then((res) => {
-            if (res.code == 200) {
-              this.getLoginList();
-              this.single = true;
-              this.$message.success('删除成功');
-            }
-          });
-        },
-        onCancel() {},
+    created() {
+      this.getLoginList();
+      hongtuConfig.getDicts('sys_common_status').then((res) => {
+        if (res.code == 200) {
+          this.statusOptions = res.data;
+        }
       });
     },
-    // 分页事件
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
-      this.getLoginList();
+    methods: {
+      selectBox(selection) {
+        // console.log(selection.selection)
+        this.single = selection.selection.length > 0 ? false : true;
+      },
+      // 导出
+      handleExport() {
+        hongtuConfig.exportLogininfor(this.queryParams).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      getLoginList() {
+        if (this.queryParams.dateRange) {
+          this.dateRange = this.queryParams.dateRange;
+        } else {
+          this.dateRange = [];
+        }
+        hongtuConfig.getLogin(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
+          //   console.log(res)
+          this.loginListData = res.data.pageData;
+          this.paginationTotal = res.data.totalCount;
+        });
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.getLoginList();
+      },
+      handleClean() {
+        this.$confirm({
+          title: '是否确认清空所有登录日志数据项?',
+          content: '',
+          okText: '确定',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: () => {
+            hongtuConfig.cleanLogininfor().then((res) => {
+              if (res.code == 200) {
+                this.getLoginList();
+                this.$message.success('清空成功');
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      statusFormat(list, text) {
+        return hongtuConfig.formatterselectDictLabel(list, text);
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.queryParams = {
+          loginLocation: undefined,
+          userName: undefined,
+          status: undefined,
+          params: {
+            orderBy: {
+              loginTime: 'desc',
+            },
+          },
+          pageNum: 1,
+          pageSize: 10,
+        };
+        this.getLoginList();
+      },
+      handleDelete() {
+        let ids = [];
+        let cellsChecked = this.$refs.loginListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+        });
+        this.$confirm({
+          title: '是否确认删除访问编号为"' + ids + '"的数据项?',
+          content: '',
+          okText: '确定',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: () => {
+            hongtuConfig.delLogininfor(ids).then((res) => {
+              if (res.code == 200) {
+                this.getLoginList();
+                this.single = true;
+                this.$message.success('删除成功');
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      // 分页事件
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.getLoginList();
+      },
     },
-  },
-};
+  };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

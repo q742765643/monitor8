@@ -72,158 +72,158 @@
 </template>
 
 <script>
-import request from '@/utils/request';
-export default {
-  data() {
-    return {
-      tableData: [],
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        processName: undefined,
-        ip: undefined,
-      },
-      form: {},
-      title: '',
-      ids: [],
-      processNames: [],
-      alarmLevelOptions: [],
-      hostIps: [],
-      visible: false,
-    };
-  },
-  created() {
-    this.getDicts('current_status').then((response) => {
-      if(response.code == 200) {
-        this.alarmLevelOptions = response.data;
-      }
-    });
-  },
-  mounted() {
-    this.fetch();
-    this.findIp();
-  },
-  computed: {},
-  methods: {
-    findIp() {
-      request({
-        url: '/processConfig/findIp',
-        method: 'get',
-      }).then((response) => {
-        this.hostIps = response.data;
+  import request from '@/utils/request';
+  export default {
+    data() {
+      return {
+        tableData: [],
+        total: 0,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          processName: undefined,
+          ip: undefined,
+        },
+        form: {},
+        title: '',
+        ids: [],
+        processNames: [],
+        alarmLevelOptions: [],
+        hostIps: [],
+        visible: false,
+      };
+    },
+    created() {
+      this.getDicts('current_status').then((response) => {
+        if (response.code == 200) {
+          this.alarmLevelOptions = response.data;
+        }
       });
     },
-    formatAlarmLevel({ cellValue }) {
-      return this.selectDictLabel(this.alarmLevelOptions, cellValue);
-    },
-    statusFormat(status) {
-      return this.selectDictLabel(this.statusOptions, status);
-    },
-    rowSelection({ selection }) {
-      this.ids = selection.map((item) => item.id);
-      this.names = selection.map((item) => item.name);
-    },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    mounted() {
       this.fetch();
+      this.findIp();
     },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
-    },
-    fetch() {
-      request({
-        url: '/processConfig/list',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        this.tableData = data.data.pageData;
-        this.total = data.data.totalCount;
-      });
-    },
-    handleAdd() {
-      this.form.id = undefined;
-      this.visible = true;
-      this.title = '添加进程';
-    },
-    handleUpdate(row) {
-      this.form = {};
-      const id = row.id || this.ids;
-      request({
-        url: '/processConfig/' + id,
-        method: 'get',
-      }).then((response) => {
-        this.form = response.data;
+    computed: {},
+    methods: {
+      findIp() {
+        request({
+          url: '/processConfig/findIp',
+          method: 'get',
+        }).then((response) => {
+          this.hostIps = response.data;
+        });
+      },
+      formatAlarmLevel({ cellValue }) {
+        return this.selectDictLabel(this.alarmLevelOptions, cellValue);
+      },
+      statusFormat(status) {
+        return this.selectDictLabel(this.statusOptions, status);
+      },
+      rowSelection({ selection }) {
+        this.ids = selection.map((item) => item.id);
+        this.names = selection.map((item) => item.name);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        request({
+          url: '/processConfig/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          this.tableData = data.data.pageData;
+          this.total = data.data.totalCount;
+        });
+      },
+      handleAdd() {
+        this.form.id = undefined;
         this.visible = true;
-        this.title = '修改进程';
-      });
-    },
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      const processNames = row.processName || this.processNames;
-      this.$confirm({
-        title: '是否确认删除字典标签为"' + processNames + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
+        this.title = '添加进程';
+      },
+      handleUpdate(row) {
+        this.form = {};
+        const id = row.id || this.ids;
+        request({
+          url: '/processConfig/' + id,
+          method: 'get',
+        }).then((response) => {
+          this.form = response.data;
+          this.visible = true;
+          this.title = '修改进程';
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        const processNames = row.processName || this.processNames;
+        this.$confirm({
+          title: '是否确认删除字典标签为"' + processNames + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            request({
+              url: '/processConfig/' + ids,
+              method: 'delete',
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError('删除成功!');
+              } else {
+                this.msgError(response.msg);
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      submitForm() {
+        this.hostIps.map((item) => {
+          if (item.id == this.form.hostId) {
+            this.form.ip = item.ip;
+          }
+        });
+        if (this.form.id != undefined) {
           request({
-            url: '/processConfig/' + ids,
-            method: 'delete',
+            url: '/processConfig',
+            method: 'post',
+            data: this.form,
           }).then((response) => {
             if (response.code === 200) {
+              this.msgSuccess('修改成功');
+              this.visible = false;
               this.fetch();
-              this.msgError('删除成功!');
             } else {
               this.msgError(response.msg);
             }
           });
-        },
-        onCancel() {},
-      });
-    },
-    submitForm() {
-      this.hostIps.map((item) => {
-        if (item.id == this.form.hostId) {
-          this.form.ip = item.ip;
+        } else {
+          request({
+            url: '/processConfig',
+            method: 'post',
+            data: this.form,
+          }).then((response) => {
+            if (response.code === 200) {
+              this.msgSuccess('新增成功');
+              this.visible = false;
+              this.fetch();
+            } else {
+              this.msgError(response.msg);
+            }
+          });
         }
-      });
-      if (this.form.id != undefined) {
-        request({
-          url: '/processConfig',
-          method: 'post',
-          data: this.form,
-        }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('修改成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
-        });
-      } else {
-        request({
-          url: '/processConfig',
-          method: 'post',
-          data: this.form,
-        }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('新增成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
-        });
-      }
+      },
     },
-  },
-};
+  };
 </script>

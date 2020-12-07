@@ -1,5 +1,5 @@
 <template>
-  <a-row class="seletDate" type="flex" justify="center" align="middle">
+  <a-row class="queryForm">
     <el-date-picker
       type="datetimerange"
       v-model="dateRange"
@@ -14,18 +14,7 @@
     </el-date-picker>
   </a-row>
 </template>
-<style lang="scss" scoped>
-  .seletDate {
-    z-index: 1;
-    width: 100%;
-    height: 1rem;
-    // line-height: 1.25rem;
-    font-size: 0.2rem;
-    //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
-    box-shadow: $plane_shadow;
-    margin-bottom: 0.1rem;
-  }
-</style>
+<style lang="scss" scoped></style>
 <script>
   export default {
     name: 'selectDate',

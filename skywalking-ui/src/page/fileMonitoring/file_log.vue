@@ -117,106 +117,105 @@
 </template>
 
 <script>
-import request from '@/utils/request';
-export default {
-  data() {
-    return {
-      tableData: [],
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        name: undefined,
-        ip: undefined,
-      },
-      form: {},
-      title: '',
-      ids: [],
-      names: [],
-      visible: false,
-      handleCodeOptions: [],
-    };
-  },
-  created() {
-    this.getDicts('job_running_state').then((response) => {
-      if (response.code == 200) {
-        this.handleCodeOptions = response.data;
-      }
-    });
-  },
-  mounted() {
-    this.fetch();
-  },
-  computed: {},
-  methods: {
-    statusFormat(status) {
-      return this.selectDictLabel(this.handleCodeOptions, status);
+  import request from '@/utils/request';
+  export default {
+    data() {
+      return {
+        tableData: [],
+        total: 0,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          name: undefined,
+          ip: undefined,
+        },
+        form: {},
+        title: '',
+        ids: [],
+        names: [],
+        visible: false,
+        handleCodeOptions: [],
+      };
     },
-    rowSelection({ selection }) {
-      this.ids = selection.map((item) => item.id);
-      this.names = selection.map((item) => item.name);
+    created() {
+      this.getDicts('job_running_state').then((response) => {
+        if (response.code == 200) {
+          this.handleCodeOptions = response.data;
+        }
+      });
     },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    mounted() {
       this.fetch();
     },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
+    computed: {},
+    methods: {
+      statusFormat(status) {
+        return this.selectDictLabel(this.handleCodeOptions, status);
+      },
+      rowSelection({ selection }) {
+        this.ids = selection.map((item) => item.id);
+        this.names = selection.map((item) => item.name);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        request({
+          url: '/fileMonitorLog/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          this.tableData = data.data.pageData;
+          this.total = data.data.totalCount;
+        });
+      },
+      handleUpdate(row) {
+        this.form = {};
+        const id = row.id || this.ids;
+        request({
+          url: '/fileMonitorLog/' + id,
+          method: 'get',
+        }).then((response) => {
+          this.form = response.data;
+          this.visible = true;
+          this.title = '查看日志详情';
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        const names = row.name || this.names;
+        this.$confirm({
+          title: '是否确认删除名称为"' + names + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            request({
+              url: '/fileMonitorLog/' + ids,
+              method: 'delete',
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError('删除成功!');
+              } else {
+                this.msgError(response.msg);
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
     },
-    fetch() {
-      request({
-        url: '/fileMonitorLog/list',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        this.tableData = data.data.pageData;
-        this.total = data.data.totalCount;
-      });
-    },
-    handleUpdate(row) {
-      this.form = {};
-      const id = row.id || this.ids;
-      request({
-        url: '/fileMonitorLog/' + id,
-        method: 'get',
-      }).then((response) => {
-        this.form = response.data;
-        this.visible = true;
-        this.title = '查看日志详情';
-      });
-    },
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      const names = row.name || this.names;
-      this.$confirm({
-        title: '是否确认删除名称为"' + names + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
-          request({
-            url: '/fileMonitorLog/' + ids,
-            method: 'delete',
-          }).then((response) => {
-            if (response.code === 200) {
-              this.fetch();
-              this.msgError('删除成功!');
-            } else {
-              this.msgError(response.msg);
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-  },
-};
+  };
 </script>
-<style scoped>
-</style>
+<style scoped></style>
