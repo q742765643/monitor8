@@ -1,69 +1,36 @@
 <template>
   <div id="mointorWindow">
-    <div class="title">
+    <div class="palne_titile">
       <span>主机监测信息</span>
-      <!--    <planeTitle titleName="主机监测信息"></planeTitle> -->
       <span class="icon iconfont iconbaseline-close-px" v-on:click="closeWindow"></span>
     </div>
-    <div class="content">
+    <div class="contentBox">
       <div class="cell1">
         <div id="Cpu" class="plane">
-          <!--   <div class="chartTitile"> -->
-          <!--    <span>CPU使用率情况</span> -->
           <planeTitle titleName="CPU使用率情况"></planeTitle>
-          <!-- </div> -->
           <div class="chart" id="cpuChart"></div>
         </div>
         <div id="Rom" class="plane">
-          <!-- <div class="chartTitile">
-            <span>内存使用率</span>
-          </div> -->
           <planeTitle titleName="内存使用率"></planeTitle>
           <div class="chart" id="romChart"></div>
         </div>
         <div id="Net" class="plane">
-          <!-- <div class="chartTitile">
-            <span>网络流量</span>
-          </div> -->
           <planeTitle titleName="网络流量"></planeTitle>
           <div class="chart" id="netChart"></div>
         </div>
       </div>
       <div class="cell2">
         <div id="Ram" class="plane">
-          <!--  <div class="chartTitile">
-            <span>磁盘可用量</span>
-          </div> -->
-
           <planeTitle titleName="磁盘可用量"></planeTitle>
           <div class="chart plane" id="ramChart"></div>
         </div>
         <div id="Pak" class="plane">
-          <!-- <div class="chartTitile">
-            <span>网络丢包率</span>
-          </div> -->
           <planeTitle titleName="网络丢包率"></planeTitle>
           <div class="chart" id="pakChart"></div>
         </div>
         <div id="Thd" class="plane">
-          <!-- <div class="chartTitile">
-            <span>进程状态</span>
-          </div> -->
           <planeTitle titleName="进程状态"></planeTitle>
           <div class="chart" id="tableChart">
-            <!-- <div class="tabtitle">
-              <span>进程名称</span>
-              <span>进程时间</span>
-              <span>进程状态</span>
-            </div>
-            <div class="cell">
-              <div class="data" v-for="(item, index) in tableData" :key="index">
-                <span>{{ item.name }}</span>
-                <span>{{ item.time }}</span>
-                <span>{{ item.state }}</span>
-              </div>
-            </div> -->
-
             <vxe-table :height="table_height" width="90%" :data="tableData" stripe>
               <vxe-table-column field="processName" title="进程名称" show-overflow></vxe-table-column>
               <vxe-table-column field="updateTime" title="进程时间" show-overflow>
@@ -623,123 +590,81 @@
 
 <style lang="scss" scoped>
   #mointorWindow {
-    font-family: 'Alibaba-PuHuiTi-Medium';
-    height: 11.625rem;
-    width: 19.04rem;
-    //background: #eff2f8;
+    height: 100vh;
+    width: 100vw;
     background: #fff;
-    box-shadow: 0 0 0.0625rem #ffffff;
-    z-index: 502;
-    position: absolute;
+    z-index: 1000;
+    position: fixed;
     top: 0;
     left: 0;
-    .title {
-      font-family: Georgia;
-      font-weight: 600;
-      height: 0.75rem;
-      padding-left: 0.25rem;
-      font-size: 0.25rem;
-      border-bottom: solid 0.025rem #eef5fd;
-      background: #fff;
+    .palne_titile {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: solid 2px $plane_border_color;
+      font-size: 20px;
+      height: 56px;
+      line-height: 56px;
+      padding-left: 18px;
       .icon {
         position: relative;
         float: right;
-        right: 0.25rem;
+        right: 20px;
         cursor: pointer;
       }
       span {
         display: inline-block;
-        line-height: 0.75rem;
       }
     }
-    .content {
-      height: 10.875rem;
+    .contentBox {
       display: flex;
       flex-direction: column;
-      background: #fff;
+      background: #f6fbfc;
+      height: calc(100vh - 60px);
       .cell1 {
         height: 50%;
-        padding: 0.15rem 0.2rem 0.2rem 0.15rem;
-        // background: pink;
-        //width: 19.04rem;
+        padding: 10px;
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         .plane {
           flex: 1;
-          //background: white;
           height: 100%;
           width: 100%;
-          box-shadow: $plane_shadow;
-
+          background: white;
           .chart {
-            height: 4.3875rem;
-            //background: pink;
+            height: calc(100% - 56px);
             margin: 0 !important;
           }
         }
-
-        /*   div:nth-child(1) {
-        margin-right: 0.1rem;
-      } */
         div:nth-child(2) {
-          margin: 0 0.2rem;
+          margin: 0 10px;
         }
-        /* div:nth-child(3) {
-        margin-left: 0.1rem;
-      } */
       }
       .cell2 {
         height: 50%;
         flex: 1;
-        // width: 19.04rem;
-        padding: 0.15rem 0.2rem 0.2rem 0.15rem;
-        // background: pink;
+        padding: 10px;
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         .plane {
-          box-shadow: $plane_shadow;
           flex: 1;
           background: white;
           height: 100%;
           width: 100%;
-
-          /*   .chartTitile {
-          height: 0.75rem;
-          width: 100%;
-          border-bottom: solid 1px #eee;
-          span {
-            padding-left: 0.25rem;
-            line-height: 0.75rem;
-            display: inline-block;
-            font-size: 0.25rem;
-          }
-        } */
           .chart {
-            height: 4.3875rem;
-            // background: pink;
+            height: calc(100% - 56px);
             margin: 0 !important;
           }
         }
 
         div:nth-child(2) {
-          margin: 0 0.2rem;
+          margin: 0 10px;
         }
-        /*  div:nth-child(1) {
-        margin-right: 0.1rem;
-      }
-      div:nth-child(2) {
-        margin: 0 0.1rem;
-      }
-      div:nth-child(3) {
-        margin-left: 0.1rem;
-      } */
-
         #tableChart {
-          height: 4.3875rem;
+          height: calc(100% - 86px);
           width: 100%;
         }
       }
