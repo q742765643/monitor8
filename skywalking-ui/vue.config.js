@@ -28,9 +28,6 @@ module.exports = {
             }),
         ],
     },
-
-<<<<<<< HEAD
-    //publicPath: '/',
     publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
     lintOnSave: false,
     devServer: {
@@ -46,22 +43,6 @@ module.exports = {
                     ['^/monitor']: '',
                 },
             },
-=======
-  //publicPath: '/',
-  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
-  lintOnSave: false,
-  devServer: {
-    proxy: {
-      '/graphql': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
-        changeOrigin: true,
-      },
-      '/monitor': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
-        changeOrigin: true,
-        pathRewrite: {
-          ['^/monitor']: '',
->>>>>>> 738f616b6b65c2d28c5eca0dd9704de479570475
         },
     },
     chainWebpack: (config) => {
