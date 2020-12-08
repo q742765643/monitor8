@@ -25,7 +25,7 @@
 <style lang="scss" scoped>
   #components-layout {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     .ant-layout-sider {
       width: 100% !important;
       height: 100%;
@@ -38,10 +38,12 @@
     }
     .leftAside {
       width: 340px;
+      height: 100%;
       background: #f0f2f3;
     }
     #rightPalne {
       width: calc(100% - 340px);
+      height: 100%;
       background: #f6fbfc;
       #top {
         width: calc(100% - 340px);

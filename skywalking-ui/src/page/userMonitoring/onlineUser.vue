@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="onlineUserTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="登录地址">
         <a-input v-model="queryParams.ipaddr" placeholder="请输入登录地址"> </a-input>
@@ -47,69 +47,68 @@
 </template>
 
 <script>
-import hongtuConfig from '@/utils/services';
-export default {
-  data() {
-    return {
-      queryParams: {
-        onlineIP: undefined,
-        userName: undefined,
-        pageNum: 1,
-        pageSize: 10,
-      },
-      onlineUserListData: [],
-      paginationTotal: 0,
-    };
-  },
-  created() {
-    this.getOnlineUserList();
-  },
-  methods: {
-    handleForceLogout(row) {
-      this.$confirm({
-        title: '是否确认强退名称为"' + row.userName + '"的数据项?',
-        content: '',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: () => {
-          hongtuConfig.forceLogout(row.tokenId).then((res) => {
-            if (res.code == 200) {
-              this.getOnlineUserList();
-              this.$message.success('强退成功');
-            }
-          });
+  import hongtuConfig from '@/utils/services';
+  export default {
+    data() {
+      return {
+        queryParams: {
+          onlineIP: undefined,
+          userName: undefined,
+          pageNum: 1,
+          pageSize: 10,
         },
-        onCancel() {},
-      });
-    },
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
-      this.getOnlineUserList();
-    },
-    handleQuery() {
-      this.pageNum = 1;
-      this.getOnlineUserList();
-    },
-    getOnlineUserList() {
-      hongtuConfig.onlineUserList(this.queryParams).then((res) => {
-        this.onlineUserListData = res.data.pageData;
-        this.paginationTotal = res.data.totalCount;
-      });
-    },
-    resetQuery() {
-      this.queryParams = {
-        onlineIP: undefined,
-        userName: undefined,
-        pageNum: 1,
-        pageSize: 10,
+        onlineUserListData: [],
+        paginationTotal: 0,
       };
-      this.handleQuery();
     },
-  },
-};
+    created() {
+      this.getOnlineUserList();
+    },
+    methods: {
+      handleForceLogout(row) {
+        this.$confirm({
+          title: '是否确认强退名称为"' + row.userName + '"的数据项?',
+          content: '',
+          okText: '确定',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: () => {
+            hongtuConfig.forceLogout(row.tokenId).then((res) => {
+              if (res.code == 200) {
+                this.getOnlineUserList();
+                this.$message.success('强退成功');
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.getOnlineUserList();
+      },
+      handleQuery() {
+        this.pageNum = 1;
+        this.getOnlineUserList();
+      },
+      getOnlineUserList() {
+        hongtuConfig.onlineUserList(this.queryParams).then((res) => {
+          this.onlineUserListData = res.data.pageData;
+          this.paginationTotal = res.data.totalCount;
+        });
+      },
+      resetQuery() {
+        this.queryParams = {
+          onlineIP: undefined,
+          userName: undefined,
+          pageNum: 1,
+          pageSize: 10,
+        };
+        this.handleQuery();
+      },
+    },
+  };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

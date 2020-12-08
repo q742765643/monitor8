@@ -29,47 +29,47 @@
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
-        <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
-          <vxe-table-column type="checkbox"></vxe-table-column>
-          <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
-          <vxe-table-column field="triggerStatus" title="状态" show-overflow>
-            <template v-slot="{ row }">
-              <span v-if="row.triggerStatus == 0">未启动 </span>
-              <span v-if="row.triggerStatus == 1">启动 </span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="fileNum" title="应到数量" show-overflow></vxe-table-column>
-          <vxe-table-column field="fileSize" title="应到大小" show-overflow></vxe-table-column>
-          <vxe-table-column field="isUt" title="时区" show-overflow>
-            <template v-slot="{ row }">
-              <span v-if="row.isUt == 0">北京时 </span>
-              <span v-if="row.isUt == 1">世界时 </span>
-            </template>
-          </vxe-table-column>
-          <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
-          <vxe-table-column width="320" field="date" title="操作">
-            <template v-slot="{ row }">
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
-                启动
-              </a-button>
-              <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
-              <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
-              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
-            </template>
-          </vxe-table-column>
-        </vxe-table>
+      <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
+        <vxe-table-column type="checkbox"></vxe-table-column>
+        <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
+        <vxe-table-column field="triggerStatus" title="状态" show-overflow>
+          <template v-slot="{ row }">
+            <span v-if="row.triggerStatus == 0">未启动 </span>
+            <span v-if="row.triggerStatus == 1">启动 </span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="fileNum" title="应到数量" show-overflow></vxe-table-column>
+        <vxe-table-column field="fileSize" title="应到大小" show-overflow></vxe-table-column>
+        <vxe-table-column field="isUt" title="时区" show-overflow>
+          <template v-slot="{ row }">
+            <span v-if="row.isUt == 0">北京时 </span>
+            <span v-if="row.isUt == 1">世界时 </span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
+        <vxe-table-column width="320" field="date" title="操作">
+          <template v-slot="{ row }">
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)">
+              启动
+            </a-button>
+            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
+            <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+            <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
 
-        <vxe-pager
-          id="page_table"
-          perfect
-          :current-page.sync="queryParams.pageNum"
-          :page-size.sync="queryParams.pageSize"
-          :total="paginationTotal"
-          :page-sizes="[10, 20, 100]"
-          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-          @page-change="handlePageChange"
-        >
-        </vxe-pager>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="paginationTotal"
+        :page-sizes="[10, 20, 100]"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+        @page-change="handlePageChange"
+      >
+      </vxe-pager>
     </div>
 
     <a-modal
@@ -184,219 +184,218 @@
 </template>
 
 <script>
-import echarts from 'echarts';
-// 接口地址
-import hongtuConfig from '@/utils/services';
-import request from '@/utils/request';
+  import echarts from 'echarts';
+  // 接口地址
+  import hongtuConfig from '@/utils/services';
+  import request from '@/utils/request';
 
-import moment from 'moment';
-export default {
-  data() {
-    return {
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        taskName: '',
-        beginTime: '',
-        endTime: '',
-        timeRange: [],
-      },
-      tableData: [], //表格
-      paginationTotal: 0,
-      visibleModel: false, //弹出框
-      dialogTitle: '',
-      formDialog: {
-        taskName: '',
-      },
-      scanTypeOptions: [],
-      accountOptions: [],
-      rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
-    };
-  },
-  created() {
-    this.getDicts('scan_type').then((response) => {
-      this.scanTypeOptions = response.data;
-    });
-    this.selectAcount();
-    this.queryTable();
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-    window.addEventListener('resize', () => {
-      this.setTableHeight();
-    });
-  },
-  methods: {
-    moment,
-    range(start, end) {
-      const result = [];
-      for (let i = start; i < end; i++) {
-        result.push(i);
-      }
-      return result;
-    },
-    onTimeChange(value, dateString) {
-      this.queryParams.beginTime = dateString[0];
-      this.queryParams.endTime = dateString[1];
-    },
-    selectAcount() {
-      request({
-        url: '/directoryAccount/selectAll',
-        method: 'get',
-      }).then((response) => {
-        this.accountOptions = response.data;
-      });
-    },
-    regularCheck() {
-      request({
-        url: '/fileMonitor/regularCheck',
-        method: 'post',
-        data: this.formDialog,
-      }).then((response) => {
-        if (response.code === 200) {
-          this.msgSuccess('校验成功');
-        } else {
-          this.msgError(response.msg);
-        }
-      });
-    },
-    /* 查询 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.queryTable();
-    },
-    /* 重置 */
-    resetQuery() {
-      this.queryParams = {
-        pageNum: 1,
-        pageSize: 10,
-        ip: '',
-        triggerLastTime: '',
-        triggerNextTime: '',
-      };
-      this.queryTable();
-    },
-    /* 翻页 */
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
-      this.queryTable();
-    },
-    /* table方法 */
-    queryTable() {
-      hongtuConfig.fileMonitorList(this.queryParams).then((response) => {
-        this.tableData = response.data.pageData;
-        this.paginationTotal = response.data.totalCount;
-      });
-    },
-    /* 字典格式化 */
-    statusFormat(list, text) {
-      return hongtuConfig.formatterselectDictLabel(list, text);
-    },
-    handleAdd() {
-      /* 新增 */
-      this.dialogTitle = '新增';
-      this.formDialog = {
-        scanType: '1',
-      };
-      this.visibleModel = true;
-    },
-    /* 编辑 */
-    handleEdit(row) {
-      hongtuConfig.fileMonitorDetail(row.id).then((response) => {
-        if (response.code == 200) {
-          this.formDialog = response.data;
-          this.formDialog.scanType = this.formDialog.scanType.toString();
-          this.visibleModel = true;
-          this.dialogTitle = '编辑';
-        }
-      });
-    },
-    /* 确认 */
-    handleOk() {
-      this.$refs.formModel.validate((valid) => {
-        if (valid) {
-          hongtuConfig.fileMonitorPost(this.formDialog).then((response) => {
-            if (response.code == 200) {
-              this.$message.success(this.dialogTitle + '成功');
-              this.visibleModel = false;
-              this.queryTable();
-            }
-          });
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-    },
-    /* 删除 */
-    handleDelete(row) {
-      let ids = [];
-      let taskNames = [];
-      if (!row.id) {
-        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-        cellsChecked.forEach((element) => {
-          ids.push(element.id);
-          taskNames.push(element.taskName);
-        });
-      } else {
-        ids.push(row.id);
-        taskNames.push(row.taskName);
-      }
-      this.$confirm({
-        title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
-          hongtuConfig.fileMonitorDelete(ids.join(',')).then((response) => {
-            if (response.code == 200) {
-              this.$message.success('删除成功');
-              this.resetQuery();
-            }
-          });
+  import moment from 'moment';
+  export default {
+    data() {
+      return {
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          taskName: '',
+          beginTime: '',
+          endTime: '',
+          timeRange: [],
         },
-        onCancel() {},
+        tableData: [], //表格
+        paginationTotal: 0,
+        visibleModel: false, //弹出框
+        dialogTitle: '',
+        formDialog: {
+          taskName: '',
+        },
+        scanTypeOptions: [],
+        accountOptions: [],
+        rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
+      };
+    },
+    created() {
+      this.getDicts('scan_type').then((response) => {
+        this.scanTypeOptions = response.data;
+      });
+      this.selectAcount();
+      this.queryTable();
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.setTableHeight();
+      });
+      window.addEventListener('resize', () => {
+        this.setTableHeight();
       });
     },
-    setTableHeight() {
-      let h = document.getElementById('tablediv').offsetHeight;
-      let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
-      let h_page = document.getElementById('page_table').offsetHeight;
+    methods: {
+      moment,
+      range(start, end) {
+        const result = [];
+        for (let i = start; i < end; i++) {
+          result.push(i);
+        }
+        return result;
+      },
+      onTimeChange(value, dateString) {
+        this.queryParams.beginTime = dateString[0];
+        this.queryParams.endTime = dateString[1];
+      },
+      selectAcount() {
+        request({
+          url: '/directoryAccount/selectAll',
+          method: 'get',
+        }).then((response) => {
+          this.accountOptions = response.data;
+        });
+      },
+      regularCheck() {
+        request({
+          url: '/fileMonitor/regularCheck',
+          method: 'post',
+          data: this.formDialog,
+        }).then((response) => {
+          if (response.code === 200) {
+            this.msgSuccess('校验成功');
+          } else {
+            this.msgError(response.msg);
+          }
+        });
+      },
+      /* 查询 */
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.queryTable();
+      },
+      /* 重置 */
+      resetQuery() {
+        this.queryParams = {
+          pageNum: 1,
+          pageSize: 10,
+          ip: '',
+          triggerLastTime: '',
+          triggerNextTime: '',
+        };
+        this.queryTable();
+      },
+      /* 翻页 */
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.queryTable();
+      },
+      /* table方法 */
+      queryTable() {
+        hongtuConfig.fileMonitorList(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
+        });
+      },
+      /* 字典格式化 */
+      statusFormat(list, text) {
+        return hongtuConfig.formatterselectDictLabel(list, text);
+      },
+      handleAdd() {
+        /* 新增 */
+        this.dialogTitle = '新增';
+        this.formDialog = {
+          scanType: '1',
+        };
+        this.visibleModel = true;
+      },
+      /* 编辑 */
+      handleEdit(row) {
+        hongtuConfig.fileMonitorDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            this.formDialog = response.data;
+            this.formDialog.scanType = this.formDialog.scanType.toString();
+            this.visibleModel = true;
+            this.dialogTitle = '编辑';
+          }
+        });
+      },
+      /* 确认 */
+      handleOk() {
+        this.$refs.formModel.validate((valid) => {
+          if (valid) {
+            hongtuConfig.fileMonitorPost(this.formDialog).then((response) => {
+              if (response.code == 200) {
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
+                this.queryTable();
+              }
+            });
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      /* 删除 */
+      handleDelete(row) {
+        let ids = [];
+        let taskNames = [];
+        if (!row.id) {
+          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+          cellsChecked.forEach((element) => {
+            ids.push(element.id);
+            taskNames.push(element.taskName);
+          });
+        } else {
+          ids.push(row.id);
+          taskNames.push(row.taskName);
+        }
+        this.$confirm({
+          title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            hongtuConfig.fileMonitorDelete(ids.join(',')).then((response) => {
+              if (response.code == 200) {
+                this.$message.success('删除成功');
+                this.resetQuery();
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      setTableHeight() {
+        let h = document.getElementById('tablediv').offsetHeight;
+        let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
+        let h_page = document.getElementById('page_table').offsetHeight;
 
-      // let chartHeight = document.getElementById("chartdiv").clientHeight;
-      this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
+        // let chartHeight = document.getElementById("chartdiv").clientHeight;
+        this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
+      },
+      startJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+        request({
+          url: '/fileMonitor/updateFileMonitor',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('启动成功');
+          this.handleQuery();
+        });
+      },
+      endJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+        request({
+          url: '/fileMonitor/updateFileMonitor',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('停止成功');
+          this.handleQuery();
+        });
+      },
     },
-    startJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
-      request({
-        url: '/fileMonitor/updateFileMonitor',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('启动成功');
-        this.handleQuery();
-      });
-    },
-    endJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
-      request({
-        url: '/fileMonitor/updateFileMonitor',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('停止成功');
-        this.handleQuery();
-      });
-    },
-  },
-};
+  };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

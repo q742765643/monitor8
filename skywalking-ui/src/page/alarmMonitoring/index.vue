@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="alarmMonitoringTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="任务名称">
         <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
@@ -252,105 +252,105 @@
 </template>
 
 <script>
-import echarts from 'echarts';
-// 接口地址
-import hongtuConfig from '@/utils/services';
-import moment from 'moment';
-import request from '@/utils/request';
-export default {
-  data() {
-    //校验是否为cron表达式
-    var handleCronValidate = async (rule, value, callback) => {
-      if (value == '') {
-        callback(new Error('请输入执行策略!'));
-      } else {
-        let flag = true;
-        await getNextTime({
-          cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
-        }).then((res) => {
-          flag = false;
-        });
-        if (flag) {
-          callback(new Error('执行策略表达式错误!'));
+  import echarts from 'echarts';
+  // 接口地址
+  import hongtuConfig from '@/utils/services';
+  import moment from 'moment';
+  import request from '@/utils/request';
+  export default {
+    data() {
+      //校验是否为cron表达式
+      var handleCronValidate = async (rule, value, callback) => {
+        if (value == '') {
+          callback(new Error('请输入执行策略!'));
         } else {
-          callback();
+          let flag = true;
+          await getNextTime({
+            cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+          }).then((res) => {
+            flag = false;
+          });
+          if (flag) {
+            callback(new Error('执行策略表达式错误!'));
+          } else {
+            callback();
+          }
         }
-      }
-    };
-    return {
-      cronPopover: false,
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        taskName: '',
-        beginTime: '',
-        endTime: '',
-        timeRange: [],
-      },
-      tableData: [], //表格
-      paginationTotal: 0,
-      visibleModel: false, //弹出框
-      operatorOptions: [], //告警运算符号
-      kpiOptions: [], //告警指标
-      typeOptions: [], //告警类型,监测类型
-      dialogTitle: '',
-      monitorVal: '',
-      formDialog: {
-        taskName: '',
-        dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
-      },
-      rules: {
-        taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
-        //jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
-      }, //规则
-    };
-  },
-  created() {
-    hongtuConfig.getDicts('alarm_operator').then((res) => {
-      if (res.code == 200) {
-        this.operatorOptions = res.data;
-      }
-    });
-    hongtuConfig.getDicts('alarm_kpi').then((res) => {
-      if (res.code == 200) {
-        this.kpiOptions = res.data;
-        this.kpiOptions.forEach((item, index) => {
-          item.dictValue = parseInt(item.dictValue);
-        });
-      }
-    });
-    hongtuConfig.getDicts('alarm_type').then((res) => {
-      if (res.code == 200) {
-        this.typeOptions = res.data;
-        this.typeOptions.forEach((item, index) => {
-          item.dictValue = parseInt(item.dictValue);
-        });
-      }
-    });
-    this.queryTable();
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-    window.addEventListener('resize', () => {
-      this.setTableHeight();
-    });
-  },
-  methods: {
-    changeCron(val) {
-      this.cronExpression = val;
-      if (val.substring(0, 5) == '* * *') {
-        this.msgError('小时,分钟,秒必填');
-      } else {
-        this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
-      }
+      };
+      return {
+        cronPopover: false,
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          taskName: '',
+          beginTime: '',
+          endTime: '',
+          timeRange: [],
+        },
+        tableData: [], //表格
+        paginationTotal: 0,
+        visibleModel: false, //弹出框
+        operatorOptions: [], //告警运算符号
+        kpiOptions: [], //告警指标
+        typeOptions: [], //告警类型,监测类型
+        dialogTitle: '',
+        monitorVal: '',
+        formDialog: {
+          taskName: '',
+          dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
+        },
+        rules: {
+          taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
+          //jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
+        }, //规则
+      };
     },
-    closeCronPopover() {
-      if (this.cronExpression.substring(0, 5) == '* * *') {
-        return;
-      } else {
-        /*   getNextTime({
+    created() {
+      hongtuConfig.getDicts('alarm_operator').then((res) => {
+        if (res.code == 200) {
+          this.operatorOptions = res.data;
+        }
+      });
+      hongtuConfig.getDicts('alarm_kpi').then((res) => {
+        if (res.code == 200) {
+          this.kpiOptions = res.data;
+          this.kpiOptions.forEach((item, index) => {
+            item.dictValue = parseInt(item.dictValue);
+          });
+        }
+      });
+      hongtuConfig.getDicts('alarm_type').then((res) => {
+        if (res.code == 200) {
+          this.typeOptions = res.data;
+          this.typeOptions.forEach((item, index) => {
+            item.dictValue = parseInt(item.dictValue);
+          });
+        }
+      });
+      this.queryTable();
+    },
+    mounted() {
+      this.$nextTick(() => {
+        this.setTableHeight();
+      });
+      window.addEventListener('resize', () => {
+        this.setTableHeight();
+      });
+    },
+    methods: {
+      changeCron(val) {
+        this.cronExpression = val;
+        if (val.substring(0, 5) == '* * *') {
+          this.msgError('小时,分钟,秒必填');
+        } else {
+          this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
+        }
+      },
+      closeCronPopover() {
+        if (this.cronExpression.substring(0, 5) == '* * *') {
+          return;
+        } else {
+          /*   getNextTime({
           cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
         }).then((res) => {
           let times = res.data;
@@ -364,261 +364,261 @@ export default {
             this.CronPopover = false;
           });
         }); */
-      }
-    },
-    changeType(val) {
-      this.monitorVal = val;
-      this.formDialog.dangers.forEach((element) => {
-        element.monitorValue = val;
-      });
-      this.formDialog.severitys.forEach((element) => {
-        element.monitorValue = val;
-      });
-      this.formDialog.generals.forEach((element) => {
-        element.monitorValue = val;
-      });
-    },
-    moment,
-    range(start, end) {
-      const result = [];
-      for (let i = start; i < end; i++) {
-        result.push(i);
-      }
-      return result;
-    },
-    onTimeChange(value, dateString) {
-      this.queryParams.beginTime = dateString[0];
-      this.queryParams.endTime = dateString[1];
-    },
-    /* 查询 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.queryTable();
-    },
-    /* 重置 */
-    resetQuery() {
-      this.queryParams = {
-        pageNum: 1,
-        pageSize: 10,
-        beginTime: '',
-        endTime: '',
-      };
-      this.queryTable();
-    },
-    /* 翻页 */
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
-      this.queryTable();
-    },
-    /* table方法 */
-    queryTable() {
-      hongtuConfig.alarmCofigList(this.queryParams).then((response) => {
-        this.tableData = response.data.pageData;
-        this.paginationTotal = response.data.totalCount;
-      });
-    },
-    /* 字典格式化 */
-    statusFormat(list, text) {
-      return hongtuConfig.formatterselectDictLabel(list, text);
-    },
-    /* 一般阈值条件 */
-    generalsHandleAdd() {
-      this.formDialog.generals.push({
-        operate: 'and',
-        paramname: '',
-        paramvalue: '',
-        monitorValue: this.monitorVal,
-      });
-    },
-    generalsHandleDelete(index) {
-      this.formDialog.generals.splice(index, 1);
-    },
-    /* 危险阈值条件 */
-    dangerHandleAdd() {
-      this.formDialog.dangers.push({
-        operate: 'and',
-        paramname: '',
-        paramvalue: '',
-        monitorValue: this.monitorVal,
-      });
-    },
-    dangerHandleDelete(index) {
-      this.formDialog.dangers.splice(index, 1);
-    },
-    /* 故障阈值条件 */
-    severitysHandleAdd() {
-      this.formDialog.severitys.push({
-        operate: 'and',
-        paramname: '',
-        paramvalue: '',
-        monitorValue: this.monitorVal,
-      });
-    },
-    severitysHandleDelete(index) {
-      this.formDialog.severitys.splice(index, 1);
-    },
-    handleAdd() {
-      /* 新增 */
-      this.dialogTitle = '新增';
-      this.formDialog = {
-        taskName: '',
-        dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
-        severitys: [{ operate: 'and', paramname: '', paramvalue: '' }],
-        generals: [{ operate: 'and', paramname: '', paramvalue: '' }],
-      };
-      this.visibleModel = true;
-    },
-    /* 编辑 */
-    handleEdit(row) {
-      hongtuConfig.alarmCofigDetail(row.id).then((response) => {
-        if (response.code == 200) {
-          this.formDialog = response.data;
-          this.changeType(this.formDialog.monitorType);
-          this.visibleModel = true;
-          this.dialogTitle = '编辑';
         }
-      });
-    },
-    /* 确认 */
-    handleOk() {
-      this.$refs.formModel.validate((valid) => {
-        if (valid) {
-          hongtuConfig.alarmCofigPost(this.formDialog).then((response) => {
-            if (response.code == 200) {
-              this.$message.success(this.dialogTitle + '成功');
-              this.visibleModel = false;
-              this.queryTable();
-            }
+      },
+      changeType(val) {
+        this.monitorVal = val;
+        this.formDialog.dangers.forEach((element) => {
+          element.monitorValue = val;
+        });
+        this.formDialog.severitys.forEach((element) => {
+          element.monitorValue = val;
+        });
+        this.formDialog.generals.forEach((element) => {
+          element.monitorValue = val;
+        });
+      },
+      moment,
+      range(start, end) {
+        const result = [];
+        for (let i = start; i < end; i++) {
+          result.push(i);
+        }
+        return result;
+      },
+      onTimeChange(value, dateString) {
+        this.queryParams.beginTime = dateString[0];
+        this.queryParams.endTime = dateString[1];
+      },
+      /* 查询 */
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.queryTable();
+      },
+      /* 重置 */
+      resetQuery() {
+        this.queryParams = {
+          pageNum: 1,
+          pageSize: 10,
+          beginTime: '',
+          endTime: '',
+        };
+        this.queryTable();
+      },
+      /* 翻页 */
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.queryTable();
+      },
+      /* table方法 */
+      queryTable() {
+        hongtuConfig.alarmCofigList(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
+        });
+      },
+      /* 字典格式化 */
+      statusFormat(list, text) {
+        return hongtuConfig.formatterselectDictLabel(list, text);
+      },
+      /* 一般阈值条件 */
+      generalsHandleAdd() {
+        this.formDialog.generals.push({
+          operate: 'and',
+          paramname: '',
+          paramvalue: '',
+          monitorValue: this.monitorVal,
+        });
+      },
+      generalsHandleDelete(index) {
+        this.formDialog.generals.splice(index, 1);
+      },
+      /* 危险阈值条件 */
+      dangerHandleAdd() {
+        this.formDialog.dangers.push({
+          operate: 'and',
+          paramname: '',
+          paramvalue: '',
+          monitorValue: this.monitorVal,
+        });
+      },
+      dangerHandleDelete(index) {
+        this.formDialog.dangers.splice(index, 1);
+      },
+      /* 故障阈值条件 */
+      severitysHandleAdd() {
+        this.formDialog.severitys.push({
+          operate: 'and',
+          paramname: '',
+          paramvalue: '',
+          monitorValue: this.monitorVal,
+        });
+      },
+      severitysHandleDelete(index) {
+        this.formDialog.severitys.splice(index, 1);
+      },
+      handleAdd() {
+        /* 新增 */
+        this.dialogTitle = '新增';
+        this.formDialog = {
+          taskName: '',
+          dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
+          severitys: [{ operate: 'and', paramname: '', paramvalue: '' }],
+          generals: [{ operate: 'and', paramname: '', paramvalue: '' }],
+        };
+        this.visibleModel = true;
+      },
+      /* 编辑 */
+      handleEdit(row) {
+        hongtuConfig.alarmCofigDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            this.formDialog = response.data;
+            this.changeType(this.formDialog.monitorType);
+            this.visibleModel = true;
+            this.dialogTitle = '编辑';
+          }
+        });
+      },
+      /* 确认 */
+      handleOk() {
+        this.$refs.formModel.validate((valid) => {
+          if (valid) {
+            hongtuConfig.alarmCofigPost(this.formDialog).then((response) => {
+              if (response.code == 200) {
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
+                this.queryTable();
+              }
+            });
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      /* 删除 */
+      handleDelete(row) {
+        let ids = [];
+        let taskNames = [];
+        if (!row.id) {
+          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+          cellsChecked.forEach((element) => {
+            ids.push(element.id);
+            taskNames.push(element.taskName);
           });
         } else {
-          console.log('error submit!!');
-          return false;
+          ids.push(row.id);
+          taskNames.push(row.taskName);
         }
-      });
-    },
-    /* 删除 */
-    handleDelete(row) {
-      let ids = [];
-      let taskNames = [];
-      if (!row.id) {
-        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-        cellsChecked.forEach((element) => {
-          ids.push(element.id);
-          taskNames.push(element.taskName);
+        this.$confirm({
+          title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            hongtuConfig.alarmCofigDelete(ids.join(',')).then((response) => {
+              if (response.code == 200) {
+                this.$message.success('删除成功');
+                this.resetQuery();
+              }
+            });
+          },
+          onCancel() {},
         });
-      } else {
-        ids.push(row.id);
-        taskNames.push(row.taskName);
-      }
-      this.$confirm({
-        title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
-          hongtuConfig.alarmCofigDelete(ids.join(',')).then((response) => {
-            if (response.code == 200) {
-              this.$message.success('删除成功');
-              this.resetQuery();
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-    setTableHeight() {
-      let h = document.getElementById('tablediv').offsetHeight;
-      let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
-      let h_page = document.getElementById('page_table').offsetHeight;
+      },
+      setTableHeight() {
+        let h = document.getElementById('tablediv').offsetHeight;
+        let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
+        let h_page = document.getElementById('page_table').offsetHeight;
 
-      // let chartHeight = document.getElementById("chartdiv").clientHeight;
-      this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
+        // let chartHeight = document.getElementById("chartdiv").clientHeight;
+        this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
+      },
+      startJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+        console.log(data);
+        request({
+          url: '/alarmCofig/updateAlarm',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('启动成功');
+          this.handleQuery();
+        });
+      },
+      endJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+        request({
+          url: '/alarmCofig/updateAlarm',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('停止成功');
+          this.handleQuery();
+        });
+      },
     },
-    startJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
-      console.log(data);
-      request({
-        url: '/alarmCofig/updateAlarm',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('启动成功');
-        this.handleQuery();
-      });
-    },
-    endJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
-      request({
-        url: '/alarmCofig/updateAlarm',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('停止成功');
-        this.handleQuery();
-      });
-    },
-  },
-};
+  };
 </script>
 
 <style lang="scss" scoped>
-.fileMonitorTemplate {
-  width: 100%;
-  height: 100%;
-  font-family: Alibaba-PuHuiTi-Regular;
-
-  .head {
-    box-shadow: $plane_shadow;
+  .fileMonitorTemplate {
     width: 100%;
-    height: 1.25rem;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.1rem;
+    height: 100%;
+    font-family: Alibaba-PuHuiTi-Regular;
+
+    .head {
+      box-shadow: $plane_shadow;
+      width: 100%;
+      height: 1.25rem;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.1rem;
+    }
+
+    #linkManger_content {
+      box-shadow: $plane_shadow;
+      width: 100%;
+      // height: calc(100% - 1.5rem);
+      background: white;
+      padding: 0.25rem;
+      overflow: hidden;
+    }
   }
 
-  #linkManger_content {
-    box-shadow: $plane_shadow;
-    width: 100%;
-    // height: calc(100% - 1.5rem);
-    background: white;
-    padding: 0.25rem;
-    overflow: hidden;
+  .lineLabel {
+    .formIcon {
+      color: red;
+    }
+    .rulesIcon {
+      width: 0.15rem;
+      height: 0.15rem;
+      display: inline-block;
+      margin: 0 0.15rem;
+    }
+    .rulesIcon1 {
+      background: rgb(65, 184, 181);
+    }
+    .rulesIcon2 {
+      background: rgb(237, 184, 29);
+    }
+    .rulesIcon3 {
+      background: rgb(235, 93, 93);
+    }
   }
-}
 
-.lineLabel {
-  .formIcon {
-    color: red;
+  .lineContent {
+    .unitBox {
+      text-align: right;
+    }
   }
-  .rulesIcon {
-    width: 0.15rem;
-    height: 0.15rem;
-    display: inline-block;
-    margin: 0 0.15rem;
-  }
-  .rulesIcon1 {
-    background: rgb(65, 184, 181);
-  }
-  .rulesIcon2 {
-    background: rgb(237, 184, 29);
-  }
-  .rulesIcon3 {
-    background: rgb(235, 93, 93);
-  }
-}
 
-.lineContent {
-  .unitBox {
-    text-align: right;
+  .ant-form-item-label > label::after {
+    opacity: 0;
   }
-}
-
-.ant-form-item-label > label::after {
-  opacity: 0;
-}
 </style>

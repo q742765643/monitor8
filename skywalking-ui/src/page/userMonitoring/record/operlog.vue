@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="operLogTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
       <a-form-model-item label="系统模块">
         <a-input v-model="queryParams.title" placeholder="请输入系统模块"> </a-input>
@@ -140,164 +140,163 @@
 </template>
 
 <script>
-import hongtuConfig from '@/utils/services';
-import request from '@/utils/request';
-export default {
-  data() {
-    return {
-      queryParams: {
-        operName: undefined,
-        title: this.$route.params.title,
-        status: undefined,
-        businessType: undefined,
-        params: {
-          orderBy: {
-            operTime: 'desc',
+  import hongtuConfig from '@/utils/services';
+  import request from '@/utils/request';
+  export default {
+    data() {
+      return {
+        queryParams: {
+          operName: undefined,
+          title: this.$route.params.title,
+          status: undefined,
+          businessType: undefined,
+          params: {
+            orderBy: {
+              operTime: 'desc',
+            },
           },
+          pageNum: 1,
+          pageSize: 10,
         },
-        pageNum: 1,
-        pageSize: 10,
-      },
-      ids: [],
-      multiple: true,
-      operListData: [],
-      paginationTotal: 0,
-      typeOptions: [],
-      statusOptions: [],
-      dateRange: [],
-      form: {},
-      open: false,
-      single: true,
-    };
-  },
-  created() {
-    this.getOperlogList();
-    hongtuConfig.getDicts('sys_oper_type').then((res) => {
-      if (res.code == 200) {
-        this.typeOptions = res.data;
-      }
-    });
-    hongtuConfig.getDicts('sys_common_status').then((res) => {
-      if (res.code == 200) {
-        this.statusOptions = res.data;
-      }
-    });
-  },
-  methods: {
-    selectBox(selection) {
-      // console.log(selection.selection)
-      this.single = selection.selection.length > 0 ? false : true;
+        ids: [],
+        multiple: true,
+        operListData: [],
+        paginationTotal: 0,
+        typeOptions: [],
+        statusOptions: [],
+        dateRange: [],
+        form: {},
+        open: false,
+        single: true,
+      };
     },
-    getOperlogList() {
-      if (this.queryParams.dateRange) {
-        this.dateRange = this.queryParams.dateRange;
-      } else {
-        this.dateRange = [];
-      }
-      hongtuConfig.getOperlog(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
-        this.operListData = res.data.pageData;
-        this.paginationTotal = res.data.totalCount;
-      });
-    },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    created() {
       this.getOperlogList();
+      hongtuConfig.getDicts('sys_oper_type').then((res) => {
+        if (res.code == 200) {
+          this.typeOptions = res.data;
+        }
+      });
+      hongtuConfig.getDicts('sys_common_status').then((res) => {
+        if (res.code == 200) {
+          this.statusOptions = res.data;
+        }
+      });
     },
-    resetQuery() {
-      this.dateRange = [];
-      // this.resetForm('queryForm')
-      (this.queryParams = {
-        operName: undefined,
-        title: this.$route.params.title,
-        status: undefined,
-        businessType: undefined,
-        params: {
-          orderBy: {
-            operTime: 'desc',
-          },
-        },
-        pageNum: 1,
-        pageSize: 10,
-      }),
+    methods: {
+      selectBox(selection) {
+        // console.log(selection.selection)
+        this.single = selection.selection.length > 0 ? false : true;
+      },
+      getOperlogList() {
+        if (this.queryParams.dateRange) {
+          this.dateRange = this.queryParams.dateRange;
+        } else {
+          this.dateRange = [];
+        }
+        hongtuConfig.getOperlog(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
+          this.operListData = res.data.pageData;
+          this.paginationTotal = res.data.totalCount;
+        });
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
         this.getOperlogList();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        // this.resetForm('queryForm')
+        (this.queryParams = {
+          operName: undefined,
+          title: this.$route.params.title,
+          status: undefined,
+          businessType: undefined,
+          params: {
+            orderBy: {
+              operTime: 'desc',
+            },
+          },
+          pageNum: 1,
+          pageSize: 10,
+        }),
+          this.getOperlogList();
+      },
+      handleSelectionChange(selection) {
+        console.log(selection);
+        this.ids = selection.map((item) => item.id);
+        this.multiple = !selection.length;
+      },
+      handleDelete(row) {
+        let ids = [];
+        let cellsChecked = this.$refs.operListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+        });
+        // this.multiple = !ids.length
+        console.log(ids);
+        // const ids = row.id || this.ids;
+        this.$confirm({
+          title: '是否确认删除日志编号为"' + ids + '"的数据项?',
+          content: '',
+          okText: '确定',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: () => {
+            hongtuConfig.delOperlog(ids).then((res) => {
+              if (res.code == 200) {
+                this.getOperlogList();
+                this.single = true;
+                this.$message.success('删除成功');
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      handleClean() {
+        this.$confirm({
+          title: '是否确认清空所有操作日志数据项?',
+          content: '',
+          okText: '确定',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: () => {
+            hongtuConfig.cleanOperlog().then((res) => {
+              if (res.code == 200) {
+                this.getOperlogList();
+                this.$message.success('清空成功');
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      handleOk() {},
+      // 字典格式化
+      typeFormat(list, text) {
+        return hongtuConfig.formatterselectDictLabel(list, text);
+      },
+      statusFormat(list, text) {
+        return hongtuConfig.formatterselectDictLabel(list, text);
+      },
+      handleCancel() {},
+      handleView(row) {
+        this.open = true;
+        this.form = row;
+      },
+      handleUpload() {
+        hongtuConfig.exportOperlog(this.queryParams).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      // 分页事件
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.getRoleList();
+      },
     },
-    handleSelectionChange(selection) {
-      console.log(selection);
-      this.ids = selection.map((item) => item.id);
-      this.multiple = !selection.length;
-    },
-    handleDelete(row) {
-      let ids = [];
-      let cellsChecked = this.$refs.operListRef.getCheckboxRecords();
-      cellsChecked.forEach((element) => {
-        ids.push(element.id);
-      });
-      // this.multiple = !ids.length
-      console.log(ids);
-      // const ids = row.id || this.ids;
-      this.$confirm({
-        title: '是否确认删除日志编号为"' + ids + '"的数据项?',
-        content: '',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: () => {
-          hongtuConfig.delOperlog(ids).then((res) => {
-            if (res.code == 200) {
-              this.getOperlogList();
-              this.single = true;
-              this.$message.success('删除成功');
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-    handleClean() {
-      this.$confirm({
-        title: '是否确认清空所有操作日志数据项?',
-        content: '',
-        okText: '确定',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: () => {
-          hongtuConfig.cleanOperlog().then((res) => {
-            if (res.code == 200) {
-              this.getOperlogList();
-              this.$message.success('清空成功');
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-    handleOk() {},
-    // 字典格式化
-    typeFormat(list, text) {
-      return hongtuConfig.formatterselectDictLabel(list, text);
-    },
-    statusFormat(list, text) {
-      return hongtuConfig.formatterselectDictLabel(list, text);
-    },
-    handleCancel() {},
-    handleView(row) {
-      this.open = true;
-      this.form = row;
-    },
-    handleUpload() {
-      hongtuConfig.exportOperlog(this.queryParams).then((res) => {
-        this.downloadfileCommon(res);
-      });
-    },
-    // 分页事件
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
-      this.getRoleList();
-    },
-  },
-};
+  };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

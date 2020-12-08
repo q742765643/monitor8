@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="masterManagerTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="ip地址">
         <a-input v-model="queryParams.ip" placeholder="请输入ip地址"> </a-input>
@@ -201,241 +201,240 @@
     </a-modal>
   </div>
 </template>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
 <script>
-import request from '@/utils/request';
-import hongtuConfig from '@/utils/services';
-export default {
-  data() {
-    return {
-      tableData: [],
-      pagination: {},
-      paginationTotal: 0,
-      loading: false,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        triggerStatus: undefined,
-        taskName: undefined,
-        deviceType: 0,
-        ip: undefined,
-      },
-      visible: false,
-      form: {},
-      triggerStatusOptions: [],
-      currentStatusOptions: [],
-      mediaTypeOptions: [],
-      monitoringMethodsOptions: [],
-      areaOptions: [],
-      title: '',
-      ids: [],
-      ips: [],
-    };
-  },
-  created() {
-    this.getDicts('job_trigger_status').then((response) => {
-      if (response.code == 200) {
-        this.triggerStatusOptions = response.data;
-      }
-    });
-    this.getDicts('current_status').then((response) => {
-      if (response.code == 200) {
-        this.currentStatusOptions = response.data;
-      }
-    });
-    this.getDicts('media_type').then((response) => {
-      if (response.code == 200) {
-        this.mediaTypeOptions = response.data;
-      }
-    });
-    this.getDicts('monitoring_methods').then((response) => {
-      if (response.code == 200) {
-        this.monitoringMethodsOptions = response.data;
-      }
-    });
-    this.getDicts('media_area').then((response) => {
-      if (response.code == 200) {
-        this.areaOptions = response.data;
-      }
-    });
-  },
-  mounted() {
-    this.fetch();
-  },
-  computed: {
-    rowSelection() {
+  import request from '@/utils/request';
+  import hongtuConfig from '@/utils/services';
+  export default {
+    data() {
       return {
-        onChange: (selectedRowKeys, selectedRows) => {
-          this.ids = selectedRows.map((item) => item.id);
-          this.ips = selectedRows.map((item) => item.ip);
+        tableData: [],
+        pagination: {},
+        paginationTotal: 0,
+        loading: false,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          triggerStatus: undefined,
+          taskName: undefined,
+          deviceType: 0,
+          ip: undefined,
         },
-        getCheckboxProps: (record) => ({
-          props: {
-            disabled: record.id === 'Disabled User', // Column configuration not to be checked
-            name: record.id,
-          },
-        }),
+        visible: false,
+        form: {},
+        triggerStatusOptions: [],
+        currentStatusOptions: [],
+        mediaTypeOptions: [],
+        monitoringMethodsOptions: [],
+        areaOptions: [],
+        title: '',
+        ids: [],
+        ips: [],
       };
     },
-  },
-  methods: {
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
-      this.fetch();
-    },
-    statusFormat(options, status) {
-      // return this.selectDictLabel(options, status);
-      return hongtuConfig.formatterselectDictLabel(options, status);
-    },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.fetch();
-    },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
-    },
-    fetch() {
-      this.loading = true;
-      request({
-        url: '/hostConfig/list',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        this.tableData = data.data.pageData;
-        this.paginationTotal = data.data.totalCount;
+    created() {
+      this.getDicts('job_trigger_status').then((response) => {
+        if (response.code == 200) {
+          this.triggerStatusOptions = response.data;
+        }
+      });
+      this.getDicts('current_status').then((response) => {
+        if (response.code == 200) {
+          this.currentStatusOptions = response.data;
+        }
+      });
+      this.getDicts('media_type').then((response) => {
+        if (response.code == 200) {
+          this.mediaTypeOptions = response.data;
+        }
+      });
+      this.getDicts('monitoring_methods').then((response) => {
+        if (response.code == 200) {
+          this.monitoringMethodsOptions = response.data;
+        }
+      });
+      this.getDicts('media_area').then((response) => {
+        if (response.code == 200) {
+          this.areaOptions = response.data;
+        }
       });
     },
-    handleAdd() {
-      this.form.id = undefined;
-      this.title = '新增链路设备';
-      this.visible = true;
-    },
-    handleTableChange(pagination, filters, sorter) {
-      const pager = { ...this.pagination };
-      this.queryParams.pageNum = pagination.current;
-      this.pagination = pager;
+    mounted() {
       this.fetch();
     },
-    handleUpdate(row) {
-      this.form = {};
-      const id = row.id || this.ids;
-
-      request({
-        url: '/hostConfig/' + id,
-        method: 'get',
-      }).then((response) => {
-        this.form = response.data;
-        //this.form.monitoringMethods= this.form.monitoringMethods.toString();
-        //this.form.mediaType= this.form.mediaType.toString();
-        //this.form.deviceType= this.form.deviceType.toString();
-        //this.form.currentStatus= this.form.currentStatus.toString();
-        //this.form.triggerStatus=this.form.triggerStatus.toString();
+    computed: {
+      rowSelection() {
+        return {
+          onChange: (selectedRowKeys, selectedRows) => {
+            this.ids = selectedRows.map((item) => item.id);
+            this.ips = selectedRows.map((item) => item.ip);
+          },
+          getCheckboxProps: (record) => ({
+            props: {
+              disabled: record.id === 'Disabled User', // Column configuration not to be checked
+              name: record.id,
+            },
+          }),
+        };
+      },
+    },
+    methods: {
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.fetch();
+      },
+      statusFormat(options, status) {
+        // return this.selectDictLabel(options, status);
+        return hongtuConfig.formatterselectDictLabel(options, status);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        this.loading = true;
+        request({
+          url: '/hostConfig/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          this.tableData = data.data.pageData;
+          this.paginationTotal = data.data.totalCount;
+        });
+      },
+      handleAdd() {
+        this.form.id = undefined;
+        this.title = '新增链路设备';
         this.visible = true;
-        this.title = '修改链路设备';
-      });
-    },
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      const ips = row.ip || this.ips;
-      this.$confirm({
-        title: '是否确认删除ip为"' + ips + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
+      },
+      handleTableChange(pagination, filters, sorter) {
+        const pager = { ...this.pagination };
+        this.queryParams.pageNum = pagination.current;
+        this.pagination = pager;
+        this.fetch();
+      },
+      handleUpdate(row) {
+        this.form = {};
+        const id = row.id || this.ids;
+
+        request({
+          url: '/hostConfig/' + id,
+          method: 'get',
+        }).then((response) => {
+          this.form = response.data;
+          //this.form.monitoringMethods= this.form.monitoringMethods.toString();
+          //this.form.mediaType= this.form.mediaType.toString();
+          //this.form.deviceType= this.form.deviceType.toString();
+          //this.form.currentStatus= this.form.currentStatus.toString();
+          //this.form.triggerStatus=this.form.triggerStatus.toString();
+          this.visible = true;
+          this.title = '修改链路设备';
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        const ips = row.ip || this.ips;
+        this.$confirm({
+          title: '是否确认删除ip为"' + ips + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            request({
+              url: '/hostConfig/' + ids,
+              method: 'delete',
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError('删除成功!');
+              } else {
+                this.msgError(response.msg);
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      submitForm() {
+        if (this.form.id != undefined) {
           request({
-            url: '/hostConfig/' + ids,
-            method: 'delete',
+            url: '/hostConfig',
+            method: 'post',
+            data: this.form,
           }).then((response) => {
             if (response.code === 200) {
+              this.msgSuccess('修改成功');
+              this.visible = false;
               this.fetch();
-              this.msgError('删除成功!');
             } else {
               this.msgError(response.msg);
             }
           });
-        },
-        onCancel() {},
-      });
-    },
-    submitForm() {
-      if (this.form.id != undefined) {
+        } else {
+          request({
+            url: '/hostConfig',
+            method: 'post',
+            data: this.form,
+          }).then((response) => {
+            if (response.code === 200) {
+              this.msgSuccess('新增成功');
+              this.visible = false;
+              this.fetch();
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        }
+      },
+      fnRowClass(record, index) {
+        return 'csbsTypes';
+      },
+      updateAsLink(row) {
+        const id = row.id;
+        let data = { id: id, deviceType: 1, isHost: 0 };
         request({
-          url: '/hostConfig',
+          url: '/hostConfig/updateHost',
           method: 'post',
-          data: this.form,
+          data: data,
         }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('修改成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
+          this.$message.success('设置成功');
+          this.handleQuery();
         });
-      } else {
+      },
+      startJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
         request({
-          url: '/hostConfig',
+          url: '/hostConfig/updateHost',
           method: 'post',
-          data: this.form,
+          data: data,
         }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('新增成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
+          this.$message.success('启动成功');
+          this.handleQuery();
         });
-      }
+      },
+      endJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+        request({
+          url: '/hostConfig/updateHost',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('停止成功');
+          this.handleQuery();
+        });
+      },
     },
-    fnRowClass(record, index) {
-      return 'csbsTypes';
-    },
-    updateAsLink(row) {
-      const id = row.id;
-      let data = { id: id, deviceType: 1, isHost: 0 };
-      request({
-        url: '/hostConfig/updateHost',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('设置成功');
-        this.handleQuery();
-      });
-    },
-    startJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
-      request({
-        url: '/hostConfig/updateHost',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('启动成功');
-        this.handleQuery();
-      });
-    },
-    endJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
-      request({
-        url: '/hostConfig/updateHost',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('停止成功');
-        this.handleQuery();
-      });
-    },
-  },
-};
+  };
 </script>

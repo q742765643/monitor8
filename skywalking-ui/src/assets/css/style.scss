@@ -75,9 +75,11 @@ html.body {
 .vxe-table {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
     margin-top: 20px;
+
     th {
         font-size: 16px;
     }
+
     td {
         font-size: 14px;
     }
@@ -91,7 +93,8 @@ html.body {
 //重置input，btn，label
 .ant-form-item-control,
 .ant-form-item-label,
-.ant-select-selection__rendered {
+.ant-select-selection__rendered,
+.el-date-editor .el-range__icon {
     line-height: 32px;
 }
 
@@ -104,22 +107,35 @@ html.body {
 
 .ant-btn {
     padding: 0 15px;
+    // margin-right: 10px;
+}
+
+.el-input__inner {
+    height: 32px;
+    line-height: 32px;
 }
 
 .ant-form label {
     font-size: 16px;
 }
 
-.roleBtn {
-    margin-top: 10px;
+.el-date-editor .el-range__icon,
+.el-date-editor .el-range-separator,
+.el-date-editor .el-range__close-icon {
+    line-height: 24px;
 }
 
 //带表格查询
 .queryForm {
     padding: 30px;
+    padding-bottom: 20px;
     margin-bottom: 20px;
     background: #FFFFFF;
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
+}
+
+.ant-form-inline .ant-form-item {
+    margin-bottom: 10px;
 }
 
 .tableDateBox {
@@ -148,4 +164,13 @@ html.body {
     font-size: 16px;
     line-height: 56px;
     padding-top: 20px;
+}
+
+// 页面中左侧
+.childLeftAside {
+    width: 240px;
+    height: 100%;
+    padding: 20px 10px;
+    background: #FFFFFF;
+    box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
 }

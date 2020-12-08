@@ -1,5 +1,5 @@
 <template>
-  <div class="managerTemplate">
+  <div class="fileLogTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
       <a-form-model-item label="目录名称" prop="name">
         <a-input v-model="queryParams.name" placeholder="请输入目录名称"> </a-input>
@@ -18,7 +18,7 @@
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
-        <vxe-table-column field="folderRegular" title="文件目录"> </vxe-table-column>
+        <vxe-table-column field="folderRegular" title="文件目录" width="270"> </vxe-table-column>
         <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
         <vxe-table-column field="isCompensation" title="是否补偿">
           <template v-slot="{ row }">
@@ -45,19 +45,19 @@
         </vxe-table-column>
       </vxe-table>
 
-    <vxe-pager
-            id="page_table"
-            perfect
-            :current-page.sync="queryParams.pageNum"
-            :page-size.sync="queryParams.pageSize"
-            :total="total"
-            :page-sizes="[10, 20, 100]"
-            @page-change="fetch"
-            :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-    ></vxe-pager>
-      <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消"
-             width="70%" >
-      <a-form-model    :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form" >
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="total"
+        :page-sizes="[10, 20, 100]"
+        @page-change="fetch"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+      ></vxe-pager>
+    </div>
+    <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消" width="70%">
+      <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form">
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="任务名称" prop="taskName">
@@ -93,25 +93,21 @@
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="远程目录" prop="remotePath">
-              <a-input v-model="form.remotePath" > </a-input>
+              <a-input v-model="form.remotePath"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="时区" prop="isUt">
               <a-select v-model="form.isUt">
-                <a-select-option :value="0">
-                  北京时
-                </a-select-option>
-                <a-select-option :value="1">
-                  世界时
-                </a-select-option>
+                <a-select-option :value="0"> 北京时 </a-select-option>
+                <a-select-option :value="1"> 世界时 </a-select-option>
               </a-select>
             </a-form-model-item>
           </a-col>
 
-          <a-col :span="24" >
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg" >
-              <a-input type="textarea" v-model="form.handleMsg" > </a-input>
+          <a-col :span="24">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg">
+              <a-input type="textarea" v-model="form.handleMsg"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>
@@ -122,106 +118,105 @@
 </template>
 
 <script>
-import request from '@/utils/request';
-export default {
-  data() {
-    return {
-      tableData: [],
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        name: undefined,
-        ip: undefined,
-      },
-      form: {},
-      title: '',
-      ids: [],
-      names: [],
-      visible: false,
-      handleCodeOptions: [],
-    };
-  },
-  created() {
-    this.getDicts('job_running_state').then((response) => {
-      if (response.code == 200) {
-        this.handleCodeOptions = response.data;
-      }
-    });
-  },
-  mounted() {
-    this.fetch();
-  },
-  computed: {},
-  methods: {
-    statusFormat(status) {
-      return this.selectDictLabel(this.handleCodeOptions, status);
+  import request from '@/utils/request';
+  export default {
+    data() {
+      return {
+        tableData: [],
+        total: 0,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          name: undefined,
+          ip: undefined,
+        },
+        form: {},
+        title: '',
+        ids: [],
+        names: [],
+        visible: false,
+        handleCodeOptions: [],
+      };
     },
-    rowSelection({ selection }) {
-      this.ids = selection.map((item) => item.id);
-      this.names = selection.map((item) => item.name);
+    created() {
+      this.getDicts('job_running_state').then((response) => {
+        if (response.code == 200) {
+          this.handleCodeOptions = response.data;
+        }
+      });
     },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
+    mounted() {
       this.fetch();
     },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
+    computed: {},
+    methods: {
+      statusFormat(status) {
+        return this.selectDictLabel(this.handleCodeOptions, status);
+      },
+      rowSelection({ selection }) {
+        this.ids = selection.map((item) => item.id);
+        this.names = selection.map((item) => item.name);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        request({
+          url: '/fileMonitorLog/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          this.tableData = data.data.pageData;
+          this.total = data.data.totalCount;
+        });
+      },
+      handleUpdate(row) {
+        this.form = {};
+        const id = row.id || this.ids;
+        request({
+          url: '/fileMonitorLog/' + id,
+          method: 'get',
+        }).then((response) => {
+          this.form = response.data;
+          this.visible = true;
+          this.title = '查看日志详情';
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        const names = row.name || this.names;
+        this.$confirm({
+          title: '是否确认删除名称为"' + names + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            request({
+              url: '/fileMonitorLog/' + ids,
+              method: 'delete',
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError('删除成功!');
+              } else {
+                this.msgError(response.msg);
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
     },
-    fetch() {
-      request({
-        url: '/fileMonitorLog/list',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        this.tableData = data.data.pageData;
-        this.total = data.data.totalCount;
-      });
-    },
-    handleUpdate(row) {
-      this.form = {};
-      const id = row.id || this.ids;
-      request({
-        url: '/fileMonitorLog/' + id,
-        method: 'get',
-      }).then((response) => {
-        this.form = response.data;
-        this.visible = true;
-        this.title = '查看日志详情';
-      });
-    },
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      const names = row.name || this.names;
-      this.$confirm({
-        title: '是否确认删除名称为"' + names + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
-          request({
-            url: '/fileMonitorLog/' + ids,
-            method: 'delete',
-          }).then((response) => {
-            if (response.code === 200) {
-              this.fetch();
-              this.msgError('删除成功!');
-            } else {
-              this.msgError(response.msg);
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-  },
-};
+  };
 </script>
-<style scoped>
-</style>
+<style scoped></style>
