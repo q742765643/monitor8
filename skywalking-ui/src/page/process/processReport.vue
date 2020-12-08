@@ -3,7 +3,6 @@
     <selectDate @changeDate="changeDate"></selectDate>
     <div class="tableDateBox">
       <div id="barlineChart"></div>
-
       <div id="toolbar">
         <vxe-toolbar custom>
           <template v-slot:buttons>
@@ -13,11 +12,9 @@
               <a-col :span="1.5">
                 <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
               </a-col>
-            
-
-            <a-col :span="1.5">
-              <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
-            </a-col>
+              <a-col :span="1.5">
+                <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
+              </a-col>
             </a-row>
           </template>
         </vxe-toolbar>

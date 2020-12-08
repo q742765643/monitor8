@@ -145,19 +145,19 @@ const router = new Router({
         },
         {
           path: '/dictType',
-          component: () => import('./views/containers/home/right/dict/index.vue'),
+          component: () => import('@/page/dictMonitoring/dictType.vue'),
         },
         {
           path: '/dictData/:dictId',
-          component: () => import('./views/containers/home/right/dict/data.vue'),
+          component: () => import('@/page/dictMonitoring/dictData.vue'),
         },
         {
-          path: 'dictData',
-          component: () => import('./views/containers/home/right/dict/data.vue'),
+          path: '/dictData',
+          component: () => import('@/page/dictMonitoring/dictData.vue'),
         },
         {
-          path: 'job',
-          component: () => import('./views/containers/home/right/job/index.vue'),
+          path: '/job',
+          component: () => import('@/page/dictMonitoring/job.vue'),
         },
         {
           path: '/fileMonitoring/directory_account',

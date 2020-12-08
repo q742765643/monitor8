@@ -125,9 +125,8 @@
         </a-menu-item>
       </a-sub-menu>
 
-      <a-sub-menu key="sub7">
+      <!-- <a-sub-menu key="sub7">
         <span slot="title"> <span class="iconfont">&#xe692;</span>旧页面</span>
-
         <a-menu-item key="/dictType">
           <span class="iconfont">&#xe611;</span>
           <router-link to="/dictType"> 字典管理</router-link>
@@ -152,7 +151,7 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/report"> 链路设备报表</router-link>
         </a-menu-item>
-      </a-sub-menu>
+      </a-sub-menu> -->
 
       <!-- 用户管理 -->
       <a-sub-menu key="sub8">
@@ -172,6 +171,18 @@
         <a-menu-item key="/departmentMonitoring">
           <span class="iconfont">&#xe60c;</span>
           <router-link to="/departmentMonitoring"> 部门管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/dictType">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/dictType"> 字典管理</router-link>
+        </a-menu-item>
+        <a-menu-item key="/dictData">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/dictData"> 字典数据</router-link>
+        </a-menu-item>
+        <a-menu-item key="/job">
+          <span class="iconfont">&#xe611;</span>
+          <router-link to="/job"> 调度管理</router-link>
         </a-menu-item>
         <a-sub-menu key="sub9" class="log">
           <span slot="title"> <span class="iconfont">&#xe640;</span>日志管理</span>

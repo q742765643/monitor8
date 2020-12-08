@@ -96,7 +96,7 @@
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
           </vxe-table-column>
-          <vxe-table-column field="userOperation" title="操作" width="240">
+          <vxe-table-column field="userOperation" title="操作" width="300">
             <template v-slot="{ row }">
               <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
               <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
