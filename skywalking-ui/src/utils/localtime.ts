@@ -34,7 +34,7 @@ const setTimezoneOffset = () => {
 };
 
 export const queryOAPTimeInfo = async () => {
-  let utc = window.localStorage.getItem('utc');
+/*  let utc = window.localStorage.getItem('utc');
   if (!utc) {
     const res: AxiosResponse = await graph.query('queryOAPTimeInfo').params({});
     if (!res.data) {
@@ -42,7 +42,7 @@ export const queryOAPTimeInfo = async () => {
     }
     utc = res.data.data.getTimeInfo.timezone / 100 + '';
     window.localStorage.setItem('utc', utc);
-  }
+  }*/
 };
 
 export default getLocalTime;
