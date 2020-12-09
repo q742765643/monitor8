@@ -4,11 +4,9 @@ import * as axios from 'axios';
 /* import { Message, MessageBox } from 'element-ui'; */
 import { AxiosResponse, AxiosRequestConfig } from 'axios';
 import { notification } from 'ant-design-vue';
-import Cookies from 'js-cookie'
-import {
-    getToken,
-} from '@/utils/auth'
-const TokenKey = 'Admin-Token'
+import Cookies from 'js-cookie';
+import { getToken } from '@/utils/auth';
+const TokenKey = 'Admin-Token';
 export interface AjaxResponse {
   code: number;
   message: string;
@@ -26,17 +24,17 @@ const service = axios.default.create({
 });
 /*
 let instance = axios.create({
-    baseURL: 'http://10.1.100.35:12800',
+    baseURL: '',
     timeout: 6000,
   }); */
 
 service.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-      if (getToken()) {
-          config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
-      } else {
-          config.headers['Authorization'] = Cookies.get(TokenKey)
-      }
+    if (getToken()) {
+      config.headers['Authorization'] = getToken(); // 让每个请求携带自定义token 请根据实际情况自行修改
+    } else {
+      config.headers['Authorization'] = Cookies.get(TokenKey);
+    }
     return config;
   },
   (err: any) => {
@@ -52,19 +50,16 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     if (response.data instanceof ArrayBuffer) {
-       return response;
+      return response;
     }
     const code = response.data.code;
-    if (code!== 200) {
-         notification.open({
-            message: '错误',
-            description:
-                response.data.msg,
-            onClick: () => {
-
-            },
-        });
-        return Promise.reject(new Error(response.data.msg))
+    if (code !== 200) {
+      notification.open({
+        message: '错误',
+        description: response.data.msg,
+        onClick: () => {},
+      });
+      return Promise.reject(new Error(response.data.msg));
     } else {
       let res = response.data;
       return res;

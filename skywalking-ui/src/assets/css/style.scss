@@ -90,6 +90,10 @@ html.body {
     background: $container_backColor;
 }
 
+.el-scrollbar__wrap {
+    overflow-x: hidden;
+}
+
 //重置input，btn，label
 .ant-form-item-control,
 .ant-form-item-label,

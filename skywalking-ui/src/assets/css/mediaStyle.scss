@@ -1,0 +1,43 @@
+@media screen and (max-width: 1366px) {
+  .login {
+    .wrap {
+      width: 70% !important;
+    }
+
+    .title {
+      font-size: 40px !important;
+      ;
+      margin-top: 40px !important;
+      ;
+      margin-bottom: 50px !important;
+      ;
+    }
+  }
+
+  .ant-input,
+  .ant-btn,
+  .ant-select-selection--single,
+  .login-code,
+  .loginBtn {
+    font-size: 26px !important;
+    height: 42px !important;
+  }
+
+  #menuNav {
+
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      padding-left: 48px !important;
+    }
+  }
+
+  .ant-menu-sub.ant-menu-inline>.ant-menu-submenu>.ant-menu-submenu-title {
+    height: 42px !important;
+    line-height: 42px !important;
+  }
+
+  .ant-menu-sub.ant-menu-inline>.ant-menu-submenu.log>.ant-menu-submenu-title {
+    font-size: 16px;
+  }
+
+}

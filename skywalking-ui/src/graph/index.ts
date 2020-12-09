@@ -41,7 +41,7 @@ class Graph {
   }
   public params(variablesData: any): AxiosPromise<void> {
     return axios.post(
-      'http://10.1.100.35:12800/graphql',
+      '/graphql',
       {
         query: query[this.queryData],
         variables: variablesData,
