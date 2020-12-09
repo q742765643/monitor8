@@ -1,0 +1,20 @@
+@media screen and (max-width: 1366px) {
+
+  #menuNav {
+
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      padding-left: 48px !important;
+    }
+  }
+
+  .ant-menu-sub.ant-menu-inline>.ant-menu-submenu>.ant-menu-submenu-title {
+    height: 42px !important;
+    line-height: 42px !important;
+  }
+
+  .ant-menu-sub.ant-menu-inline>.ant-menu-submenu.log>.ant-menu-submenu-title {
+    font-size: 16px;
+  }
+
+}

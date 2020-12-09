@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -47,7 +46,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ME
 @Getter
 @ScopeDeclaration(id = METRICBEAT, name = "METRICBEATTemplate")
 @Stream(name = MetricbeatTemplate.INDEX_NAME, scopeId = METRICBEAT, builder = MetricbeatTemplate.Builder.class, processor = RecordStreamProcessor.class)
-public class MetricbeatTemplate extends Metrics {
+public class MetricbeatTemplate extends ManagementData {
     public static final String INDEX_NAME = "metricbeat";
 
 
@@ -56,40 +55,8 @@ public class MetricbeatTemplate extends Metrics {
         return "";
     }
 
-    @Override
-    public void combine(Metrics metrics) {
 
-    }
 
-    @Override
-    public void calculate() {
-
-    }
-
-    @Override
-    public Metrics toHour() {
-        return null;
-    }
-
-    @Override
-    public Metrics toDay() {
-        return null;
-    }
-
-    @Override
-    public int remoteHashCode() {
-        return 0;
-    }
-
-    @Override
-    public void deserialize(RemoteData remoteData) {
-
-    }
-
-    @Override
-    public RemoteData.Builder serialize() {
-        return null;
-    }
 
     public static class Builder implements StorageBuilder<MetricbeatTemplate> {
 

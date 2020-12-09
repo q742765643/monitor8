@@ -169,9 +169,10 @@
 
 <style lang="scss" scoped>
   #dataState {
+    height: calc(66% + 10px);
     box-shadow: $plane_shadow;
     #data_contnet {
-      height: 405px;
+      height: calc(100% - 56px);
     }
   }
 </style>

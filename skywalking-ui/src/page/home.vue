@@ -3,7 +3,11 @@
     <div class="leftAside"><navbar /></div>
     <a-layout id="rightPalne">
       <div id="top"><upper></upper></div>
-      <div id="center"><container></container></div>
+      <div id="center">
+        <el-scrollbar class="centerScroll">
+          <container></container>
+        </el-scrollbar>
+      </div>
     </a-layout>
   </a-layout>
 </template>
@@ -45,6 +49,7 @@
       width: calc(100% - 340px);
       height: 100%;
       background: #f6fbfc;
+      position: relative;
       #top {
         width: calc(100% - 340px);
         height: 80px;
@@ -55,20 +60,25 @@
       }
       #center {
         width: 100%;
+        height: calc(100% - 110px);
         margin-top: 110px;
-        padding: 0 30px 20px 18px;
+        padding-bottom: 20px;
+        .centerScroll {
+          height: 100%;
+          margin: 0 20px 0 10px;
+        }
       }
     }
-    ::-webkit-scrollbar {
-      width: 3px;
-      background-color: #f5f5f5;
-    }
-    ::-webkit-scrollbar-thumb {
-      // background-color: #5aa6ee;
-    }
-    ::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-      background-color: #f5f5f5;
-    }
+    /*   ::-webkit-scrollbar {
+    width: 3px;
+    background-color: #f5f5f5;
+  }
+  ::-webkit-scrollbar-thumb {
+    // background-color: #5aa6ee;
+  }
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+    background-color: #f5f5f5;
+  } */
   }
 </style>

@@ -76,13 +76,14 @@
 <style lang="scss" scoped>
   #untreatAlarm {
     width: 100%;
+    height: calc(34% - 30px);
     margin-top: 20px;
     box-shadow: $plane_shadow;
 
     #alarmContnet {
-      padding: 0 5px 10px 5px;
+      padding: 0 5px;
       width: 100%;
-      height: 240px;
+      height: calc(100% - 86px);
       ::-webkit-scrollbar {
         width: 3px;
         background-color: #f5f5f5;

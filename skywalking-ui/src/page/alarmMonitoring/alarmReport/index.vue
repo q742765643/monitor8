@@ -288,30 +288,4 @@
   ::v-deep .rightLineBox .ant-card-small > .ant-card-body {
     height: calc(100% - 56px);
   }
-  /* ::v-deep .el-timeline-item__timestamp.is-bottom {
-  position: absolute;
-  left: -117px;
-  top: -3px;
-  color: #333333;
-}
-::v-deep .el-timeline {
-  padding-left: 120px;
-}
-.info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  margin-left: 0.3rem;
-  width: 100%;
-  .name {
-    font-weight: 200;
-  }
-  .number {
-    p {
-      display: inline;
-      font-weight: 200;
-    }
-  }
-} */
 </style>

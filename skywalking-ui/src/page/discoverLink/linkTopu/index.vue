@@ -253,6 +253,7 @@
           }
 
           span:last-child {
+            font-size: $ant_font_size;
             margin-left: 10px;
           }
         }

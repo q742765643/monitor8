@@ -182,10 +182,11 @@
 <style lang="scss" scoped>
   #distributAlarm {
     width: 100%;
+    height: 38%;
     box-shadow: $plane_shadow;
     margin-bottom: 10px;
     #alarmChart {
-      height: 210px;
+      height: calc(100% - 56px);
       width: 100%;
     }
   }

@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
+ *//*
+
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
@@ -130,3 +131,4 @@ public class JettyServer implements Server {
         return Objects.hash(host, port);
     }
 }
+*/

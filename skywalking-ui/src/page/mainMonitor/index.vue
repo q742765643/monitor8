@@ -41,16 +41,12 @@
     display: flex;
     #row1 {
       width: 760px;
-      /* margin-right: 0.125rem;
-    height: calc(12.5rem - 0.5rem - 0.375rem);
-    width: calc((100% - 0.25rem) / 2); */
+      height: 100%;
     }
     #row2 {
       width: calc(100% - 770px);
+      height: 100%;
       margin-left: 10px;
-      /* margin-left: 0.125rem;
-    height: calc(12.5rem - 0.5rem - 0.375rem);
-    width: calc((100% - 0.25rem) / 2); */
     }
     /*  .cel1 {
     height: 2.6875rem;

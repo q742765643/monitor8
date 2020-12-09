@@ -210,7 +210,7 @@
     },
     methods: {
       selectBox(selection) {
-        // console.log(selection.selection)
+        console.log(selection.selection);
         this.single = selection.selection.length > 0 ? false : true;
       },
       getRoleList() {
@@ -364,6 +364,7 @@
           }
           hongtuConfig.roleMenuTreeselect(id).then((response) => {
             console.log(response);
+            this.selectedKeys = response.data;
           });
           this.visibleModel = true;
           this.dialogTitle = '编辑用户';
@@ -416,37 +417,4 @@
   };
 </script>
 
-<style scoped>
-  /* .roleMonitorTemplate {
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-  font-family: Alibaba-PuHuiTi-Regular;
-}
-.queryForm {
-  width: 100%;
-  height: 80px;
-  background: #f2f2f2;
-  border-radius: 8px;
-  padding-top: 20px;
-}
-.ant-input {
-  width: 240px;
-  margin: 0 20px 15px 0;
-}
-#linkrole_content {
-  padding: 20px 0;
-}
-#tableDiv {
-  margin-top: 20px;
-}
-.dialogBox .ant-input {
-  width: 100%;
-}
-.ant-input-number {
-  width: 100%;
-}
-.ant-radio-group {
-  padding-top: 0.14rem;
-} */
-</style>
+<style scoped></style>

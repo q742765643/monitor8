@@ -17,6 +17,7 @@
           </template>
         </vxe-toolbar>
       </div>
+
       <vxe-table border ref="xTable" :height="tableheight" :data="tableData" stripe align="center">
         <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
         <vxe-table-column field="currentStatus" title="当前状态" :formatter="formatCurrentStatus"> </vxe-table-column>

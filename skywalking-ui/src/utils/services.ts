@@ -1,10 +1,10 @@
 import axios from 'axios';
 import instance from '@/utils/request';
 import { getBaseURL } from 'xe-utils/methods';
-import fileDownload from 'js-file-download'
-import request from "@/utils/request";
+import fileDownload from 'js-file-download';
+import request from '@/utils/request';
 /* let instance = axios.create({
-  baseURL: 'http://10.1.100.35:12800',
+  baseURL: '',
   timeout: 6000,
 }); */
 
@@ -386,12 +386,12 @@ const dataService = {
       instance
         .delete('/system/user/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 用户管理-根据id查询用户信息
@@ -400,12 +400,12 @@ const dataService = {
       instance
         .get('/system/user/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 用户管理-查找用户
@@ -414,12 +414,12 @@ const dataService = {
       instance
         .get('/system/user/findAllBizUser' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 用户管理-修改
@@ -428,12 +428,12 @@ const dataService = {
       instance
         .put('/system/user', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 用户管理-用户状态修改
@@ -442,12 +442,12 @@ const dataService = {
       instance
         .put('/system/user/changeStatus', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 用户管理-表格
@@ -486,8 +486,8 @@ const dataService = {
       url: '/system/user/export',
       method: 'get',
       params: query,
-      responseType: "arraybuffer"
-    })
+      responseType: 'arraybuffer',
+    });
   },
 
   // 角色管理-分页查询角色信息
@@ -495,10 +495,10 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/role/list', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
           reject(err);
@@ -514,9 +514,9 @@ const dataService = {
           resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 角色管理-新增角色
@@ -525,12 +525,12 @@ const dataService = {
       instance
         .post('/system/role', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 角色管理-根据id查询角色
@@ -539,12 +539,12 @@ const dataService = {
       instance
         .get('/system/role/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 角色管理-修改角色
@@ -553,12 +553,12 @@ const dataService = {
       instance
         .put('/system/role', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 角色管理-角色状态修改
@@ -567,12 +567,12 @@ const dataService = {
       instance
         .put('/system/role/changeStatus', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 角色管理-删除角色
@@ -581,12 +581,12 @@ const dataService = {
       instance
         .delete('/system/role/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 角色管理-导出角色信息
@@ -594,15 +594,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/role/export', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 部门管理-获取部门下拉树列表
@@ -610,15 +610,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/dept/treeselect', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 部门管理-获取部门列表
@@ -626,15 +626,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/dept/list', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 部门管理-新增部门
@@ -643,12 +643,12 @@ const dataService = {
       instance
         .post('/system/dept', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 部门管理-修改部门
@@ -657,12 +657,12 @@ const dataService = {
       instance
         .put('/system/dept', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 部门管理-删除部门
@@ -671,12 +671,12 @@ const dataService = {
       instance
         .delete('/system/dept/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 部门管理-根据部门编号查询部门详细信息
@@ -685,12 +685,12 @@ const dataService = {
       instance
         .get('/system/dept/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 在线用户-分页查询在线用户
@@ -698,15 +698,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/monitor/online/list', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 在线用户-强退用户
@@ -715,12 +715,12 @@ const dataService = {
       instance
         .get('/monitor/online/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-查询菜单树
@@ -729,12 +729,12 @@ const dataService = {
       instance
         .get('/system/menu/treeselect')
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-根据角色ID查询对应菜单
@@ -743,12 +743,12 @@ const dataService = {
       instance
         .get('/system/menu/roleMenuTreeselect/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-查询所有菜单
@@ -756,15 +756,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/system/menu/list', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-根据菜单编号获取详细信息
@@ -773,12 +773,12 @@ const dataService = {
       instance
         .get('/system/menu/list' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-查询菜单
@@ -787,12 +787,12 @@ const dataService = {
       instance
         .get('/system/menu/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-删除菜单
@@ -801,42 +801,40 @@ const dataService = {
       instance
         .delete('/system/menu/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 菜单管理-修改
   updateMenu(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .put('/system/menu' , params)
+        .put('/system/menu', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
-
-
 
   // 菜单管理-新增菜单
   addMenu(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .post('/system/menu' , params)
+        .post('/system/menu', params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 登录日志-分页查询登录日志
@@ -844,15 +842,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/monitor/logininfor/list', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 登录日志-导出日志
@@ -861,8 +859,8 @@ const dataService = {
       url: '/monitor/logininfor/export',
       method: 'get',
       params: query,
-      responseType: "arraybuffer"
-    })
+      responseType: 'arraybuffer',
+    });
   },
 
   // 登录日志-删除登录日志
@@ -871,12 +869,12 @@ const dataService = {
       instance
         .delete('/monitor/logininfor/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 登录日志-清空登录日志
@@ -885,12 +883,12 @@ const dataService = {
       instance
         .delete('/monitor/logininfor/clean')
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 操作日志-分页查询操作日志
@@ -898,15 +896,15 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/monitor/operlog/list', {
-          params: params
+          params: params,
         })
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 操作日志-删除操作日志
@@ -915,12 +913,12 @@ const dataService = {
       instance
         .delete('/monitor/operlog/' + params)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 操作日志-清空操作日志
@@ -929,12 +927,12 @@ const dataService = {
       instance
         .delete('/monitor/operlog/clean')
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
   // 操作日志-日志信息导出
   exportOperlog(query: object) {
@@ -942,25 +940,23 @@ const dataService = {
       url: '/monitor/operlog/export',
       method: 'get',
       params: query,
-      responseType: "arraybuffer"
-    })
+      responseType: 'arraybuffer',
+    });
   },
-
 
   // 通用下载方法
   download(params: String) {
-    const baseURL = '/monitor'
-    window.location.href = baseURL + "/api/com/downloadByPath?filePath=" + params;
+    const baseURL = '/monitor';
+    window.location.href = baseURL + '/api/com/downloadByPath?filePath=' + params;
   },
-
 
   exportRole(query: object) {
     return request({
       url: '/system/role/export',
       method: 'get',
       params: query,
-      responseType: "arraybuffer"
-    })
+      responseType: 'arraybuffer',
+    });
   },
 
   // 获取验证码
@@ -969,15 +965,13 @@ const dataService = {
       instance
         .get('/captchaImage')
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 };
-
-
 
 export default dataService;

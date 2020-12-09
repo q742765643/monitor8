@@ -65,6 +65,7 @@ VXETable.setup({ size: 'mini' });
 
 import '@/assets/css/reset.scss';
 import '@/assets/css/style.scss';
+import '@/assets/css/mediaStyle.scss';
 
 import axios from 'axios';
 Vue.prototype.$axios = axios;

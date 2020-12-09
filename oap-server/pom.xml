@@ -28,25 +28,31 @@
     <artifactId>oap-server</artifactId>
     <packaging>pom</packaging>
     <modules>
+
         <module>server-core</module>
-        <module>server-receiver-plugin</module>
-        <module>server-cluster-plugin</module>
+
+       <!-- <module>server-receiver-plugin</module>
+        <module>server-cluster-plugin</module>-->
         <module>server-storage-plugin</module>
-        <module>server-library</module>
-        <module>server-starter</module>
+        <!--
+                <module>server-library</module>
+
+
+                <module>server-starter</module>
+        -->
         <module>server-starter-boot</module>
-        <module>server-starter-es7</module>
-        <module>server-query-plugin</module>
-        <module>server-alarm-plugin</module>
-        <module>server-testing</module>
-        <module>oal-rt</module>
-        <module>server-telemetry</module>
-        <module>oal-grammar</module>
-        <module>exporter</module>
-        <module>server-configuration</module>
-        <module>server-bootstrap</module>
-        <module>server-tools</module>
-        <module>server-fetcher-plugin</module>
+        <!-- <module>server-starter-es7</module>
+    <module>server-query-plugin</module>
+    <module>server-alarm-plugin</module>
+    <module>server-testing</module>
+    <module>oal-rt</module>
+    <module>server-telemetry</module>
+    <module>oal-grammar</module>
+    <module>exporter</module>
+    <module>server-configuration</module>
+    <module>server-bootstrap</module>
+    <module>server-tools</module>
+    <module>server-fetcher-plugin</module>-->
     </modules>
 
     <properties>

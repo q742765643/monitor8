@@ -81,7 +81,7 @@ language governing permissions and * limitations under the License. */
       this.GET_TOPO({ duration: this.durationTime, serviceIds: this.services.map((i) => i.key) });
     }
     private fetchData() {
-      return Axios.post('http://10.1.100.35:12800/graphql', {
+      return Axios.post('/graphql', {
         query: `
           query queryServices($duration: Duration!) {
             services: getAllServices(duration: $duration) {

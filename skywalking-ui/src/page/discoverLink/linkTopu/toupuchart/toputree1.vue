@@ -340,6 +340,7 @@
     bottom: 20px;
     box-shadow: 1px 1px 10px 0 #ccc;
     background: #fff;
+    font-size: 14px;
     div {
       display: flex;
       justify-content: center;
