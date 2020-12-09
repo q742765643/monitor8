@@ -140,6 +140,11 @@ html.body {
     font-size: 16px;
 }
 
+.ant-btn>.anticon+span,
+.ant-btn>span+.anticon {
+    margin-left: 8px;
+}
+
 .el-date-editor .el-range__icon,
 .el-date-editor .el-range-separator,
 .el-date-editor .el-range__close-icon {
