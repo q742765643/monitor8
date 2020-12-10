@@ -23,14 +23,21 @@
 </template>
 
 <script>
+  import request from '@/utils/request';
   import { createWebSocket } from '@/components/utils/WebSocket.js';
   export default {
     data() {
       return {
-        warnNum: 26,
+        warnNum: 0,
       };
     },
     created() {
+      request({
+        url: '/main/getAlarm',
+        method: 'get',
+      }).then((data) => {
+        this.warnNum = data.data.length;
+      });
       createWebSocket('ws://10.1.100.35:12800/webSocket/12345', '');
     },
     mounted() {},

@@ -23,8 +23,6 @@
 <script>
   import planeTitle from '@/components/titile/planeTitle.vue';
   import request from '@/utils/request';
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
   export default {
     data() {
       return {
