@@ -14,7 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
+ *//*
+
 
 package org.apache.skywalking.oap.server.core;
 
@@ -77,6 +78,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+*/
 /**
  * Core module provider includes the recommended and default implementations of {@link CoreModule#services()}. All
  * services with these default implementations are widely used including data receiver, data analysis, streaming
@@ -84,7 +86,8 @@ import java.nio.file.Paths;
  * <p>
  * NOTICE. In our experiences, no one should re-implement the core module service implementations, unless we are very
  * familiar with all mechanisms of SkyWalking.
- */
+ *//*
+
 public class CoreModuleProvider extends ModuleProvider {
 
     public static ServletContextHandler CONTEXTHANDLER;
@@ -292,12 +295,14 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
-        /**try {
+        */
+/**try {
          grpcServer.start();
          //jettyServer.start();
          } catch (ServerException e) {
          throw new ModuleStartException(e.getMessage(), e);
-         }**/
+         }**//*
+
         if (MonitorConstant.ISENABLE) {
             PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
@@ -325,3 +330,4 @@ public class CoreModuleProvider extends ModuleProvider {
         };
     }
 }
+*/

@@ -34,7 +34,7 @@
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
-        <fileSet>
+   <!--     <fileSet>
             <directory>${project.basedir}/../dist-material</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
@@ -42,8 +42,8 @@
                 <include>alarm-settings.yml</include>
                 <include>alarm-settings-sample.yml</include>
             </includes>
-        </fileSet>
-        <fileSet>
+        </fileSet>-->
+     <!--   <fileSet>
             <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
             <includes>
 
@@ -62,23 +62,23 @@
                 <include>oap-server.yml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
-        </fileSet>
-        <fileSet>
+        </fileSet>-->
+       <!-- <fileSet>
             <directory>${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap</directory>
             <outputDirectory>/oap-libs</outputDirectory>
-        </fileSet>
+        </fileSet>-->
 
         <!-- Agent repackage into the dist -->
-        <fileSet>
+     <!--   <fileSet>
             <directory>${project.basedir}/../skywalking-agent</directory>
             <outputDirectory>/agent</outputDirectory>
-        </fileSet>
+        </fileSet>-->
 
         <!-- Profile exporter tools -->
-        <fileSet>
+    <!--    <fileSet>
             <directory>${project.basedir}/../tools/profile-exporter</directory>
             <outputDirectory>/tools/profile-exporter</outputDirectory>
-        </fileSet>
+        </fileSet>-->
 
         <!-- Release docs and licenses -->
         <fileSet>
@@ -104,6 +104,16 @@
         <file>
             <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
             <outputDirectory>/webapp</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-plugin/target/skywalking-oap.jar</source>
+            <outputDirectory>/oap-libs</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-plugin/src/main/resources/application.yml</source>
+            <outputDirectory>/oap-libs</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>

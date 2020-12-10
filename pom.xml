@@ -25,10 +25,10 @@
     <version>8.1.0-SNAPSHOT</version>
 
 
-    <modules>
+  <!--  <modules>
         <module>apm-commons</module>
         <module>apm-protocol</module>
-    </modules>
+    </modules>-->
     <packaging>pom</packaging>
 
     <profiles>
@@ -37,10 +37,10 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <modules>
+            <!--<modules>
                 <module>apm-sniffer</module>
                 <module>apm-application-toolkit</module>
-            </modules>
+            </modules>-->
         </profile>
         <profile>
             <id>backend</id>
@@ -66,7 +66,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>apm-dist</module>
+               <!-- <module>apm-dist</module>-->
                 <module>apm-dist-es7</module>
             </modules>
         </profile>
@@ -76,11 +76,11 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
-                <module>apm-sniffer</module>
-                <module>apm-application-toolkit</module>
+                <!--<module>apm-sniffer</module>
+                <module>apm-application-toolkit</module>-->
                 <module>oap-server</module>
                 <module>apm-webapp</module>
-                <module>apm-dist</module>
+                <!--<module>apm-dist</module>-->
                 <module>apm-dist-es7</module>
             </modules>
             <build>

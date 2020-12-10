@@ -34,7 +34,7 @@ limitations under the License. -->
     private service = { key: 0, label: 'All services' };
 
     private fetchData() {
-      Axios.post('http://10.1.100.35:12800/graphql', {
+      Axios.post('/graphql', {
         query: `
       query queryServices($duration: Duration!) {
         services: getAllServices(duration: $duration) {

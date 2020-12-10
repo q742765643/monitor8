@@ -27,14 +27,11 @@ const getLocalTime = (i: number, t: Date | number) => {
 };
 
 const setTimezoneOffset = () => {
-  window.localStorage.setItem(
-    'utc',
-    -(new Date().getTimezoneOffset() / 60) + '',
-  );
+  window.localStorage.setItem('utc', -(new Date().getTimezoneOffset() / 60) + '');
 };
 
 export const queryOAPTimeInfo = async () => {
-  let utc = window.localStorage.getItem('utc');
+  /*  let utc = window.localStorage.getItem('utc');
   if (!utc) {
     const res: AxiosResponse = await graph.query('queryOAPTimeInfo').params({});
     if (!res.data) {
@@ -42,7 +39,7 @@ export const queryOAPTimeInfo = async () => {
     }
     utc = res.data.data.getTimeInfo.timezone / 100 + '';
     window.localStorage.setItem('utc', utc);
-  }
+  }*/
 };
 
 export default getLocalTime;
