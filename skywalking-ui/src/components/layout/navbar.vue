@@ -10,17 +10,14 @@
       </div>
     </div>
     <a-menu mode="inline" :default-open-keys="['sub1']" id="menuNav" :selectedKeys="[this.$route.path]">
-      <a-menu-item key="/mainMonitor" id="main">
+      <!-- <a-menu-item key="/mainMonitor" id="main">
         <span class="iconfont">&#xe60c;</span>
         <span> <router-link to="/mainMonitor"> 综合监控</router-link></span>
       </a-menu-item>
 
       <a-sub-menu key="sub2">
         <span slot="title">
-          <span class="iconfont">&#xe8bb;</span>链路发现
-          <!--    <i class="iconfont expand">&#xe68a;</i> --></span
-        >
-
+          <span class="iconfont">&#xe8bb;</span>链路发现</span>
         <a-menu-item key="/discoverLink/linkTopu">
           <span class="iconfont">&#xe611;</span>
           <router-link to="/discoverLink/linkTopu"> 链路拓扑</router-link>
@@ -55,9 +52,9 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/masterMonitor/masterReport"> 主机报表</router-link>
         </a-menu-item>
-      </a-sub-menu>
+      </a-sub-menu> -->
 
-<!--
+      <!--
       <a-sub-menu key="sub4">
         <span slot="title"> <span class="iconfont">&#xe6d4;</span>业务视图</span>
 
@@ -84,7 +81,7 @@
       </a-sub-menu>
 -->
 
-      <a-sub-menu key="sub5">
+      <!-- <a-sub-menu key="sub5">
         <span slot="title"> <span class="iconfont">&#xe61b;</span>文件监控</span>
 
         <a-menu-item key="/fileMonitoring">
@@ -125,7 +122,7 @@
         </a-menu-item>
       </a-sub-menu>
 
-      <!-- <a-sub-menu key="sub7">
+      <a-sub-menu key="sub7">
         <span slot="title"> <span class="iconfont">&#xe692;</span>旧页面</span>
         <a-menu-item key="/dictType">
           <span class="iconfont">&#xe611;</span>
@@ -151,9 +148,8 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/report"> 链路设备报表</router-link>
         </a-menu-item>
-      </a-sub-menu> -->
+      </a-sub-menu>
 
-      <!-- 用户管理 -->
       <a-sub-menu key="sub8">
         <span slot="title"> <span class="iconfont">&#xe616;</span>用户管理</span>
         <a-menu-item key="/userMonitoring">
@@ -200,6 +196,7 @@
           <router-link to="/onlineUser"> 在线用户</router-link>
         </a-menu-item>
       </a-sub-menu>
+
       <a-sub-menu key="sub10">
         <span slot="title"> <span class="iconfont">&#xe640;</span>进程监控</span>
         <a-menu-item key="/process/processConfig">
@@ -210,171 +207,202 @@
           <span class="iconfont">&#xe611;</span>
           <router-link to="/process/processReport">进程报表</router-link>
         </a-menu-item>
-      </a-sub-menu>
+      </a-sub-menu> -->
+
+      <template v-for="item in menuOptions">
+        <a-menu-item :key="item.path" v-if="!item.children" id="main">
+          <span class="iconfont" :class="item.meta.icon"></span>
+          <router-link :to="item.path">{{item.name}}</router-link>
+        </a-menu-item>
+        <a-sub-menu v-else :key="item.path">
+          <span slot="title"> <span class="iconfont" :class="item.meta.icon"></span>{{ item.name }}</span>
+          <template v-for="subItem in item.children">
+            <a-menu-item v-if="!subItem.children" :key="'/' + subItem.path">
+              <span class="iconfont" :class="subItem.meta.icon"></span>
+              <router-link :to="'/' + subItem.path">{{ subItem.name }}</router-link>
+            </a-menu-item>
+            <a-sub-menu v-else :key="'/' + subItem.path">
+              <span slot="title"> <span class="iconfont" :class="subItem.meta.icon"></span>{{subItem.name}}</span>
+              <a-menu-item :key="'/' + aSubItem.path" v-for="aSubItem in subItem.children">
+                <span class="iconfont" :class="aSubItem.meta.icon"></span>
+                <router-link :to="'/' + aSubItem.path">{{aSubItem.name}}</router-link>
+              </a-menu-item>
+            </a-sub-menu>
+          </template>
+        </a-sub-menu>
+      </template>
+
+
     </a-menu>
   </a-layout-sider>
 </template>
 
 <script>
-  import moment from 'moment';
-  export default {
-    name: 'navbar',
-    data() {
-      return {
-        date: '',
-        week: '',
-        time: '',
-        timer: null,
-      };
-    },
-    created() {
-      this.getTime();
-    },
-    mounted() {
-      let data;
+import moment from 'moment';
+import hongtuConfig from '@/utils/services';
+export default {
+  name: 'navbar',
+  data() {
+    return {
+      date: '',
+      week: '',
+      time: '',
+      timer: null,
+      menuOptions: [],
+    };
+  },
+  created() {
+    this.getTime();
+    hongtuConfig.getRouters().then((res) => {
+      this.menuOptions = res.data;
+      console.log(this.menuOptions);
+    });
+  },
+  mounted() {
+    let data;
 
-      this.timer = setInterval(() => this.getTime(), 1000);
+    this.timer = setInterval(() => this.getTime(), 1000);
+  },
+  destroyed() {
+    clearInterval(this.timer); // 清除定时器
+    this.timer = null;
+  },
+  methods: {
+    getTime: function () {
+      moment.locale('zh-cn');
+      this.date = moment().format('YYYY-MM-DD');
+      this.week = moment().format('dddd');
+      this.time = moment().format('LTS');
     },
-    destroyed() {
-      clearInterval(this.timer); // 清除定时器
-      this.timer = null;
-    },
-    methods: {
-      getTime: function() {
-        moment.locale('zh-cn');
-        this.date = moment().format('YYYY-MM-DD');
-        this.week = moment().format('dddd');
-        this.time = moment().format('LTS');
-      },
-    },
-  };
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  #slider {
-    .timeBox {
-      width: calc(100% - 60px);
-      padding: 10px 0 14px 0;
-      display: flex;
-      position: relative;
-      justify-content: center;
-      align-items: center;
-      border-bottom: 1px solid #dae4ec;
-      margin: auto;
-      .date {
-        font-size: $ant_font_size;
-        .day {
-          font-size: 20px;
-          font-family: electronicFont;
-        }
-        .week {
-          text-align: center;
-          font-family: NotoSansHans-Regular;
-        }
-      }
-      .time {
-        font-size: 24px;
-        margin-left: 24px;
+#slider {
+  .timeBox {
+    width: calc(100% - 60px);
+    padding: 10px 0 14px 0;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #dae4ec;
+    margin: auto;
+    .date {
+      font-size: $ant_font_size;
+      .day {
+        font-size: 20px;
         font-family: electronicFont;
       }
+      .week {
+        text-align: center;
+        font-family: NotoSansHans-Regular;
+      }
     }
-    #menuNav {
-      height: calc(100% - 90px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      background: #f1f2f4;
-      padding: 0 30px;
-      padding-top: 30px;
-      font-size: $nav_fontSize;
-      color: #5d76ae;
-      border: none;
-      font-family: Microsoft YaHei;
-      .ant-menu-submenu-title {
-        padding-left: 30px !important;
-        .ant-menu-submenu-arrow {
-          right: 10px !important;
-        }
-      }
-
-      .ant-menu-item > a {
-        display: inline-block !important;
-        text-decoration: none;
-        color: rgba(0, 0, 0, 0.65);
-      }
-
-      .ant-menu-item {
-        font-size: $nav_fontSize;
-        height: 50px;
-        line-height: 50px;
-      }
-
-      .ant-menu-submenu-selected .ant-menu-submenu-title {
-        border-radius: 6px;
-        color: #fff !important;
-        background: linear-gradient(90deg, #428dff, #397dff) !important;
-        box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
-      }
-      .iconfont {
-        font-size: 22px;
-        margin-right: 18px;
-      }
-      .ant-menu-sub {
-        .iconfont {
-          color: #5d76ae;
-          font-size: 20px !important;
-        }
-      }
-
-      .ant-menu-item-selected[id='main'] {
-        height: 50px;
-        line-height: 50px;
-        color: #fff !important;
-        background: linear-gradient(90deg, #428dff, #397dff) !important;
-        box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
-        border-radius: 6px;
-      }
-      .ant-menu-item-selected[id='main'] a {
-        color: #fff !important;
-      }
-
-      .ant-menu-item-selected,
-      .ant-menu-item-selected > a,
-      .ant-menu-item-selected > a:hover {
-        color: #1890ff !important;
-      }
-      .ant-menu:not(.ant-menu-horizontal) {
-        .ant-menu-item-selected {
-          background: #b8e3f6;
-          color: #1890ff;
-          .iconfont {
-            color: #1890ff;
-          }
-          &:before {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            border: none;
-            border-right: 8px solid #00c0ff;
-            content: '';
-          }
-
-          &:after {
-            display: none;
-          }
-        }
-      }
-      &::-webkit-scrollbar {
-        width: 3px;
-        background-color: #f5f5f5;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: #5aa6ee;
-      }
-      &::-webkit-scrollbar-track {
-        box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-        background-color: #f5f5f5;
-      }
+    .time {
+      font-size: 24px;
+      margin-left: 24px;
+      font-family: electronicFont;
     }
   }
+  #menuNav {
+    height: calc(100% - 90px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #f1f2f4;
+    padding: 0 30px;
+    padding-top: 30px;
+    font-size: $nav_fontSize;
+    color: #5d76ae;
+    border: none;
+    font-family: Microsoft YaHei;
+    .ant-menu-submenu-title {
+      padding-left: 30px !important;
+      .ant-menu-submenu-arrow {
+        right: 10px !important;
+      }
+    }
+
+    .ant-menu-item > a {
+      display: inline-block !important;
+      text-decoration: none;
+      color: rgba(0, 0, 0, 0.65);
+    }
+
+    .ant-menu-item {
+      font-size: $nav_fontSize;
+      height: 50px;
+      line-height: 50px;
+    }
+
+    .ant-menu-submenu-selected .ant-menu-submenu-title {
+      border-radius: 6px;
+      color: #fff !important;
+      background: linear-gradient(90deg, #428dff, #397dff) !important;
+      box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
+    }
+    .iconfont {
+      font-size: 22px;
+      margin-right: 18px;
+    }
+    .ant-menu-sub {
+      .iconfont {
+        color: #5d76ae;
+        font-size: 20px !important;
+      }
+    }
+
+    .ant-menu-item-selected[id='main'] {
+      height: 50px;
+      line-height: 50px;
+      color: #fff !important;
+      background: linear-gradient(90deg, #428dff, #397dff) !important;
+      box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
+      border-radius: 6px;
+    }
+    .ant-menu-item-selected[id='main'] a {
+      color: #fff !important;
+    }
+
+    .ant-menu-item-selected,
+    .ant-menu-item-selected > a,
+    .ant-menu-item-selected > a:hover {
+      color: #1890ff !important;
+    }
+    .ant-menu:not(.ant-menu-horizontal) {
+      .ant-menu-item-selected {
+        background: #b8e3f6;
+        color: #1890ff;
+        .iconfont {
+          color: #1890ff;
+        }
+        &:before {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          border: none;
+          border-right: 8px solid #00c0ff;
+          content: '';
+        }
+
+        &:after {
+          display: none;
+        }
+      }
+    }
+    &::-webkit-scrollbar {
+      width: 3px;
+      background-color: #f5f5f5;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #5aa6ee;
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+      background-color: #f5f5f5;
+    }
+  }
+}
 </style>

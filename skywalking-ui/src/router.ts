@@ -38,6 +38,7 @@ Vue.use(Router);
 
 window.axiosCancel = [];
 
+
 const router = new Router({
   mode: 'history',
   //base: process.env.BASE_URL,
@@ -145,18 +146,22 @@ const router = new Router({
         },
         {
           path: '/dictType',
+          name: 'dictType',
           component: () => import('@/page/dictMonitoring/dictType.vue'),
         },
         {
           path: '/dictData/:dictId',
+          name: 'dictData',
           component: () => import('@/page/dictMonitoring/dictData.vue'),
         },
         {
           path: '/dictData',
+          name: 'dictData',
           component: () => import('@/page/dictMonitoring/dictData.vue'),
         },
         {
           path: '/job',
+          name: 'job',
           component: () => import('@/page/dictMonitoring/job.vue'),
         },
         {

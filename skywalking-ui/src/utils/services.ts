@@ -813,7 +813,7 @@ const dataService = {
   updateMenu(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .put('/system/menu' , params)
+        .put('/system/menu', params)
         .then((res) => {
           resolve(res)
         })
@@ -829,7 +829,7 @@ const dataService = {
   addMenu(params: Object) {
     return new Promise((resolve, reject) => {
       instance
-        .post('/system/menu' , params)
+        .post('/system/menu', params)
         .then((res) => {
           resolve(res)
         })
@@ -976,6 +976,20 @@ const dataService = {
         })
     })
   },
+
+  // 获取路由
+  getRouters() {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/getRouters')
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  }
 };
 
 

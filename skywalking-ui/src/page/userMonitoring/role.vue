@@ -275,6 +275,7 @@
           if (valid) {
             if (!this.formDialog.id) {
               console.log(this.formDialog);
+              this.formDialog.menuIds = this.checkedKeys;
               hongtuConfig.roleConfigAdd(this.formDialog).then((res) => {
                 if (res.code == 200) {
                   this.$message.success(this.dialogTitle + '成功');
@@ -284,7 +285,8 @@
               });
             } else {
               console.log(this.formDialog);
-              this.formDialog.menuIds = [];
+              this.formDialog.menuIds = this.checkedKeys;
+              console.log(this.checkedKeys)
               hongtuConfig.roleConfigEdit(this.formDialog).then((res) => {
                 console.log(res);
                 if (res.code == 200) {
@@ -364,7 +366,7 @@
           }
           hongtuConfig.roleMenuTreeselect(id).then((response) => {
             console.log(response);
-            this.selectedKeys = response.data;
+            this.checkedKeys = response.data;
           });
           this.visibleModel = true;
           this.dialogTitle = '编辑用户';

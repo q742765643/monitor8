@@ -13,6 +13,7 @@
   import upper from '@/components/layout/upper';
   import container from '@/components/layout/container';
   export default {
+    name: "Home",
     data() {
       return {
         collapsed: false,
