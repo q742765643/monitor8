@@ -41,11 +41,10 @@
       });
     },
     mounted() {
-      this.fetch();
-      this.$nextTick(() => {
+      setTimeout(() => {
+        this.fetch();
         this.setTableHeight();
-      });
-
+      }, 500);
       window.addEventListener('resize', () => {
         setTimeout(() => {
           this.setTableHeight();
@@ -66,8 +65,7 @@
       },
       setTableHeight() {
         let h = document.getElementById('alarmContnet').clientHeight;
-        let computedStyle = getComputedStyle(document.getElementById('alarmContnet'), null);
-        this.table_height = h - 2 * parseInt(computedStyle.paddingTop);
+        this.table_height = h;
       },
     },
   };
@@ -76,13 +74,14 @@
 <style lang="scss" scoped>
   #untreatAlarm {
     width: 100%;
+    height: calc(34% - 30px);
     margin-top: 20px;
     box-shadow: $plane_shadow;
 
     #alarmContnet {
-      padding: 0 5px 10px 5px;
+      padding: 0 5px;
       width: 100%;
-      height: 240px;
+      height: calc(100% - 86px);
       ::-webkit-scrollbar {
         width: 3px;
         background-color: #f5f5f5;

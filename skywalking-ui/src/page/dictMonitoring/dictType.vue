@@ -119,206 +119,206 @@
   </div>
 </template>
 <script>
-import request from '@/utils/request';
-// const columns = [
-//   {
-//     title: '字典名称',
-//     dataIndex: 'dictName',
-//     width: '20%',
-//   },
-//   {
-//     title: '字典类型',
-//     dataIndex: 'dictType',
-//     width: '20%',
-//     scopedSlots: { customRender: 'dictType' },
-//   },
-//   {
-//     title: '状态',
-//     dataIndex: 'status',
-//     scopedSlots: { customRender: 'status' },
-//   },
-//   {
-//     title: '备注',
-//     dataIndex: 'remark',
-//   },
-//   {
-//     title: '创建时间',
-//     dataIndex: 'createTime',
-//     scopedSlots: { customRender: 'createTime' },
-//   },
-//   {
-//     title: '操作',
-//     dataIndex: 'operate',
-//     scopedSlots: { customRender: 'operate' },
-//   },
-// ];
+  import request from '@/utils/request';
+  // const columns = [
+  //   {
+  //     title: '字典名称',
+  //     dataIndex: 'dictName',
+  //     width: '20%',
+  //   },
+  //   {
+  //     title: '字典类型',
+  //     dataIndex: 'dictType',
+  //     width: '20%',
+  //     scopedSlots: { customRender: 'dictType' },
+  //   },
+  //   {
+  //     title: '状态',
+  //     dataIndex: 'status',
+  //     scopedSlots: { customRender: 'status' },
+  //   },
+  //   {
+  //     title: '备注',
+  //     dataIndex: 'remark',
+  //   },
+  //   {
+  //     title: '创建时间',
+  //     dataIndex: 'createTime',
+  //     scopedSlots: { customRender: 'createTime' },
+  //   },
+  //   {
+  //     title: '操作',
+  //     dataIndex: 'operate',
+  //     scopedSlots: { customRender: 'operate' },
+  //   },
+  // ];
 
-export default {
-  data() {
-    return {
-      data: [],
-      pagination: {},
-      loading: false,
-      // columns,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        dictName: undefined,
-        dictType: undefined,
-        status: undefined,
-      },
-      visible: false,
-      form: {},
-      statusOptions: [],
-      title: '',
-      ids: [],
-      dictNames: [],
-      paginationTotal: 0,
-    };
-  },
-  created() {
-    this.getDicts('sys_normal_disable').then((response) => {
-      if(response.code == 200) {
-        this.statusOptions = response.data;
-      }
-    });
-  },
-  mounted() {
-    this.fetch();
-  },
-  computed: {
-    rowSelection() {
+  export default {
+    data() {
       return {
-        onChange: (selectedRowKeys, selectedRows) => {
-          this.ids = selectedRows.map((item) => item.id);
-          this.dictNames = selectedRows.map((item) => item.dictName);
+        data: [],
+        pagination: {},
+        loading: false,
+        // columns,
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          dictName: undefined,
+          dictType: undefined,
+          status: undefined,
         },
-        getCheckboxProps: (record) => ({
-          props: {
-            disabled: record.id === 'Disabled User', // Column configuration not to be checked
-            name: record.id,
-          },
-        }),
+        visible: false,
+        form: {},
+        statusOptions: [],
+        title: '',
+        ids: [],
+        dictNames: [],
+        paginationTotal: 0,
       };
     },
-  },
-  methods: {
-    statusFormat(status) {
-      return this.selectDictLabel(this.statusOptions, status);
-    },
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.fetch();
-    },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
-    },
-    fetch() {
-      this.loading = true;
-      request({
-        url: '/system/dict/type/list',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        // const pagination = { ...this.pagination };
-        // pagination.total = data.data.totalCount;
-        this.loading = false;
-        this.data = data.data.pageData;
-        // this.pagination = pagination;
-        this.paginationTotal = data.data.totalCount;
+    created() {
+      this.getDicts('sys_normal_disable').then((response) => {
+        if (response.code == 200) {
+          this.statusOptions = response.data;
+        }
       });
     },
-    handleAdd() {
-      this.form.id = undefined;
-      this.title = '新增字典类型';
-      this.visible = true;
-    },
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
+    mounted() {
       this.fetch();
     },
-    // handleTableChange(pagination, filters, sorter) {
-    //   const pager = { ...this.pagination };
-    //   this.queryParams.pageNum = pagination.current;
-    //   this.pagination = pager;
-    //   this.fetch();
-    // },
-    handleUpdate(row) {
-      this.form = {};
-      const id = row.id || this.ids;
-      request({
-        url: '/system/dict/type/' + id,
-        method: 'get',
-      }).then((response) => {
-        this.form = response.data;
+    computed: {
+      rowSelection() {
+        return {
+          onChange: (selectedRowKeys, selectedRows) => {
+            this.ids = selectedRows.map((item) => item.id);
+            this.dictNames = selectedRows.map((item) => item.dictName);
+          },
+          getCheckboxProps: (record) => ({
+            props: {
+              disabled: record.id === 'Disabled User', // Column configuration not to be checked
+              name: record.id,
+            },
+          }),
+        };
+      },
+    },
+    methods: {
+      statusFormat(status) {
+        return this.selectDictLabel(this.statusOptions, status);
+      },
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      fetch() {
+        this.loading = true;
+        request({
+          url: '/system/dict/type/list',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          // const pagination = { ...this.pagination };
+          // pagination.total = data.data.totalCount;
+          this.loading = false;
+          this.data = data.data.pageData;
+          // this.pagination = pagination;
+          this.paginationTotal = data.data.totalCount;
+        });
+      },
+      handleAdd() {
+        this.form.id = undefined;
+        this.title = '新增字典类型';
         this.visible = true;
-        this.title = '修改字典类型';
-      });
-    },
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      console.log(ids);
-      const dictNames = row.dictName || this.dictNames;
-      this.$confirm({
-        title: '是否确认删除字典标签为"' + dictNames + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
+      },
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.fetch();
+      },
+      // handleTableChange(pagination, filters, sorter) {
+      //   const pager = { ...this.pagination };
+      //   this.queryParams.pageNum = pagination.current;
+      //   this.pagination = pager;
+      //   this.fetch();
+      // },
+      handleUpdate(row) {
+        this.form = {};
+        const id = row.id || this.ids;
+        request({
+          url: '/system/dict/type/' + id,
+          method: 'get',
+        }).then((response) => {
+          this.form = response.data;
+          this.visible = true;
+          this.title = '修改字典类型';
+        });
+      },
+      handleDelete(row) {
+        const ids = row.id || this.ids;
+        console.log(ids);
+        const dictNames = row.dictName || this.dictNames;
+        this.$confirm({
+          title: '是否确认删除字典标签为"' + dictNames + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            request({
+              url: '/system/dict/type/' + ids,
+              method: 'delete',
+            }).then((response) => {
+              if (response.code === 200) {
+                this.fetch();
+                this.msgError('删除成功!');
+              } else {
+                this.msgError(response.msg);
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      submitForm() {
+        if (this.form.id != undefined) {
           request({
-            url: '/system/dict/type/' + ids,
-            method: 'delete',
+            url: '/system/dict/type',
+            method: 'put',
+            data: this.form,
           }).then((response) => {
             if (response.code === 200) {
+              this.msgSuccess('修改成功');
+              this.visible = false;
               this.fetch();
-              this.msgError('删除成功!');
             } else {
               this.msgError(response.msg);
             }
           });
-        },
-        onCancel() {},
-      });
+        } else {
+          console.log(this.form);
+          request({
+            url: '/system/dict/type',
+            method: 'post',
+            data: this.form,
+          }).then((response) => {
+            if (response.code === 200) {
+              this.msgSuccess('新增成功');
+              this.visible = false;
+              this.fetch();
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        }
+      },
     },
-    submitForm() {
-      if (this.form.id != undefined) {
-        request({
-          url: '/system/dict/type',
-          method: 'put',
-          data: this.form,
-        }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('修改成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
-        });
-      } else {
-        console.log(this.form);
-        request({
-          url: '/system/dict/type',
-          method: 'post',
-          data: this.form,
-        }).then((response) => {
-          if (response.code === 200) {
-            this.msgSuccess('新增成功');
-            this.visible = false;
-            this.fetch();
-          } else {
-            this.msgError(response.msg);
-          }
-        });
-      }
-    },
-  },
-};
+  };
 </script>

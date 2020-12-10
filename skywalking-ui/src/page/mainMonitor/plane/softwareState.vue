@@ -281,12 +281,13 @@
 <style lang="scss" scoped>
   #softwareState {
     width: 100%;
+    height: calc(34% - 30px);
     margin-top: 20px;
     box-shadow: $plane_shadow;
     #software_contnet {
-      height: 240px;
       width: 100%;
-      margin-top: 20px;
+      height: calc(100% - 66px);
+      margin-top: 10px;
     }
 
     .lengend {

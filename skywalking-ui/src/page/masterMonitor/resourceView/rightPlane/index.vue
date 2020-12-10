@@ -72,21 +72,19 @@
       }
     }
     #contnet {
-      // box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
       box-shadow: $plane_shadow;
-      margin-top: 0.1rem;
-      height: calc(100% - 1.35rem);
+      margin-top: 10px;
+      height: calc(100% - 70px);
       width: 100%;
       overflow: auto;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       .box {
-        width: calc((100% - 0.75rem) / 3);
+        width: calc((100% - 0.75rem) / 3); //todo
         height: 5rem;
-        //box-shadow: #bddfeb8f 0 0 0.3rem 0.1rem;
         box-shadow: $plane_shadow;
-        margin-bottom: 0.375rem;
+        margin-bottom: 30px;
       }
     }
 

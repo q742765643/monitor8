@@ -1,5 +1,7 @@
-html.body {
+html,
+body {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
+    overflow: hidden;
 }
 
 @font-face {
@@ -90,7 +92,28 @@ html.body {
     background: $container_backColor;
 }
 
-//重置input，btn，label
+.el-scrollbar__wrap {
+    overflow-x: hidden;
+}
+
+//重置input，btn，label,titlr
+.ant-modal-title {
+    font-size: 16px;
+    line-height: 22px;
+}
+
+.ant-modal-header {
+    padding: 16px 24px;
+}
+
+.ant-form-item {
+    margin-bottom: 24px;
+}
+
+.ant-modal-body {
+    padding: 24px;
+}
+
 .ant-form-item-control,
 .ant-form-item-label,
 .ant-select-selection__rendered,
@@ -119,10 +142,20 @@ html.body {
     font-size: 16px;
 }
 
+.ant-btn>.anticon+span,
+.ant-btn>span+.anticon {
+    margin-left: 8px;
+}
+
 .el-date-editor .el-range__icon,
 .el-date-editor .el-range-separator,
 .el-date-editor .el-range__close-icon {
     line-height: 24px;
+}
+
+.el-date-editor .el-range-input,
+.el-date-editor .el-range-separator {
+    font-size: 14px;
 }
 
 //带表格查询

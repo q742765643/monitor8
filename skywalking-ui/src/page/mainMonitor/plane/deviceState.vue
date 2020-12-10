@@ -323,20 +323,22 @@
 
 <style lang="scss" scoped>
   #deviceState {
-    //height: 2.6875rem;
+    height: 28%;
     width: 100%;
     box-shadow: $plane_shadow;
 
     #device_contnet {
-      //height: calc(2.6875rem - 0.75rem);
       width: 100%;
+      height: calc(100% - 56px);
       display: flex;
       align-items: center;
+      padding-top: 20px;
       #device_pieChart {
+        height: 100%;
         flex: 1;
-        height: 130px;
       }
       #heatChart {
+        height: 100%;
         flex: 1;
         padding: 0 20px;
         display: flex;

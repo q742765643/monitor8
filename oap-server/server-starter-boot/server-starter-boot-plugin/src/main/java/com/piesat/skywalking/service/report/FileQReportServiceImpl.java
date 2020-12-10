@@ -10,6 +10,7 @@ import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
 import com.piesat.util.JsonParseUtil;
 import com.piesat.util.NullUtil;
+import com.piesat.util.StringUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFCell;
@@ -152,7 +153,7 @@ public class FileQReportServiceImpl implements FileQReportService {
                         ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
                         long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
                         long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
-                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_HALF_UP).longValue();
+                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         if (sumFileNumL > 0) {
                             float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
@@ -489,6 +490,9 @@ public class FileQReportServiceImpl implements FileQReportService {
                     for (int j = 0; j < bucketSum.size(); j++) {
                         Map<String, Object> map = new HashMap<>();
                         map.put("taskId", bucket.getKeyAsString());
+                        if (StringUtil.isEmpty( mapTaskName.get(bucket.getKeyAsString()))){
+                            continue;
+                        }
                         map.put("taskName", mapTaskName.get(bucket.getKeyAsString()));
                         Histogram.Bucket bucketV = bucketSum.get(j);
                         ZonedDateTime date = (ZonedDateTime) bucketV.getKey();
@@ -499,7 +503,7 @@ public class FileQReportServiceImpl implements FileQReportService {
                         ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
                         long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
                         long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
-                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_HALF_UP).longValue();
+                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         if (sumFileNumL > 0) {
                             float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();

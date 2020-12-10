@@ -1,63 +1,57 @@
 <template>
   <div class="alarmReportChartsTemplate">
-    <a-row :gutter="10">
-      <a-col :span="14">
-        <a-row :gutter="10">
-          <a-col :span="10" class="colCardBox">
-            <a-card size="small" title="当前故障设备与故障数量">
-              <a-row type="flex" justify="center" align="middle">
-                <a-col :span="12" align="center">
-                  <span style="font-size: 30px">{{ deviceNum }}</span
-                  ><span>个</span>
-                  <p>故障设备</p>
-                </a-col>
-                <a-col :span="12" align="center">
-                  <span style="font-size: 30px">{{ faultNum }}</span
-                  ><span>个</span>
-                  <p>故障数量</p>
-                </a-col>
-              </a-row>
-            </a-card>
+    <div class="leftBox">
+      <div class="colCardBox">
+        <planeTitle titleName="当前故障设备与故障数量" />
+        <a-row type="flex" justify="center" align="middle">
+          <a-col :span="12" align="center">
+            <span style="font-size: 30px">{{ deviceNum }}</span
+            ><span>个</span>
+            <p>故障设备</p>
           </a-col>
-          <a-col :span="14" class="colCardBox">
-            <a-card size="small" title="当前故障级别">
-              <div id="alarmLevel" class="colCardbody"></div>
-            </a-card>
-          </a-col>
-          <a-col :span="24" class="colCardBox topClass">
-            <a-card size="small" title="当前故障趋势">
-              <div id="alarmTrend" class="colCardbody"></div>
-            </a-card>
+          <a-col :span="12" align="center">
+            <span style="font-size: 30px">{{ faultNum }}</span
+            ><span>个</span>
+            <p>故障数量</p>
           </a-col>
         </a-row>
-      </a-col>
-      <a-col :span="10" class="rightLineBox">
-        <a-card size="small" title="当前故障列表">
-          <el-scrollbar>
-            <el-timeline>
-              <el-timeline-item
-                v-for="(item, index) in alarmList"
-                :key="index"
-                :icon="item.icon"
-                :type="item.type"
-                :color="item.color"
-                :size="item.size"
-                :timestamp="item.start_time"
-              >
-                <p :style="{ color: item.color }">{{ item.message }}</p>
-                <p :style="{ color: item.color }">{{ item.level }}({{ item.status }})</p>
-              </el-timeline-item>
-            </el-timeline>
-          </el-scrollbar>
-        </a-card>
-      </a-col>
-    </a-row>
+      </div>
+      <div class="colCardBox">
+        <planeTitle titleName="当前故障级别" />
+        <div id="alarmLevel" class="colCardbody"></div>
+      </div>
+      <div class="colCardBox topClass">
+        <planeTitle titleName="当前故障趋势" />
+        <div id="alarmTrend" class="colCardbody"></div>
+      </div>
+    </div>
+    <div class="rightBox">
+      <planeTitle titleName="当前故障列表" />
+      <el-scrollbar>
+        <el-timeline>
+          <el-timeline-item
+            v-for="(item, index) in alarmList"
+            :key="index"
+            :icon="item.icon"
+            :type="item.type"
+            :color="item.color"
+            :size="item.size"
+            :timestamp="item.start_time"
+          >
+            <p :style="{ color: item.color }">{{ item.message }}</p>
+            <p :style="{ color: item.color }">{{ item.level }}({{ item.status }})</p>
+          </el-timeline-item>
+        </el-timeline>
+      </el-scrollbar>
+    </div>
   </div>
 </template>
 <script>
   import echarts from 'echarts';
   import request from '@/utils/request';
+  import planeTitle from '@/components/titile/planeTitle.vue';
   export default {
+    components: { planeTitle },
     data() {
       return {
         alarmLevelChart: '',
@@ -256,62 +250,39 @@
 <style lang="scss" scoped>
   .alarmReportChartsTemplate {
     width: 100%;
-    height: calc(100vh - 130px);
-    .colCardBox {
-      height: calc(50% - 10px);
-      .colCardbody {
-        height: calc(100% - 56px);
-      }
-    }
-    .topClass {
-      margin-top: 20px;
-    }
-    .rightLineBox {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    .leftBox,
+    .rightBox {
+      width: calc(50% - 5px);
       height: 100%;
     }
-  }
+    .leftBox {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      .colCardBox {
+        width: calc(50% - 5px);
+        height: calc(50% - 10px);
+        background: #fff;
+        .colCardbody {
+          height: calc(100% - 56px);
+        }
+        &.topClass {
+          width: 100%;
+          margin-top: 20px;
+        }
+      }
+    }
 
-  ::v-deep .ant-card-small > .ant-card-head > .ant-card-head-wrapper > .ant-card-head-title {
-    padding: 0;
-  }
-  ::v-deep .ant-card-small > .ant-card-head {
-    border-bottom: solid 2px $plane_border_color;
-    font-size: 20px;
-    height: 56px;
-    line-height: 56px;
-    padding-left: 18px;
-  }
-  ::v-deep .colCardBox .ant-card-small > .ant-card-body,
-  .colCardBox .ant-card-bordered {
-    height: 100%;
-  }
-  ::v-deep .rightLineBox .ant-card-small > .ant-card-body {
-    height: calc(100% - 56px);
-  }
-  /* ::v-deep .el-timeline-item__timestamp.is-bottom {
-  position: absolute;
-  left: -117px;
-  top: -3px;
-  color: #333333;
-}
-::v-deep .el-timeline {
-  padding-left: 120px;
-}
-.info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  margin-left: 0.3rem;
-  width: 100%;
-  .name {
-    font-weight: 200;
-  }
-  .number {
-    p {
-      display: inline;
-      font-weight: 200;
+    .rightBox {
+      background: #fff;
+      .el-scrollbar {
+        width: calc(100% - 20px);
+        margin: 10px;
+        height: calc(100% - 76px);
+      }
     }
   }
-} */
 </style>

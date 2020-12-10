@@ -210,7 +210,7 @@
     },
     methods: {
       selectBox(selection) {
-        console.log(selection.selection)
+        console.log(selection.selection);
         this.single = selection.selection.length > 0 ? false : true;
       },
       getRoleList() {
@@ -419,5 +419,4 @@
   };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

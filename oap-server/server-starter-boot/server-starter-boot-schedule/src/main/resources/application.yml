@@ -40,10 +40,10 @@ spring:
       max-file-size: 1000000000
       max-request-size: 1000000000
   redis:
-    host: 10.1.100.33
+    host: 10.1.100.10
     port: 6379
     timeout: 50000
-    password: 111111
+    password:
 #    password: Cmadaas@2019
 #    cluster:
 #      nodes: 10.1.100.33:6378,10.1.100.33:6380,10.1.100.33:6381,10.1.100.34:6382,10.1.100.34:6383,10.1.100.34:6384
@@ -56,7 +56,7 @@ spring:
 storage:
   elasticsearch:
     nameSpace:
-    clusterNodes: 10.1.100.35:9200
+    clusterNodes: 10.1.100.10:9200
     protocol: http
     trustStorePath:
     trustStorePass:

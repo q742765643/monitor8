@@ -98,9 +98,9 @@ public class FileLocalService extends FileBaseService {
         }
         FileFilter fileFilter = null;
         try {
-            SimpleDateFormat format = new SimpleDateFormat(expression);
-            long endTime = format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),fileMonitorLogDto.getTriggerTime())).getTime();
-            long beginTime =format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime))).getTime();
+            //SimpleDateFormat format = new SimpleDateFormat(expression);
+            long endTime = fileMonitorLogDto.getTriggerTime();
+            long beginTime =CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
             List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
 
             fileFilter = new FileFilter() {

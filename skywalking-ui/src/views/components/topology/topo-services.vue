@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License. -->
 <template>
-  <div class="link-topo-aside-box" style="padding:0;">
+  <div class="link-topo-aside-box" style="padding: 0">
     <TopoSelect :current="service" :data="services" @onChoose="handleChange" />
   </div>
 </template>
@@ -34,7 +34,7 @@ limitations under the License. -->
     private service = { key: 0, label: 'All services' };
 
     private fetchData() {
-      Axios.post('http://10.1.100.35:12800/graphql', {
+      Axios.post('/graphql', {
         query: `
       query queryServices($duration: Duration!) {
         services: getAllServices(duration: $duration) {

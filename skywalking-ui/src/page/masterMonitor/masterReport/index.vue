@@ -478,12 +478,10 @@
     }
     #dataPlane {
       width: 100%;
-      display: flex;
-      flex-direction: column;
       #report_chartdiv {
         flex: 1;
         width: 100%;
-        height: 360px;
+        height: 50%;
         display: flex;
         margin-bottom: 14px;
         #alarmChart {

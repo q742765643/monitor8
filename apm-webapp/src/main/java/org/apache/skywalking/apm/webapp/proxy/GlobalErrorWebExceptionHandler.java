@@ -61,8 +61,10 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
         final Map<String, Object> errorPropertiesMap = getErrorAttributes(request, false);
         try {
             if ("404".equals(errorPropertiesMap.get("code"))) {
+               /* String body = StreamUtils.copyToString(new ClassPathResource("/public/index.html").getInputStream(), Charset
+                        .defaultCharset());*/
                 String body = StreamUtils.copyToString(new ClassPathResource("/public/index.html").getInputStream(), Charset
-                        .defaultCharset());
+                        .forName("UTF-8"));
                 return ServerResponse.status(HttpStatus.OK)
                         .contentType(MediaType.TEXT_HTML)
                         .body(BodyInserters.fromObject(body));

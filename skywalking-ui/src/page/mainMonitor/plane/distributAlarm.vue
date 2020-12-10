@@ -24,24 +24,10 @@
     name: 'distributAlarm',
     components: { planeTitle },
     async mounted() {
-      this.getMonitorView();
-      this.getAlarmDistribution();
-      /*
-      await hongtuConfig.getAlarmDistribution().then((res) => {
-        if (res.status == 200 && res.data.code == 200) {
-          let dataarray = res.data.data;
-          dataarray.forEach((element, index) => {
-            if (element.classify == this.peiData[index].name) {
-              this.peiData[index].value = element.num;
-            }
-          });
-        }
-      });
-*/
-      this.$nextTick(function() {
-        this.drawPie('alarmChart');
-      });
-
+      setTimeout(async () => {
+        await this.getMonitorView();
+        await this.getAlarmDistribution();
+      }, 500);
       window.addEventListener('resize', () => {
         setTimeout(() => {
           this.alarmCharts.resize();
@@ -69,6 +55,7 @@
       },
       drawPie(id) {
         this.alarmCharts = echarts.init(document.getElementById(id));
+        console.log($('#alarmChart').height());
         let option = {
           title: [
             {
@@ -182,10 +169,11 @@
 <style lang="scss" scoped>
   #distributAlarm {
     width: 100%;
+    height: 38%;
     box-shadow: $plane_shadow;
     margin-bottom: 10px;
     #alarmChart {
-      height: 210px;
+      height: calc(100% - 56px);
       width: 100%;
     }
   }

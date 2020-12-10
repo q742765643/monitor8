@@ -116,8 +116,8 @@ public class FileSmaService extends FileBaseService {
                 return null;
             }
             SimpleDateFormat format = new SimpleDateFormat(expression);
-            long endTime = format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),fileMonitorLogDto.getTriggerTime())).getTime();
-            long beginTime =format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime))).getTime();
+            long endTime = fileMonitorLogDto.getTriggerTime();
+            long beginTime =CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
             List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
             fileFilter = new SmbFileFilter() {
                 @Override

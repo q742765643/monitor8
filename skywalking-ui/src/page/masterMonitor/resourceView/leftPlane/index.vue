@@ -190,13 +190,14 @@
     height: 100%;
     #topCell {
       width: 100%;
+      height: 38%;
       background: #fff;
       .chart_info {
         width: 100%;
+        height: calc(100% - 56px);
         display: flex;
         #statuChart {
           width: 50%;
-          height: 300px;
         }
         .info {
           .name {
@@ -213,20 +214,20 @@
     #bottomCell {
       margin-top: 10px;
       width: 100%;
+      height: calc(62% - 10px);
       background: white;
       #usageChart {
         width: 100%;
+        height: calc(100% - 56px);
         .chart_info {
           width: 100%;
-          height: 300px;
+          height: 50%;
           display: flex;
           #cpuChart {
-            height: 100%;
             width: 50%;
           }
           #romChart {
             width: 50%;
-            height: 100%;
           }
         }
       }
