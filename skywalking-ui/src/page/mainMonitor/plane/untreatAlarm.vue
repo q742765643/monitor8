@@ -41,11 +41,10 @@
       });
     },
     mounted() {
-      this.fetch();
-      this.$nextTick(() => {
+      setTimeout(() => {
+        this.fetch();
         this.setTableHeight();
-      });
-
+      }, 500);
       window.addEventListener('resize', () => {
         setTimeout(() => {
           this.setTableHeight();
@@ -66,8 +65,7 @@
       },
       setTableHeight() {
         let h = document.getElementById('alarmContnet').clientHeight;
-        let computedStyle = getComputedStyle(document.getElementById('alarmContnet'), null);
-        this.table_height = h - 2 * parseInt(computedStyle.paddingTop);
+        this.table_height = h;
       },
     },
   };

@@ -9,25 +9,23 @@
   import commonTitle from '../../commonFull/commonTitle';
   import echarts from 'echarts';
   import { remFontSize } from '@/components/utils/fontSize.js';
-  import request from "@/utils/request";
+  import request from '@/utils/request';
   export default {
     components: { commonTitle },
     props: ['chartID'],
     data() {
       return {
         mixChart: '',
-        timeList:[],
-        lateList:[],
-        shouldList:[],
-        actualList:[],
-        tempList:[]
+        timeList: [],
+        lateList: [],
+        shouldList: [],
+        actualList: [],
+        tempList: [],
       };
     },
     mounted() {
       this.fileLineDiagram();
-      this.$nextTick(() => {
-
-      });
+      this.$nextTick(() => {});
 
       window.addEventListener('resize', () => {
         this.mixChart.resize();
@@ -38,20 +36,20 @@
         request({
           url: '/fileQReport/fileLineDiagram',
           method: 'get',
-          params:{"taskId":this.chartID}
-        }).then(data => {
+          params: { taskId: this.chartID },
+        }).then((data) => {
           let list = data.data;
-          this.timeList=[];
-          this.lateList=[];
-          this.shouldList=[];
-          this.actualList=[];
-          this.tempList=[];
+          this.timeList = [];
+          this.lateList = [];
+          this.shouldList = [];
+          this.actualList = [];
+          this.tempList = [];
           list.forEach((item, index) => {
-            this.timeList.push(this.parseTime(item.start_time_l,'{d}/{h}:{i}'));
+            this.timeList.push(this.parseTime(item.start_time_l, '{d}/{h}:{i}'));
             this.lateList.push(item.late_num);
             this.shouldList.push(item.file_num);
             this.tempList.push(item.file_num);
-            this.actualList.push(Number(item.late_num)+Number(item.real_file_num));
+            this.actualList.push(Number(item.late_num) + Number(item.real_file_num));
           });
           this.drawChart(this.chartID);
         });
@@ -59,12 +57,12 @@
       drawChart(id) {
         this.mixChart = echarts.init(document.getElementById(id));
         var colors = ['#5793f3', '#d14a61', '#675bba'];
-        let shouldA = this.tempList.sort((a, b) => a - b)
-        let shouldL=Number(shouldA[shouldA.length-1])+20;
+        let shouldA = this.tempList.sort((a, b) => a - b);
+        let shouldL = Number(shouldA[shouldA.length - 1]) + 20;
         let options = {
           textStyle: {
             fontFamily: 'Alibaba-PuHuiTi-Regular',
-            color: '#565656'
+            color: '#565656',
           },
           color: colors,
           tooltip: {
@@ -207,9 +205,6 @@
         };
         this.mixChart.setOption(options);
       },
-
-
-
     },
   };
 </script>
@@ -222,7 +217,7 @@
 
     .dataView_chart {
       width: 100%;
-      height: 85%;
+      height: calc(100% - 56px);
     }
   }
 </style>

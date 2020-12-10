@@ -18,7 +18,7 @@
         </vxe-toolbar>
       </div>
 
-      <vxe-table border ref="xTable" :height="tableheight" :data="tableData" stripe align="center">
+      <vxe-table border ref="xTable" :data="tableData" stripe align="center">
         <vxe-table-column field="hostName" title="设备别名"></vxe-table-column>
         <vxe-table-column field="currentStatus" title="当前状态" :formatter="formatCurrentStatus"> </vxe-table-column>
         <vxe-table-column field="ip" title="IP地址"></vxe-table-column>
@@ -69,7 +69,6 @@
         colors: ['#428AFF', '#6c50f3', '#00ca95'],
         chartType: ['bar', 'line', 'line'],
         name: ['在线时长', '平均丢包率', '最大丢包率'],
-        tableheight: null,
         tableData: [],
         dateRange: [],
       };
@@ -87,10 +86,8 @@
       });
     },
     mounted() {
-      //this.fetch();
-      this.$nextTick(() => {});
       window.addEventListener('resize', () => {
-        this.setTableHeight();
+        this.charts.resize();
       });
     },
     methods: {
@@ -158,16 +155,7 @@
       formatArea({ cellValue }) {
         return this.selectDictLabel(this.areaOptions, cellValue);
       },
-      setTableHeight() {
-        let h = document.getElementById('content').clientHeight;
-        let padding = getComputedStyle(document.getElementById('content'), false)['paddingTop'];
 
-        let h_report = document.getElementById('linkReport_chart').clientHeight;
-        let barHeight = document.getElementById('toolbar').clientHeight;
-        //let h_page = document.getElementById('page_table').offsetHeight;
-        let h_page = 0;
-        this.tableheight = h - h_report - barHeight - 2 * parseInt(padding) - h_page - 1;
-      },
       drawChart(id) {
         this.charts = echarts.init(document.getElementById(id));
         let options = {
@@ -232,7 +220,7 @@
               name: '在线时长',
               axisLabel: {
                 formatter: '{value} h',
-                fontSize: remFontSize(12 / 64),
+                fontSize: 12,
               },
             },
             {
@@ -243,7 +231,7 @@
               interval: 20,
               axisLabel: {
                 formatter: '{value}%',
-                fontSize: remFontSize(12 / 64),
+                fontSize: 12,
               },
             },
           ],
@@ -260,7 +248,6 @@
             this.tableData = res.data.pageData;
             this.chart();
             this.drawChart('barlineChart');
-            this.setTableHeight();
           }
         });
       },
@@ -316,7 +303,7 @@
     }
     #barlineChart {
       width: 900px;
-      height: 400px;
+      height: 50%;
       margin: auto;
     }
   }

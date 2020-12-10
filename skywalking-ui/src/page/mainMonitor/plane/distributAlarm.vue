@@ -24,12 +24,11 @@
     name: 'distributAlarm',
     components: { planeTitle },
     async mounted() {
-      this.$nextTick(function() {
+      setTimeout(() => {
         this.getMonitorView();
         this.getAlarmDistribution();
         this.drawPie('alarmChart');
-      });
-
+      }, 500);
       window.addEventListener('resize', () => {
         setTimeout(() => {
           this.alarmCharts.resize();

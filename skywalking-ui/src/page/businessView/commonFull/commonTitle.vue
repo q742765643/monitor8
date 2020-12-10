@@ -50,13 +50,13 @@
 <style lang="scss" scoped>
   #tool {
     .iconfont {
-      margin: 0 0.1rem;
-      font-size: 0.3rem;
+      margin: 0 10px;
+      font-size: 16px;
       color: #06a5ff;
       cursor: pointer;
     }
     .full {
-      font-size: 0.35rem;
+      font-size: 18px;
     }
   }
 </style>

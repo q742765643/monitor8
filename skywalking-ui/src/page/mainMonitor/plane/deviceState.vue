@@ -332,6 +332,7 @@
       height: calc(100% - 56px);
       display: flex;
       align-items: center;
+      padding-top: 20px;
       #device_pieChart {
         height: 100%;
         flex: 1;

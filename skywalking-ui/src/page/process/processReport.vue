@@ -290,7 +290,7 @@
     }
     #barlineChart {
       width: 900px;
-      height: 400px;
+      height: 50%;
       margin: auto;
     }
   }
