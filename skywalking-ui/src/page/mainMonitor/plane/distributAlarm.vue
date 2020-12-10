@@ -24,10 +24,9 @@
     name: 'distributAlarm',
     components: { planeTitle },
     async mounted() {
-      setTimeout(() => {
-        this.getMonitorView();
-        this.getAlarmDistribution();
-        this.drawPie('alarmChart');
+      setTimeout(async () => {
+        await this.getMonitorView();
+        await this.getAlarmDistribution();
       }, 500);
       window.addEventListener('resize', () => {
         setTimeout(() => {

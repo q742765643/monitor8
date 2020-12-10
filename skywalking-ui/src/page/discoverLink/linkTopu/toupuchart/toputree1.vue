@@ -332,7 +332,7 @@
   }
 
   #legend {
-    width: 150px;
+    width: 170px;
     user-select: none;
     z-index: 500;
     position: absolute;

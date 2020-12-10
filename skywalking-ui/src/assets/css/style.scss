@@ -1,5 +1,7 @@
-html.body {
+html,
+body {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
+    overflow: hidden;
 }
 
 @font-face {

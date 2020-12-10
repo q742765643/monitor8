@@ -231,8 +231,9 @@
     }
 
     .info {
-      padding: 40px 80px;
-
+      padding: 40px 0;
+      width: 90%;
+      margin: auto;
       .column {
         display: flex;
         flex-direction: column;
@@ -242,7 +243,7 @@
           display: flex;
           span:first-child {
             font-size: $ant_font_size;
-            width: 90px;
+            width: 100px;
             display: inline-block;
             font-weight: 600;
             text-align: justify;
