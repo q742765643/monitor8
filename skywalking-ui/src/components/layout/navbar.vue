@@ -1,4 +1,5 @@
 <template>
+
   <a-layout-sider id="slider">
     <div class="timeBox">
       <div class="date">
@@ -9,6 +10,7 @@
         <span>{{ time }}</span>
       </div>
     </div>
+    <el-scrollbar class="leftMenuScroll">
     <a-menu mode="inline" :default-open-keys="['sub1']" id="menuNav" :selectedKeys="[this.$route.path]">
       <!-- <a-menu-item key="/mainMonitor" id="main">
         <span class="iconfont">&#xe60c;</span>
@@ -231,10 +233,10 @@
           </template>
         </a-sub-menu>
       </template>
-
-
     </a-menu>
+    </el-scrollbar>
   </a-layout-sider>
+  
 </template>
 
 <script>
@@ -306,10 +308,9 @@ export default {
       font-family: electronicFont;
     }
   }
+  .leftMenuScroll {
+  height: calc(100% - 90px);
   #menuNav {
-    height: calc(100% - 90px);
-    overflow-y: auto;
-    overflow-x: hidden;
     background: #f1f2f4;
     padding: 0 30px;
     padding-top: 30px;
@@ -392,17 +393,18 @@ export default {
         }
       }
     }
-    &::-webkit-scrollbar {
-      width: 3px;
-      background-color: #f5f5f5;
-    }
-    &::-webkit-scrollbar-thumb {
-      background-color: #5aa6ee;
-    }
-    &::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-      background-color: #f5f5f5;
-    }
+    // &::-webkit-scrollbar {
+    //   width: 3px;
+    //   background-color: #f5f5f5;
+    // }
+    // &::-webkit-scrollbar-thumb {
+    //   background-color: #5aa6ee;
+    // }
+    // &::-webkit-scrollbar-track {
+    //   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+    //   background-color: #f5f5f5;
+    // }
   }
+    }
 }
 </style>
