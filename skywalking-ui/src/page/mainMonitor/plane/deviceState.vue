@@ -333,9 +333,11 @@
       display: flex;
       align-items: center;
       #device_pieChart {
+        height: 100%;
         flex: 1;
       }
       #heatChart {
+        height: 100%;
         flex: 1;
         padding: 0 20px;
         display: flex;
