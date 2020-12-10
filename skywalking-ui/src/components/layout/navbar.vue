@@ -330,7 +330,9 @@ export default {
       text-decoration: none;
       color: rgba(0, 0, 0, 0.65);
     }
-
+    // .ant-menu-item > a:hover {
+    //   color: #fff;
+    // }
     .ant-menu-item {
       font-size: $nav_fontSize;
       height: 50px;
@@ -370,6 +372,9 @@ export default {
     .ant-menu-item-selected > a,
     .ant-menu-item-selected > a:hover {
       color: #1890ff !important;
+    }
+    .ant-menu-item-selected[id='main'] > a:hover {
+      color: #fff !important;
     }
     .ant-menu:not(.ant-menu-horizontal) {
       .ant-menu-item-selected {
