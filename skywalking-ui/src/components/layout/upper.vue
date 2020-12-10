@@ -18,17 +18,21 @@
         <span class="icon iconfont iconguanbi1"></span>
       </div>
     </div>
+    <audio muted style="display: none" id="ring1" src="../../assets/sounds/click.mp3"></audio>
   </div>
 </template>
 
 <script>
+  import { createWebSocket } from '@/components/utils/WebSocket.js';
   export default {
     data() {
       return {
         warnNum: 26,
       };
     },
-    created() {},
+    created() {
+      createWebSocket('ws://10.1.100.35:12800/webSocket/12345', '');
+    },
     mounted() {},
     destroyed() {},
     methods: {},
