@@ -292,6 +292,7 @@
         graph.render();
 
         graph.on('node:click', (ev) => {
+          console.log(ev);
           clearTimeout(this.timeer);
           this.ip = ev.item._cfg.ip;
           this.timeer = setTimeout(() => {
@@ -332,7 +333,7 @@
   }
 
   #legend {
-    width: 170px;
+    width: 150px;
     user-select: none;
     z-index: 500;
     position: absolute;

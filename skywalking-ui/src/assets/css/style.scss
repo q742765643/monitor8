@@ -158,6 +158,10 @@ body {
     font-size: 14px;
 }
 
+.vxe-table--tooltip-wrapper {
+    z-index: 1001 !important;
+}
+
 //带表格查询
 .queryForm {
     padding: 30px;
@@ -206,4 +210,8 @@ body {
     padding: 20px 10px;
     background: #FFFFFF;
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
+}
+
+.wsErrorNotification {
+    width: 500px;
 }

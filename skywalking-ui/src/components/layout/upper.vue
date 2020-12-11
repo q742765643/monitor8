@@ -38,9 +38,11 @@
       }).then((data) => {
         this.warnNum = data.data.length;
       });
-      createWebSocket('ws://10.1.100.35:12800/webSocket/12345', '');
+      createWebSocket('ws://10.1.100.35:12801/webSocket/12345', '');
     },
-    mounted() {},
+    mounted() {
+      window.wsonmessage = this;
+    },
     destroyed() {},
     methods: {},
   };
