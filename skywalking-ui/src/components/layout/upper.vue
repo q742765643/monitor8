@@ -38,10 +38,12 @@
       }).then((data) => {
         this.warnNum = data.data.length;
       });
-      var domain=window.location.host;
-      createWebSocket('ws://'+domain+'/ws/webSocket/12345', '');
+      var domain = window.location.host;
+      createWebSocket('ws://' + domain + '/ws/webSocket/12345', '');
     },
-    mounted() {},
+    mounted() {
+      window.wsonmessage = this;
+    },
     destroyed() {},
     methods: {},
   };
