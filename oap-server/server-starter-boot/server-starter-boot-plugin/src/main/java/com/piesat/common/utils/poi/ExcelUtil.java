@@ -1015,7 +1015,7 @@ public class ExcelUtil<T> {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
         Font dataFont = wb.createFont();
-        dataFont.setFontName("宋体");
+        //dataFont.setFontName("宋体");
         dataFont.setFontHeightInPoints((short) 10);
         style.setFont(dataFont);
         style.setWrapText(true);
@@ -1035,7 +1035,7 @@ public class ExcelUtil<T> {
         style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
         style.setWrapText(true);
         Font headerFont = wb.createFont();
-        headerFont.setFontName("宋体");
+        //headerFont.setFontName("宋体");
         headerFont.setFontHeightInPoints((short) 10);
         headerFont.setBold(true);
         //headerFont.setColor(IndexedColors.WHITE.getIndex());
@@ -1046,7 +1046,7 @@ public class ExcelUtil<T> {
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
         Font totalFont = wb.createFont();
-        totalFont.setFontName("宋体");
+        //totalFont.setFontName("宋体");
         totalFont.setFontHeightInPoints((short) 10);
         style.setFont(totalFont);
         styles.put("total", style);

@@ -70,7 +70,7 @@
 #    listOfServers: 127.0.0.1:12800
 
 server:
-  port: 12800
+  port: 8080
 spring:
   application:
     name: gateway_server

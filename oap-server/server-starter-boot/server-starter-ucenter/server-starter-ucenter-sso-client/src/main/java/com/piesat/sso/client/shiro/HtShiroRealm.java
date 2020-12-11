@@ -1,5 +1,6 @@
 package com.piesat.sso.client.shiro;
 
+import com.alibaba.fastjson.JSON;
 import com.piesat.common.grpc.config.SpringUtil;
 import com.piesat.common.utils.AESUtil;
 import com.piesat.common.utils.ip.IpUtils;
@@ -9,6 +10,7 @@ import com.piesat.ucenter.rpc.api.system.RoleService;
 import com.piesat.ucenter.rpc.api.system.UserService;
 import com.piesat.ucenter.rpc.dto.system.UserDto;
 import eu.bitwalker.useragentutils.UserAgent;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -26,6 +28,7 @@ import java.util.Set;
  * @创建人 zzj
  * @创建时间 2019/12/5 14:36
  */
+@Slf4j
 public class HtShiroRealm extends AuthorizingRealm {
 
     @Override
@@ -59,35 +62,28 @@ public class HtShiroRealm extends AuthorizingRealm {
                 throw new LockedAccountException();
             }
             if (null != token.getRequest()) {
-                UserAgent userAgent = UserAgent.parseUserAgentString(token.getRequest().getHeader("User-Agent"));
-                String ip = IpUtils.getIpAddr(token.getRequest());
-                userDto.setLoginIp(ip);
-                userDto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
-                userDto.setBrowser(userAgent.getBrowser().getName());
-                userDto.setOs(userAgent.getOperatingSystem().getName());
+                try {
+                    UserAgent userAgent = UserAgent.parseUserAgentString(token.getRequest().getHeader("User-Agent"));
+                    String ip = IpUtils.getIpAddr(token.getRequest());
+                    userDto.setLoginIp(ip);
+                    userDto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
+                    userDto.setBrowser(userAgent.getBrowser().getName());
+                    userDto.setOs(userAgent.getOperatingSystem().getName());
+                } catch (Exception e) {
+                    log.info("用户信息=="+ JSON.toJSONString(userDto));
+                    e.printStackTrace();
+                }
             }
             userDto.setParams(token.getParam());
             userDto.setOperatorType(token.getOperatorType());
             userDto.setLoginDate(new Date());
-            SimpleAuthenticationInfo authenticationInfo = null;
-            if ("11".equals(userDto.getUserType())) {
-                if (!"3".equals(userDto.getChecked())) {
-                    throw new LockedAccountException();
-                }
-                String pwd = AESUtil.aesDecrypt(userDto.getPassword()).trim();
-                authenticationInfo = new SimpleAuthenticationInfo(
-                        userDto, //用户名
-                        new Md5Hash(pwd, username, 2).toString(), //密码
-                        salt,
-                        getName());
-            } else {
-                authenticationInfo = new SimpleAuthenticationInfo(
+            SimpleAuthenticationInfo    authenticationInfo = new SimpleAuthenticationInfo(
                         userDto, //用户名
                         userDto.getPassword(), //密码
                         salt,
                         getName()  //realm name
                 );
-            }
+
 
             return authenticationInfo;
         }

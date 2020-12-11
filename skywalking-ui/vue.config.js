@@ -37,7 +37,7 @@ module.exports = {
         changeOrigin: true,
       },
       '/monitor': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12801'}`,
+        target: `${process.env.SW_PROXY_TARGET || 'http://localhost:12801'}`,
         changeOrigin: true,
         pathRewrite: {
           ['^/monitor']: '',
