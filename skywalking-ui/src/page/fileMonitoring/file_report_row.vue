@@ -21,15 +21,18 @@
       <vxe-table border ref="xTable" :merge-cells="mergeCells" :data="tableData" resizable stripe align="center">
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
         <vxe-table-column field="timestamp" title="时间" show-overflow>
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.timestamp) }}</span>
-          </template>
+           <template slot-scope="scope" >
+             <span v-if="scope.row.timestamp=='合计'">{{ scope.row.timestamp }}</span>
+             <span v-if="scope.row.timestamp!=='合计'">{{ parseTime(scope.row.timestamp,'{y}-{m}-{d}') }}</span>
+           </template>
         </vxe-table-column>
         <vxe-table-column field="sumRealFileNum" title="准时到"></vxe-table-column>
         <vxe-table-column field="sumLateNum" title="晚到"></vxe-table-column>
         <vxe-table-column field="sumFileNum" title="应到"></vxe-table-column>
         <vxe-table-column field="sumRealFileSize" title="大小KB"></vxe-table-column>
         <vxe-table-column field="toQuoteRate" title="到报率"></vxe-table-column>
+        <vxe-table-column field="timelinessRate" title="及时率"></vxe-table-column>
+
       </vxe-table>
     </div>
   </div>
