@@ -23,17 +23,27 @@
 </template>
 
 <script>
+  import request from '@/utils/request';
   import { createWebSocket } from '@/components/utils/WebSocket.js';
   export default {
     data() {
       return {
-        warnNum: 26,
+        warnNum: 0,
       };
     },
     created() {
-      createWebSocket('ws://10.1.100.35:12800/webSocket/12345', '');
+      request({
+        url: '/main/getAlarm',
+        method: 'get',
+      }).then((data) => {
+        this.warnNum = data.data.length;
+      });
+      var domain = window.location.host;
+      createWebSocket('ws://' + domain + '/ws/webSocket/12345', '');
     },
-    mounted() {},
+    mounted() {
+      window.wsonmessage = this;
+    },
     destroyed() {},
     methods: {},
   };

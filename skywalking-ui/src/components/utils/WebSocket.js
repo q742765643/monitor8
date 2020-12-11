@@ -1,3 +1,5 @@
+import { parseTime } from '@/components/util';
+var notifications = [];
 // =====================================心跳包重连CODE START=======================================
 window.lockReconnect = false; // 避免ws重复连接
 let ws = null; // 判断当前浏览器是否支持WebSocket
@@ -5,7 +7,7 @@ let wsUrl = '';
 // createWebSocket(wsUrl);   // 连接ws
 
 function createWebSocket(url, setSocketData) {
-  console.log(`url=====${url}`);
+  // console.log(`url=====${url}`);
   wsUrl = url;
   try {
     if ('WebSocket' in window) {
@@ -41,7 +43,7 @@ const heartCheck = {
       // 这里发送一个心跳，后端收到后，返回一个心跳消息，
       // onmessage拿到返回的心跳就说明连接正常
       ws.send('ping');
-      console.log('ping!');
+      // console.log('ping!');
       self.serverTimeoutObj = setTimeout(function() {
         // 如果超过一定时间还没重置，说明后端主动断开了
         // 如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
@@ -74,6 +76,41 @@ function initEventHandle(setSocketData) {
     const msg = event.data;
     if (msg === 'ping') {
       return;
+    } else {
+      let msgInfo = JSON.parse(msg);
+      msgInfo = JSON.parse(msgInfo);
+      console.log(msgInfo);
+      let level;
+      if (msgInfo.level == 0) {
+        level = '一般';
+      } else if (msgInfo.level == 1) {
+        level = '危险';
+      } else if (msgInfo.level == 2) {
+        level = '故障';
+      }
+      for (let key in notifications) {
+        setTimeout(() => {
+          notifications[key].close();
+          delete notifications[key];
+        }, 3000);
+      }
+      let notificationItem = window.wsonmessage.$notify.error({
+        customClass: 'wsErrorNotification',
+        title: '警告',
+        dangerouslyUseHTMLString: true,
+        duration: 0,
+        message:
+          '<p>时间：' +
+          parseTime(msgInfo.timestamp) +
+          '</p>' +
+          '<p>告警级别：' +
+          level +
+          '</p>' +
+          '<p>告警信息：' +
+          msgInfo.message +
+          '</p>',
+      });
+      notifications.push(notificationItem);
     }
     handMsg(msg, setSocketData);
   };

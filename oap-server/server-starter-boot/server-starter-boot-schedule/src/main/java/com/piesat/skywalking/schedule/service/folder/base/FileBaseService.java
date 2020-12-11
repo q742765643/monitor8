@@ -65,7 +65,7 @@ public abstract class FileBaseService {
                 if (expression1.length() > expression.length()) {
                     expression = expression1.split(",")[0];
                 }
-                fileMonitorLogDto.setAllExpression("${" + expression1 + "}");
+                fileMonitorLogDto.setAllExpression("${" + expression1.replace(expression,"yyyyMMddHHmmss") + "}");
                 String replaceMent = expression1.split(",")[0].replaceAll("[ymdhsYMDHS]", "\\\\d");
                 filenameRegular = filenameRegular.replace("${" + expression1 + "}", replaceMent);
             }

@@ -44,7 +44,7 @@ public class HtAuthenticationFilter extends FormAuthenticationFilter {
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject subject = getSubject(request, response);
         boolean isLogin = subject.isAuthenticated();
-        return true;
+        return isLogin;
  /*       if (!isLogin) {
             UsernamePasswordToken token = new UsernamePasswordToken("guest", "guest");
             token.setLoginType("2");

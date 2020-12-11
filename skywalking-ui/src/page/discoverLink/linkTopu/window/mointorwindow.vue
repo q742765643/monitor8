@@ -29,7 +29,7 @@
           <div class="chart" id="pakChart"></div>
         </div>
         <div id="Thd" class="plane">
-          <planeTitle titleName="进程状态"></planeTitle>
+          <planeTitle titleName="进程状态1"></planeTitle>
           <div class="chart" id="tableChart">
             <vxe-table :height="table_height" width="90%" :data="tableData" stripe>
               <vxe-table-column field="processName" title="进程名称" show-overflow></vxe-table-column>

@@ -18,6 +18,7 @@
 var webpack = require('webpack');
 
 module.exports = {
+<<<<<<< HEAD
     configureWebpack: {
         plugins: [
             new webpack.ProvidePlugin({
@@ -43,6 +44,31 @@ module.exports = {
                     ['^/monitor']: '',
                 },
             },
+=======
+  configureWebpack: {
+    plugins: [
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery',
+        'windows.jQuery': 'jquery',
+        Popper: ['popper.js', 'default'],
+      }),
+    ],
+  },
+  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
+  lintOnSave: false,
+  devServer: {
+    proxy: {
+      '/graphql': {
+        target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12801'}`,
+        changeOrigin: true,
+      },
+      '/monitor': {
+        target: `${process.env.SW_PROXY_TARGET || 'http://localhost:12801'}`,
+        changeOrigin: true,
+        pathRewrite: {
+          ['^/monitor']: '',
+>>>>>>> 1feca18b337ee9028fbcfb51f8fe08caaf7be68e
         },
     },
     chainWebpack: (config) => {

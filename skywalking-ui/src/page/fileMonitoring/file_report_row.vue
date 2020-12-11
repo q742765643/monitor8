@@ -12,9 +12,9 @@
         />
       </a-form-model-item>
       <a-form-model-item>
-          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-          <a-button type="primary" class="dcBtn" @click="exportEventXls"> 导出excel </a-button>
+        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
       </a-form-model-item>
     </a-form-model>
     <div class="tableDateBox">
@@ -36,87 +36,87 @@
 </template>
 
 <script>
-import request from '@/utils/request';
-import moment from 'moment';
-export default {
-  data() {
-    return {
-      tableData: [],
-      mergeCells: [],
-      headers: [],
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryParams: {
-        // beginTime: '',
-        // endTime: '',
-      },
-      form: {},
-      visible: false,
-    };
-  },
-  created() {
-    this.fetch();
-  },
-  mounted() {
-    //this.findHeader();
-  },
-  computed: {},
-  methods: {
-    moment,
-    range(start, end) {
-      const result = [];
-      for (let i = start; i < end; i++) {
-        result.push(i);
-      }
-      return result;
+  import request from '@/utils/request';
+  import moment from 'moment';
+  export default {
+    data() {
+      return {
+        tableData: [],
+        mergeCells: [],
+        headers: [],
+        // 日期范围
+        dateRange: [],
+        // 查询参数
+        queryParams: {
+          // startTime: '',
+          // endTime: '',
+        },
+        form: {},
+        visible: false,
+      };
     },
-    onTimeChange(value, dateString) {
-      this.queryParams.beginTime = dateString[0];
-      this.queryParams.endTime = dateString[1];
-    },
-    findHeader() {
-      request({
-        url: '/fileQReport/findHeader',
-        method: 'get',
-      }).then((data) => {
-        this.headers = data.data;
-      });
-    },
-    statusFormat(status) {
-      return this.selectDictLabel(this.statusOptions, status);
-    },
-    handleQuery() {
-      //this.queryParams.pageNum = 1;
+    created() {
       this.fetch();
     },
-    resetQuery() {
-      this.dateRange = [];
-      this.$refs.queryForm.resetFields();
-      this.handleQuery();
+    mounted() {
+      //this.findHeader();
     },
-    exportEventXls() {
-      request({
-        url: '/fileQReport/exportFileReportRow',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-        responseType: 'arraybuffer',
-      }).then((res) => {
-        this.downloadfileCommon(res);
-      });
+    computed: {},
+    methods: {
+      moment,
+      range(start, end) {
+        const result = [];
+        for (let i = start; i < end; i++) {
+          result.push(i);
+        }
+        return result;
+      },
+      onTimeChange(value, dateString) {
+        this.queryParams.startTime = dateString[0];
+        this.queryParams.endTime = dateString[1];
+      },
+      findHeader() {
+        request({
+          url: '/fileQReport/findHeader',
+          method: 'get',
+        }).then((data) => {
+          this.headers = data.data;
+        });
+      },
+      statusFormat(status) {
+        return this.selectDictLabel(this.statusOptions, status);
+      },
+      handleQuery() {
+        //this.queryParams.pageNum = 1;
+        this.fetch();
+      },
+      resetQuery() {
+        this.dateRange = [];
+        this.$refs.queryForm.resetFields();
+        this.handleQuery();
+      },
+      exportEventXls() {
+        request({
+          url: '/fileQReport/exportFileReportRow',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+          responseType: 'arraybuffer',
+        }).then((res) => {
+          this.downloadfileCommon(res);
+        });
+      },
+      fetch() {
+        request({
+          url: '/fileQReport/findFileReportRow',
+          method: 'get',
+          params: this.addDateRange(this.queryParams, this.dateRange),
+        }).then((data) => {
+          this.tableData = data.data.tableData;
+          this.mergeCells = data.data.mergeCells;
+        });
+      },
     },
-    fetch() {
-      request({
-        url: '/fileQReport/findFileReportRow',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
-      }).then((data) => {
-        this.tableData = data.data.tableData;
-        this.mergeCells = data.data.mergeCells;
-      });
-    },
-  },
-};
+  };
 </script>
 <style lang="scss" scoped>
 .dcBtn {
