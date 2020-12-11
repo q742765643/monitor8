@@ -54,6 +54,7 @@
         });
       },
       drawPie(id) {
+        // this.alarmCharts = echarts.init(document.querySelector(id));
         this.alarmCharts = echarts.init(document.getElementById(id));
         console.log($('#alarmChart').height());
         let option = {

@@ -177,6 +177,17 @@ body {
     height: 32px;
 }
 
+.ant-input {
+    width: 240px;
+}
+
+.ant-calendar-picker {
+    width: 350px;
+    .ant-input {
+        width: 350px;
+    }
+}
+
 .ant-btn {
     padding: 0 15px;
     // margin-right: 10px;
@@ -259,6 +270,9 @@ body {
     padding: 20px 10px;
     background: #FFFFFF;
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
+    .ant-input {
+        width: 220px !important;
+    }
 }
 
 .wsErrorNotification {

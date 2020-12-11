@@ -45,7 +45,6 @@
           </a-form-model-item>
           <a-form-model-item label="创建时间">
             <a-range-picker
-              style="width: 295px"
               v-model="queryParams.dateRange"
               @change="onTimeChange"
               :show-time="{
