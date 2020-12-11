@@ -70,7 +70,7 @@
 #    listOfServers: 127.0.0.1:12800
 
 server:
-  port: 8012
+  port: 12800
 spring:
   application:
     name: gateway_server
@@ -98,6 +98,10 @@ spring:
             - Path=/monitor/**
           filters:
             - StripPrefix=1
+            - name: Retry
+              args:
+                retries: 3
+                statuses: BAD_GATEWAY
             - name: Hystrix
               args:
                 name: fallback
@@ -110,7 +114,7 @@ spring:
             - StripPrefix=1
 hystrix:
   command:
-    fallbackcmd:
+    default:
       execution:
         isolation:
           thread:
@@ -119,7 +123,7 @@ hystrix:
 collector:
   ribbon:
     # Point to all backend's restHost:restPort, split by ,
-    listOfServers: 10.1.100.35:12800
+    listOfServers: 10.1.100.35:12801
 
 log:
   path: ../src/sod_server/logs

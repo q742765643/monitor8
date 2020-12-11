@@ -48,7 +48,7 @@ export default {
       dateRange: [],
       // 查询参数
       queryParams: {
-        // beginTime: '',
+        // startTime: '',
         // endTime: '',
       },
       form: {},
@@ -72,7 +72,7 @@ export default {
       return result;
     },
     onTimeChange(value, dateString) {
-      this.queryParams.beginTime = dateString[0];
+      this.queryParams.startTime = dateString[0];
       this.queryParams.endTime = dateString[1];
     },
     findHeader() {

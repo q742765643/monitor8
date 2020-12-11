@@ -12,7 +12,7 @@ if [[ $1 == "start" || $1 == "restart" ]]; then
         kill -9 $id
         echo "killed $id"
         done
-        nohup java  -jar ../oap-libs/${project_name}.jar  --spring.config.location=../config/ >/dev/null 2>&1 &
+        nohup java  -jar ../oap-libs/${project_name}.jar  --spring.config.location=../oap-libs/application.yml >/dev/null 2>&1 &
         echo "启动成功"
 
 elif [ $1 == "stop" ]; then

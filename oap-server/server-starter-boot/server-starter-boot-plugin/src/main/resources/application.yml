@@ -14,7 +14,7 @@
 # limitations under the License.
 
 server:
-  port: 12800
+  port: 12801
   max-http-header-size: 10000000000000
 
 
@@ -43,10 +43,10 @@ spring:
       max-file-size: 1000000000
       max-request-size: 1000000000
   redis:
-    host: 10.1.100.10
+    host: 10.1.100.33
     port: 6379
     timeout: 50000
-    password:
+    password: 111111
 #    password: Cmadaas@2019
 #    cluster:
 #      nodes: 10.1.100.10:6378,10.1.100.10:6380,10.1.100.10:6381,10.1.100.34:6382,10.1.100.34:6383,10.1.100.34:6384
@@ -62,7 +62,7 @@ spring:
     #username: soder
     #password: soder123
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://10.1.100.10:3306/monitor?characterEncoding=UTF-8
+    url: jdbc:mysql://10.1.100.33:3306/monitor?characterEncoding=UTF-8
     username: root
     password: root
     type: com.alibaba.druid.pool.DruidDataSource
@@ -90,7 +90,7 @@ spring:
 storage:
   elasticsearch:
     nameSpace:
-    clusterNodes: 10.1.100.10:9200
+    clusterNodes: 10.1.100.33:9200
     protocol: http
     trustStorePath:
     trustStorePass:
