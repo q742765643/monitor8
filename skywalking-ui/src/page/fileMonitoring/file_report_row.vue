@@ -14,7 +14,7 @@
       <a-form-model-item>
           <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
           <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-          <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
+          <a-button type="primary" class="dcBtn" @click="exportEventXls"> 导出excel </a-button>
       </a-form-model-item>
     </a-form-model>
     <div class="tableDateBox">
@@ -118,3 +118,8 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.dcBtn {
+  margin-left: 10px;
+}
+</style>

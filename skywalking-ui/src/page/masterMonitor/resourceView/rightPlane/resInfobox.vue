@@ -162,7 +162,8 @@ export default {
                 show: true,
                 textStyle: {
                   color: '#676767',
-                  fontSize: remFontSize(12 / 64),
+                    // fontSize: remFontSize(12 / 64),
+                  fontSize: remFontSize(8 / 64),
                 },
               },
               data: myData.map(function(value) {
@@ -254,19 +255,23 @@ export default {
                 rich: {
                   a0: {
                     color: this.colors[0],
-                    fontSize: remFontSize(14 / 64),
+                    // fontSize: remFontSize(14 / 64),
+                    fontSize: remFontSize(9 / 64),
                   },
                   a1: {
                     color: this.colors[1],
-                    fontSize: remFontSize(14 / 64),
+                    // fontSize: remFontSize(14 / 64),
+                    fontSize: remFontSize(9 / 64),
                   },
                   a2: {
                     color: this.colors[2],
-                    fontSize: remFontSize(14 / 64),
+                    fontSize: remFontSize(9 / 64),
+                    // fontSize: remFontSize(14 / 64),
                   },
                   b: {
                     color: '#676767',
-                    fontSize: remFontSize(12 / 64),
+                    fontSize: remFontSize(9 / 64),
+                    // fontSize: remFontSize(12 / 64),
                   },
                 },
                 position: 'insideTopRight',
@@ -274,7 +279,8 @@ export default {
                     color: '#767676', // 进度条上方百分比字体颜色
                     fontSize: 14,
                   }, */
-                offset: [0, -remFontSize(25 / 64)],
+                offset: [0, -remFontSize(18 / 64)],
+                // offset: [0, -remFontSize(25 / 64)],
               },
             },
           },
@@ -308,50 +314,64 @@ export default {
 <style lang="scss" scoped>
 #box {
   width: 100%;
-  height: 100%;
+  // height: 100%;
+  border-right: 2px solid #edf5f8;
+  border-bottom: 2px solid #edf5f8;
+  // margin-bottom: 20px;
   #title {
-    height: 0.75rem;
-    line-height: 0.75rem;
-    border-bottom: 0.025rem solid #bddfeb8f;
-    padding-left: 0.2rem;
+    // display: flex;
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 2px solid #edf5f8;
+    padding-left: 20px;
+    padding-top: 10px;
     #states {
       display: inline-block;
-      height: 0.15rem;
-      width: 0.15rem;
+      height: 12px;
+      width: 12px;
       border-radius: 50%;
     }
     #name {
-      padding-left: 0.2rem;
-      font-size: 0.25rem;
+      display: inline-block;
+      padding-left: 40px;
+      font-size: 12px;
+      height: 15px;
+      line-height: 20px;
     }
   }
 
   #info_content {
-    padding: 0.25rem;
+    padding: 10px;
     width: 100%;
-    height: calc(100% - 0.75rem);
+    // height: calc(100% - 56px);
     display: flex;
     flex-direction: column;
     .progressChart {
-      flex: 1;
+      // flex: 1;
+      // width: 100%;
+      height: 200px;
     }
     #thred {
-      flex: 1;
+      // flex: 1;
       display: flex;
+      // flex-direction: column;
+      // height: 200px !important;
       #img {
         flex: 3;
         background-image: url('../../../../assets/imgs/thred.png');
         background-repeat: no-repeat;
         background-size: cover;
+        height: 200px;
         background-color: #f2fafd;
-        border-radius: 0.125rem;
+        border-radius: 10px;
       }
       #thred_info {
         flex: 2;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 0.25rem;
+        height: 200px;
+        font-size: 16px;
       }
     }
   }

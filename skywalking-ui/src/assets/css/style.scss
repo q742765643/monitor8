@@ -73,15 +73,64 @@ body {
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
 }
 
+.ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-title {
+    span {
+        // color: rgba(0, 0, 0, 0.65);
+        color: #5d76ae;
+        .iconfont {
+            color: #5d76ae;
+        }
+    }
+    background:#e5ecf4 !important;
+    box-shadow: none;
+}
+
+// .ant-menu-submenu .ant-menu-submenu-inline .ant-menu-submenu-title:hover {
+//     span {
+//         color: #1890ff !important;
+//     }
+// }
+.ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-selected .ant-menu-submenu-title {
+    span,
+    a {
+        color: #fff !important;
+    }
+    background: linear-gradient(90deg, #428dff, #397dff) !important;
+}
+
+.ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-selected .ant-menu-submenu-title:hover {
+    span,
+    a {
+        color: #fff !important;
+    }
+}
+
+.ant-menu-submenu-selected>.ant-menu-submenu-title:hover .ant-menu-submenu-arrow::before {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65));
+}
+
+.ant-menu-submenu-selected>.ant-menu-submenu-title:hover .ant-menu-submenu-arrow::after {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65));
+}
+
+.log .ant-menu-submenu .ant-menu-submenu-inline .ant-menu-submenu-open .ant-menu-submenu-selected .ant-menu-submenu-title:hover {
+    span {
+        color: #fff !important;
+    }
+}
+
+// .log .ant-menu-submenu .ant-menu-inline .ant-menu-submenu-open .ant-menu-submenu-selected .ant-menu-submenu-title:hover {
+//     span {
+//         color: #fff !important;
+//     }
+// }
 // table样式
 .vxe-table {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
     margin-top: 20px;
-
     th {
         font-size: 16px;
     }
-
     td {
         font-size: 14px;
     }

@@ -223,7 +223,7 @@
               <span class="iconfont" :class="subItem.meta.icon"></span>
               <router-link :to="'/' + subItem.path">{{ subItem.name }}</router-link>
             </a-menu-item>
-            <a-sub-menu v-else :key="'/' + subItem.path">
+            <a-sub-menu v-else :key="'/' + subItem.path" class="log">
               <span slot="title"> <span class="iconfont" :class="subItem.meta.icon"></span>{{subItem.name}}</span>
               <a-menu-item :key="'/' + aSubItem.path" v-for="aSubItem in subItem.children">
                 <span class="iconfont" :class="aSubItem.meta.icon"></span>
@@ -328,7 +328,8 @@ export default {
     .ant-menu-item > a {
       display: inline-block !important;
       text-decoration: none;
-      color: rgba(0, 0, 0, 0.65);
+      // color: rgba(0, 0, 0, 0.65);
+      color: #5d76ae;
     }
     // .ant-menu-item > a:hover {
     //   color: #fff;
@@ -337,6 +338,20 @@ export default {
       font-size: $nav_fontSize;
       height: 50px;
       line-height: 50px;
+    }
+    .ant-menu-item[id='main']:hover {
+      color: #1890ff !important;
+      a {
+        color: #1890ff;
+      }
+    }
+    .ant-menu-item:hover {
+      span {
+        color: #1890ff;
+      }
+      a {
+        color: #1890ff;
+      }
     }
 
     .ant-menu-submenu-selected .ant-menu-submenu-title {
@@ -363,18 +378,31 @@ export default {
       background: linear-gradient(90deg, #428dff, #397dff) !important;
       box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.4);
       border-radius: 6px;
+      span, a {
+        color: #fff !important;
+      }
     }
-    .ant-menu-item-selected[id='main'] a {
-      color: #fff !important;
+    .ant-menu-item-selected[id='main']:hover {
+      span, a {
+         color: #fff !important;
+      }
     }
-
+    .ant-menu-item .ant-menu-item-selected {
+      // color: #1890ff;
+    }
+    .log {
+      .ant-menu-submenu-title:hover {
+        background: transparent !important;
+        span {
+          color:#1890ff;
+        }
+      }
+    }
+    
     .ant-menu-item-selected,
     .ant-menu-item-selected > a,
     .ant-menu-item-selected > a:hover {
-      color: #1890ff !important;
-    }
-    .ant-menu-item-selected[id='main'] > a:hover {
-      color: #fff !important;
+      // color: #1890ff !important;
     }
     .ant-menu:not(.ant-menu-horizontal) {
       .ant-menu-item-selected {
@@ -382,6 +410,9 @@ export default {
         color: #1890ff;
         .iconfont {
           color: #1890ff;
+        }
+        span {
+          color: #1890ff !important;
         }
         &:before {
           position: absolute;
@@ -392,23 +423,11 @@ export default {
           border-right: 8px solid #00c0ff;
           content: '';
         }
-
         &:after {
           display: none;
         }
       }
     }
-    // &::-webkit-scrollbar {
-    //   width: 3px;
-    //   background-color: #f5f5f5;
-    // }
-    // &::-webkit-scrollbar-thumb {
-    //   background-color: #5aa6ee;
-    // }
-    // &::-webkit-scrollbar-track {
-    //   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-    //   background-color: #f5f5f5;
-    // }
   }
     }
 }
