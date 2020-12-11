@@ -43,15 +43,17 @@ public class FileLocalService extends FileBaseService {
                     this.putFile(file, fileMonitorLogDto, fileList, resultT);
                     fileMonitorLogDto.setFolderRegular(folderRegular);
                     fileMonitorLogDto.setFilenameRegular(filenameRegular);
-                    return;
                 }
 
             }
         } catch (Exception e) {
-            resultT.setErrorMessage(OwnException.get(e));
+            resultT.setSuccessMessage(OwnException.get(e));
         }
         try {
-            this.multipleFiles(fileMonitorLogDto, fileList, resultT);
+            if(fileList.size()==0){
+                this.multipleFiles(fileMonitorLogDto, fileList, resultT);
+
+            }
             if (!resultT.isSuccess()) {
                 return;
             }
@@ -98,11 +100,16 @@ public class FileLocalService extends FileBaseService {
         }
         FileFilter fileFilter = null;
         try {
-            //SimpleDateFormat format = new SimpleDateFormat(expression);
-            long endTime = fileMonitorLogDto.getTriggerTime();
-            long beginTime =CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            long endTime= fileMonitorLogDto.getTriggerTime();
+            long beginTime=CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
+            if(StringUtil.isNotEmpty(fileMonitorLogDto.getAllExpression())){
+                beginTime =format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(), beginTime)).getTime();
+                endTime = format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),fileMonitorLogDto.getTriggerTime())).getTime();
+            }
             List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
-
+            long finalBeginTime = beginTime;
+            long finalEndTime = endTime;
             fileFilter = new FileFilter() {
                 @Override
                 public boolean accept(File file) {
@@ -133,7 +140,7 @@ public class FileLocalService extends FileBaseService {
                         lastModified = lastModified - 1000 * 3600 * 8;
                     }
                     long ddataTime = getDataTime(createTime, file.getName(), expression, resultT);
-                    if (ddataTime <= beginTime || ddataTime > endTime) {
+                    if (ddataTime <= finalBeginTime || ddataTime > finalEndTime) {
                         return false;
                     }
                     String fullpath = file.getPath();
