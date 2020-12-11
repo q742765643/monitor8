@@ -50,19 +50,23 @@ public class FileSmaService extends FileBaseService {
             fileMonitorLogDto.setRemotePath(remotePath);
             try {
                 SmbFile file = new SmbFile(remotePath, auth);
+                System.out.println(file.isFile());
+                System.out.println(file.exists());
+                System.out.println(file.length());
                 if (file.exists() && file.isFile() && file.length() > 0) {
                     this.putFile(file, fileMonitorLogDto, fileList, resultT);
                     fileMonitorLogDto.setFolderRegular(folderRegular);
                     fileMonitorLogDto.setFilenameRegular(filenameRegular);
-                    return;
                 }
             } catch (Exception e) {
-                resultT.setErrorMessage(OwnException.get(e));
+                resultT.setSuccessMessage(OwnException.get(e));
             }
 
         }
         try {
-            this.multipleFiles(fileMonitorLogDto, fileList, directoryAccountDto, resultT);
+            if(fileList.size()==0){
+                this.multipleFiles(fileMonitorLogDto, fileList, directoryAccountDto, resultT);
+            }
             if (!resultT.isSuccess()) {
                 return;
             }
@@ -95,8 +99,8 @@ public class FileSmaService extends FileBaseService {
         if (!resultT.isSuccess()) {
             return;
         }
-        NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
         try {
+            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
             String remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
             fileMonitorLogDto.setRemotePath(remotePath);
             SmbFile file = new SmbFile(remotePath, auth);
@@ -115,10 +119,16 @@ public class FileSmaService extends FileBaseService {
             if (!resultT.isSuccess()) {
                 return null;
             }
-            SimpleDateFormat format = new SimpleDateFormat(expression);
-            long endTime = fileMonitorLogDto.getTriggerTime();
-            long beginTime =CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            long endTime= fileMonitorLogDto.getTriggerTime();
+            long beginTime=CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
+            if(StringUtil.isNotEmpty(fileMonitorLogDto.getAllExpression())){
+                beginTime =format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),beginTime)).getTime();
+                endTime = format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),fileMonitorLogDto.getTriggerTime())).getTime();
+            }
             List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
+            long finalBeginTime = beginTime;
+            long finalEndTime = endTime;
             fileFilter = new SmbFileFilter() {
                 @Override
                 public boolean accept(SmbFile smbFile) throws SmbException {
@@ -152,7 +162,7 @@ public class FileSmaService extends FileBaseService {
                     if (!resultT.isSuccess()) {
                         return false;
                     }
-                    if (ddataTime <= beginTime || ddataTime > endTime) {
+                    if (ddataTime <= finalBeginTime || ddataTime > finalEndTime) {
                         return false;
                     }
                     String fullpath = smbFile.getPath();
