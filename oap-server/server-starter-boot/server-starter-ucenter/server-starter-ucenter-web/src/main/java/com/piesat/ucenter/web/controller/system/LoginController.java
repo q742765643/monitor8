@@ -86,27 +86,27 @@ public class LoginController {
         ResultT<Map<String, Object>> resultT = new ResultT<>();
         Map<String, Object> map = new HashMap<>();
         try {
-            String verifyKey = Constants.CAPTCHA_CODE_KEY + uuid;
+            //String verifyKey = Constants.CAPTCHA_CODE_KEY + uuid;
 
-            String ycode = null;
+          /*  String ycode = null;
             try {
                 ycode = (String) redisUtil.get(verifyKey);
             } catch (Exception e) {
                 resultT.setErrorMessage("验证码错误");
                 return resultT;
-            }
-            if (null == code) {
+            }*/
+         /*   if (null == code) {
                 resultT.setErrorMessage("验证码不能为空");
                 return resultT;
-            }
-            if (ycode == null) {
+            }*/
+        /*    if (ycode == null) {
                 resultT.setErrorMessage("验证码过期");
                 return resultT;
             }
             if (!ycode.equals(code.toUpperCase())) {
                 resultT.setErrorMessage("验证码错误");
                 return resultT;
-            }
+            }*/
             UserDto userDto = userService.selectUserByUserName(username);
             if (userDto != null && "11".equals(userDto.getUserType()) && !"3".equals(userDto.getChecked())) {
                 resultT.setErrorMessage("业务账户未激活");

@@ -293,6 +293,8 @@ public class FileQReportServiceImpl implements FileQReportService {
                     rowPut.put("5", !String.valueOf(dataMap.get("sumFileNum")).equals("null")?String.valueOf(dataMap.get("sumFileNum")):"");
                     rowPut.put("6", !String.valueOf(dataMap.get("sumRealFileSize")).equals("null")?String.valueOf(dataMap.get("sumRealFileSize")):"");
                     rowPut.put("7", !String.valueOf(dataMap.get("toQuoteRate")).equals("null")?String.valueOf(dataMap.get("toQuoteRate")):"");
+                    rowPut.put("8", !String.valueOf(dataMap.get("timelinessRate")).equals("null")?String.valueOf(dataMap.get("timelinessRate")):"");
+
                     exportData.add(rowPut);
                 }
             }
@@ -306,7 +308,7 @@ public class FileQReportServiceImpl implements FileQReportService {
                     cellModelList.add(cellModel);
                 }
             }
-            String[] headers=new String[]{"名称","时间","准时到","晚到","应到","大小kb","到报率"};
+            String[] headers=new String[]{"名称","时间","准时到","晚到","应到","大小kb","到报率","及时率"};
             wb = this.createCSVUtilRow("文件报表",wb, cellModelList, headers, exportData);
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
@@ -478,15 +480,19 @@ public class FileQReportServiceImpl implements FileQReportService {
                     if(bucketSum.size()>0){
                         Map<String,Object> mergeCell=new HashMap<>();
                         mergeCell.put("row",k);
-                        mergeCell.put("rowspan",bucketSum.size());
+                        mergeCell.put("rowspan",bucketSum.size()+1);
                         mergeCell.put("col",0);
                         mergeCell.put("colspan",1);
-                        k=k+bucketSum.size();
+                        k=k+bucketSum.size()+1;
                         mergeCells.add(mergeCell);
                     }
                     if(bucketSum.size()==0){
 
                     }
+                    long totalRealFileNumL =  0;
+                    long totalLateNumL = 0;
+                    long totalRealFileSizeL = 0;
+                    long totalFileNumL = 0;
                     for (int j = 0; j < bucketSum.size(); j++) {
                         Map<String, Object> map = new HashMap<>();
                         map.put("taskId", bucket.getKeyAsString());
@@ -502,14 +508,21 @@ public class FileQReportServiceImpl implements FileQReportService {
                         ParsedSum sumRealFileSizeV = bucketV.getAggregations().get("sumRealFileSize");
                         ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
                         long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
+                        totalRealFileNumL+=sumRealFileNumL;
                         long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
+                        totalLateNumL+=sumLateNumL;
                         long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
+                        totalRealFileSizeL+=sumRealFileSizeL;
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
+                        totalFileNumL+=sumFileNumL;
                         if (sumFileNumL > 0) {
                             float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                            float timelinessRate = new BigDecimal(sumRealFileNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
                             map.put("toQuoteRate", toQuoteRate);
+                            map.put("timelinessRate",timelinessRate);
                         }else {
                             map.put("toQuoteRate", 1);
+                            map.put("timelinessRate",1);
                         }
                         map.put("sumRealFileNum", sumRealFileNumL);
                         map.put("sumLateNum", sumLateNumL);
@@ -517,6 +530,27 @@ public class FileQReportServiceImpl implements FileQReportService {
                         map.put("sumFileNum", sumFileNumL);
                         list.add(map);
                     }
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("taskId", bucket.getKeyAsString());
+                    if (StringUtil.isEmpty( mapTaskName.get(bucket.getKeyAsString()))){
+                        continue;
+                    }
+                    map.put("taskName", mapTaskName.get(bucket.getKeyAsString()));
+                    map.put("timestamp", "合计");
+                    map.put("sumRealFileNum", totalRealFileNumL);
+                    map.put("sumLateNum", totalLateNumL);
+                    map.put("sumRealFileSize", totalRealFileSizeL);
+                    map.put("sumFileNum", totalFileNumL);
+                    if (totalFileNumL > 0) {
+                        float toQuoteRate = new BigDecimal(totalRealFileNumL + totalLateNumL).divide(new BigDecimal(totalFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                        float timelinessRate = new BigDecimal(totalRealFileNumL).divide(new BigDecimal(totalFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                        map.put("toQuoteRate", toQuoteRate);
+                        map.put("timelinessRate",timelinessRate);
+                    }else {
+                        map.put("toQuoteRate", 1);
+                        map.put("timelinessRate",1);
+                    }
+                    list.add(map);
 
                 }
             }
