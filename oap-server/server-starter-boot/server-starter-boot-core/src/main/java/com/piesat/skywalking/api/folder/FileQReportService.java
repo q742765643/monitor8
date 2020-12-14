@@ -18,4 +18,6 @@ public interface FileQReportService {
     public Map<String, Object>  findFileReportRow(SystemQueryDto systemQueryDto);
 
     public void exportFileReportRow(SystemQueryDto systemQueryDto);
+
+    public Map<String, Object> findFileReportLineChart(SystemQueryDto systemQueryDto);
 }

@@ -73,5 +73,16 @@ public class FileQReportController {
     public void exportFileReportRow(SystemQueryDto systemQueryDto){
         fileQReportService.exportFileReportRow(systemQueryDto);
     }
+
+    @ApiOperation(value = "文件报表折线图-到报率查询", notes = "文件报表折线图-到报率查询 " +
+            "\n参数为endTime 和beginTime"+
+            "随文件报表时间查询框变动" )
+    @GetMapping("/findFileReportLineChart")
+    public  ResultT<Map<String, Object> > findFileReportLineChart(SystemQueryDto systemQueryDto){
+        ResultT<Map<String, Object> > resultT = new ResultT<>();
+        Map<String, Object>  map = fileQReportService.findFileReportLineChart(systemQueryDto);
+        resultT.setData(map);
+        return resultT;
+    }
 }
 

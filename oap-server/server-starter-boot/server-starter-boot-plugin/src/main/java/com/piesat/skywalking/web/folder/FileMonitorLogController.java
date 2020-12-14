@@ -2,6 +2,7 @@ package com.piesat.skywalking.web.folder;
 
 import com.piesat.skywalking.api.folder.FileMonitorLogService;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
+import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.sso.client.annotation.Log;
 import com.piesat.sso.client.enums.BusinessType;
 import com.piesat.util.ResultT;
@@ -34,6 +35,16 @@ public class FileMonitorLogController {
         ResultT<PageBean<FileMonitorLogDto>> resultT = new ResultT<>();
         PageForm<FileMonitorLogDto> pageForm = new PageForm<>(pageNum, pageSize, fileMonitorLogDto);
         PageBean pageBean = fileMonitorLogService.selectPageList(pageForm);
+        resultT.setData(pageBean);
+        return resultT;
+    }
+
+    @ApiOperation(value = "分页查询文件日志详情", notes = "分页查询文件日志详情")
+    @GetMapping("/selectPageListDetail")
+    public ResultT<PageBean<FileStatisticsDto>> selectPageListDetail(FileMonitorLogDto fileMonitorLogDto, int pageNum, int pageSize) {
+        ResultT<PageBean<FileStatisticsDto>> resultT = new ResultT<>();
+        PageForm<FileMonitorLogDto> pageForm = new PageForm<>(pageNum, pageSize, fileMonitorLogDto);
+        PageBean pageBean = fileMonitorLogService.selectPageListDetail(pageForm);
         resultT.setData(pageBean);
         return resultT;
     }

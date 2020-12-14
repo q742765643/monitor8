@@ -83,7 +83,7 @@ public class FileStatisticsTemplate extends ManagementData {
     private Date startTimeA;
 
     @Column(columnName = "start_time_l")
-    private Date startTimeL;
+    private long startTimeL;
 
     @Column(columnName = "start_time_s")
     private Date startTimeS;
@@ -94,7 +94,7 @@ public class FileStatisticsTemplate extends ManagementData {
     @Column(columnName = "task_id")
     private String taskId;
 
-    @Column(columnName = "taskName")
+    @Column(columnName = "task_name")
     private String taskName;
 
     @Column(columnName = "timeliness_rate")
