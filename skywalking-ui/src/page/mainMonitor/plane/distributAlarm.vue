@@ -1,7 +1,7 @@
 <template>
   <div id="distributAlarm">
     <div><planeTitle titleName="告警分布"></planeTitle></div>
-    <div id="alarmChart"></div>
+    <div id="alarmChart" style="height:calc(100% - 56px)"></div>
   </div>
 </template>
 
@@ -27,11 +27,11 @@
       setTimeout(async () => {
         await this.getMonitorView();
         await this.getAlarmDistribution();
-      }, 500);
+      }, 100);
       window.addEventListener('resize', () => {
         setTimeout(() => {
           this.alarmCharts.resize();
-        }, 500);
+        }, 100);
       });
     },
     methods: {
@@ -174,7 +174,7 @@
     box-shadow: $plane_shadow;
     margin-bottom: 10px;
     #alarmChart {
-      height: calc(100% - 56px);
+      // height: calc(100% - 56px);
       width: 100%;
     }
   }

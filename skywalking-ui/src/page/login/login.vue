@@ -18,14 +18,14 @@
               ><a-icon slot="prefix" type="lock" />
             </a-input>
           </a-form-model-item>
-          <a-form-model-item>
+          <!-- <a-form-model-item>
             <a-input v-model.trim="loginForm.code" style="width: 66%" placeholder="验证码">
               <a-icon slot="prefix" type="code" />
             </a-input>
             <div class="login-code">
               <img :src="codeUrl" alt="" @click="getCode" />
             </div>
-          </a-form-model-item>
+          </a-form-model-item> -->
           <a-form-model-item>
             <!--  <a-button type="primary" class="loginBtn" @click.native.prevent="handleLogin">
               <span>登录</span>
@@ -66,7 +66,8 @@
         loginService.getCodeImg().then((response) => {
           // console.log(response)
           this.codeUrl = 'data:img/gif;base64,' + response.data.img;
-          this.loginForm.uuid = response.data.uuid;
+          this.loginForm.uuid = none;
+          // this.loginForm.uuid = response.data.uuid;
         });
       },
       handleLogin() {
@@ -122,9 +123,7 @@
         margin-bottom: 26px;
       }
       .ant-input {
-        /*  font-size: 12px;
-      height: 40px;
-      line-height: 40px; */
+        width: 100%;
       }
       .ant-form {
         padding: 0 15%;
