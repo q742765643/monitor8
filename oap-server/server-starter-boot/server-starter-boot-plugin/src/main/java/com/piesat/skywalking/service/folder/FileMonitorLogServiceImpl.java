@@ -3,6 +3,7 @@ package com.piesat.skywalking.service.folder;
 import com.piesat.common.jpa.BaseDao;
 import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
+import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.folder.FileMonitorLogService;
@@ -57,6 +58,15 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         FileMonitorLogEntity fileMonitorLogEntity = fileMonitorLogMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         Specification specification = specificationBuilder.generateSpecification();
+        if (StringUtils.isNotNullString(fileMonitorLogEntity.getTaskName())) {
+            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), fileMonitorLogEntity.getTaskName());
+        }
+        if (StringUtils.isNotNullString((String) fileMonitorLogEntity.getParamt().get("beginTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) fileMonitorLogEntity.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) fileMonitorLogEntity.getParamt().get("endTime"))) {
+            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) fileMonitorLogEntity.getParamt().get("endTime"));
+        }
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
         pageBean.setPageData(fileMonitorLogMapstruct.toDto(pageBean.getPageData()));
