@@ -176,9 +176,11 @@ public class FileQReportServiceImpl implements FileQReportService {
             Map<String,Object> map=new HashMap<>();
             List<Float> data=new ArrayList<>();
             Map<String,String> time=list.get(i);
-            for(Iterator iter = timeSet.iterator(); iter.hasNext(); ) {
-                if(StringUtil.isNotEmpty(time.get(iter.next()))){
-                    data.add(new BigDecimal(time.get(iter.next())).floatValue());
+            Iterator iter = timeSet.iterator();
+            while (iter.hasNext()) {
+                String key= (String) iter.next();
+                if(StringUtil.isNotEmpty(time.get(key))){
+                    data.add(new BigDecimal(time.get(key)).floatValue());
                 }else {
                     data.add(0f);
                 }

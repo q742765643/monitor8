@@ -50,5 +50,14 @@ public class ProcessQReportController {
     public void exportPdf(ProcessConfigDto processConfigDto) {
         processQReportService.exportPdf(processConfigDto);
     }
+
+    @ApiOperation(value = "进程视图" )
+    @GetMapping("/getProcessView")
+    public  ResultT<Map<String, Object> > getProcessView(ProcessConfigDto processConfigDto){
+        ResultT<Map<String, Object> > resultT = new ResultT<>();
+        Map<String, Object>  map = processQReportService.getProcessView(processConfigDto);
+        resultT.setData(map);
+        return resultT;
+    }
 }
 

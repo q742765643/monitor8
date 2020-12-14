@@ -4,6 +4,7 @@ import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessReportDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName : ProcessQReportService
@@ -17,5 +18,7 @@ public interface ProcessQReportService {
     public void exportExcel(ProcessConfigDto query);
 
     public void exportPdf(ProcessConfigDto query);
+
+    public Map<String, Object> getProcessView(ProcessConfigDto processConfigDto);
 }
 

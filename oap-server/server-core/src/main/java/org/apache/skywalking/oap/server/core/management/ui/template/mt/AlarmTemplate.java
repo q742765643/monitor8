@@ -90,6 +90,9 @@ public class AlarmTemplate extends ManagementData {
     @Column(columnName = "usage")
     private float usage;
 
+    @Column(columnName = "alarm_num")
+    private long alarmNum;
+
     @Override
     public String id() {
         return "";
