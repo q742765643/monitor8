@@ -302,6 +302,7 @@
           pageSize: 10,
           ip: '',
           triggerStatus: '',
+          deviceType: 1,
         };
         this.queryTable();
       },
