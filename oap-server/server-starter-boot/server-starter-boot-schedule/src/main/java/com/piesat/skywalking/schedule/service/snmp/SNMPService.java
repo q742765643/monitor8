@@ -407,6 +407,9 @@ public class SNMPService {
             }*/
             BigDecimal unit = new BigDecimal(values[2].getVariable().toString());//unit 存储单元大小
             BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
+            if(totalSize.longValue()<=0){
+                continue;
+            }
             BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use
             BigDecimal usePct = usedSize.divide(totalSize, 4, BigDecimal.ROUND_HALF_UP);
             fsstatUse += usedSize.longValue();

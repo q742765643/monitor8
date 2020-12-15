@@ -61,6 +61,7 @@ public class HostConfigHandler implements BaseHandler {
                     snmpLinuxService.getSystemInfo(ip, "161", "2", date, snmp);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 log.error("ip:{}采集失败,错误信息为:{}", ip, OwnException.get(e));
 
             } finally {
