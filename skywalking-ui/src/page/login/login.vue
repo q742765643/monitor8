@@ -66,7 +66,7 @@
         loginService.getCodeImg().then((response) => {
           // console.log(response)
           this.codeUrl = 'data:img/gif;base64,' + response.data.img;
-          this.loginForm.uuid = none;
+          this.loginForm.uuid = null;
           // this.loginForm.uuid = response.data.uuid;
         });
       },

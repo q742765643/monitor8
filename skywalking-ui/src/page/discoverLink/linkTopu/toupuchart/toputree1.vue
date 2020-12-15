@@ -134,6 +134,7 @@
         showMointorWindow: false,
         data: {},
         ip: '',
+        selectRect: null,
       };
     },
     components: { mointorWindow },
@@ -269,6 +270,7 @@
           defaultNode: {
             shape: 'card-node',
           },
+
           defaultEdge: {
             size: 1,
             type: 'line-arrow',
@@ -287,12 +289,34 @@
             fill: "#53D7A4",
           },*/
           },
+          nodeStateStyles: {
+            selected: {
+              fill: 'rgba(64,185,59,0.75)',
+            },
+          },
+          edgeStateStyles: {
+            selected: {
+              fill: 'rgba(64,185,59,0.75)',
+            },
+          },
+          stateStyles: {
+            selected: {
+              fill: 'rgba(64,185,59,0.75)',
+            },
+          },
         });
         graph.data(this.data);
         graph.render();
 
         graph.on('node:click', (ev) => {
-          console.log(ev);
+          if (this.selectRect) {
+            graph.clearItemStates(this.selectRect, 'selected');
+          }
+          const { item } = ev;
+          this.selectRect = item;
+          graph.setItemState(item, 'selected', true);
+          // 取消单个状态
+          //graph.clearItemStates(item, 'selected');
           clearTimeout(this.timeer);
           this.ip = ev.item._cfg.ip;
           this.timeer = setTimeout(() => {

@@ -127,6 +127,9 @@
                 return states[params.value[2] - 1].label;
               }, */
               },
+              itemStyle: {
+                borderColor: '#fff',
+              },
               emphasis: {
                 show: false,
                 itemStyle: {

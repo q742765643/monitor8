@@ -70,7 +70,6 @@ function initEventHandle(setSocketData) {
   ws.onmessage = function(event) {
     const audio = document.getElementById('ring1');
     audio.play();
-    console.log(event);
     // 如果获取到消息，心跳检测重置
     heartCheck.reset().start(); // 拿到任何消息都说明当前连接是正常的
     const msg = event.data;
@@ -79,7 +78,7 @@ function initEventHandle(setSocketData) {
     } else {
       let msgInfo = JSON.parse(msg);
       msgInfo = JSON.parse(msgInfo);
-      console.log(msgInfo);
+      //console.log(msgInfo);
       let level;
       if (msgInfo.level == 0) {
         level = '一般';
@@ -90,8 +89,10 @@ function initEventHandle(setSocketData) {
       }
       for (let key in notifications) {
         setTimeout(() => {
-          notifications[key].close();
-          delete notifications[key];
+          if (notifications[key]) {
+            notifications[key].close();
+            delete notifications[key];
+          }
         }, 3000);
       }
       let notificationItem = window.wsonmessage.$notify.error({
@@ -112,7 +113,6 @@ function initEventHandle(setSocketData) {
       });
       notifications.push(notificationItem);
     }
-    handMsg(msg, setSocketData);
   };
 }
 
@@ -140,11 +140,8 @@ function reconnect(url, setSocketData) {
 //= ===================================================心跳包重连CODE END=========================================
 
 // 处理消息
-function handMsg(msg, setSocketData) {
-  const pObj = msg;
-  if (pObj) {
-    if (setSocketData) setSocketData(pObj);
-  }
-}
+/* function handMsg() {
+ alert('111')
+} */
 
 export { createWebSocket, closews };

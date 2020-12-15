@@ -18,7 +18,9 @@
         <span class="icon iconfont iconguanbi1"></span>
       </div>
     </div>
-    <audio muted style="display: none" id="ring1" src="../../assets/sounds/click.mp3"></audio>
+    <audio muted style="display: none" id="ring1">
+      <source src="../../assets/sounds/click.mp3" type="audio/mpeg" />
+    </audio>
   </div>
 </template>
 
@@ -38,7 +40,8 @@
       }).then((data) => {
         this.warnNum = data.data.length;
       });
-      var domain = window.location.host;
+      //var domain = window.location.host;
+      var domain = '1.119.5.177:12800';
       createWebSocket('ws://' + domain + '/ws/webSocket/12345', '');
     },
     mounted() {
