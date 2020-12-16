@@ -38,7 +38,6 @@ Vue.use(Router);
 
 window.axiosCancel = [];
 
-
 const router = new Router({
   mode: 'history',
   //base: process.env.BASE_URL,
@@ -138,6 +137,11 @@ const router = new Router({
           path: '/alarmMonitoring/alarmReportTable',
           name: 'alarmReport',
           component: () => import('@/page/alarmMonitoring/alarmReport.vue'),
+        },
+        {
+          path: '/unAlarm',
+          name: 'unAlarm',
+          component: () => import('@/page/alarmMonitoring/unAlarm.vue'),
         },
         {
           path: '/alarmMonitoring',

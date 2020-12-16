@@ -18,26 +18,6 @@
       </a-form-model-item>
     </a-form-model>
     <div class="tableDateBox">
-      <!--  <vxe-table
-        border
-        resizable
-        height="300"
-        :scroll-y="{ enabled: false }"
-        :span-method="mergeRowMethod"
-        :data="tableData3"
-      >
-        <vxe-table-column type="seq" width="60"></vxe-table-column>
-        <vxe-table-column field="key" title="Key"></vxe-table-column>
-        <vxe-table-column field="content" title="Translate"></vxe-table-column>
-        <vxe-table-column
-          field="language"
-          title="Language"
-          :filters="[
-            { label: '中文', value: 'zh_CN' },
-            { label: 'English', value: 'en_US' },
-          ]"
-        ></vxe-table-column>
-      </vxe-table> -->
       <vxe-table border ref="xTable" :span-method="mergeRowMethod" :data="tableData" resizable stripe align="center">
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
         <vxe-table-column field="timestamp" title="时间" show-overflow>

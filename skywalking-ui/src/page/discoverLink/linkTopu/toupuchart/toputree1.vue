@@ -3,105 +3,12 @@
     <div id="mountNode"></div>
     <div id="legend">
       <span class="titile">图例</span>
-      <div>
-        <span class="lgd1 lgd"></span>
-        <span>值班区</span>
-      </div>
-      <div>
-        <span class="lgd2 lgd"></span>
-        <span>办公区4楼</span>
-      </div>
-      <div>
-        <span class="lgd3 lgd"></span>
-        <span>办公区3楼</span>
-      </div>
-      <div>
-        <span class="lgd4 lgd"></span>
-        <span>机房区</span>
-      </div>
-      <div>
-        <span class="lgd5 lgd"></span>
-        <span>其他区</span>
+      <div v-for="(item, index) in legendList" :key="index">
+        <span class="lgd" :style="'background:' + item.dictValue"></span>
+        <span>{{ item.dictLabel }}</span>
       </div>
     </div>
-    <!--   <editWindow :showEditWindow="showEditWindow"></editWindow> -->
     <mointorWindow v-if="showMointorWindow" :ip="ip"></mointorWindow>
-
-    <!--  编辑框 -->
-    <template>
-      <vxe-modal :mask="false" v-model="showEditWindow" size="mini" title="添加设备">
-        <vxe-form ref="xForm" title-width="80" title-align="right" :title-colon="true">
-          <vxe-form-item title="设备别名" field="othername" span="24">
-            <template v-slot="scope">
-              <vxe-input placeholder="请输入设备别名" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-            </template>
-          </vxe-form-item>
-
-          <vxe-form-item title="设备名称" field="name" span="24">
-            <!--   <template v-slot="scope">
-          <vxe-input placeholder="请输入设备名称" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-        </template> -->
-            hostname
-          </vxe-form-item>
-
-          <vxe-form-item title="设备IP" field="IP" span="24">
-            <!--  <template v-slot="scope">
-          <vxe-input placeholder="请输入设备IP" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-        </template> -->
-            192.168.0.1
-          </vxe-form-item>
-
-          <vxe-form-item title="网关" field="gateway" span="24">
-            <!--  <template v-slot="scope">
-          <vxe-input placeholder="请输入网关" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-        </template> -->
-            114.108.12.155
-          </vxe-form-item>
-
-          <vxe-form-item title="监视方式" field="monitorType" span="24">
-            <vxe-select v-model="monitor" placeholder="默认尺寸">
-              <vxe-option v-for="(item, index) in monitorType" :key="index" :value="item" :label="item"></vxe-option>
-            </vxe-select>
-          </vxe-form-item>
-
-          <vxe-form-item title="设备类型" field="deviceType" span="24">
-            <!--  <template v-slot="scope">
-          <vxe-input placeholder="请输入设备类型" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-        </template> -->
-
-            <vxe-select v-model="type" placeholder="默认尺寸">
-              <vxe-option v-for="(item, index) in deviceType" :key="index" :value="item" :label="item"></vxe-option>
-            </vxe-select>
-          </vxe-form-item>
-
-          <vxe-form-item title="设备负责人" field="devCharge" span="24">
-            <template v-slot="scope">
-              <vxe-input placeholder="请输入设备负责人" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-            </template>
-          </vxe-form-item>
-
-          <vxe-form-item title="区域" field="position" span="24">
-            <!-- <template v-slot="scope">
-          <vxe-input placeholder="请输入设备负责人" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-        </template> -->
-            <vxe-select v-model="position" placeholder="默认尺寸">
-              <vxe-option v-for="(item, index) in positionType" :key="index" :value="item" :label="item"></vxe-option>
-            </vxe-select>
-          </vxe-form-item>
-          <vxe-form-item title="详细地址" field="address" span="24">
-            <template v-slot="scope">
-              <vxe-input placeholder="请输入详细地址" clearable @input="$refs.xForm.updateStatus(scope)"></vxe-input>
-            </template>
-          </vxe-form-item>
-
-          <vxe-form-item align="center" span="24">
-            <template v-slot>
-              <vxe-button type="submit" status="primary">保存</vxe-button>
-            </template>
-          </vxe-form-item>
-        </vxe-form>
-      </vxe-modal>
-    </template>
   </div>
 </template>
 
@@ -109,8 +16,6 @@
   /*   import editWindow from '../window/editwindow'; */
   import mointorWindow from '../window/mointorwindow';
   import request from '@/utils/request';
-  import echarts from 'echarts';
-  import Icon from '../toupuchart/iconBase64';
   import G6 from '@antv/g6';
   import switchIcon from '@/assets/toupu/switchIcon.png';
   import watchIcon from '@/assets/toupu/watchIcon.png';
@@ -120,36 +25,34 @@
   export default {
     data() {
       return {
-        //编辑框
-        monitor: 'snmp协议接口',
-        type: 'windows服务器',
-        position: '机房区',
-        deviceType: ['windows服务器', 'linux服务器', '打印机', '交换机', '监视器', '其它'],
-        monitorType: ['snmp协议接口', '代理接口', 'ping'],
-        positionType: ['机房区', '值班区', '办公区四楼', '办公区五楼', '其它'],
-
-        //
-        timeer: null,
-        showEditWindow: false,
+        legendList: [],
         showMointorWindow: false,
-        data: {},
+        TopyData: {},
         ip: '',
         selectRect: null,
       };
     },
     components: { mointorWindow },
-    created() {
-      request({
+    async created() {
+      await this.getDicts('media_area').then((response) => {
+        this.legendList = response.data;
+      });
+      await request({
         url: '/networkTopy/getTopy',
         method: 'get',
       }).then((data) => {
         let nodes = [];
-        this.data = data.data;
-        this.data.nodes.forEach((item) => {
+        this.TopyData = data.data;
+        this.TopyData.nodes.forEach((item, index) => {
           item.img = computerIcon;
+          if (index == 0) {
+            item.firstFlag = true;
+            let topuId = item.id;
+            this.getInfoById(topuId);
+          }
           nodes.push(item);
         });
-        this.data.nodes = nodes;
+        this.TopyData.nodes = nodes;
         this.drawRectTree();
       });
     },
@@ -165,6 +68,10 @@
           'card-node',
           {
             drawShape: function drawShape(cfg, group) {
+              var firstFill = '';
+              if (cfg.firstFlag) {
+                firstFill = 'rgba(64,185,59,0.75)';
+              }
               let img = computerIcon;
               if (cfg.mediaType == 1 || cfg.mediaType == 0) {
                 img = serveiceIcon;
@@ -222,6 +129,7 @@
                   width: 36,
                   height: 36,
                   stroke: color,
+                  fill: firstFill,
                   lineWidth: 2,
                   lineDash: [12, 12, 24, 12, 24, 12, 24],
                 },
@@ -268,7 +176,7 @@
           },
           animate: true,
           defaultNode: {
-            shape: 'card-node',
+            type: 'card-node',
           },
 
           defaultEdge: {
@@ -281,13 +189,6 @@
                 fill: '#F6BD16',
               },
             },
-            /*lineWidth: 2,
-          stroke: "#53D7A4",
-          endArrow: {
-            path: G6.Arrow.vee(40, 40, 50),
-            d: 50,
-            fill: "#53D7A4",
-          },*/
           },
           nodeStateStyles: {
             selected: {
@@ -305,34 +206,33 @@
             },
           },
         });
-        graph.data(this.data);
+        graph.data(this.TopyData);
         graph.render();
 
         graph.on('node:click', (ev) => {
           if (this.selectRect) {
+            // 取消单个状态
             graph.clearItemStates(this.selectRect, 'selected');
           }
+          //添加状态
           const { item } = ev;
           this.selectRect = item;
           graph.setItemState(item, 'selected', true);
-          // 取消单个状态
-          //graph.clearItemStates(item, 'selected');
-          clearTimeout(this.timeer);
-          this.ip = ev.item._cfg.ip;
-          this.timeer = setTimeout(() => {
-            this.showEditWindow = true;
-          }, 300);
+          let topuId = ev.item._cfg.id;
+          this.getInfoById(topuId);
         });
-
         graph.on('node:dblclick', (ev) => {
-          clearTimeout(this.timeer);
           this.ip = ev.item._cfg.model.ip;
           this.showMointorWindow = true;
         });
       },
-
-      closeWindow() {
-        this.showEditWindow = false;
+      getInfoById(topuId) {
+        request({
+          url: '/hostConfig/' + topuId,
+          method: 'get',
+        }).then((data) => {
+          this.$emit('findInfoData', data.data);
+        });
       },
       closeMonWindow() {
         this.showMointorWindow = false;

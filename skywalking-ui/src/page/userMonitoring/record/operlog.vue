@@ -205,8 +205,7 @@
       },
       resetQuery() {
         this.dateRange = [];
-        // this.resetForm('queryForm')
-        (this.queryParams = {
+        this.queryParams = {
           operName: undefined,
           title: this.$route.params.title,
           status: undefined,
@@ -218,8 +217,8 @@
           },
           pageNum: 1,
           pageSize: 10,
-        }),
-          this.getOperlogList();
+        };
+        this.getOperlogList();
       },
       handleSelectionChange(selection) {
         console.log(selection);
@@ -293,7 +292,7 @@
       handlePageChange({ currentPage, pageSize }) {
         this.queryParams.pageNum = currentPage;
         this.queryParams.pageSize = pageSize;
-        this.getRoleList();
+        this.getOperlogList();
       },
     },
   };

@@ -14,11 +14,8 @@
         <vxe-table-column field="fault" title="故障" show-overflow></vxe-table-column>
         <vxe-table-column field="processed" title="已处理" show-overflow></vxe-table-column>
         <vxe-table-column field="unprocessed" title="未处理" show-overflow></vxe-table-column>
-
       </vxe-table>
-
     </div>
-
   </div>
 </template>
 
@@ -34,7 +31,7 @@
       return {
         queryParams: {},
         tableData: [], //表格
-        dateRange:[],
+        dateRange: [],
       };
     },
     components: { selectDate },
@@ -50,30 +47,30 @@
       });
     },
     methods: {
-      exportEventXls(){
-        let params=this.addDateRange(this.queryParams, this.dateRange)
+      exportEventXls() {
+        let params = this.addDateRange(this.queryParams, this.dateRange);
         request({
-          url:  '/alarmQReport/exportExcel',
+          url: '/alarmQReport/exportExcel',
           method: 'post',
           params: params,
-          responseType: "arraybuffer"
+          responseType: 'arraybuffer',
         }).then((res) => {
           this.downloadfileCommon(res);
         });
       },
-      changeDate(data){
-        this.dateRange=data;
+      changeDate(data) {
+        this.dateRange = data;
         this.queryTable();
       },
       /* table方法 */
       queryTable() {
-        let params=this.addDateRange(this.queryParams, this.dateRange)
+        let params = this.addDateRange(this.queryParams, this.dateRange);
         request({
-          url:  '/alarmQReport/getAlarmReport',
+          url: '/alarmQReport/getAlarmReport',
           method: 'get',
-          params: params
+          params: params,
         }).then((res) => {
-           this.tableData=res.data
+          this.tableData = res.data;
         });
       },
       setTableHeight() {

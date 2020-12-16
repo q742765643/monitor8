@@ -45,7 +45,7 @@
       >
         <vxe-table-column type="checkbox" width="50"></vxe-table-column>
         <vxe-table-column field="userName" title="用户名称"></vxe-table-column>
-        <vxe-table-column field="ipaddr" title="登录地址"></vxe-table-column>
+        <vxe-table-column field="ipaddr" title="登录地址" show-overflow></vxe-table-column>
         <vxe-table-column field="loginLocation" title="登录地点"></vxe-table-column>
         <vxe-table-column field="browser" title="浏览器"></vxe-table-column>
         <vxe-table-column field="os" title="操作系统"></vxe-table-column>
