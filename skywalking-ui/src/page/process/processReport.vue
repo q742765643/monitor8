@@ -67,13 +67,7 @@
     },
     components: { selectDate },
     created() {},
-    mounted() {
-      //this.fetch();
-      this.$nextTick(() => {});
-      window.addEventListener('resize', () => {
-        this.setTableHeight();
-      });
-    },
+    mounted() {},
     methods: {
       exportEventPdf() {
         this.queryParams.processChart = this.getFullCanvasDataURL('barlineChart');
@@ -130,16 +124,7 @@
         this.dateRange = data;
         this.fetch();
       },
-      setTableHeight() {
-        let h = document.getElementById('content').clientHeight;
-        let padding = getComputedStyle(document.getElementById('content'), false)['paddingTop'];
 
-        let h_report = document.getElementById('processReport_chart').clientHeight;
-        let barHeight = document.getElementById('toolbar').clientHeight;
-        //let h_page = document.getElementById('page_table').offsetHeight;
-        let h_page = 0;
-        this.tableheight = h - h_report - barHeight - 2 * parseInt(padding) - h_page - 1;
-      },
       drawChart(id) {
         this.charts = echarts.init(document.getElementById(id));
         let options = {
@@ -234,7 +219,6 @@
             this.tableData = res.data;
             this.chart();
             this.drawChart('barlineChart');
-            this.setTableHeight();
           }
         });
       },

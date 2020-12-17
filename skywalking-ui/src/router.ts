@@ -234,6 +234,11 @@ const router = new Router({
           path: '/process/processReport',
           component: () => import('@/page/process/processReport.vue'),
         },
+        {
+          path: '/processView',
+          name: 'processView',
+          component: () => import('@/page/process/processView/index.vue'),
+        },
       ],
     },
   ],

@@ -15,7 +15,7 @@
         </span>
         <span class="icon iconfont iconskin"></span>
         <span class="icon iconfont iconxinxi"></span>
-        <span class="icon iconfont iconguanbi1"></span>
+        <span class="icon iconfont iconguanbi1" @click="logout"></span>
       </div>
     </div>
     <audio muted style="display: none" id="ring1">
@@ -25,6 +25,7 @@
 </template>
 
 <script>
+  import { removeToken } from '@/utils/auth';
   import request from '@/utils/request';
   import { createWebSocket } from '@/components/utils/WebSocket.js';
   export default {
@@ -48,7 +49,21 @@
       window.wsonmessage = this;
     },
     destroyed() {},
-    methods: {},
+    methods: {
+      logout() {
+        let that = this;
+        this.$confirm({
+          title: '温馨提示',
+          content: '确定注销并退出系统吗？',
+          onOk() {
+            localStorage.clear();
+            removeToken();
+            that.$router.push('/login');
+          },
+          onCancel() {},
+        });
+      },
+    },
   };
 </script>
 

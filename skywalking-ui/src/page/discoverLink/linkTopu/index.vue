@@ -130,6 +130,15 @@
           method: 'get',
         }).then((response) => {
           this.pieData = response.data;
+          this.pieData.forEach((element) => {
+            if (element.name == '危险') {
+              element.color1 = '#FF00FF';
+              element.color2 = '#FF00FF';
+            } else if (element.name == '正常') {
+              element.color1 = '#329A2E';
+              element.color2 = '#5DFC57';
+            }
+          });
           console.log(this.pieData);
           this.drawPie('pieChart');
         });
