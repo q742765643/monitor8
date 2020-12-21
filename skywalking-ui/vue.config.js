@@ -37,7 +37,7 @@ module.exports = {
         changeOrigin: true,
       },
       '/monitor': {
-        target: `${process.env.SW_PROXY_TARGET || 'http://1.119.5.177:12800'}`,
+        target: `${process.env.SW_PROXY_TARGET || 'http://1.119.169.74:10002'}`,
         changeOrigin: true,
       },
     },
