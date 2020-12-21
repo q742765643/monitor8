@@ -1,8 +1,8 @@
 <template>
   <div class="fileLogTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
-      <a-form-model-item label="目录名称" prop="name">
-        <a-input v-model="queryParams.name" placeholder="请输入目录名称"> </a-input>
+      <a-form-model-item label="任务名称" prop="name">
+        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="ip" prop="ip">
         <a-input v-model="queryParams.ip" placeholder="请输入ip"> </a-input>

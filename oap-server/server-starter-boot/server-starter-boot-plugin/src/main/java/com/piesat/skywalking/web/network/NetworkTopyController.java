@@ -41,8 +41,10 @@ public class NetworkTopyController {
         int x = 100;
         int y = 100;
         Set<String> areaIds = new HashSet<>();
+        Map<String,String> ipMap=new HashMap<>();
         for (int i = 1; i <= list.size(); i++) {
             HostConfigDto hostConfig = list.get(i - 1);
+            ipMap.put(hostConfig.getIp(),hostConfig.getId());
             Map<String, Object> node = new HashMap<>();
             areaIds.add(String.valueOf(hostConfig.getArea()));
             node.put("id", hostConfig.getId());
@@ -83,9 +85,9 @@ public class NetworkTopyController {
                         String ipAddr = arpList.get(j).split("=")[1].trim();
                         if (ipList.contains(ipAddr)) {
                             Map<String, Object> call = new HashMap<>();
-                            call.put("id", hostConfig.getIp() + "-" + ipAddr);
-                            call.put("source", hostConfig.getIp());
-                            call.put("target", ipAddr);
+                            call.put("id", hostConfig.getId() + "-" + ipMap.get(ipAddr));
+                            call.put("source", hostConfig.getId());
+                            call.put("target", ipMap.get(ipAddr));
                             callList.add(call);
                         }
 

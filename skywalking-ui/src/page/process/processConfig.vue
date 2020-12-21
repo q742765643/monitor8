@@ -25,7 +25,7 @@
       </a-row>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
-        <vxe-table-column field="processName" title="名称"></vxe-table-column>
+        <vxe-table-column field="processName" title="名称" show-overflow></vxe-table-column>
         <vxe-table-column field="ip" title="ip"> </vxe-table-column>
         <vxe-table-column field="pid" title="进程id"> </vxe-table-column>
         <vxe-table-column field="cmdline" title="命令" show-overflow> </vxe-table-column>

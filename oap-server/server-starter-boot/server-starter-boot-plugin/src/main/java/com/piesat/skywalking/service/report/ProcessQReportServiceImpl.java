@@ -1,5 +1,6 @@
 package com.piesat.skywalking.service.report;
 
+import com.piesat.common.utils.StringUtils;
 import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.host.ProcessConfigService;
@@ -13,19 +14,23 @@ import com.piesat.skywalking.entity.ProcessConfigEntity;
 import com.piesat.skywalking.excel.LinkExcelVo;
 import com.piesat.skywalking.excel.ProcessReportVo;
 import com.piesat.skywalking.mapstruct.ProcessConfigMapstruct;
+import com.piesat.skywalking.vo.CpuVo;
 import com.piesat.skywalking.vo.ImageVo;
+import com.piesat.util.DateExpressionEngine;
 import com.piesat.util.ImageUtils;
 import com.piesat.util.NullUtil;
+import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.ParsedDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -36,10 +41,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * @ClassName : ProcessQReportServiceImpl
@@ -212,6 +217,122 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
         process.setBytes(chartByte);
         imageVos.add(process);
         util.exportPdf(processReportVos, "进程运行情况",imageVos,15);
+    }
+
+    public Map<String, Object> getProcessView(ProcessConfigDto processConfigDto){
+        ProcessConfigDto query=processConfigService.findById(processConfigDto.getId());
+        ProcessConfigEntity processConfigEntity=processConfigMapstruct.toEntity(processConfigDto);
+        SystemQueryDto systemQueryDto = new SystemQueryDto();
+        if (StringUtils.isNotNullString((String) processConfigEntity.getParamt().get("beginTime"))) {
+            systemQueryDto.setStartTime((String) processConfigEntity.getParamt().get("beginTime"));
+        }
+        if (StringUtils.isNotNullString((String) processConfigEntity.getParamt().get("endTime"))) {
+            systemQueryDto.setEndTime(((String) processConfigEntity.getParamt().get("endTime")));
+        }
+        SearchSourceBuilder search = this.buildWhere(systemQueryDto,query, "process");
+        AvgAggregationBuilder avgMemory = AggregationBuilders.avg("avg_memory_pct").field("system.process.memory.rss.pct").format("0.0000");
+        //MaxAggregationBuilder maxMemory = AggregationBuilders.max("max_memory_pct").field("system.process.memory.rss.pct").format("0.0000");
+        AvgAggregationBuilder avgCpu = AggregationBuilders.avg("avg_cpu_pct").field("system.process.cpu.total.norm.pct").format("0.0000");
+        //MaxAggregationBuilder maxCpu = AggregationBuilders.max("max_cpu_pct").field("system.process.cpu.total.norm.pct").format("0.0000");
+        search.size(1);
+        DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
+        dateHis.field("@timestamp");
+        dateHis.dateHistogramInterval(DateHistogramInterval.minutes(1));
+        dateHis.subAggregation(avgMemory);
+        //search.aggregation(maxMemory);
+        dateHis.subAggregation(avgCpu);
+        //search.aggregation(maxCpu);
+        search.aggregation(dateHis);
+        Map<String,Map<String, Float>> timeMap=new HashMap<>();
+        TreeSet<String> timeSet=new TreeSet<>();
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
+            List<? extends Histogram.Bucket> buckets = parsedDateHistogram.getBuckets();
+            if (buckets.size() > 0) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Shanghai"));
+                for (int i = 0; i < buckets.size(); i++) {
+                    Map<String, Float> map = new HashMap<>();
+                    map.put("cpu",0f);
+                    map.put("memory",0f);
+                    Histogram.Bucket bucket = buckets.get(i);
+                    ZonedDateTime date = (ZonedDateTime) bucket.getKey();
+                    timeSet.add(formatter.format(date));
+                    ParsedAvg parsedAvgMemory = bucket.getAggregations().get("avg_memory_pct");
+                    if (parsedAvgMemory != null&&!"Infinity".equals(parsedAvgMemory.getValueAsString())) {
+                        try {
+                            map.put("memory",new BigDecimal(parsedAvgMemory.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    ParsedAvg parsedAvgCpu = bucket.getAggregations().get("avg_cpu_pct");
+                    if (parsedAvgCpu != null&&!"Infinity".equals(parsedAvgCpu.getValueAsString())) {
+                        try {
+                            map.put("cpu",new BigDecimal(parsedAvgCpu.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    timeMap.put(formatter.format(date),map);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String[] titles=new String[]{"平均cpu使用率","平均内存使用率"};
+        List<Map<String,Object>> dataList=new ArrayList<>();
+        for(int i=0;i<titles.length;i++){
+            Map<String,Object> map=new HashMap<>();
+            List<Float> data=new ArrayList<>();
+            Iterator iter = timeSet.iterator();
+            while (iter.hasNext()) {
+                String key= (String) iter.next();
+                if(i==0){
+                    if(null!=timeMap.get(key)){
+                        data.add(new BigDecimal(timeMap.get(key).get("cpu")).floatValue());
+                    }else {
+                        data.add(0f);
+                    }
+                }
+                if(i==1){
+                    if(null!=timeMap.get(key)){
+                        data.add(new BigDecimal(timeMap.get(key).get("memory")).floatValue());
+                    }else {
+                        data.add(0f);
+                    }
+                }
+
+            }
+            map.put("name",titles[i]);
+            map.put("data",data);
+            dataList.add(map);
+        }
+        Map<String, Object> result=new HashMap<>();
+        result.put("title",titles);
+        result.put("time",timeSet);
+        result.put("data",dataList);
+        return result;
+    }
+
+    public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto,ProcessConfigDto processConfigDto, String type) {
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system." + type);
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
+        WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
+        boolBuilder.must(wild);
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        searchSourceBuilder.query(boolBuilder);
+        return searchSourceBuilder;
     }
 }
 

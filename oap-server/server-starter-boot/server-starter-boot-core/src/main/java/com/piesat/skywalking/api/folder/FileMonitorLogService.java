@@ -18,4 +18,6 @@ public interface FileMonitorLogService {
     public FileMonitorLogDto findById(String id);
 
     public void deleteByIds(List<String> ids);
+
+    public PageBean selectPageListDetail(PageForm<FileMonitorLogDto> pageForm);
 }

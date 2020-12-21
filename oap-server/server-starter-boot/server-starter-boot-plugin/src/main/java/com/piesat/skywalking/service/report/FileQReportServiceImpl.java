@@ -107,7 +107,94 @@ public class FileQReportServiceImpl implements FileQReportService {
         Collections.reverse(list);
         return list;
     }
-
+    public Map<String, Object> findFileReportLineChart(SystemQueryDto systemQueryDto){
+        Map<String, String> mapTaskName=this.findHeaderRow();
+        SearchSourceBuilder search = this.buildWhere(systemQueryDto);
+        DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
+        dateHis.field("start_time_s");
+        dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
+        dateHis.format("yyyy-MM-dd HH:mm:ss");
+        dateHis.timeZone(ZoneId.of("Asia/Shanghai"));
+        List<Map<String, String>> list = new ArrayList<>();
+        List<String> taskNameList=new ArrayList<>();
+        List<String> taskIdList=new ArrayList<>();
+        TreeSet<String> timeSet=new TreeSet<>();
+        TermsAggregationBuilder groupByTaskId = AggregationBuilders.terms("groupByTaskId").field("task_id").size(10000);
+        SumAggregationBuilder sumRealFileSize = AggregationBuilders.sum("sumRealFileSize").field("real_file_size").format("0.0000");
+        SumAggregationBuilder sumRealFileNum = AggregationBuilders.sum("sumRealFileNum").field("real_file_num").format("0.0000");
+        SumAggregationBuilder sumLateNum = AggregationBuilders.sum("sumLateNum").field("late_num").format("0.0000");
+        SumAggregationBuilder sumFileNum = AggregationBuilders.sum("sumFileNum").field("file_num").format("0.0000");
+        dateHis.subAggregation(sumRealFileNum);
+        dateHis.subAggregation(sumRealFileSize);
+        dateHis.subAggregation(sumLateNum);
+        dateHis.subAggregation(sumFileNum);
+        groupByTaskId.subAggregation(dateHis);
+        search.aggregation(groupByTaskId);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
+            Aggregations aggregations = searchResponse.getAggregations();
+            ParsedStringTerms parsedStringTerms = aggregations.get("groupByTaskId");
+            List<? extends Terms.Bucket> buckets = parsedStringTerms.getBuckets();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("Asia/Shanghai"));
+            if (buckets.size() > 0) {
+                for (int i = 0; i < buckets.size(); i++) {
+                    Terms.Bucket bucket = buckets.get(i);
+                    Map<String, Aggregation> agg = bucket.getAggregations().asMap();
+                    ParsedDateHistogram parsedDateHistogram = (ParsedDateHistogram) agg.get("@timestamp");
+                    List<? extends Histogram.Bucket> bucketSum = parsedDateHistogram.getBuckets();
+                    Map<String, String> map = new HashMap<>();
+                    if (StringUtil.isEmpty( mapTaskName.get(bucket.getKeyAsString()))){
+                        continue;
+                    }
+                    taskIdList.add(bucket.getKeyAsString());
+                    taskNameList.add(mapTaskName.get(bucket.getKeyAsString()));
+                    for (int j = 0; j < bucketSum.size(); j++) {
+                        Histogram.Bucket bucketV = bucketSum.get(j);
+                        ZonedDateTime date = (ZonedDateTime) bucketV.getKey();
+                        ParsedSum sumRealFileNumV = bucketV.getAggregations().get("sumRealFileNum");
+                        ParsedSum sumLateNumV = bucketV.getAggregations().get("sumLateNum");
+                        ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
+                        long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
+                        long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
+                        long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
+                        if (sumFileNumL > 0) {
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                            map.put(formatter.format(date), String.valueOf(toQuoteRate));
+                        }else {
+                            map.put(formatter.format(date), "1");
+                        }
+                        list.add(map);
+                        timeSet.add(formatter.format(date));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<Map<String,Object>> dataList=new ArrayList<>();
+        for(int i=0;i<taskIdList.size();i++){
+            Map<String,Object> map=new HashMap<>();
+            List<Float> data=new ArrayList<>();
+            Map<String,String> time=list.get(i);
+            Iterator iter = timeSet.iterator();
+            while (iter.hasNext()) {
+                String key= (String) iter.next();
+                if(StringUtil.isNotEmpty(time.get(key))){
+                    data.add(new BigDecimal(time.get(key)).floatValue());
+                }else {
+                    data.add(0f);
+                }
+            }
+            map.put("name",taskNameList.get(i));
+            map.put("data",data);
+            dataList.add(map);
+        }
+        Map<String, Object> result=new HashMap<>();
+        result.put("title",taskNameList);
+        result.put("time",timeSet);
+        result.put("data",dataList);
+        return result;
+    }
 
     public List<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);

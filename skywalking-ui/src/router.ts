@@ -38,7 +38,6 @@ Vue.use(Router);
 
 window.axiosCancel = [];
 
-
 const router = new Router({
   mode: 'history',
   //base: process.env.BASE_URL,
@@ -145,6 +144,11 @@ const router = new Router({
           component: () => import('@/page/alarmMonitoring/alarmReport.vue'),
         },
         {
+          path: '/unAlarm',
+          name: 'unAlarm',
+          component: () => import('@/page/alarmMonitoring/unAlarm.vue'),
+        },
+        {
           path: '/alarmMonitoring',
           name: 'alarmMonitoring',
           component: () => import('@/page/alarmMonitoring/index.vue'),
@@ -234,6 +238,11 @@ const router = new Router({
         {
           path: '/process/processReport',
           component: () => import('@/page/process/processReport.vue'),
+        },
+        {
+          path: '/processView',
+          name: 'processView',
+          component: () => import('@/page/process/processView/index.vue'),
         },
       ],
     },

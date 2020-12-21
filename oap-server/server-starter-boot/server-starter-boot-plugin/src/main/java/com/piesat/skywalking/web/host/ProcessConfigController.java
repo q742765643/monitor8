@@ -1,11 +1,13 @@
 package com.piesat.skywalking.web.host;
 
 import com.piesat.skywalking.api.host.ProcessConfigService;
+import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.HostConfigDto;
 import com.piesat.skywalking.dto.ProcessConfigDto;
 import com.piesat.skywalking.dto.ProcessDetailsDto;
 import com.piesat.sso.client.annotation.Log;
 import com.piesat.sso.client.enums.BusinessType;
+import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -32,6 +34,17 @@ public class ProcessConfigController {
         PageForm<ProcessConfigDto> pageForm = new PageForm<>(pageNum, pageSize, processConfigDto);
         PageBean pageBean = processConfigService.selectPageList(pageForm);
         resultT.setData(pageBean);
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询所有进程配置", notes = "查询所有进程配置")
+    @GetMapping("/selectAll")
+    public ResultT<List<ProcessConfigDto>> selectAll() {
+        ResultT<List<ProcessConfigDto>> resultT = new ResultT<>();
+        ProcessConfigDto processConfigDto=new ProcessConfigDto();
+        NullUtil.changeToNull(processConfigDto);
+        List<ProcessConfigDto> list = processConfigService.selectBySpecification(processConfigDto);
+        resultT.setData(list);
         return resultT;
     }
 

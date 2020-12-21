@@ -51,6 +51,11 @@
             this.tempList.push(item.file_num);
             this.actualList.push(Number(item.late_num) + Number(item.real_file_num));
           });
+          console.log(this.timeList);
+          console.log(this.lateList);
+          console.log(this.shouldList);
+          console.log(this.actualList);
+          console.log(this.tempList);
           this.drawChart(this.chartID);
         });
       },

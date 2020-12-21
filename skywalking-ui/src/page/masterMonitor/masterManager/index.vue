@@ -302,6 +302,7 @@
       },
       fetch() {
         this.loading = true;
+        this.queryParams.deviceType = 0;
         request({
           url: '/hostConfig/list',
           method: 'get',

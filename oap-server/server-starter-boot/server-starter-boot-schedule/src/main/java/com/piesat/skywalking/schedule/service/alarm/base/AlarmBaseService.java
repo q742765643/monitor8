@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -197,6 +198,11 @@ public abstract class AlarmBaseService {
             if(searchHits.length>0){
                 for (SearchHit hit : searchHits) {
                     source = hit.getSourceAsMap();
+                    if(null!=source.get("alarm_num")){
+                        source.put("alarm_num",new BigDecimal(String.valueOf(source.get("alarm_num"))).add(new BigDecimal(1)).longValue());
+                    }else {
+                        source.put("alarm_num",1l);
+                    }
                     source.put("index_id",hit.getId());
                     return source;
                 }
@@ -216,6 +222,7 @@ public abstract class AlarmBaseService {
         source.put("@timestamp", alarmLogDto.getTimestamp());
         source.put("start_time", System.currentTimeMillis());
         source.put("status",0);
+        source.put("alarm_num",1l);
         return source;
 
     }

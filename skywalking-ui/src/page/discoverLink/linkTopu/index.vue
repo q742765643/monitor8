@@ -1,7 +1,7 @@
 <template>
   <div class="topu">
     <div id="column1">
-      <topu-tree></topu-tree>
+      <topu-tree @findInfoData="findInfoData"></topu-tree>
     </div>
     <div id="column2">
       <div id="deviceState">
@@ -32,7 +32,7 @@
                 网关:
                 <i></i>
               </span>
-              <span>{{ infoData.DNS }}</span>
+              <span>{{ infoData.gateway }}</span>
             </div>
 
             <div class="cell">
@@ -40,35 +40,44 @@
                 设备类型:
                 <i></i>
               </span>
-              <span>{{ infoData.type }}</span>
+              <span v-if="infoData.mediaType == '11'">未知</span>
+              <span v-if="infoData.mediaType == '0'">windows</span>
+              <span v-if="infoData.mediaType == '1'">linux</span>
+              <span v-if="infoData.mediaType == '2'">二层交换机</span>
+              <span v-if="infoData.mediaType == '3'">三层交换机</span>
+              <span v-if="infoData.mediaType == '4'">路由</span>
             </div>
             <div class="cell">
               <span>
                 丢包率:
                 <i></i>
               </span>
-              <span>{{ infoData.lostPack }}</span>
+              <span>{{ infoData.packetLoss }}</span>
             </div>
             <div class="cell">
               <span>
                 连线状态:
                 <i></i>
               </span>
-              <span>{{ infoData.state }}</span>
+              <span v-if="infoData.currentStatus == '11'">未知</span>
+              <span v-if="infoData.currentStatus == '0'">一般</span>
+              <span v-if="infoData.currentStatus == '1'">危险</span>
+              <span v-if="infoData.currentStatus == '2'">故障</span>
+              <span v-if="infoData.currentStatus == '3'">正常</span>
             </div>
             <div class="cell">
               <span>
                 运行时长:
                 <i></i>
               </span>
-              <span>{{ infoData.time }}</span>
+              <span>{{ infoData.maxUptime }}</span>
             </div>
             <div class="cell">
               <span>
                 详细地址:
                 <i></i>
               </span>
-              <span>{{ infoData.addr }}</span>
+              <span>{{ infoData.location }}</span>
             </div>
             <div class="cell">
               <span>
@@ -96,15 +105,15 @@
     data() {
       return {
         infoData: {
-          name: 'test-name',
-          alias: '报文接收服务器',
-          addr: '办公区三层306',
-          ip: '66.32.5.122',
-          lostPack: '3%',
-          DNS: '255.255.255.80',
-          type: 'windows服务器',
-          state: '正常/异常',
-          time: '20天30时45分',
+          name: '',
+          alias: '',
+          location: '',
+          ip: '',
+          packetLoss: '',
+          gateway: '',
+          mediaType: '',
+          currentStatus: '',
+          maxUptime: '',
         },
         charts: '',
         pieData: [],
@@ -112,12 +121,24 @@
     },
     components: { /* toupuChart ,*/ topuTree, planeTitle },
     methods: {
+      findInfoData(info) {
+        this.infoData = info;
+      },
       findStateStatistics() {
         request({
           url: '/networkTopy/findStateStatistics',
           method: 'get',
         }).then((response) => {
           this.pieData = response.data;
+          this.pieData.forEach((element) => {
+            if (element.name == '危险') {
+              element.color1 = '#FF00FF';
+              element.color2 = '#FF00FF';
+            } else if (element.name == '正常') {
+              element.color1 = '#329A2E';
+              element.color2 = '#5DFC57';
+            }
+          });
           console.log(this.pieData);
           this.drawPie('pieChart');
         });

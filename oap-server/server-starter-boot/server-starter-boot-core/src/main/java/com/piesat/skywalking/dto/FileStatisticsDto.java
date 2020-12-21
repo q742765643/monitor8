@@ -60,5 +60,7 @@ public class FileStatisticsDto {
     private Integer status;
     @ApiModelProperty(value = "插入时间")
     private Date timestamp;
+    @ApiModelProperty(value = "级别")
+    private long level;
 
 }

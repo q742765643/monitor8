@@ -58,4 +58,10 @@ public class AlarmLogDto extends BaseDto {
     private List<ConditionDto> severitys;
 
 
+    @ApiModelProperty(value = "告警次数")
+    private long alarmNum;
+    @ApiModelProperty(value = "最新时间")
+    private long endTime;
+
+
 }
