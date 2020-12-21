@@ -56,44 +56,44 @@
         :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
       ></vxe-pager>
     </div>
-    <a-modal v-model="visible" :title="title" okText="确定" cancelText="取消" width="70%">
+    <a-modal v-model="visible" class="fileAmodal" :title="title" okText="确定" cancelText="取消" width="70%">
       <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form">
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="任务名称" prop="taskName">
-              <a-input v-model="form.taskName" placeholder="请输入任务名称"> </a-input>
+              <a-input v-model="form.taskName" style="width:100%" placeholder="请输入任务名称"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="corn表达式" prop="jobCron">
-              <a-input v-model="form.jobCron" placeholder="corn表达式"> </a-input>
+              <a-input v-model="form.jobCron" style="width:100%" placeholder="corn表达式"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="资料文件目录规则" prop="folderRegular">
-              <a-input v-model="form.folderRegular" placeholder="资料文件目录规则"> </a-input>
+              <a-input v-model="form.folderRegular" style="width:100%" placeholder="资料文件目录规则"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="资料文件名规则 " prop="filenameRegular">
-              <a-input v-model="form.filenameRegular" placeholder="资料文件名规则 "> </a-input>
+              <a-input v-model="form.filenameRegular" style="width:100%" placeholder="资料文件名规则 "> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="应到数量" prop="fileNum">
-              <a-input v-model="form.fileNum" placeholder="请输入应到数量"> </a-input>
+              <a-input v-model="form.fileNum" style="width:100%" placeholder="请输入应到数量"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="应到大小" prop="fileSize">
-              <a-input v-model="form.fileSize" placeholder="请输入应到大小"> </a-input>
+              <a-input v-model="form.fileSize" style="width:100%" placeholder="请输入应到大小"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="远程目录" prop="remotePath">
-              <a-input v-model="form.remotePath"> </a-input>
+              <a-input v-model="form.remotePath" style="width:100%"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -107,7 +107,7 @@
 
           <a-col :span="24">
             <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg">
-              <a-input type="textarea" v-model="form.handleMsg"> </a-input>
+              <a-input type="textarea" v-model="form.handleMsg" style="width:42%"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>
@@ -218,4 +218,12 @@
     },
   };
 </script>
-<style scoped></style>
+<style lang="scss" scoped>
+.fileLogTemplate {
+  .fileAmodal {
+    .ant-input {
+      width: 350px;
+    }
+  }
+}
+</style>

@@ -128,6 +128,11 @@ const router = new Router({
           name: 'fileMonitoring',
           component: () => import('@/page/fileMonitoring/index.vue'),
         },
+        {
+          path: '/fileMonitoring/fileDetail',
+          name: 'fileDetail',
+          component: () => import('@/page/fileMonitoring/fileDetail.vue'),
+        },
         // 告警管理
         {
           path: '/alarmMonitoring/alarmReport',

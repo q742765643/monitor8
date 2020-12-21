@@ -47,12 +47,16 @@
             <a-range-picker
               v-model="queryParams.dateRange"
               @change="onTimeChange"
+              format="YYYY-MM-DD HH:mm:ss"
               :show-time="{
                 hideDisabledOptions: true,
                 defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
               }"
-              format="YYYY-MM-DD HH:mm:ss"
             />
+
+           <!--
+              v-model="queryParams.dateRange"  -->
+
           </a-form-model-item>
           <a-form-model-item>
             <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
@@ -265,11 +269,11 @@
           userName: undefined,
           phonenumber: undefined,
           status: undefined,
-          beginTime: undefined,
-          endTime: undefined,
+          // dateRange:[moment().subtract('days',1).format('YYYY-MM-DD HH:mm:ss'),moment().format('YYYY-MM-DD HH:mm:ss')],
           pageNum: 1,
           pageSize: 10,
         },
+        dateRange: [],
         statusOptions: [],
         userListData: [],
         paginationTotal: 0,
@@ -412,7 +416,10 @@
         } else {
           this.dateRange = [];
         }
+        console.log(this.addDateRange(this.queryParams, this.dateRange))
         hongtuConfig.userCofigList(this.addDateRange(this.queryParams, this.dateRange)).then((response) => {
+          debugger
+
           console.log(response);
           this.userListData = response.data.pageData;
           this.paginationTotal = response.data.totalCount;
@@ -466,9 +473,13 @@
         return result;
       },
       onTimeChange(value, dataString) {
-        this.queryParams.beginTime = dataString[0];
-        this.queryParams.endTime = dataString[1];
-        console.log(this.queryParams);
+        console.log(value)
+        console.log(dataString)
+        debugger;
+        this.queryParams.dateRange[0] = this.parseTime(dataString[0]);
+        
+        this.queryParams.dateRange[1] = this.parseTime(dataString[1]);
+        // console.log(this.queryParams.dateRange);
       },
       // 表单重置
       reset() {

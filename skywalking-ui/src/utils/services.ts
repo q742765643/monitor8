@@ -281,6 +281,20 @@ const dataService = {
     });
   },
 
+  // 分页查询文件日志详情
+  fileDetail(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/fileMonitorLog/selectPageListDetail' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
   // 文件监控-删除
   fileMonitorDelete(params: String) {
     return new Promise((resolve, reject) => {

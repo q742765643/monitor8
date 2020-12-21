@@ -90,21 +90,24 @@ export function resetForm(refName:any) {
 
 // 添加日期范围
 export function addDateRange(params:any, dateRange:any) {
+  debugger
   var search = params;
   var orderBy = {};
   if (search.params) {
     orderBy = search.params.orderBy;
   }
+
   if (null != dateRange) {
 
     search.params = {
       // @ts-ignore
-      beginTime: this.dateRange[0],
+      beginTime: dateRange[0],
       // @ts-ignore
-      endTime: this.dateRange[1],
+      endTime: dateRange[1],
       orderBy: orderBy
     };
   }
+  debugger
   return search;
 }
 

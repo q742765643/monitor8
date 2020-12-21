@@ -59,6 +59,11 @@
   import { remFontSize } from '@/components/utils/fontSize.js';
   import request from '@/utils/request';
   export default {
+    // beforeRouteLeave(to,from,next) {
+    //     console.log('7978')
+    //     this.$router.push('/discoverLink/linkTopu')
+    //     next()
+    //   },
     props: ['ip'],
     data() {
       return {
