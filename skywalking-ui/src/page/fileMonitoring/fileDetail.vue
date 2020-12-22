@@ -2,7 +2,18 @@
   <div class="roleTemplate">
     <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
       <a-form-model-item label="任务名称">
-        <a-input v-model="queryParams.roleName" placeholder="请输入任务名称"> </a-input>
+        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
+      </a-form-model-item>
+      <a-form-model-item label="时间">
+        <a-range-picker
+          @change="onTimeChange"
+          v-model="values"
+          :show-time="{
+            hideDisabledOptions: true,
+            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
+          }"
+          format="YYYY-MM-DD HH:mm:ss"
+        />
       </a-form-model-item>
       <a-form-model-item>
         <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
@@ -26,7 +37,7 @@
       </a-row> -->
 
       <vxe-table
-        :data="roleListData"
+        :data="fileListData"
         @checkbox-change="selectBox"
         align="center"
         highlight-hover-row
@@ -34,17 +45,26 @@
         border
       >
         <vxe-table-column type="checkbox" width="50"></vxe-table-column>
-        <vxe-table-column field="roleName" title="角色名称"></vxe-table-column>
-        <vxe-table-column field="roleKey" title="权限字符"></vxe-table-column>
-        <vxe-table-column field="status" title="状态">
+        <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
+        <vxe-table-column field="fileNum" title="应到文件数量"></vxe-table-column>
+        <vxe-table-column field="realFileNum" title="实到文件数量"></vxe-table-column>
+        <vxe-table-column field="lateNum" title="晚到数量"></vxe-table-column>
+        <vxe-table-column field="status" title="当前状态">
+          <template v-slot="{ row }">
+            <span v-if="row.status == 0">一般 </span>
+            <span v-if="row.status == 1">危险 </span>
+            <span v-if="row.status == 2">故障 </span>
+            <span v-if="row.status == 3">正常 </span>
+            <span v-if="row.status == 4">未执行 </span>
+          </template>
         </vxe-table-column>
-        <vxe-table-column field="createTime" title="创建时间">
+        <vxe-table-column field="startTimeL" title="应开始时间long型">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.startTimeL) }}</span>
           </template>
         </vxe-table-column>
       </vxe-table>
-      <!-- <vxe-pager
+      <vxe-pager
         id="page_table"
         perfect
         :current-page.sync="queryParams.pageNum"
@@ -54,7 +74,7 @@
         :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
         @page-change="handlePageChange"
       >
-      </vxe-pager> -->
+      </vxe-pager>
     </div>
   </div>
 </template>
@@ -62,6 +82,7 @@
 <script>
   import hongtuConfig from '@/utils/services';
   import request from '@/utils/request';
+  import moment from 'moment';
   export default {
     data() {
       return {
@@ -69,54 +90,68 @@
           taskName: '',
           pageNum: 1,
           pageSize: 10,
+
         },
-        roleListData: [],
+        dateRange: [],
+        fileListData: [],
         paginationTotal: 0,
+        values:undefined,
       };
     },
     created() {
-      this.getRoleList();
-      hongtuConfig.getDicts('sys_normal_disable').then((res) => {
-        if (res.code == 200) {
-          this.statusOptions = res.data;
-        }
-      });
+      this.getFileList();
     },
     methods: {
-     
-      getRoleList() {
+      moment,
+      range(start, end) {
+        const result = [];
+        for (let i = start; i < end; i++) {
+          result.push(i);
+        }
+        return result;
+      },
+      onTimeChange(value, dateString) {
+        // this.queryParams.startTime = dateString[0];
+        // this.queryParams.endTime = dateString[1];
+        console.log(this.values)
+        this.queryParams.dateRange = dateString
+      },
+      getFileList() {
         if (this.queryParams.dateRange) {
           this.dateRange = this.queryParams.dateRange;
         } else {
           this.dateRange = [];
         }
-        hongtuConfig.fileDetail(this.queryParams).then((res) => {
+        console.log(this.dateRange)
+        hongtuConfig.fileDetail(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
           console.log(res);
-        //   this.roleListData = res.data.pageData;
-        //   this.paginationTotal = res.data.totalCount;
+          this.fileListData = res.data.pageData;
+          this.paginationTotal = res.data.totalCount;
         });
       },
       handleQuery() {
         this.queryParams.pageNum = 1;
-        this.getRoleList();
+        this.getFileList();
       },
       resetQuery() {
         this.queryParams = {
           pageNum: 1,
           pageSize: 10,
-          roleName: undefined,
-          roleKey: undefined,
-          status: undefined,
+          taskName: "",
         };
-        this.getRoleList();
+        this.getFileList();
       },
      
-      
+      selectBox(selection) {
+        console.log(selection.selection);
+        this.single = selection.selection.length > 0 ? false : true;
+      },
+
       // 分页事件
       handlePageChange({ currentPage, pageSize }) {
         this.queryParams.pageNum = currentPage;
         this.queryParams.pageSize = pageSize;
-        this.getRoleList();
+        this.getFileList();
       },
     },
   };

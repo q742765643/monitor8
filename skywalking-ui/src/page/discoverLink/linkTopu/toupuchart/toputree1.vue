@@ -8,7 +8,7 @@
         <span>{{ item.dictLabel }}</span>
       </div>
     </div>
-    <mointorWindow v-if="showMointorWindow" :ip="ip"></mointorWindow>
+    <!-- <mointorWindow v-if="showMointorWindow" :ip="ip"></mointorWindow> -->
   </div>
 </template>
 
@@ -223,7 +223,10 @@
         });
         graph.on('node:dblclick', (ev) => {
           this.ip = ev.item._cfg.model.ip;
-          this.showMointorWindow = true;
+          // this.showMointorWindow = true;
+          this.$router.push({ name: 'mointorWindow',params: {
+            ip: this.ip
+          } })
         });
       },
       getInfoById(topuId) {

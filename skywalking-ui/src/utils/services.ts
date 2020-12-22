@@ -281,11 +281,29 @@ const dataService = {
     });
   },
 
-  // 分页查询文件日志详情
+  // 文件报表折线图-到报率查询 
+  fileReportLineChart(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/fileQReport/findFileReportLineChart', {
+          params: params
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 分页查询文件详情
   fileDetail(params: String) {
     return new Promise((resolve, reject) => {
       instance
-        .get('/fileMonitorLog/selectPageListDetail' + params)
+        .get('/fileMonitorLog/selectPageListDetail', {
+          params: params
+        })
         .then((res) => {
           resolve(res);
         })

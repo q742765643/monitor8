@@ -26,6 +26,7 @@ import rocketTrace, { State as TraceState } from '@/store/modules/trace';
 import rocketAlarm, { State as AlarmState } from '@/store/modules/alarm';
 import profileStore, { State as ProfileState } from '@/store/modules/profile/profile-store';
 import rocketTopoNetwork, { State as TopoNetwork } from '@/store/modules/network';
+import permission from '@/store/modules/permission'
 
 Vue.use(Vuex);
 
@@ -51,5 +52,6 @@ export default new Vuex.Store({
     rocketAlarm,
     profileStore,
     rocketTopoNetwork,
+    permission,
   },
 });

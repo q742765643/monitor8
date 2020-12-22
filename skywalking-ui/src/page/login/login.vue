@@ -50,26 +50,26 @@
     data() {
       return {
         loginForm: {
-          username: 'users',
-          password: '111',
+          username: 'admin',
+          password: '111111',
           code: '',
-          uuid: '',
+          uuid: "",
         },
         codeUrl: '',
       };
     },
     created() {
-      this.getCode();
+      // this.getCode();
     },
     methods: {
-      getCode() {
-        loginService.getCodeImg().then((response) => {
-          // console.log(response)
-          this.codeUrl = 'data:img/gif;base64,' + response.data.img;
-          this.loginForm.uuid = null;
-          // this.loginForm.uuid = response.data.uuid;
-        });
-      },
+      // getCode() {
+      //   loginService.getCodeImg().then((response) => {
+      //     console.log(response)
+      //     this.codeUrl = 'data:img/gif;base64,' + response.data.img;
+      //     this.loginForm.uuid = null;
+      //     // this.loginForm.uuid = response.data.uuid;
+      //   });
+      // },
       handleLogin() {
         request({
           url: '/login',

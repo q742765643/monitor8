@@ -9,7 +9,7 @@
       <div class="progressChart" :id="chartId"></div>
 
       <div id="thred">
-        <div id="img"></div>
+        <div id="img" @click="jumpto"></div>
         <div id="thred_info">
           <span>
             <p>进程{{current.processSize}}个</p>
@@ -51,6 +51,11 @@ export default {
     this.$nextTick(() => this.drawChart(this.chartId));
   },
   methods: {
+    jumpto() {
+      this.$router.push({ name: 'mointorWindow',params: {
+            ip: this.name
+          } })
+    },
     drawChart(id) {
       this.progressChart = echarts.init(document.getElementById(id));
 
@@ -333,6 +338,7 @@ export default {
     }
     #name {
       display: inline-block;
+      cursor: pointer;
       padding-left: 40px;
       font-size: 12px;
       height: 15px;

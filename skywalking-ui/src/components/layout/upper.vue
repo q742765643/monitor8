@@ -10,7 +10,7 @@
       </div>
       <div class="tool">
         <span class="icon iconfont iconshuaxin"></span>
-        <span class="icon iconfont iconlingdang">
+        <span class="icon iconfont iconlingdang" @click="jumper">
           <span v-if="warnNum" class="warnNum">{{ warnNum }}</span>
         </span>
         <span class="icon iconfont iconskin"></span>
@@ -63,6 +63,9 @@
           onCancel() {},
         });
       },
+      jumper() {
+        this.$router.push('/unAlarm')
+      }
     },
   };
 </script>

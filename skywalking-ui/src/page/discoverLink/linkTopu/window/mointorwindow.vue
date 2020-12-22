@@ -2,7 +2,7 @@
   <div id="mointorWindow">
     <div class="palne_titile">
       <span>主机监测信息</span>
-      <span class="icon iconfont iconbaseline-close-px" v-on:click="closeWindow"></span>
+      <!-- <span class="icon iconfont iconbaseline-close-px" v-on:click="closeWindow"></span> -->
     </div>
     <div class="contentBox">
       <div class="cell1">
@@ -64,7 +64,7 @@
     //     this.$router.push('/discoverLink/linkTopu')
     //     next()
     //   },
-    props: ['ip'],
+    // props: ['ip'],
     data() {
       return {
         table_height: null,
@@ -78,12 +78,15 @@
         chart3: '',
         chart4: '',
         chart5: '',
+        ip: '',
       };
     },
     created() {
       this.getDicts('current_status').then((response) => {
         this.alarmLevelOptions = response.data;
       });
+      this.ip = this.$route.params.ip;
+      // console.log(this.$route.params)
     },
     mounted() {
       //let now = moment().format('HH:mm:ss');
@@ -109,9 +112,9 @@
         let h = document.getElementById('tableChart').clientHeight;
         this.table_height = h - 3;
       },
-      closeWindow() {
-        this.$parent.closeMonWindow();
-      },
+      // closeWindow() {
+      //   this.$parent.closeMonWindow();
+      // },
       initXdata() {
         let t = '';
         for (let i = 0; i < 10; i++) {

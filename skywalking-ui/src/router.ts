@@ -38,6 +38,7 @@ Vue.use(Router);
 
 window.axiosCancel = [];
 
+
 const router = new Router({
   mode: 'history',
   //base: process.env.BASE_URL,
@@ -70,6 +71,11 @@ const router = new Router({
           path: '/discoverLink/linkTopu',
           name: 'linkTopu',
           component: () => import('@/page/discoverLink/linkTopu/index.vue'),
+        },
+        {
+          path: '/linkTopu/mointorWindow',
+          name: 'mointorWindow',
+          component: () => import('@/page/discoverLink/linkTopu/window/mointorwindow.vue'),
         },
         {
           path: '/discoverLink/linkManager',
@@ -226,10 +232,6 @@ const router = new Router({
           path: '/loginlog',
           name: 'loginlog',
           component: () => import('@/page/userMonitoring/record/loginLog.vue'),
-        },
-        {
-          path: '/job',
-          component: () => import('@/views/containers/home/right/job/index.vue'),
         },
         {
           path: '/process/processConfig',

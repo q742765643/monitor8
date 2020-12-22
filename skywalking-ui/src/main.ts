@@ -26,6 +26,7 @@ import eventBus from './event-bus';
 import Antd from 'ant-design-vue';
 import App from './App.vue';
 import router from './router';
+// import router from './router-dynamic';
 import store from './store';
 import components from './components';
 import 'echarts/lib/chart/line';
