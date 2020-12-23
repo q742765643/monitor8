@@ -4,7 +4,7 @@
     <div id="legend">
       <span class="titile">图例</span>
       <div v-for="(item, index) in legendList" :key="index">
-        <span class="lgd" :style="'background:' + item.dictValue"></span>
+        <span class="lgd" :style="'background:' + item.remark"></span>
         <span>{{ item.dictLabel }}</span>
       </div>
     </div>
@@ -70,7 +70,7 @@
             drawShape: function drawShape(cfg, group) {
               var firstFill = '';
               if (cfg.firstFlag) {
-                firstFill = 'rgba(64,185,59,0.75)';
+                firstFill = 'rgba(0,255,255,0.5)';
               }
               let img = computerIcon;
               if (cfg.mediaType == 1 || cfg.mediaType == 0) {
@@ -85,16 +85,16 @@
 
               let color = '#6666ff';
               if (cfg.area == 0) {
-                color = '#9933cc';
+                color = '#f109b4';
               }
               if (cfg.area == 1) {
-                color = '#993333';
+                color = '#2dd246';
               }
               if (cfg.area == 2) {
-                color = '#cccc33';
+                color = '#ff9700';
               }
               if (cfg.area == 3) {
-                color = '#ff0099';
+                color = '#a183a3';
               }
               const r = 2;
 
@@ -192,17 +192,17 @@
           },
           nodeStateStyles: {
             selected: {
-              fill: 'rgba(64,185,59,0.75)',
+              fill: 'rgba(0,255,255,0.5)',
             },
           },
           edgeStateStyles: {
             selected: {
-              fill: 'rgba(64,185,59,0.75)',
+              fill: 'rgba(0,255,255,0.5)',
             },
           },
           stateStyles: {
             selected: {
-              fill: 'rgba(64,185,59,0.75)',
+              fill: 'rgba(0,255,255,0.5)',
             },
           },
         });
@@ -210,6 +210,7 @@
         graph.render();
 
         graph.on('node:click', (ev) => {
+          console.log(ev);
           if (this.selectRect) {
             // 取消单个状态
             graph.clearItemStates(this.selectRect, 'selected');

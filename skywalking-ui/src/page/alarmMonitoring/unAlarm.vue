@@ -11,6 +11,13 @@
           </a-select-option>
         </a-select>
       </a-form-model-item>
+      <a-form-model-item label="监测类型">
+        <a-select style="width: 120px" v-model="queryParams.monitorType" placeholder="请选择">
+          <a-select-option v-for="dict in alarmTypeOptions" :key="dict.dictValue" :value="dict.dictValue">
+            {{ dict.dictLabel }}
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
       <a-form-model-item>
         <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
         <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
@@ -18,21 +25,41 @@
     </a-form-model>
     <div class="tableDateBox">
       <vxe-table border ref="xTable" :data="tableData" stripe align="center">
-        <vxe-table-column field="number" type="seq" title="序号" width="10%"></vxe-table-column>
         <vxe-table-column field="ip" title="ip">
           <template slot-scope="scope">
             <span v-if="scope.row.ip && scope.row.ip != 'null'">{{ scope.row.ip }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="level" title="告警级别" :formatter="formatAlarmLevel" width="15%"></vxe-table-column>
-        <vxe-table-column field="message" title="告警业务" show-overflow></vxe-table-column>
+        <!-- 
+        "monitorType": 3, 监测类型
+         -->
+        <vxe-table-column field="monitorType" title="监测类型" :formatter="formatMonitorType"></vxe-table-column>
+        <vxe-table-column field="level" title="告警级别" :formatter="formatAlarmLevel"></vxe-table-column>
+        <vxe-table-column field="alarmNum" title="告警次数"></vxe-table-column>
+        <vxe-table-column field="message" title="详细" show-overflow></vxe-table-column>
         <vxe-table-column field="timestamp" title="开始时间">
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.timestamp) }}</span>
           </template>
         </vxe-table-column>
+        <vxe-table-column field="endTime" title="最新时间">
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.endTime) }}</span>
+          </template>
+        </vxe-table-column>
         <vxe-table-column field="duration" title="持续时间"></vxe-table-column>
       </vxe-table>
+      <vxe-pager
+        id="page_table"
+        perfect
+        :current-page.sync="queryParams.pageNum"
+        :page-size.sync="queryParams.pageSize"
+        :total="paginationTotal"
+        :page-sizes="[10, 20, 100]"
+        :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+        @page-change="queryTable"
+      >
+      </vxe-pager>
     </div>
   </div>
 </template>
@@ -43,6 +70,7 @@
     data() {
       return {
         alarmLevelOptions: [],
+        alarmTypeOptions: [],
         queryParams: {
           pageNum: 1,
           pageSize: 10,
@@ -54,6 +82,9 @@
     created() {
       this.getDicts('alarm_level').then((response) => {
         this.alarmLevelOptions = response.data;
+      });
+      this.getDicts('alarm_type').then((response) => {
+        this.alarmTypeOptions = response.data;
       });
       this.queryTable();
     },
@@ -77,12 +108,12 @@
       /* table方法 */
       queryTable() {
         request({
-          url: '/main/getAlarm',
+          url: '/alarmUn/list',
           method: 'get',
           params: this.queryParams,
         }).then((data) => {
-          this.tableData = data.data;
-          // this.paginationTotal = data.data.totalCount;
+          this.tableData = data.data.pageData;
+          this.paginationTotal = data.data.totalCount;
         });
       },
       /* 翻页 */
@@ -93,6 +124,9 @@
       },
       formatAlarmLevel({ cellValue }) {
         return this.selectDictLabel(this.alarmLevelOptions, cellValue);
+      },
+      formatMonitorType({ cellValue }) {
+        return this.selectDictLabel(this.alarmTypeOptions, cellValue);
       },
     },
   };
