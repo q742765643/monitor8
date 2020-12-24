@@ -168,7 +168,7 @@
         this.charts = echarts.init(document.getElementById(id));
         var option = {
           textStyle: {
-            fontFamily: 'Alibaba-PuHuiTi-Medium',
+            fontFamily: 'NotoSansHans-Medium',
           },
           tooltip: {
             trigger: 'item',

@@ -201,7 +201,7 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="详细地址" prop="location">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="详细地址" prop="location">
               <a-input type="textarea" v-model="formDialog.location" placeholder="详细地址"> </a-input>
             </a-form-model-item>
           </a-col>
@@ -281,14 +281,7 @@
       });
       this.queryTable();
     },
-    mounted() {
-      this.$nextTick(() => {
-        this.setTableHeight();
-      });
-      window.addEventListener('resize', () => {
-        this.setTableHeight();
-      });
-    },
+    mounted() {},
     methods: {
       /* 查询 */
       handleQuery() {
@@ -401,14 +394,7 @@
           onCancel() {},
         });
       },
-      setTableHeight() {
-        let h = document.getElementById('tablediv').offsetHeight;
-        let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
-        let h_page = document.getElementById('page_table').offsetHeight;
 
-        // let chartHeight = document.getElementById("chartdiv").clientHeight;
-        this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
-      },
       updateAsHost(row) {
         const id = row.id;
         let data = { id: id, deviceType: 0, isHost: 1 };
