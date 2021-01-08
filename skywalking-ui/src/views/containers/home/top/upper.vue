@@ -53,7 +53,7 @@ export default {
     this.timer = null;
   },
   methods: {
-    getTime: function() {
+    getTime: function () {
       moment.locale('zh-cn');
       this.date = moment().format('YYYY-MM-DD');
       this.week = moment().format('dddd');

@@ -1,20 +1,20 @@
 <template>
   <div id="box">
     <div id="title">
-      <span id="states" style=" background: #00ff00;"></span>
+      <span id="states" style="background: #00ff00"></span>
       <span id="name">{{ name }}</span>
     </div>
 
     <div id="info_content">
-      <div class="progressChart" :id="chartId"></div>
+      <div class="progressChart" :id="chartId" @click="jumpto"></div>
 
       <div id="thred">
         <div id="img" @click="jumpto"></div>
         <div id="thred_info">
           <span>
-            <p>进程{{current.processSize}}个</p>
-            <p v-if="this.current.online==0">网络不在线</p>
-            <p v-if="this.current.online==1">网络在线</p>
+            <p>进程{{ current.processSize }}个</p>
+            <p v-if="this.current.online == 0">网络不在线</p>
+            <p v-if="this.current.online == 1">网络在线</p>
           </span>
         </div>
       </div>
@@ -33,11 +33,11 @@ export default {
     },
     chartId: {
       type: String,
-      default: () => "",
+      default: () => '',
     },
     name: {
       type: String,
-      default: () => "",
+      default: () => '',
     },
   },
   data() {
@@ -52,9 +52,13 @@ export default {
   },
   methods: {
     jumpto() {
-      this.$router.push({ name: 'mointorWindow',params: {
-            ip: this.name
-          } })
+      this.$router.push({
+        name: 'mointorWindow',
+        params: {
+          ip: this.name,
+          titleName: '主机监测信息',
+        },
+      });
     },
     drawChart(id) {
       this.progressChart = echarts.init(document.getElementById(id));
@@ -167,11 +171,11 @@ export default {
                 show: true,
                 textStyle: {
                   color: '#676767',
-                    // fontSize: remFontSize(12 / 64),
+                  // fontSize: remFontSize(12 / 64),
                   fontSize: remFontSize(8 / 64),
                 },
               },
-              data: myData.map(function(value) {
+              data: myData.map(function (value) {
                 return {
                   value: value,
                   textStyle: {
@@ -229,33 +233,23 @@ export default {
                 show: true, // 是否显示进度条上方的百分比
                 formatter: (series) => {
                   let astyle = 'a0';
-                  let use=0;
-                  let total=0;
+                  let use = 0;
+                  let total = 0;
                   if (series.dataIndex == 0) {
                     astyle = 'a0';
-                    use=this.current.cpuUse;
-                    total=this.current.cpuCores;
+                    use = this.current.cpuUse;
+                    total = this.current.cpuCores;
                   } else if (series.dataIndex == 1) {
                     astyle = 'a1';
-                    use=this.current.memoryUse;
-                    total=this.current.memoryTotal;
+                    use = this.current.memoryUse;
+                    total = this.current.memoryTotal;
                   } else if (series.dataIndex == 2) {
                     astyle = 'a2';
-                    use=this.current.filesystemUse;
-                    total=this.current.filesystemSize;
+                    use = this.current.filesystemUse;
+                    total = this.current.filesystemSize;
                   }
 
-                  return (
-                    '{' +
-                    astyle +
-                    '|' +
-                    use +
-                    '}' +
-                    '{b|' +
-                    '/' +
-                    total +
-                    '}'
-                  );
+                  return '{' + astyle + '|' + use + '}' + '{b|' + '/' + total + '}';
                 },
                 rich: {
                   a0: {

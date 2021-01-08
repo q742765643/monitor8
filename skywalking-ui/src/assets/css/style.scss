@@ -254,6 +254,19 @@ body {
     padding: 16px 0;
 }
 
+#alarmContnet .vxe-table.size--mini .vxe-header--column:not(.col--ellipsis) {
+    padding: 8px 0;
+}
+
+#alarmContnet .vxe-table .vxe-body--column {
+    padding: 0;
+    line-height: 18px;
+}
+
+#alarmContnet .vxe-table.size--mini .vxe-body--column.col--ellipsis {
+    height: 36px;
+}
+
 .vxe-table {
     .ant-btn {
         font-size: 14px;
@@ -294,5 +307,23 @@ body {
 
     .ant-col-17 {
         width: 74.8%;
+    }
+}
+
+.hasHandleExportBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFFFFF;
+    -webkit-box-shadow: 0 0.026042rem 0.15625rem 0 rgba(22, 115, 255, 0.1);
+    box-shadow: 0 0.026042rem 0.15625rem 0 rgba(22, 115, 255, 0.1);
+    margin-bottom: 20px;
+    background: #FFFFFF;
+    box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
+
+    .queryForm {
+        box-shadow: none;
+        margin-bottom: 0;
+        padding-bottom: 30px;
     }
 }

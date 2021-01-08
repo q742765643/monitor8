@@ -212,227 +212,231 @@
 </template>
 
 <script>
-  import echarts from 'echarts';
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
-  import request from '@/utils/request';
-  export default {
-    data() {
-      return {
-        queryParams: {
-          pageNum: 1,
-          pageSize: 10,
-          deviceType: 1,
-          ip: '',
-          triggerStatus: '',
-        },
-        triggerStatusOptions: [], //运行状态
-        currentStatusOptions: [], //设备状态
-        mediaTypeOptions: [], //设备类型
-        monitoringMethodsOptions: [], //监视方式
-        areaOptions: [], //区域
-        tableData: [], //表格
-        paginationTotal: 0,
-        visibleModel: false, //弹出框
-        dialogTitle: '',
-        formDialog: {
-          taskName: '',
-          hostName: '',
-          ip: '',
-          gateway: '',
-          mask: '',
-          jobCron: '',
-          mac: '',
-          createBy: '',
-          monitoringMethods: '',
-          mediaType: '',
-          area: '',
-          location: '',
-          currentStatus: '',
-        },
-        rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
-      };
-    },
-    created() {
-      hongtuConfig.getDicts('job_trigger_status').then((res) => {
-        if (res.code == 200) {
-          this.triggerStatusOptions = res.data;
-        }
-      });
-      hongtuConfig.getDicts('current_status').then((res) => {
-        if (res.code == 200) {
-          this.currentStatusOptions = res.data;
-        }
-      });
-      hongtuConfig.getDicts('media_type').then((res) => {
-        if (res.code == 200) {
-          this.mediaTypeOptions = res.data;
-        }
-      });
-      hongtuConfig.getDicts('monitoring_methods').then((res) => {
-        if (res.code == 200) {
-          this.monitoringMethodsOptions = res.data;
-        }
-      });
-      hongtuConfig.getDicts('media_area').then((res) => {
-        if (res.code == 200) {
-          this.areaOptions = res.data;
-        }
-      });
+import echarts from 'echarts';
+// 接口地址
+import hongtuConfig from '@/utils/services';
+import request from '@/utils/request';
+export default {
+  data() {
+    return {
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+        deviceType: 1,
+        ip: '',
+        triggerStatus: '',
+      },
+      triggerStatusOptions: [], //运行状态
+      currentStatusOptions: [], //设备状态
+      mediaTypeOptions: [], //设备类型
+      monitoringMethodsOptions: [], //监视方式
+      areaOptions: [], //区域
+      tableData: [], //表格
+      paginationTotal: 0,
+      visibleModel: false, //弹出框
+      dialogTitle: '',
+      formDialog: {
+        taskName: '',
+        hostName: '',
+        ip: '',
+        gateway: '',
+        mask: '',
+        jobCron: '',
+        mac: '',
+        createBy: '',
+        monitoringMethods: '',
+        mediaType: '',
+        area: '',
+        location: '',
+        currentStatus: '',
+      },
+      rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
+    };
+  },
+  created() {
+    hongtuConfig.getDicts('job_trigger_status').then((res) => {
+      if (res.code == 200) {
+        this.triggerStatusOptions = res.data;
+      }
+    });
+    hongtuConfig.getDicts('current_status').then((res) => {
+      if (res.code == 200) {
+        this.currentStatusOptions = res.data;
+      }
+    });
+    hongtuConfig.getDicts('media_type').then((res) => {
+      if (res.code == 200) {
+        this.mediaTypeOptions = res.data;
+      }
+    });
+    hongtuConfig.getDicts('monitoring_methods').then((res) => {
+      if (res.code == 200) {
+        this.monitoringMethodsOptions = res.data;
+      }
+    });
+    hongtuConfig.getDicts('media_area').then((res) => {
+      if (res.code == 200) {
+        this.areaOptions = res.data;
+      }
+    });
+    this.queryTable();
+  },
+  mounted() {},
+  methods: {
+    /* 查询 */
+    handleQuery() {
+      this.queryParams.pageNum = 1;
       this.queryTable();
     },
-    mounted() {},
-    methods: {
-      /* 查询 */
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.queryTable();
-      },
-      /* 重置 */
-      resetQuery() {
-        this.queryParams = {
-          pageNum: 1,
-          pageSize: 10,
-          ip: '',
-          triggerStatus: '',
-          deviceType: 1,
-        };
-        this.queryTable();
-      },
-      /* 翻页 */
-      handlePageChange({ currentPage, pageSize }) {
-        this.queryParams.pageNum = currentPage;
-        this.queryParams.pageSize = pageSize;
-        this.queryTable();
-      },
-      /* table方法 */
-      queryTable() {
-        hongtuConfig.hostConfigLIst(this.queryParams).then((response) => {
-          this.tableData = response.data.pageData;
-          this.paginationTotal = response.data.totalCount;
-        });
-      },
-      /* 字典格式化 */
-      statusFormat(list, text) {
-        return hongtuConfig.formatterselectDictLabel(list, text);
-      },
-      handleAdd() {
-        /* 新增 */
-        this.dialogTitle = '新增';
-        this.formDialog = {
-          taskName: '',
-          hostName: '',
-          ip: '',
-          gateway: '',
-          mask: '',
-          jobCron: '',
-          mac: '',
-          createBy: '',
-          monitoringMethods: '',
-          mediaType: '',
-          area: '',
-          location: '',
-          currentStatus: '',
-        };
-        this.visibleModel = true;
-      },
-      /* 编辑 */
-      handleEdit(row) {
-        hongtuConfig.hostConfigDetail(row.id).then((response) => {
-          if (response.code == 200) {
-            this.formDialog = response.data;
-            this.visibleModel = true;
-            this.dialogTitle = '编辑';
-          }
-        });
-      },
-      /* 确认 */
-      handleOk() {
-        this.$refs.formModel.validate((valid) => {
-          if (valid) {
-            hongtuConfig.hostConfigPost(this.formDialog).then((response) => {
-              if (response.code == 200) {
-                this.$message.success(this.dialogTitle + '成功');
-                this.visibleModel = false;
-                this.queryTable();
-              }
-            });
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      /* 删除 */
-      handleDelete(row) {
-        let ids = [];
-        let ips = [];
-        if (!row.id) {
-          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            ids.push(element.id);
-            ips.push(element.ip);
+    /* 重置 */
+    resetQuery() {
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10,
+        ip: '',
+        triggerStatus: '',
+        deviceType: 1,
+      };
+      this.queryTable();
+    },
+    /* 翻页 */
+    handlePageChange({ currentPage, pageSize }) {
+      this.queryParams.pageNum = currentPage;
+      this.queryParams.pageSize = pageSize;
+      this.queryTable();
+    },
+    /* table方法 */
+    queryTable() {
+      hongtuConfig.hostConfigLIst(this.queryParams).then((response) => {
+        this.tableData = response.data.pageData;
+        this.paginationTotal = response.data.totalCount;
+      });
+    },
+    /* 字典格式化 */
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
+    },
+    handleAdd() {
+      /* 新增 */
+      this.dialogTitle = '新增';
+      this.formDialog = {
+        taskName: '',
+        hostName: '',
+        ip: '',
+        gateway: '',
+        mask: '',
+        jobCron: '',
+        mac: '',
+        createBy: '',
+        monitoringMethods: '',
+        mediaType: '',
+        area: '',
+        location: '',
+        currentStatus: '',
+      };
+      this.visibleModel = true;
+    },
+    /* 编辑 */
+    handleEdit(row) {
+      hongtuConfig.hostConfigDetail(row.id).then((response) => {
+        if (response.code == 200) {
+          this.formDialog = response.data;
+          this.visibleModel = true;
+          this.dialogTitle = '编辑';
+        }
+      });
+    },
+    /* 确认 */
+    handleOk() {
+      this.$refs.formModel.validate((valid) => {
+        if (valid) {
+          hongtuConfig.hostConfigPost(this.formDialog).then((response) => {
+            if (response.code == 200) {
+              this.$message.success(this.dialogTitle + '成功');
+              this.visibleModel = false;
+              this.queryTable();
+            }
           });
         } else {
-          ids.push(row.id);
-          ips.push(row.ip);
+          console.log('error submit!!');
+          return false;
         }
-        this.$confirm({
-          title: '是否确认删除ip为"' + ips.join(',') + '"的数据项?',
-          content: '',
-          okText: '是',
-          okType: 'danger',
-          cancelText: '否',
-          onOk: () => {
-            hongtuConfig.hostConfigDelete(ids.join(',')).then((response) => {
-              if (response.code == 200) {
-                this.$message.success('删除成功');
-                this.resetQuery();
-              }
-            });
-          },
-          onCancel() {},
-        });
-      },
-
-      updateAsHost(row) {
-        const id = row.id;
-        let data = { id: id, deviceType: 0, isHost: 1 };
-        request({
-          url: '/hostConfig/updateHost',
-          method: 'post',
-          data: data,
-        }).then((response) => {
-          this.$message.success('设置成功');
-          this.handleQuery();
-        });
-      },
-      startJob(row) {
-        const id = row.id;
-        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
-        request({
-          url: '/hostConfig/updateHost',
-          method: 'post',
-          data: data,
-        }).then((response) => {
-          this.$message.success('启动成功');
-          this.handleQuery();
-        });
-      },
-      endJob(row) {
-        const id = row.id;
-        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
-        request({
-          url: '/hostConfig/updateHost',
-          method: 'post',
-          data: data,
-        }).then((response) => {
-          this.$message.success('停止成功');
-          this.handleQuery();
-        });
-      },
+      });
     },
-  };
+    /* 删除 */
+    handleDelete(row) {
+      let ids = [];
+      let ips = [];
+      if (!row.id) {
+        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+          ips.push(element.ip);
+        });
+      } else {
+        ids.push(row.id);
+        ips.push(row.ip);
+      }
+      if (ips.length == 0) {
+        this.$message.error('请选择一条数据');
+        return;
+      }
+      this.$confirm({
+        title: '是否确认删除ip为"' + ips.join(',') + '"的数据项?',
+        content: '',
+        okText: '是',
+        okType: 'danger',
+        cancelText: '否',
+        onOk: () => {
+          hongtuConfig.hostConfigDelete(ids.join(',')).then((response) => {
+            if (response.code == 200) {
+              this.$message.success('删除成功');
+              this.resetQuery();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+
+    updateAsHost(row) {
+      const id = row.id;
+      let data = { id: id, deviceType: 0, isHost: 1 };
+      request({
+        url: '/hostConfig/updateHost',
+        method: 'post',
+        data: data,
+      }).then((response) => {
+        this.$message.success('设置成功');
+        this.handleQuery();
+      });
+    },
+    startJob(row) {
+      const id = row.id;
+      let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+      request({
+        url: '/hostConfig/updateHost',
+        method: 'post',
+        data: data,
+      }).then((response) => {
+        this.$message.success('启动成功');
+        this.handleQuery();
+      });
+    },
+    endJob(row) {
+      const id = row.id;
+      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+      request({
+        url: '/hostConfig/updateHost',
+        method: 'post',
+        data: data,
+      }).then((response) => {
+        this.$message.success('停止成功');
+        this.handleQuery();
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped></style>

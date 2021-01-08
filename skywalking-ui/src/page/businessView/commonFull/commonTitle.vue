@@ -4,9 +4,9 @@
       <planeTitle :titleName="$attrs.titleName">
         <div slot="right">
           <div id="tool">
-            <span class="iconfont iconyidong"></span>
+            <!--  <span class="iconfont iconyidong"></span>
             <span class="iconfont iconshuaxin1"></span>
-            <span class="iconfont iconbianji"></span>
+            <span class="iconfont iconbianji"></span> -->
 
             <span
               v-if="!$attrs.showFullType"
@@ -27,36 +27,36 @@
 </template>
 
 <script>
-  //commonTitle.vue --> cloundMointor.vue -->index.vue     eventBus
-  //indexvue -->cloundMointor.vue --->commonTitle.vue      $attrs
-  //indexvue -->fullChart--->cloundMointor.vue --->commonTitle.vue   $attrs
-  import planeTitle from '@/components/titile/planeTitle.vue';
-  import eventBus from '@/components/utils/eventBus.js';
-  export default {
-    components: { planeTitle },
-    // props: ['titleName', 'titleID', 'showFullType'],
-    data() {
-      return {};
-    },
+//commonTitle.vue --> cloundMointor.vue -->index.vue     eventBus
+//indexvue -->cloundMointor.vue --->commonTitle.vue      $attrs
+//indexvue -->fullChart--->cloundMointor.vue --->commonTitle.vue   $attrs
+import planeTitle from '@/components/titile/planeTitle.vue';
+import eventBus from '@/components/utils/eventBus.js';
+export default {
+  components: { planeTitle },
+  // props: ['titleName', 'titleID', 'showFullType'],
+  data() {
+    return {};
+  },
 
-    methods: {
-      fullChart(type, titleName, titleID = '') {
-        eventBus.$emit('fullChart', type, titleName, titleID);
-      },
+  methods: {
+    fullChart(type, titleName, titleID = '') {
+      eventBus.$emit('fullChart', type, titleName, titleID);
     },
-  };
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  #tool {
-    .iconfont {
-      margin: 0 10px;
-      font-size: 16px;
-      color: #06a5ff;
-      cursor: pointer;
-    }
-    .full {
-      font-size: 18px;
-    }
+#tool {
+  .iconfont {
+    margin: 0 10px;
+    font-size: 16px;
+    color: #06a5ff;
+    cursor: pointer;
   }
+  .full {
+    font-size: 18px;
+  }
+}
 </style>
