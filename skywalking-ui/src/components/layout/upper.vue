@@ -77,13 +77,20 @@
 <script>
 // 接口地址
 import hongtuConfig from '@/utils/services';
-import { password1, password2 } from '@/components/commonVaildate.js';
+import { password1, english, password2 } from '@/components/commonVaildate.js';
 import { removeToken } from '@/utils/auth';
 import request from '@/utils/request';
 import { createWebSocket } from '@/components/utils/WebSocket.js';
 export default {
   data() {
     const passwordValidate = (rule, value, callback) => {
+      if (password1(value) || english(value) || password2(value)) {
+        callback(new Error('请输入8-20位（数字，字母）或（数字，字母，特殊字符）的组合密码'));
+      } else {
+        callback();
+      }
+    };
+    const passwordValidate2 = (rule, value, callback) => {
       if (value != this.formDialogWord.newPassword) {
         callback(new Error('2次密码不一致，请确认'));
       } else {
@@ -104,17 +111,9 @@ export default {
             message: '密码在8-20位之间',
             trigger: 'blur',
           },
-          ,
-        ],
-        newPassword2: [
           { required: true, validator: passwordValidate, trigger: 'blur' },
-          {
-            min: 8,
-            max: 20,
-            message: '密码在8-20位之间',
-            trigger: 'blur',
-          },
         ],
+        newPassword2: [{ required: true, validator: passwordValidate2, trigger: 'blur' }],
       }, //规则
     };
   },
@@ -140,12 +139,12 @@ export default {
     handleOk() {
       this.$refs.formModel.validate((valid) => {
         if (valid) {
-          hongtuConfig.updatePwd(this.formDialogWord.newPassword, this.formDialogWord.oldPassword).then((response) => {
+          /*  hongtuConfig.updatePwd(this.formDialogWord.newPassword, this.formDialogWord.oldPassword).then((response) => {
             if (response.code == 200) {
               this.$message.success('重置成功');
               this.visibleModelPassword = false;
             }
-          });
+          }); */
         } else {
           console.log('error submit!!');
           return false;

@@ -3,11 +3,11 @@
  * 8-20位（数字，字母）或（数字，字母，特殊字符）的组合密码
  */
 export function password1(str) {
-  const reg = /^(?=.*?[a-z])(?=.*?[0-9])(?=.*?[_\-@&=])[a-z0-9_\-@&=]{8,20}$/
+  const reg = /^[^\u4e00-\u9fa5]*$/
   return reg.test(str)
 }
 export function password2(str) {
-  const reg = /^[A-Za-z0-9]]{8,20}$/
+  const reg = /^[0-9]+$/
   return reg.test(str)
 }
 /**
