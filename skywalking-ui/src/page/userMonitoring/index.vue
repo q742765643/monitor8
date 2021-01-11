@@ -50,6 +50,7 @@
                 hideDisabledOptions: true,
                 defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
               }"
+<<<<<<< HEAD
             /> -->
 
             <el-date-picker
@@ -63,6 +64,11 @@
               align="right"
             >
             </el-date-picker>
+            ======= />
+
+            <!--
+              v-model="queryParams.dateRange"  -->
+            >>>>>>> 7325c080115f7b3bcca22611f111bc0159bea5b4
           </a-form-model-item>
           <a-form-model-item>
             <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
