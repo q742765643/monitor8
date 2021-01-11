@@ -2,11 +2,11 @@
   <div class="upper">
     <div class="left">
       <div class="date">
-        <div class="day">{{date}}</div>
-        <div class="week">{{week}}</div>
+        <div class="day">{{ date }}</div>
+        <div class="week">{{ week }}</div>
       </div>
       <div class="time">
-        <span>{{time}}</span>
+        <span>{{ time }}</span>
       </div>
     </div>
     <div class="right">
@@ -47,7 +47,7 @@ export default {
     this.timer = null;
   },
   methods: {
-    getTime: function() {
+    getTime: function () {
       moment.locale('zh-cn');
       this.date = moment().format('YYYY-MM-DD');
       this.week = moment().format('dddd');

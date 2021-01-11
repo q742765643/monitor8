@@ -177,262 +177,266 @@
 </template>
 
 <script>
-  import echarts from 'echarts';
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
-  import Treeselect from '@riophae/vue-treeselect';
-  import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-  import moment from 'moment';
-  export default {
-    components: { Treeselect },
-    data() {
-      return {
-        chosedName: '',
-        queryParams: {
-          visible: '',
-          menuName: '',
+import echarts from 'echarts';
+// 接口地址
+import hongtuConfig from '@/utils/services';
+import Treeselect from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import moment from 'moment';
+export default {
+  components: { Treeselect },
+  data() {
+    return {
+      chosedName: '',
+      queryParams: {
+        visible: '',
+        menuName: '',
+      },
+      tableData: [], //表格
+      paginationTotal: 0,
+      visibleModel: false, //弹出框
+      dialogTitle: '',
+      // 菜单树选项
+      menuOptions: [],
+      formDialog: {
+        // taskName: '',
+        // menuType: 'M',
+        // isFrame: '0',
+        // visible: '1',
+      },
+      rules: {
+        menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
+        orderNum: [{ required: true, message: '请输入排序', trigger: 'blur' }],
+      }, //规则
+      iconList: [
+        {
+          icon: 'iconicon-test',
+          name: '综合监控',
         },
-        tableData: [], //表格
-        paginationTotal: 0,
-        visibleModel: false, //弹出框
-        dialogTitle: '',
-        // 菜单树选项
-        menuOptions: [],
-        formDialog: {
-          // taskName: '',
-          // menuType: 'M',
-          // isFrame: '0',
-          // visible: '1',
+        {
+          icon: 'iconchains',
+          name: '链路发现',
         },
-        rules: {
-          menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
-          orderNum: [{ required: true, message: '请输入排序', trigger: 'blur' }],
-        }, //规则
-        iconList: [
-          {
-            icon: 'iconicon-test',
-            name: '综合监控',
-          },
-          {
-            icon: 'iconchains',
-            name: '链路发现',
-          },
-          {
-            icon: 'iconshezhi',
-            name: '设置',
-          },
-          {
-            icon: 'iconxianshiqi',
-            name: '主机监视',
-          },
-          {
-            icon: 'iconthree',
-            name: '业务视图',
-          },
-          {
-            icon: 'iconyewu',
-            name: '文件监控',
-          },
-          {
-            icon: 'iconlaba',
-            name: '告警管理',
-          },
-          {
-            icon: 'iconyonghu',
-            name: '用户管理',
-          },
-        ],
-        imgcode: '',
-        visibleOptions: [],
-      };
-    },
-    created() {
-      hongtuConfig.getDicts('sys_show_hide').then((res) => {
-        if (res.code == 200) {
-          this.visibleOptions = res.data;
-        }
-      });
+        {
+          icon: 'iconshezhi',
+          name: '设置',
+        },
+        {
+          icon: 'iconxianshiqi',
+          name: '主机监视',
+        },
+        {
+          icon: 'iconthree',
+          name: '业务视图',
+        },
+        {
+          icon: 'iconyewu',
+          name: '文件监控',
+        },
+        {
+          icon: 'iconlaba',
+          name: '告警管理',
+        },
+        {
+          icon: 'iconyonghu',
+          name: '用户管理',
+        },
+      ],
+      imgcode: '',
+      visibleOptions: [],
+    };
+  },
+  created() {
+    hongtuConfig.getDicts('sys_show_hide').then((res) => {
+      if (res.code == 200) {
+        this.visibleOptions = res.data;
+      }
+    });
+    this.queryTable();
+  },
+  // mounted() {
+  //   hongtuConfig.captchaImage().then((response) => {
+  //     this.imgcode = response.data.code;
+  //   });
+  // },
+  methods: {
+    /* 查询 */
+    handleQuery() {
       this.queryTable();
     },
-    // mounted() {
-    //   hongtuConfig.captchaImage().then((response) => {
-    //     this.imgcode = response.data.code;
-    //   });
-    // },
-    methods: {
-      /* 查询 */
-      handleQuery() {
-        this.queryTable();
-      },
-      /* 重置 */
-      resetQuery() {
-        this.queryParams = {
-          menuName: undefined,
-          visible: '',
-        };
-        this.queryTable();
-      },
+    /* 重置 */
+    resetQuery() {
+      this.queryParams = {
+        menuName: undefined,
+        visible: '',
+      };
+      this.queryTable();
+    },
 
-      /* table方法 */
-      queryTable() {
-        hongtuConfig.menuList(this.queryParams).then((response) => {
-          this.tableData = response.data;
-          console.log(response.data);
-        });
-      },
-      /* 字典格式化 */
-      statusFormat(list, text) {
-        return hongtuConfig.formatterselectDictLabel(list, text);
-      },
-      handleAdd() {
-        /* 新增 */
-        this.reset();
-        this.getTreeselect();
-        console.log(this.menuOptions);
-        this.dialogTitle = '新增';
-        this.formDialog = {
-          taskName: '',
-          orderNum: '',
-          menuType: 'M',
-          isFrame: 0,
-          visible: '1',
-        };
-        this.visibleModel = true;
-      },
-      /** 查询菜单下拉树结构 */
-      getTreeselect() {
-        hongtuConfig.menuTreeselect().then((res) => {
-          console.log(res);
-          this.menuOptions = [];
-          const menu = { id: 0, label: '主类目', children: [] };
-          if (this.dialogTitle == '修改菜单') {
-            menu.children = res.data;
-            this.resetData(menu.children, this.formDialog.menuName);
-            console.log(menu.children);
-          } else {
-            menu.children = res.data;
-          }
-          this.menuOptions.push(menu);
-        });
-      },
-      resetData(dataArr, name) {
-        for (var i in dataArr) {
-          if (dataArr[i].label == name) {
-            dataArr[i].isDisabled = true;
-          } else {
-            this.resetData(dataArr[i].children, name);
-          }
-        }
-      },
-      // 表单重置
-      reset() {
-        this.formDialog = {
-          id: undefined,
-          parentId: 0,
-          menuName: undefined,
-          icon: undefined,
-          menuType: 'M',
-          orderNum: undefined,
-          isFrame: 1,
-          visible: '',
-        };
-        // this.resetForm("formModel");
-        // this.formDialog.parentId = undefined
-      },
-      /* 编辑 */
-      handleEdit(row) {
-        this.reset();
-        console.log(this.formDialog.parentId);
-        this.getTreeselect();
-        hongtuConfig.getMenu(row.id).then((response) => {
-          if (response.code == 200) {
-            this.formDialog = response.data;
-            // this.iconList.forEach((element) => {
-            //   if (element.icon == this.formDialog.icon) {
-            //     this.chosedName = element.name;
-            //   }
-            // });
-            this.visibleModel = true;
-            this.dialogTitle = '修改菜单';
-          }
-        });
-      },
-      /* 确认 */
-      handleOk() {
-        console.log(this.formDialog);
-        this.$refs.formModel.validate((valid) => {
-          if (valid) {
-            if (this.formDialog.id) {
-              hongtuConfig.updateMenu(this.formDialog).then((response) => {
-                if (response.code == 200) {
-                  this.$message.success(this.dialogTitle + '成功');
-                  this.visibleModel = false;
-                  this.queryTable();
-                }
-              });
-            } else {
-              hongtuConfig.addMenu(this.formDialog).then((res) => {
-                if (res.code == 200) {
-                  this.$message.success('新增成功');
-                  this.visibleModel = false;
-                  this.queryTable();
-                }
-              });
-            }
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      handleCancel() {
-        this.visibleModel = false;
-        this.reset();
-      },
-      // handleLogin() {
-      //   let obj = {
-      //     username: 'admin',
-      //     password: '2020Sod123',
-      //     code: this.imgcode,
-      //     uuid: '15812e460ae548dca98143f3bac93b4f',
-      //   };
-      //   hongtuConfig.userLogin(this.imgcode).then((response) => {
-      //     alert('111');
-      //   });
-      // },
-      /* 删除 */
-      handleDelete(row) {
-        let ids = [];
-        let taskNames = [];
-        if (!row.id) {
-          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            ids.push(element.id);
-            taskNames.push(element.menuName);
-          });
+    /* table方法 */
+    queryTable() {
+      hongtuConfig.menuList(this.queryParams).then((response) => {
+        this.tableData = response.data;
+        console.log(response.data);
+      });
+    },
+    /* 字典格式化 */
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
+    },
+    handleAdd() {
+      /* 新增 */
+      this.reset();
+      this.getTreeselect();
+      console.log(this.menuOptions);
+      this.dialogTitle = '新增';
+      this.formDialog = {
+        taskName: '',
+        orderNum: '',
+        menuType: 'M',
+        isFrame: 0,
+        visible: '1',
+      };
+      this.visibleModel = true;
+    },
+    /** 查询菜单下拉树结构 */
+    getTreeselect() {
+      hongtuConfig.menuTreeselect().then((res) => {
+        console.log(res);
+        this.menuOptions = [];
+        const menu = { id: 0, label: '主类目', children: [] };
+        if (this.dialogTitle == '修改菜单') {
+          menu.children = res.data;
+          this.resetData(menu.children, this.formDialog.menuName);
+          console.log(menu.children);
         } else {
-          ids.push(row.id);
-          taskNames.push(row.menuName);
+          menu.children = res.data;
         }
-        this.$confirm({
-          title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
-          content: '',
-          okText: '是',
-          okType: 'danger',
-          cancelText: '否',
-          onOk: () => {
-            hongtuConfig.delMenu(ids.join(',')).then((response) => {
+        this.menuOptions.push(menu);
+      });
+    },
+    resetData(dataArr, name) {
+      for (var i in dataArr) {
+        if (dataArr[i].label == name) {
+          dataArr[i].isDisabled = true;
+        } else {
+          this.resetData(dataArr[i].children, name);
+        }
+      }
+    },
+    // 表单重置
+    reset() {
+      this.formDialog = {
+        id: undefined,
+        parentId: 0,
+        menuName: undefined,
+        icon: undefined,
+        menuType: 'M',
+        orderNum: undefined,
+        isFrame: 1,
+        visible: '',
+      };
+      // this.resetForm("formModel");
+      // this.formDialog.parentId = undefined
+    },
+    /* 编辑 */
+    handleEdit(row) {
+      this.reset();
+      console.log(this.formDialog.parentId);
+      this.getTreeselect();
+      hongtuConfig.getMenu(row.id).then((response) => {
+        if (response.code == 200) {
+          this.formDialog = response.data;
+          // this.iconList.forEach((element) => {
+          //   if (element.icon == this.formDialog.icon) {
+          //     this.chosedName = element.name;
+          //   }
+          // });
+          this.visibleModel = true;
+          this.dialogTitle = '修改菜单';
+        }
+      });
+    },
+    /* 确认 */
+    handleOk() {
+      console.log(this.formDialog);
+      this.$refs.formModel.validate((valid) => {
+        if (valid) {
+          if (this.formDialog.id) {
+            hongtuConfig.updateMenu(this.formDialog).then((response) => {
               if (response.code == 200) {
-                this.$message.success('删除成功');
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
                 this.queryTable();
               }
             });
-          },
-          onCancel() {},
-        });
-      },
+          } else {
+            hongtuConfig.addMenu(this.formDialog).then((res) => {
+              if (res.code == 200) {
+                this.$message.success('新增成功');
+                this.visibleModel = false;
+                this.queryTable();
+              }
+            });
+          }
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
     },
-  };
+    handleCancel() {
+      this.visibleModel = false;
+      this.reset();
+    },
+    // handleLogin() {
+    //   let obj = {
+    //     username: 'admin',
+    //     password: '2020Sod123',
+    //     code: this.imgcode,
+    //     uuid: '15812e460ae548dca98143f3bac93b4f',
+    //   };
+    //   hongtuConfig.userLogin(this.imgcode).then((response) => {
+    //     alert('111');
+    //   });
+    // },
+    /* 删除 */
+    handleDelete(row) {
+      let ids = [];
+      let taskNames = [];
+      if (!row.id) {
+        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+          taskNames.push(element.menuName);
+        });
+      } else {
+        ids.push(row.id);
+        taskNames.push(row.menuName);
+      }
+      if (taskNames.length == 0) {
+        this.$message.error('请选择一条数据');
+        return;
+      }
+      this.$confirm({
+        title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
+        content: '',
+        okText: '是',
+        okType: 'danger',
+        cancelText: '否',
+        onOk: () => {
+          hongtuConfig.delMenu(ids.join(',')).then((response) => {
+            if (response.code == 200) {
+              this.$message.success('删除成功');
+              this.queryTable();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped></style>

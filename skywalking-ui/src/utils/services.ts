@@ -1017,6 +1017,19 @@ const dataService = {
           reject(err)
         })
     })
+  },
+  // 重置密码 resetUserPwd
+  updatePwd(newPassword: String, OldPassword: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/user/profile/updatePwd?newPassword=' + newPassword + '&oldPassword=' + OldPassword)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
   }
 };
 

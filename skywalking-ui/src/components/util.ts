@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import fileDownload from 'js-file-download';
-export function parseTime(time:any, pattern:String) {
+export function parseTime(time: any, pattern: String) {
   if (arguments.length === 0) {
     return null
   }
@@ -18,7 +18,7 @@ export function parseTime(time:any, pattern:String) {
     date = new Date(time);
     // date.setHours(date.getHours() - 8);
   }
-  const formatObj:any= {
+  const formatObj: any = {
     y: date.getFullYear(),
     m: date.getMonth() + 1,
     d: date.getDate(),
@@ -41,7 +41,7 @@ export function parseTime(time:any, pattern:String) {
   return time_str
 }
 
-export function parseDate(time:any, pattern:String) {
+export function parseDate(time: any, pattern: String) {
   if (arguments.length === 0) {
     return null
   }
@@ -59,7 +59,7 @@ export function parseDate(time:any, pattern:String) {
     date = new Date(time);
     // date.setHours(date.getHours() - 8);
   }
-  const formatObj:any= {
+  const formatObj: any = {
     y: date.getFullYear(),
     m: date.getMonth() + 1,
     d: date.getDate(),
@@ -80,7 +80,7 @@ export function parseDate(time:any, pattern:String) {
 }
 
 // 表单重置
-export function resetForm(refName:any) {
+export function resetForm(refName: any) {
   // @ts-ignore
   if (this.$refs[refName] !== undefined) {
     // @ts-ignore
@@ -89,8 +89,7 @@ export function resetForm(refName:any) {
 }
 
 // 添加日期范围
-export function addDateRange(params:any, dateRange:any) {
-  debugger
+export function addDateRange(params: any, dateRange: any) {
   var search = params;
   var orderBy = {};
   if (search.params) {
@@ -107,18 +106,17 @@ export function addDateRange(params:any, dateRange:any) {
       orderBy: orderBy
     };
   }
-  debugger
   return search;
 }
 
-export function getDicts(dictType:String) {
+export function getDicts(dictType: String) {
   return request({
     url: '/system/dict/data/dictType/' + dictType,
     method: 'get'
   })
 }
-export function selectDictLabel(datas:any, value:String) {
-  var actions:any = [];
+export function selectDictLabel(datas: any, value: String) {
+  var actions: any = [];
   Object.keys(datas).map((key) => {
     if (datas[key].dictValue == ('' + value)) {
       actions.push(datas[key].dictLabel);
@@ -127,7 +125,7 @@ export function selectDictLabel(datas:any, value:String) {
   })
   return actions.join('');
 }
-export function downloadfileCommon(res:any) {
+export function downloadfileCommon(res: any) {
   console.log(res)
   if (!res) {
     // @ts-ignore
