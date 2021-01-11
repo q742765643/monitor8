@@ -1,20 +1,22 @@
 <template>
   <div id="reportTemplate">
-    <selectDate @changeDate="changeDate"></selectDate>
+    <div class="hasHandleExportBox">
+      <selectDate @changeDate="changeDate"></selectDate>
+      <a-row type="flex" class="rowToolbar" :gutter="10">
+        <a-col :span="1.5">
+          <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
+        </a-col>
+      </a-row>
+    </div>
+
     <div class="tableDateBox">
       <div id="barlineChart"></div>
       <div id="toolbar">
         <vxe-toolbar custom>
-          <template v-slot:buttons>
-            <a-row type="flex" class="rowToolbar" :gutter="10">
-              <a-col :span="1.5">
-                <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
-              </a-col>
-              <a-col :span="1.5">
-                <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
-              </a-col>
-            </a-row>
-          </template>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
         </vxe-toolbar>
       </div>
 
@@ -43,268 +45,268 @@
 </template>
 
 <script>
-  import echarts from 'echarts';
-  import { remFontSize } from '@/components/utils/fontSize.js';
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
-  import selectDate from '@/components/date/select.vue';
-  import Qs from 'qs';
-  import request from '@/utils/request';
-  export default {
-    data() {
-      return {
-        total: 0,
-        queryParams: {
-          pageNum: 1,
-          pageSize: 10000,
-          deviceType: 1,
+import echarts from 'echarts';
+import { remFontSize } from '@/components/utils/fontSize.js';
+// 接口地址
+import hongtuConfig from '@/utils/services';
+import selectDate from '@/components/date/select.vue';
+import Qs from 'qs';
+import request from '@/utils/request';
+export default {
+  data() {
+    return {
+      total: 0,
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10000,
+        deviceType: 1,
+      },
+      currentStatusOptions: [],
+      monitoringMethodsOptions: [],
+      areaOptions: [],
+      Xdata: [],
+      series: [],
+      Ydata: [],
+      charts: [],
+      colors: ['#428AFF', '#6c50f3', '#00ca95'],
+      chartType: ['bar', 'line', 'line'],
+      name: ['在线时长', '平均丢包率', '最大丢包率'],
+      tableData: [],
+      dateRange: [],
+    };
+  },
+  components: { selectDate },
+  created() {
+    this.getDicts('current_status').then((response) => {
+      this.currentStatusOptions = response.data;
+    });
+    this.getDicts('monitoring_methods').then((response) => {
+      this.monitoringMethodsOptions = response.data;
+    });
+    this.getDicts('media_area').then((response) => {
+      this.areaOptions = response.data;
+    });
+  },
+  mounted() {
+    window.addEventListener('resize', () => {
+      this.charts.resize();
+    });
+  },
+  methods: {
+    exportEventPdf() {
+      this.queryParams.alarmChart = this.getFullCanvasDataURL('barlineChart');
+      let params = this.addDateRange(this.queryParams, this.dateRange);
+      params.params = JSON.stringify(params.params);
+      request({
+        url: '/report/exportPdfLink',
+        method: 'post',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: Qs.stringify(params),
+        responseType: 'arraybuffer',
+      }).then((res) => {
+        this.downloadfileCommon(res);
+      });
+    },
+    exportEventXls() {
+      this.queryParams.alarmChart = this.getFullCanvasDataURL('barlineChart');
+      let params = this.addDateRange(this.queryParams, this.dateRange);
+      params.params = JSON.stringify(params.params);
+      request({
+        url: '/report/exportExcelLink',
+        method: 'post',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: Qs.stringify(params),
+        responseType: 'arraybuffer',
+      }).then((res) => {
+        this.downloadfileCommon(res);
+      });
+    },
+    getFullCanvasDataURL(divId) {
+      //将第一个画布作为基准。
+      var baseCanvas = $('#' + divId)
+        .find('canvas')
+        .first()[0];
+      if (!baseCanvas) {
+        return false;
+      }
+      var width = baseCanvas.width;
+      var height = baseCanvas.height;
+      var ctx = baseCanvas.getContext('2d');
+      //遍历，将后续的画布添加到在第一个上
+      $('#' + divId)
+        .find('canvas')
+        .each(function (i, canvasObj) {
+          if (i > 0) {
+            var canvasTmp = $(canvasObj)[0];
+            ctx.drawImage(canvasTmp, 0, 0, width, height);
+          }
+        });
+      //获取base64位的url
+      return baseCanvas.toDataURL();
+    },
+    changeDate(data) {
+      this.dateRange = data;
+      this.fetch();
+    },
+    formatCurrentStatus({ cellValue }) {
+      return this.selectDictLabel(this.currentStatusOptions, cellValue);
+    },
+    formatMonitoringMethods({ cellValue }) {
+      return this.selectDictLabel(this.monitoringMethodsOptions, cellValue);
+    },
+    formatArea({ cellValue }) {
+      return this.selectDictLabel(this.areaOptions, cellValue);
+    },
+
+    drawChart(id) {
+      this.charts = echarts.init(document.getElementById(id));
+      let options = {
+        textStyle: {
+          fontFamily: 'Alibaba-PuHuiTi-Regular',
         },
-        currentStatusOptions: [],
-        monitoringMethodsOptions: [],
-        areaOptions: [],
-        Xdata: [],
-        series: [],
-        Ydata: [],
-        charts: [],
-        colors: ['#428AFF', '#6c50f3', '#00ca95'],
-        chartType: ['bar', 'line', 'line'],
-        name: ['在线时长', '平均丢包率', '最大丢包率'],
-        tableData: [],
-        dateRange: [],
-      };
-    },
-    components: { selectDate },
-    created() {
-      this.getDicts('current_status').then((response) => {
-        this.currentStatusOptions = response.data;
-      });
-      this.getDicts('monitoring_methods').then((response) => {
-        this.monitoringMethodsOptions = response.data;
-      });
-      this.getDicts('media_area').then((response) => {
-        this.areaOptions = response.data;
-      });
-    },
-    mounted() {
-      window.addEventListener('resize', () => {
-        this.charts.resize();
-      });
-    },
-    methods: {
-      exportEventPdf() {
-        this.queryParams.alarmChart = this.getFullCanvasDataURL('barlineChart');
-        let params = this.addDateRange(this.queryParams, this.dateRange);
-        params.params = JSON.stringify(params.params);
-        request({
-          url: '/report/exportPdfLink',
-          method: 'post',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          data: Qs.stringify(params),
-          responseType: 'arraybuffer',
-        }).then((res) => {
-          this.downloadfileCommon(res);
-        });
-      },
-      exportEventXls() {
-        this.queryParams.alarmChart = this.getFullCanvasDataURL('barlineChart');
-        let params = this.addDateRange(this.queryParams, this.dateRange);
-        params.params = JSON.stringify(params.params);
-        request({
-          url: '/report/exportExcelLink',
-          method: 'post',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          data: Qs.stringify(params),
-          responseType: 'arraybuffer',
-        }).then((res) => {
-          this.downloadfileCommon(res);
-        });
-      },
-      getFullCanvasDataURL(divId) {
-        //将第一个画布作为基准。
-        var baseCanvas = $('#' + divId)
-          .find('canvas')
-          .first()[0];
-        if (!baseCanvas) {
-          return false;
-        }
-        var width = baseCanvas.width;
-        var height = baseCanvas.height;
-        var ctx = baseCanvas.getContext('2d');
-        //遍历，将后续的画布添加到在第一个上
-        $('#' + divId)
-          .find('canvas')
-          .each(function(i, canvasObj) {
-            if (i > 0) {
-              var canvasTmp = $(canvasObj)[0];
-              ctx.drawImage(canvasTmp, 0, 0, width, height);
-            }
-          });
-        //获取base64位的url
-        return baseCanvas.toDataURL();
-      },
-      changeDate(data) {
-        this.dateRange = data;
-        this.fetch();
-      },
-      formatCurrentStatus({ cellValue }) {
-        return this.selectDictLabel(this.currentStatusOptions, cellValue);
-      },
-      formatMonitoringMethods({ cellValue }) {
-        return this.selectDictLabel(this.monitoringMethodsOptions, cellValue);
-      },
-      formatArea({ cellValue }) {
-        return this.selectDictLabel(this.areaOptions, cellValue);
-      },
-
-      drawChart(id) {
-        this.charts = echarts.init(document.getElementById(id));
-        let options = {
+        title: {
+          text: '全网链路运行情况表',
+          left: 'center',
+          top: '10px',
           textStyle: {
-            fontFamily: 'Alibaba-PuHuiTi-Regular',
+            fontSize: remFontSize(14 / 64),
           },
-          title: {
-            text: '全网链路运行情况表',
-            left: 'center',
-            top: '10px',
-            textStyle: {
-              fontSize: remFontSize(14 / 64),
+        },
+        legend: {
+          data: this.name,
+          top: '10%',
+          textStyle: {
+            fontSize: remFontSize(13 / 64),
+          },
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            crossStyle: {
+              color: '#999',
             },
           },
-          legend: {
-            data: this.name,
-            top: '10%',
-            textStyle: {
-              fontSize: remFontSize(13 / 64),
-            },
+        },
+
+        grid: {
+          top: '20%',
+          bottom: '6%',
+        },
+        toolbox: {
+          feature: {
+            dataView: { show: true, readOnly: false },
+            magicType: { show: true, type: ['line', 'bar'] },
+            restore: { show: true },
+            saveAsImage: { show: true },
           },
-          tooltip: {
-            trigger: 'axis',
+        },
+
+        xAxis: [
+          {
+            type: 'category',
+            data: this.Xdata,
             axisPointer: {
-              type: 'cross',
-              crossStyle: {
-                color: '#999',
-              },
+              type: 'shadow',
+            },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
             },
           },
-
-          grid: {
-            top: '20%',
-            bottom: '6%',
-          },
-          toolbox: {
-            feature: {
-              dataView: { show: true, readOnly: false },
-              magicType: { show: true, type: ['line', 'bar'] },
-              restore: { show: true },
-              saveAsImage: { show: true },
+        ],
+        yAxis: [
+          {
+            min: 0,
+            interval: 500,
+            type: 'value',
+            name: '在线时长',
+            axisLabel: {
+              formatter: '{value} h',
+              fontSize: 12,
             },
           },
-
-          xAxis: [
-            {
-              type: 'category',
-              data: this.Xdata,
-              axisPointer: {
-                type: 'shadow',
-              },
-              axisLabel: {
-                fontSize: remFontSize(12 / 64),
-              },
+          {
+            type: 'value',
+            name: '平均/最大丢包率',
+            min: 0,
+            max: 100,
+            interval: 20,
+            axisLabel: {
+              formatter: '{value}%',
+              fontSize: 12,
             },
-          ],
-          yAxis: [
-            {
-              min: 0,
-              interval: 500,
-              type: 'value',
-              name: '在线时长',
-              axisLabel: {
-                formatter: '{value} h',
-                fontSize: 12,
-              },
-            },
-            {
-              type: 'value',
-              name: '平均/最大丢包率',
-              min: 0,
-              max: 100,
-              interval: 20,
-              axisLabel: {
-                formatter: '{value}%',
-                fontSize: 12,
-              },
-            },
-          ],
-          series: this.series,
-        };
+          },
+        ],
+        series: this.series,
+      };
 
-        this.charts.setOption(options);
-      },
-      fetch() {
-        this.queryParams.alarmChart = '';
-        hongtuConfig.reportList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
-          if (res.code == 200) {
-            this.total = res.data.totalCount;
-            this.tableData = res.data.pageData;
-            this.chart();
-            this.drawChart('barlineChart');
-          }
-        });
-      },
-      chart() {
-        let Ydata1 = [],
-          Ydata2 = [],
-          Ydata3 = [];
-        this.Xdata = [];
-        this.Ydata = [];
-        this.tableData.forEach((item, index) => {
-          this.Xdata.push(item.ip);
-          Ydata1.push(parseFloat(item.maxUptime));
-          Ydata2.push(parseFloat(item.avgPacketPct));
-          Ydata3.push(parseFloat(item.maxPacketPct));
-        });
-
-        this.Ydata.push(Ydata1, Ydata2, Ydata3);
-        this.series = this.chartType.map((item, index) => {
-          let obj = {};
-          obj.name = this.name[index];
-          obj.type = item;
-          obj.data = this.Ydata[index];
-          if (item == 'bar') {
-            obj.barWidth = '40%';
-            obj.itemStyle = {
-              color: this.colors[index],
-            };
-          } else {
-            obj.lineStyle = {
-              normal: {
-                color: this.colors[index],
-              },
-            };
-          }
-
-          if (obj.type == 'bar') {
-            obj.yAxisIndex = 0;
-          } else {
-            obj.yAxisIndex = 1;
-          }
-          return obj;
-        });
-      },
+      this.charts.setOption(options);
     },
-  };
+    fetch() {
+      this.queryParams.alarmChart = '';
+      hongtuConfig.reportList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
+        if (res.code == 200) {
+          this.total = res.data.totalCount;
+          this.tableData = res.data.pageData;
+          this.chart();
+          this.drawChart('barlineChart');
+        }
+      });
+    },
+    chart() {
+      let Ydata1 = [],
+        Ydata2 = [],
+        Ydata3 = [];
+      this.Xdata = [];
+      this.Ydata = [];
+      this.tableData.forEach((item, index) => {
+        this.Xdata.push(item.ip);
+        Ydata1.push(parseFloat(item.maxUptime));
+        Ydata2.push(parseFloat(item.avgPacketPct));
+        Ydata3.push(parseFloat(item.maxPacketPct));
+      });
+
+      this.Ydata.push(Ydata1, Ydata2, Ydata3);
+      this.series = this.chartType.map((item, index) => {
+        let obj = {};
+        obj.name = this.name[index];
+        obj.type = item;
+        obj.data = this.Ydata[index];
+        if (item == 'bar') {
+          obj.barWidth = '40%';
+          obj.itemStyle = {
+            color: this.colors[index],
+          };
+        } else {
+          obj.lineStyle = {
+            normal: {
+              color: this.colors[index],
+            },
+          };
+        }
+
+        if (obj.type == 'bar') {
+          obj.yAxisIndex = 0;
+        } else {
+          obj.yAxisIndex = 1;
+        }
+        return obj;
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  #reportTemplate {
-    width: 100%;
-    .tableDataBox {
-      background: #fff;
-    }
-    #barlineChart {
-      width: 900px;
-      height: 50%;
-      margin: auto;
-    }
+#reportTemplate {
+  width: 100%;
+  .tableDataBox {
+    background: #fff;
   }
+  #barlineChart {
+    width: 900px;
+    height: 50%;
+    margin: auto;
+  }
+}
 </style>

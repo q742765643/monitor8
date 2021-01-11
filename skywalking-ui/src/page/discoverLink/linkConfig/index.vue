@@ -112,7 +112,7 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="备注" prop="jobDesc">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="备注" prop="jobDesc">
               <a-input type="textarea" v-model="formDialog.jobDesc" placeholder="请输入备注内容"> </a-input>
             </a-form-model-item>
           </a-col>
@@ -123,156 +123,156 @@
 </template>
 
 <script>
-  import echarts from 'echarts';
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
-  import request from '@/utils/request';
-  export default {
-    data() {
-      return {
-        queryParams: {
-          pageNum: 1,
-          pageSize: 10,
-          taskName: '',
-          triggerStatus: '',
-        },
-        triggerStatusOptions: [], //运行状态
-        tableData: [], //表格
-        paginationTotal: 0,
-        visibleModel: false, //弹出框
-        dialogTitle: '',
-        formDialog: {
-          taskName: '',
-          ipRange: '',
-          jobCron: '',
-          triggerStatus: '',
-          jobDesc: '',
-        },
-        rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
-      };
-    },
-    created() {
-      hongtuConfig.getDicts('job_trigger_status').then((res) => {
-        if (res.code == 200) {
-          this.triggerStatusOptions = res.data;
-        }
-      });
+import echarts from 'echarts';
+// 接口地址
+import hongtuConfig from '@/utils/services';
+import request from '@/utils/request';
+export default {
+  data() {
+    return {
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+        taskName: '',
+        triggerStatus: '',
+      },
+      triggerStatusOptions: [], //运行状态
+      tableData: [], //表格
+      paginationTotal: 0,
+      visibleModel: false, //弹出框
+      dialogTitle: '',
+      formDialog: {
+        taskName: '',
+        ipRange: '',
+        jobCron: '',
+        triggerStatus: '',
+        jobDesc: '',
+      },
+      rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
+    };
+  },
+  created() {
+    hongtuConfig.getDicts('job_trigger_status').then((res) => {
+      if (res.code == 200) {
+        this.triggerStatusOptions = res.data;
+      }
+    });
+    this.queryTable();
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.setTableHeight();
+    });
+    window.addEventListener('resize', () => {
+      this.setTableHeight();
+    });
+  },
+  methods: {
+    /* 查询 */
+    handleQuery() {
+      this.queryParams.pageNum = 1;
       this.queryTable();
     },
-    mounted() {
-      this.$nextTick(() => {
-        this.setTableHeight();
-      });
-      window.addEventListener('resize', () => {
-        this.setTableHeight();
+    /* 重置 */
+    resetQuery() {
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10,
+        ip: '',
+        triggerStatus: '',
+      };
+      this.queryTable();
+    },
+    /* 翻页 */
+    handlePageChange({ currentPage, pageSize }) {
+      this.queryParams.pageNum = currentPage;
+      this.queryParams.pageSize = pageSize;
+      this.queryTable();
+    },
+    /* table方法 */
+    queryTable() {
+      hongtuConfig.autoDiscoveryList(this.queryParams).then((response) => {
+        this.tableData = response.data.pageData;
+        this.paginationTotal = response.data.totalCount;
       });
     },
-    methods: {
-      /* 查询 */
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.queryTable();
-      },
-      /* 重置 */
-      resetQuery() {
-        this.queryParams = {
-          pageNum: 1,
-          pageSize: 10,
-          ip: '',
-          triggerStatus: '',
-        };
-        this.queryTable();
-      },
-      /* 翻页 */
-      handlePageChange({ currentPage, pageSize }) {
-        this.queryParams.pageNum = currentPage;
-        this.queryParams.pageSize = pageSize;
-        this.queryTable();
-      },
-      /* table方法 */
-      queryTable() {
-        hongtuConfig.autoDiscoveryList(this.queryParams).then((response) => {
-          this.tableData = response.data.pageData;
-          this.paginationTotal = response.data.totalCount;
-        });
-      },
 
-      /* 字典格式化 */
-      statusFormat(list, text) {
-        return hongtuConfig.formatterselectDictLabel(list, text);
-      },
-      handleAdd() {
-        /* 新增 */
-        this.dialogTitle = '新增';
-        this.formDialog = {
-          taskName: '',
-          ipRange: '',
-          jobCron: '',
-          triggerStatus: '',
-          jobDesc: '',
-        };
-        this.visibleModel = true;
-      },
-      /* 编辑 */
-      handleEdit(row) {
-        hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
-          if (response.code == 200) {
-            response.data.triggerStatus = response.data.triggerStatus + '';
-            this.formDialog = response.data;
-            this.visibleModel = true;
-            this.dialogTitle = '编辑';
-          }
-        });
-      },
-      /* 确认 */
-      handleOk() {
-        this.$refs.formModel.validate((valid) => {
-          if (valid) {
-            hongtuConfig.autoDiscoveryPost(this.formDialog).then((response) => {
-              if (response.code == 200) {
-                this.$message.success(this.dialogTitle + '成功');
-                this.visibleModel = false;
-                this.queryTable();
-              }
-            });
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      /* 删除 */
-      handleDelete(row) {
-        let ids = [];
-        let taskNames = [];
-        if (!row.id) {
-          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            ids.push(element.id);
-            taskNames.push(element.taskName);
+    /* 字典格式化 */
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
+    },
+    handleAdd() {
+      /* 新增 */
+      this.dialogTitle = '新增';
+      this.formDialog = {
+        taskName: '',
+        ipRange: '',
+        jobCron: '',
+        triggerStatus: '',
+        jobDesc: '',
+      };
+      this.visibleModel = true;
+    },
+    /* 编辑 */
+    handleEdit(row) {
+      hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
+        if (response.code == 200) {
+          response.data.triggerStatus = response.data.triggerStatus + '';
+          this.formDialog = response.data;
+          this.visibleModel = true;
+          this.dialogTitle = '编辑';
+        }
+      });
+    },
+    /* 确认 */
+    handleOk() {
+      this.$refs.formModel.validate((valid) => {
+        if (valid) {
+          hongtuConfig.autoDiscoveryPost(this.formDialog).then((response) => {
+            if (response.code == 200) {
+              this.$message.success(this.dialogTitle + '成功');
+              this.visibleModel = false;
+              this.queryTable();
+            }
           });
         } else {
-          ids.push(row.id);
-          taskNames.push(row.taskName);
+          console.log('error submit!!');
+          return false;
         }
-        this.$confirm({
-          title: '是否确认删除ip为"' + taskNames.join(',') + '"的数据项?',
-          content: '',
-          okText: '是',
-          okType: 'danger',
-          cancelText: '否',
-          onOk: () => {
-            hongtuConfig.autoDiscoveryDelete(ids.join(',')).then((response) => {
-              if (response.code == 200) {
-                this.$message.success('删除成功');
-                this.resetQuery();
-              }
-            });
-          },
-          onCancel() {},
+      });
+    },
+    /* 删除 */
+    handleDelete(row) {
+      let ids = [];
+      let taskNames = [];
+      if (!row.id) {
+        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+          taskNames.push(element.taskName);
         });
-      },
-      /* setTableHeight() {
+      } else {
+        ids.push(row.id);
+        taskNames.push(row.taskName);
+      }
+      this.$confirm({
+        title: '是否确认删除ip为"' + taskNames.join(',') + '"的数据项?',
+        content: '',
+        okText: '是',
+        okType: 'danger',
+        cancelText: '否',
+        onOk: () => {
+          hongtuConfig.autoDiscoveryDelete(ids.join(',')).then((response) => {
+            if (response.code == 200) {
+              this.$message.success('删除成功');
+              this.resetQuery();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+    /* setTableHeight() {
       let h = document.getElementById('tablediv').offsetHeight;
       let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
       let h_page = document.getElementById('page_table').offsetHeight;
@@ -280,32 +280,32 @@
       // let chartHeight = document.getElementById("chartdiv").clientHeight;
       this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
     }, */
-      startJob(row) {
-        const id = row.id;
-        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
-        request({
-          url: '/autoDiscovery/updateAutoDiscovery',
-          method: 'post',
-          data: data,
-        }).then((response) => {
-          this.$message.success('启动成功');
-          this.handleQuery();
-        });
-      },
-      endJob(row) {
-        const id = row.id;
-        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
-        request({
-          url: '/autoDiscovery/updateAutoDiscovery',
-          method: 'post',
-          data: data,
-        }).then((response) => {
-          this.$message.success('停止成功');
-          this.handleQuery();
-        });
-      },
+    startJob(row) {
+      const id = row.id;
+      let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+      request({
+        url: '/autoDiscovery/updateAutoDiscovery',
+        method: 'post',
+        data: data,
+      }).then((response) => {
+        this.$message.success('启动成功');
+        this.handleQuery();
+      });
     },
-  };
+    endJob(row) {
+      const id = row.id;
+      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+      request({
+        url: '/autoDiscovery/updateAutoDiscovery',
+        method: 'post',
+        data: data,
+      }).then((response) => {
+        this.$message.success('停止成功');
+        this.handleQuery();
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped></style>

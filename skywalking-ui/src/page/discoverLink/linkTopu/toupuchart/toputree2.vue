@@ -269,7 +269,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: Alibaba-PuHuiTi-Medium;
+      font-family: NotoSansHans-Medium;
 
       .lgd1 {
         width: 0.625rem;
