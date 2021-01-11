@@ -72,7 +72,7 @@
       >
         <a-row>
           <a-col :span="24">
-            <a-form-model-item label="上级菜单" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item label="上级菜单" :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
               <treeselect
                 v-model.trim="formDialog.parentId"
                 :options="menuOptions"
@@ -91,7 +91,7 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item label="菜单类型" :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item label="菜单类型" :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
               <a-radio-group :default-value="formDialog.menuType" v-model="formDialog.menuType">
                 <a-radio value="M"> 目录 </a-radio>
                 <a-radio value="C"> 菜单 </a-radio>
@@ -99,13 +99,12 @@
               </a-radio-group>
             </a-form-model-item>
           </a-col>
-
           <a-col :span="24">
             <a-form-model-item
               label="菜单图标"
               v-if="formDialog.menuType != 'F'"
               :label-col="{ span: 3 }"
-              :wrapperCol="{ span: 20 }"
+              :wrapperCol="{ span: 21 }"
             >
               <a-popover title="请选择菜单图标" trigger="click" placement="bottomLeft">
                 <div slot="content" class="iconFontBox">
@@ -439,4 +438,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.ant-input-number {
+  width: 100%;
+}
+</style>

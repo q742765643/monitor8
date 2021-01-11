@@ -57,48 +57,50 @@
       ></vxe-pager>
     </div>
     <a-modal v-model="visible" class="fileAmodal" :title="title" okText="确定" cancelText="取消" width="70%">
-      <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form">
+      <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 18 }" :model="form" ref="form">
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="任务名称" prop="taskName">
-              <a-input v-model="form.taskName" style="width:100%" placeholder="请输入任务名称"> </a-input>
+              <a-input disabled v-model="form.taskName" style="width: 100%" placeholder="请输入任务名称"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="corn表达式" prop="jobCron">
-              <a-input v-model="form.jobCron" style="width:100%" placeholder="corn表达式"> </a-input>
+              <a-input disabled v-model="form.jobCron" style="width: 100%" placeholder="corn表达式"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="资料文件目录规则" prop="folderRegular">
-              <a-input v-model="form.folderRegular" style="width:100%" placeholder="资料文件目录规则"> </a-input>
+              <a-input disabled v-model="form.folderRegular" style="width: 100%" placeholder="资料文件目录规则">
+              </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="资料文件名规则 " prop="filenameRegular">
-              <a-input v-model="form.filenameRegular" style="width:100%" placeholder="资料文件名规则 "> </a-input>
+              <a-input disabled v-model="form.filenameRegular" style="width: 100%" placeholder="资料文件名规则 ">
+              </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="应到数量" prop="fileNum">
-              <a-input v-model="form.fileNum" style="width:100%" placeholder="请输入应到数量"> </a-input>
+              <a-input disabled v-model="form.fileNum" style="width: 100%" placeholder="请输入应到数量"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="应到大小" prop="fileSize">
-              <a-input v-model="form.fileSize" style="width:100%" placeholder="请输入应到大小"> </a-input>
+              <a-input disabled v-model="form.fileSize" style="width: 100%" placeholder="请输入应到大小"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="远程目录" prop="remotePath">
-              <a-input v-model="form.remotePath" style="width:100%"> </a-input>
+              <a-input disabled v-model="form.remotePath" style="width: 100%"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="时区" prop="isUt">
-              <a-select v-model="form.isUt">
+              <a-select disabled v-model="form.isUt">
                 <a-select-option :value="0"> 北京时 </a-select-option>
                 <a-select-option :value="1"> 世界时 </a-select-option>
               </a-select>
@@ -106,8 +108,8 @@
           </a-col>
 
           <a-col :span="24">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="执行过程" prop="handleMsg">
-              <a-input type="textarea" v-model="form.handleMsg" style="width:42%"> </a-input>
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="执行过程" prop="handleMsg">
+              <a-input disabled type="textarea" v-model="form.handleMsg" style="width: 100%"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>
@@ -117,106 +119,105 @@
 </template>
 
 <script>
-  import request from '@/utils/request';
-  export default {
-    data() {
-      return {
-        tableData: [],
-        total: 0,
-        // 日期范围
-        dateRange: [],
-        // 查询参数
-        queryParams: {
-          pageNum: 1,
-          pageSize: 10,
-          name: undefined,
-          ip: undefined,
-        },
-        form: {},
-        title: '',
-        ids: [],
-        names: [],
-        visible: false,
-        handleCodeOptions: [],
-      };
+import request from '@/utils/request';
+export default {
+  data() {
+    return {
+      tableData: [],
+      total: 0,
+      // 日期范围
+      dateRange: [],
+      // 查询参数
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+        name: undefined,
+        ip: undefined,
+      },
+      form: {},
+      title: '',
+      ids: [],
+      names: [],
+      visible: false,
+      handleCodeOptions: [],
+    };
+  },
+  created() {
+    this.getDicts('job_running_state').then((response) => {
+      if (response.code == 200) {
+        this.handleCodeOptions = response.data;
+      }
+    });
+  },
+  mounted() {
+    this.fetch();
+  },
+  computed: {},
+  methods: {
+    statusFormat(status) {
+      return this.selectDictLabel(this.handleCodeOptions, status);
     },
-    created() {
-      this.getDicts('job_running_state').then((response) => {
-        if (response.code == 200) {
-          this.handleCodeOptions = response.data;
-        }
-      });
+    rowSelection({ selection }) {
+      this.ids = selection.map((item) => item.id);
+      this.names = selection.map((item) => item.name);
     },
-    mounted() {
+    handleQuery() {
+      this.queryParams.pageNum = 1;
       this.fetch();
     },
-    computed: {},
-    methods: {
-      statusFormat(status) {
-        return this.selectDictLabel(this.handleCodeOptions, status);
-      },
-      rowSelection({ selection }) {
-        this.ids = selection.map((item) => item.id);
-        this.names = selection.map((item) => item.name);
-      },
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.fetch();
-      },
-      resetQuery() {
-        this.dateRange = [];
-        this.$refs.queryForm.resetFields();
-        this.handleQuery();
-      },
-      fetch() {
-        request({
-          url: '/fileMonitorLog/list',
-          method: 'get',
-          params: this.addDateRange(this.queryParams, this.dateRange),
-        }).then((data) => {
-          this.tableData = data.data.pageData;
-          this.total = data.data.totalCount;
-        });
-      },
-      handleUpdate(row) {
-        this.form = {};
-        const id = row.id || this.ids;
-        request({
-          url: '/fileMonitorLog/' + id,
-          method: 'get',
-        }).then((response) => {
-          this.form = response.data;
-          this.visible = true;
-          this.title = '查看日志详情';
-        });
-      },
-      handleDelete(row) {
-        const ids = row.id || this.ids;
-        const names = row.name || this.names;
-        this.$confirm({
-          title: '是否确认删除名称为"' + names + '"的数据项?',
-          content: '',
-          okText: '是',
-          okType: 'danger',
-          cancelText: '否',
-          onOk: () => {
-            request({
-              url: '/fileMonitorLog/' + ids,
-              method: 'delete',
-            }).then((response) => {
-              if (response.code === 200) {
-                this.fetch();
-                this.msgError('删除成功!');
-              } else {
-                this.msgError(response.msg);
-              }
-            });
-          },
-          onCancel() {},
-        });
-      },
+    resetQuery() {
+      this.dateRange = [];
+      this.$refs.queryForm.resetFields();
+      this.handleQuery();
     },
-  };
+    fetch() {
+      request({
+        url: '/fileMonitorLog/list',
+        method: 'get',
+        params: this.addDateRange(this.queryParams, this.dateRange),
+      }).then((data) => {
+        this.tableData = data.data.pageData;
+        this.total = data.data.totalCount;
+      });
+    },
+    handleUpdate(row) {
+      this.form = {};
+      const id = row.id || this.ids;
+      request({
+        url: '/fileMonitorLog/' + id,
+        method: 'get',
+      }).then((response) => {
+        this.form = response.data;
+        this.visible = true;
+        this.title = '查看日志详情';
+      });
+    },
+    handleDelete(row) {
+      const ids = row.id || this.ids;
+      this.$confirm({
+        title: '是否确认删除名称为"' + row.taskName + '"的数据项?',
+        content: '',
+        okText: '是',
+        okType: 'danger',
+        cancelText: '否',
+        onOk: () => {
+          request({
+            url: '/fileMonitorLog/' + ids,
+            method: 'delete',
+          }).then((response) => {
+            if (response.code === 200) {
+              this.fetch();
+              this.msgError('删除成功!');
+            } else {
+              this.msgError(response.msg);
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+  },
+};
 </script>
 <style lang="scss" scoped>
 .fileLogTemplate {

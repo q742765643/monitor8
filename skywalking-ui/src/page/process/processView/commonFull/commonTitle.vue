@@ -4,9 +4,9 @@
       <planeTitle :titleName="$attrs.titleName">
         <div slot="right">
           <div id="tool">
-            <span class="iconfont iconyidong"></span>
+            <!--  <span class="iconfont iconyidong"></span>
             <span class="iconfont iconshuaxin1"></span>
-            <span class="iconfont iconbianji"></span>
+            <span class="iconfont iconbianji"></span> -->
 
             <span
               v-if="!$attrs.showFullType"

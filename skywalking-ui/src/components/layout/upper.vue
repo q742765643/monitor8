@@ -14,7 +14,7 @@
           <span v-if="warnNum" class="warnNum">{{ warnNum }}</span>
         </span>
         <span class="icon iconfont iconskin"></span>
-        <span class="icon iconfont iconxinxi"></span>
+        <span class="icon iconfont iconxinxi" @click="aboutInfo"></span>
         <span class="out" @click="logout">注销/退出</span>
         <!-- <span class="icon iconfont iconguanbi1" @click="logout"></span> -->
       </div>
@@ -71,6 +71,32 @@
         </a-row>
       </a-form-model>
     </a-modal>
+
+    <a-modal
+      v-model="visibleModelAbout"
+      title="关于"
+      @ok="handleOk"
+      width="460px"
+      :maskClosable="false"
+      class="dialogBox aboutDialog"
+      :footer="null"
+    >
+      <div v-if="visibleModelAbout" class="aboutBox">
+        <h4>气象海洋空间天气信息系统综合监控平台</h4>
+        <p><span>版本：</span> V1.0.1</p>
+        <p><span>XX：</span>XXXXXX</p>
+        <p><span>XX：</span>XXXXXX</p>
+        <h5>CopyRight@2021 xxxxx 、航天宏图 版权共同所有</h5>
+        <div class="ant-modal-footer" style="padding-bottom: 0">
+          <a-button type="primary" @click="visibleModelAbout = false">关闭</a-button>
+        </div>
+        <div class="iconBox">
+          <img src="../../assets/imgs/icon1.png" alt="" />
+          <img src="../../assets/imgs/icon2.png" alt="" />
+          <img src="../../assets/imgs/icon3.png" alt="" />
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -98,6 +124,7 @@ export default {
       }
     };
     return {
+      visibleModelAbout: false,
       warnNum: 0,
       visibleModelPassword: false,
       formDialogWord: {},
@@ -133,6 +160,9 @@ export default {
   },
   destroyed() {},
   methods: {
+    aboutInfo() {
+      this.visibleModelAbout = true;
+    },
     resizePassword() {
       this.visibleModelPassword = true;
     },
@@ -246,6 +276,52 @@ export default {
         margin-right: 12px;
         background-image: url('../../assets/imgs/manager.png');
         background-size: contain;
+      }
+    }
+  }
+}
+.aboutDialog {
+  .aboutBox {
+    text-align: center;
+    position: relative;
+    h4 {
+      width: 84%;
+      margin: auto;
+      color: #125df1;
+      font-size: 36px;
+      margin-bottom: 40px;
+      font-family: loginFont;
+    }
+    p {
+      margin-bottom: 10px;
+    }
+    span {
+      display: inline-block;
+      width: 70px;
+      text-align: right;
+    }
+    h5 {
+      margin-top: 60px;
+      font-size: 14px;
+    }
+    .iconBox {
+      position: absolute;
+      bottom: 42px;
+      right: -12px;
+    }
+    img {
+      &:first-child {
+        width: 140%;
+        opacity: 0.32;
+        position: absolute;
+        right: 35px;
+      }
+      &:nth-child(2) {
+        width: 90%;
+        opacity: 0.2;
+      }
+      &:last-child {
+        opacity: 0.2;
       }
     }
   }

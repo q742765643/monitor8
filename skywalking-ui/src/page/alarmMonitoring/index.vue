@@ -1,8 +1,8 @@
 <template>
   <div class="alarmMonitoringTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
-      <a-form-model-item label="任务名称">
-        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
+      <a-form-model-item label="告警任务名称">
+        <a-input v-model="queryParams.taskName" placeholder="请输入告警任务名称"> </a-input>
       </a-form-model-item>
       <a-form-model-item label="时间">
         <a-range-picker
@@ -31,7 +31,7 @@
       </a-row>
       <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
-        <vxe-table-column field="taskName" title="任务名称">
+        <vxe-table-column field="taskName" title="告警任务名称">
           <template v-slot="{ row }">
             <span> {{ statusFormat(typeOptions, row.monitorType) }}</span>
           </template>
@@ -83,15 +83,15 @@
       <a-form-model
         v-if="visibleModel"
         :label-col="{ span: 6 }"
-        :wrapperCol="{ span: 17 }"
+        :wrapperCol="{ span: 18 }"
         :model="formDialog"
         ref="formModel"
         :rules="rules"
       >
         <a-row>
           <a-col :span="12">
-            <a-form-model-item label="任务名称" prop="taskName">
-              <a-input v-model="formDialog.taskName" placeholder="请输入任务名称"> </a-input>
+            <a-form-model-item label="告警任务名称" prop="taskName">
+              <a-input v-model="formDialog.taskName" placeholder="请输入告警任务名称"> </a-input>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -126,12 +126,12 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24" v-for="(itemp, indexp) in formDialog.generals" :key="'0-' + indexp">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
               <span v-show="indexp == 0" slot="label" class="lineLabel">
                 <i class="formIcon">*</i><i class="rulesIcon rulesIcon1"></i> 一般阈值</span
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
-                <a-select v-model="itemp.operate" style="width: 2rem; float: left; margin-left: 24px">
+                <a-select v-model="itemp.operate" style="width: 130px; float: left; margin-left: 24px">
                   <a-select-option value="and"> 并且 </a-select-option>
                   <a-select-option value="or"> 或者 </a-select-option>
                 </a-select>
@@ -155,21 +155,27 @@
                   <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
                 </a-col>
                 <a-col :span="4" class="unitBox">
-                  <a-button type="primary" icon="plus" @click="generalsHandleAdd"> 新增 </a-button>
-                  <a-button type="danger" icon="delete" @click="generalsHandleDelete(indexp)" v-show="indexp > 0">
+                  <a-button
+                    type="danger"
+                    icon="delete"
+                    @click="generalsHandleDelete(indexp)"
+                    v-show="indexp > 0"
+                    class="deleteBtn"
+                  >
                     删除
                   </a-button>
+                  <a-button type="primary" icon="plus" @click="generalsHandleAdd"> 新增 </a-button>
                 </a-col>
               </a-row>
             </a-form-model-item>
           </a-col>
           <a-col :span="24" v-for="(itemp, indexp) in formDialog.dangers" :key="'1-' + indexp">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
               <span v-show="indexp == 0" slot="label" class="lineLabel">
                 <i class="formIcon">*</i><i class="rulesIcon rulesIcon2"></i> 危险阈值</span
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
-                <a-select v-model="itemp.operate" style="width: 2rem; float: left; margin-left: 24px">
+                <a-select v-model="itemp.operate" style="width: 130px; float: left; margin-left: 24px">
                   <a-select-option value="and"> 并且 </a-select-option>
                   <a-select-option value="or"> 或者 </a-select-option>
                 </a-select>
@@ -193,22 +199,28 @@
                   <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
                 </a-col>
                 <a-col :span="4" class="unitBox">
-                  <a-button type="primary" icon="plus" @click="dangerHandleAdd"> 新增 </a-button>
-                  <a-button type="danger" icon="delete" @click="dangerHandleDelete(indexp)" v-show="indexp > 0">
+                  <a-button
+                    type="danger"
+                    icon="delete"
+                    @click="dangerHandleDelete(indexp)"
+                    v-show="indexp > 0"
+                    class="deleteBtn"
+                  >
                     删除
                   </a-button>
+                  <a-button type="primary" icon="plus" @click="dangerHandleAdd"> 新增 </a-button>
                 </a-col>
               </a-row>
             </a-form-model-item>
           </a-col>
 
           <a-col :span="24" v-for="(itemp, indexp) in formDialog.severitys" :key="'2-' + indexp">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
               <span v-show="indexp == 0" slot="label" class="lineLabel">
                 <i class="formIcon">*</i><i class="rulesIcon rulesIcon3"></i> 故障阈值</span
               >
               <span v-show="indexp > 0" slot="label" class="lineLabel2">
-                <a-select v-model="itemp.operate" style="width: 2rem; float: left; margin-left: 24px">
+                <a-select v-model="itemp.operate" style="width: 130px; float: left; margin-left: 24px">
                   <a-select-option value="and"> 并且 </a-select-option>
                   <a-select-option value="or"> 或者 </a-select-option>
                 </a-select>
@@ -232,16 +244,22 @@
                   <a-input v-model="itemp.paramvalue" placeholder="请输入调度地址"> </a-input>
                 </a-col>
                 <a-col :span="4" class="unitBox">
-                  <a-button type="primary" icon="plus" @click="severitysHandleAdd"> 新增 </a-button>
-                  <a-button type="danger" icon="delete" @click="severitysHandleDelete(indexp)" v-show="indexp > 0">
+                  <a-button
+                    type="danger"
+                    icon="delete"
+                    @click="severitysHandleDelete(indexp)"
+                    v-show="indexp > 0"
+                    class="deleteBtn"
+                  >
                     删除
                   </a-button>
+                  <a-button type="primary" icon="plus" @click="severitysHandleAdd"> 新增 </a-button>
                 </a-col>
               </a-row>
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 20 }" label="任务描述" prop="jobDesc">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="任务描述" prop="jobDesc">
               <a-input type="textarea" v-model="formDialog.jobDesc" placeholder="任务描述"> </a-input>
             </a-form-model-item>
           </a-col>
@@ -516,7 +534,7 @@ export default {
         return;
       }
       this.$confirm({
-        title: '是否确认删除任务名称为"' + taskNames.join(',') + '"的数据项?',
+        title: '是否确认删除告警任务名称为"' + taskNames.join(',') + '"的数据项?',
         content: '',
         okText: '是',
         okType: 'danger',
@@ -619,6 +637,9 @@ export default {
 .lineContent {
   .unitBox {
     text-align: right;
+  }
+  .deleteBtn {
+    margin-right: 4px;
   }
 }
 

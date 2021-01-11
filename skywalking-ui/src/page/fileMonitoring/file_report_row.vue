@@ -1,22 +1,9 @@
 <template>
   <div class="fileReportRowTemplate">
-    <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
-      <a-form-model-item label="时间">
-        <a-range-picker
-          @change="onTimeChange"
-          :show-time="{
-            hideDisabledOptions: true,
-            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-          }"
-          format="YYYY-MM-DD HH:mm:ss"
-        />
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-        <a-button type="primary" class="dcBtn" @click="exportEventXls"> 导出excel </a-button>
-      </a-form-model-item>
-    </a-form-model>
+    <div class="hasHandleExportBox">
+      <selectDate @changeDate="onTimeChange"></selectDate>
+      <a-button type="primary" @click="exportEventXls" style="margin-right: 10px"> 导出excel </a-button>
+    </div>
     <div class="tableDateBox">
       <div id="barlineChart"></div>
       <vxe-table border ref="xTable" :span-method="mergeRowMethod" :data="tableData" resizable stripe align="center">
@@ -27,18 +14,19 @@
             <span v-if="scope.row.timestamp !== '合计'">{{ parseTime(scope.row.timestamp, '{y}-{m}-{d}') }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="sumRealFileNum" title="准时到"></vxe-table-column>
-        <vxe-table-column field="sumLateNum" title="晚到"></vxe-table-column>
-        <vxe-table-column field="sumFileNum" title="应到"></vxe-table-column>
-        <vxe-table-column field="sumRealFileSize" title="大小KB"></vxe-table-column>
-        <vxe-table-column field="toQuoteRate" title="到报率"></vxe-table-column>
-        <vxe-table-column field="timelinessRate" title="及时率"></vxe-table-column>
+        <vxe-table-column field="sumRealFileNum" title="准时到(个)"></vxe-table-column>
+        <vxe-table-column field="sumLateNum" title="晚到(个)"></vxe-table-column>
+        <vxe-table-column field="sumFileNum" title="应到(个)"></vxe-table-column>
+        <vxe-table-column field="sumRealFileSize" title="大小(KB)"></vxe-table-column>
+        <vxe-table-column field="toQuoteRate" title="到报率(%)"></vxe-table-column>
+        <vxe-table-column field="timelinessRate" title="及时率(%)"></vxe-table-column>
       </vxe-table>
     </div>
   </div>
 </template>
 
 <script>
+import selectDate from '@/components/date/select.vue';
 var XEUtils = require('xe-utils');
 import echarts from 'echarts';
 import { remFontSize } from '@/components/utils/fontSize.js';
@@ -75,6 +63,7 @@ export default {
       // name: ['离线时长', '最大cpu使用率', '最大内存使用率'],
     };
   },
+  components: { selectDate },
   created() {
     this.fetch();
     this.fileReportLineChart();
@@ -95,9 +84,10 @@ export default {
       }
       return result;
     },
-    onTimeChange(value, dateString) {
-      this.queryParams.startTime = dateString[0];
-      this.queryParams.endTime = dateString[1];
+    onTimeChange(value) {
+      this.queryParams.startTime = value[0];
+      this.queryParams.endTime = value[1];
+      this.fetch();
     },
     findHeader() {
       request({
@@ -234,7 +224,7 @@ export default {
         obj.name = this.chartTitle[index];
         obj.type = item;
         obj.data = this.Ydata[index].data;
-        console.log(obj.data)
+        console.log(obj.data);
         if (item == 'bar') {
           obj.barWidth = '40%';
           obj.itemStyle = {

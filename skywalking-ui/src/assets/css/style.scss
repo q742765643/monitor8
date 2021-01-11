@@ -171,6 +171,7 @@ body {
 }
 
 .ant-form-item-control,
+.ant-input-number,
 .ant-form-item-label,
 .ant-select-selection__rendered,
 .el-date-editor .el-range__icon {
@@ -178,21 +179,25 @@ body {
 }
 
 .ant-input,
+.ant-input-number,
+.ant-input-number-input,
 .ant-btn,
 .ant-select-selection--single {
     font-size: 16px;
     height: 32px;
 }
 
+
+
 .ant-input {
     width: 240px;
 }
 
 .ant-calendar-picker {
-    width: 350px;
+    width: 400px;
 
     .ant-input {
-        width: 350px;
+        width: 400px;
     }
 }
 

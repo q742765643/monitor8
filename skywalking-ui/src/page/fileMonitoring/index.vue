@@ -79,7 +79,7 @@
       width="80%"
       :maskClosable="false"
       :centered="true"
-      class="dialogBox"
+      class="dialogBox fileMonitoringdialogBox"
     >
       <a-form-model
         v-if="visibleModel"
@@ -115,8 +115,8 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="远程目录" v-if="formDialog.scanType == '1'" prop="acountId">
-              <a-select v-model="formDialog.acountId" placeholder="远程目录">
+            <a-form-model-item label="远程访问凭证" v-if="formDialog.scanType == '1'" prop="acountId">
+              <a-select v-model="formDialog.acountId" placeholder="远程访问凭证">
                 <a-select-option v-for="dict in accountOptions" :value="dict.id" :key="dict.id">
                   {{ dict.name }}
                 </a-select-option>
@@ -149,12 +149,12 @@
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="应到数量" prop="fileNum">
-              <a-input v-model="formDialog.fileNum" placeholder="请输入应到数量"> </a-input>
+              <a-input-number v-model="formDialog.fileNum" placeholder="请输入应到数量"> </a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="应到大小" prop="fileSize">
-              <a-input v-model="formDialog.fileSize" placeholder="请输入应到大小"> </a-input>
+              <a-input-number v-model="formDialog.fileSize" placeholder="请输入应到大小"> </a-input-number>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -208,7 +208,16 @@ export default {
       },
       scanTypeOptions: [],
       accountOptions: [],
-      rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
+      rules: {
+        taskName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
+        triggerStatus: [{ required: true, message: '请选择任务状态', trigger: 'change' }],
+        acountId: [{ required: true, message: '请选择远程访问凭证', trigger: 'change' }],
+        filenameRegular: [{ required: true, message: '请输入资料文件名规则', trigger: 'blur' }],
+        folderRegular: [{ required: true, message: '请输入资料文件目录规则', trigger: 'blur' }],
+        fileNum: [{ required: true, message: '请输入应到数量', trigger: 'blur' }],
+        fileSize: [{ required: true, message: '请输入应到大小', trigger: 'blur' }],
+        jobCron: [{ required: true, message: '请输入corn表达式', trigger: 'blur' }],
+      }, //规则
     };
   },
   created() {
@@ -400,4 +409,16 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.fileMonitoringdialogBox {
+  .ant-col-3 {
+    width: 10.5%;
+  }
+  .ant-col-21 {
+    width: 89.5%;
+  }
+  .ant-input-number {
+    width: 100%;
+  }
+}
+</style>

@@ -126,7 +126,7 @@ export default {
   overflow: hidden;
   background: white;
   #bigChart {
-    height: calc(100% - 2rem - 0.25rem);
+    height: calc(100% - 1.5rem - 0.05rem);
     box-shadow: $plane_shadow;
     display: flex;
 
@@ -137,8 +137,8 @@ export default {
   }
   #swipeChart {
     overflow-y: auto;
-    margin-top: 0.25rem;
-    height: 2rem;
+    margin-top: 0.05rem;
+    height: 1.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -148,11 +148,10 @@ export default {
       align-items: center;
       .imgborder {
         border: solid 1px $borderColor;
-        margin: 0 0.25rem;
+        margin: 0 0.05rem;
         .img {
           height: 1rem;
           width: 2rem;
-
           border-radius: 0.05rem;
           &:hover {
             border: solid 2px #1890ff;
