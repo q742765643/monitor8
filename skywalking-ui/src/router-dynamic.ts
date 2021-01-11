@@ -63,16 +63,16 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
 
-    // if(getToken()) {
-    //     if(to.path === '/login') {
-    //         next({ path: '/' })
-    //     }else {
-    //         store.dispatch('GenerateRoutes').then((accessRoutes) => {
-    //             router.addRoutes(accessRoutes)
-    //             next()
-    //         })
-    //     }
-    // }
+    if(getToken()) {
+        if(to.path === '/login') {
+            next({ path: '/' })
+        }else {
+            store.dispatch('GenerateRoutes').then((accessRoutes) => {
+                router.addRoutes(accessRoutes)
+                next()
+            })
+        }
+    }
     
     //
     /*  const token = window.localStorage.getItem('skywalking-authority');

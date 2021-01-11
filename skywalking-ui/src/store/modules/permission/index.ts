@@ -1,7 +1,7 @@
 import { constantRoutes } from '@/router-dynamic'
 import hongtuConfig from '@/utils/services';
 import Home from '@/page/home.vue'
-
+import { Commit, ActionTree, MutationTree } from 'vuex';
 const permission = {
     state: {
         routes: [],

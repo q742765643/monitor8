@@ -54,9 +54,8 @@
               }"
             />
 
-           <!--
+            <!--
               v-model="queryParams.dateRange"  -->
-
           </a-form-model-item>
           <a-form-model-item>
             <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
@@ -244,435 +243,440 @@
 </template>
 
 <script>
-  // 接口地址
-  import hongtuConfig from '@/utils/services';
-  import moment from 'moment';
-  import Treeselect from '@riophae/vue-treeselect';
-  import '@riophae/vue-treeselect/dist/vue-treeselect.css';
-  export default {
-    components: { Treeselect },
-    data() {
-      return {
-        expandedKeys: [],
-        backupsExpandedKeys: [],
-        searchValue: '',
-        autoExpandParent: false,
-        checkedKeys: [],
-        selectedKeys: [],
-        searchStr: '',
-        replaceFields: {
-          children: 'children',
-          title: 'label',
-          key: 'id',
+// 接口地址
+import hongtuConfig from '@/utils/services';
+import moment from 'moment';
+import Treeselect from '@riophae/vue-treeselect';
+import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+export default {
+  components: { Treeselect },
+  data() {
+    return {
+      expandedKeys: [],
+      backupsExpandedKeys: [],
+      searchValue: '',
+      autoExpandParent: false,
+      checkedKeys: [],
+      selectedKeys: [],
+      searchStr: '',
+      replaceFields: {
+        children: 'children',
+        title: 'label',
+        key: 'id',
+      },
+      queryParams: {
+        userName: undefined,
+        phonenumber: undefined,
+        status: undefined,
+        // dateRange:[moment().subtract('days',1).format('YYYY-MM-DD HH:mm:ss'),moment().format('YYYY-MM-DD HH:mm:ss')],
+        pageNum: 1,
+        pageSize: 10,
+        params: {
+          orderBy: {
+            createTime: 'desc',
+          },
         },
-        queryParams: {
-          userName: undefined,
-          phonenumber: undefined,
-          status: undefined,
-          // dateRange:[moment().subtract('days',1).format('YYYY-MM-DD HH:mm:ss'),moment().format('YYYY-MM-DD HH:mm:ss')],
-          pageNum: 1,
-          pageSize: 10,
+      },
+      dateRange: [],
+      statusOptions: [],
+      userListData: [],
+      paginationTotal: 0,
+      visibleModel: false, // 弹出框
+      dialogTitle: '',
+      deptOptions: [], // 部门下拉框数组
+      roleOptions: [],
+      ids: [],
+      formDialog: {},
+      sexOptions: [],
+      rules: {
+        userName: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }],
+        nickName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
+      },
+      single: true,
+      visible: false,
+      psdForm: {},
+      name: '',
+    };
+  },
+  created() {
+    this.getUserList();
+    this.getTreeselect();
+    hongtuConfig.getDicts('sys_normal_disable').then((res) => {
+      if (res.code == 200) {
+        this.statusOptions = res.data;
+      }
+      console.log(this.statusOptions);
+    });
+    hongtuConfig.getDicts('sys_user_sex').then((res) => {
+      if (res.code == 200) {
+        this.sexOptions = res.data;
+      }
+    });
+  },
+  methods: {
+    selectBox(selection) {
+      // console.log(selection.selection)
+      this.single = selection.selection.length > 0 ? false : true;
+    },
+    onChange() {
+      var vm = this;
+      //添加这行代码是为了只点击搜索才触发
+      vm.searchValue = vm.searchStr;
+      //如果搜索值为空，则不展开任何项，expandedKeys置为空
+      //如果搜索值不位空，则expandedKeys的值要为搜索值的父亲及其所有祖先
+      if (vm.searchValue === '') {
+        vm.expandedKeys = [];
+      } else {
+        //首先将展开项与展开项副本置为空
+        vm.expandedKeys = [];
+        vm.backupsExpandedKeys = [];
+        //获取所有存在searchValue的节点
+        let candidateKeysList = vm.getkeyList(vm.searchValue, vm.deptOptions, []);
+        //遍历满足条件的所有节点
+        candidateKeysList.map((item) => {
+          //获取每个节点的母亲节点
+          var key = vm.getParentKey(item, vm.deptOptions);
+          //当item是最高一级，父key为undefined，将不放入到数组中
+          //如果母亲已存在于数组中，也不放入到数组中
+          if (key && !vm.backupsExpandedKeys.some((item) => item === key)) vm.backupsExpandedKeys.push(key);
+        });
+        let length = this.backupsExpandedKeys.length;
+        for (let i = 0; i < length; i++) {
+          vm.getAllParentKey(vm.backupsExpandedKeys[i], vm.deptOptions);
+        }
+        vm.expandedKeys = vm.backupsExpandedKeys.slice();
+      }
+    },
+    //获取节点中含有value的所有id集合
+    getkeyList(value, tree, keyList) {
+      //遍历所有同一级的树
+      for (let i = 0; i < tree.length; i++) {
+        let node = tree[i];
+        //如果该节点存在value值则push
+        if (node.label.indexOf(value) > -1) {
+          keyList.push(node.id);
+        }
+        //如果拥有孩子继续遍历
+        if (node.children) {
+          this.getkeyList(value, node.children, keyList);
+        }
+      }
+      //因为是引用类型，所有每次递归操作的都是同一个数组
+      return keyList;
+    },
+    //该递归主要用于获取key的父亲节点的key值
+    getParentKey(key, tree) {
+      let parentKey, temp;
+      //遍历同级节点
+      for (let i = 0; i < tree.length; i++) {
+        const node = tree[i];
+        if (node.children) {
+          //如果该节点的孩子中存在该key值，则该节点就是我们要找的父亲节点
+          //如果不存在，继续遍历其子节点
+          if (node.children.some((item) => item.id === key)) {
+            parentKey = node.id;
+          } else if ((temp = this.getParentKey(key, node.children))) {
+            //parentKey = this.getParentKey(key,node.children)
+            //改进，避免二次遍历
+            parentKey = temp;
+          }
+        }
+      }
+      return parentKey;
+    },
+    //获取该节点的所有祖先节点
+    getAllParentKey(key, tree) {
+      var parentKey;
+      if (key) {
+        //获得父亲节点
+        parentKey = this.getParentKey(key, tree);
+        if (parentKey) {
+          //如果父亲节点存在，判断是否已经存在于展开列表里，不存在就进行push
+          if (!this.backupsExpandedKeys.some((item) => item === parentKey)) {
+            this.backupsExpandedKeys.push(parentKey);
+          }
+          //继续向上查找祖先节点
+          this.getAllParentKey(parentKey, tree);
+        }
+      }
+    },
+    onExpand(expandedKeys) {
+      //用户点击展开时，取消自动展开效果
+      this.expandedKeys = expandedKeys;
+      this.autoExpandParent = false;
+    },
+    onCheck(checkedKeys) {
+      // console.log('onCheck', checkedKeys);
+      this.checkedKeys = checkedKeys;
+    },
+    onSelect(selectedKeys, info) {
+      console.log('onSelect', info);
+      this.selectedKeys = selectedKeys;
+    },
+    // 获取表格数据
+    getUserList() {
+      if (this.queryParams.dateRange) {
+        this.dateRange = this.queryParams.dateRange;
+      } else {
+        this.dateRange = [];
+      }
+      console.log(this.addDateRange(this.queryParams, this.dateRange));
+      hongtuConfig.userCofigList(this.addDateRange(this.queryParams, this.dateRange)).then((response) => {
+        debugger;
+
+        console.log(response);
+        this.userListData = response.data.pageData;
+        this.paginationTotal = response.data.totalCount;
+      });
+    },
+    // 用户状态修改
+    handleStatus(row) {
+      row.status = row.status == '0' ? '1' : '0';
+      let text = row.status === '0' ? '启用' : '停用';
+      let statusData = {
+        id: row.id,
+        status: row.status,
+      };
+      this.$confirm({
+        title: '确认要"' + text + '""' + row.userName + '"用户吗?',
+        content: '',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: () => {
+          console.log(statusData);
+          hongtuConfig.editUserStatus(statusData).then((res) => {
+            if (res.code == 200) {
+              this.$message.success('修改状态成功');
+              this.getUserList();
+            }
+          });
         },
-        dateRange: [],
-        statusOptions: [],
-        userListData: [],
-        paginationTotal: 0,
-        visibleModel: false, // 弹出框
-        dialogTitle: '',
-        deptOptions: [], // 部门下拉框数组
-        roleOptions: [],
-        ids: [],
-        formDialog: {},
-        sexOptions: [],
-        rules: {
-          userName: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }],
-          nickName: [{ required: true, message: '请输入用户名称', trigger: 'blur' }],
-        },
-        single: true,
-        visible: false,
-        psdForm: {},
-        name: '',
+        onCancel() {},
+      });
+    },
+    // 获取角色列表
+    getRoles() {
+      hongtuConfig.roleConfigList(this.queryParams).then((res) => {
+        this.roleOptions = res.data.pageData;
+        console.log(res);
+      });
+    },
+    // 获取部门下拉树列表
+    getTreeselect() {
+      hongtuConfig.treeselect(this.formDialog).then((res) => {
+        this.deptOptions = res.data;
+      });
+    },
+    moment,
+    range(start, end) {
+      const result = [];
+      for (let i = start; i < end; i++) {
+        result.push(i);
+      }
+      return result;
+    },
+    onTimeChange(value, dataString) {
+      console.log(value);
+      console.log(dataString);
+      debugger;
+      this.queryParams.dateRange[0] = this.parseTime(dataString[0]);
+
+      this.queryParams.dateRange[1] = this.parseTime(dataString[1]);
+      // console.log(this.queryParams.dateRange);
+    },
+    // 表单重置
+    reset() {
+      this.formDialog = {
+        id: undefined,
+        deptId: undefined,
+        userName: undefined,
+        nickName: undefined,
+        password: undefined,
+        phonenumber: undefined,
+        email: undefined,
+        sex: undefined,
+        status: '0',
+        remark: undefined,
+        postIds: [],
+        roleIds: [],
       };
     },
-    created() {
+    handleQuery() {
+      this.queryParams.pageNum = 1;
       this.getUserList();
+    },
+    // 分页事件
+    handlePageChange({ currentPage, pageSize }) {
+      this.queryParams.pageNum = currentPage;
+      this.queryParams.pageSize = pageSize;
+      this.getUserList();
+    },
+    // 新增
+    handleAdd() {
+      this.reset();
       this.getTreeselect();
-      hongtuConfig.getDicts('sys_normal_disable').then((res) => {
-        if (res.code == 200) {
-          this.statusOptions = res.data;
-        }
-        console.log(this.statusOptions);
-      });
-      hongtuConfig.getDicts('sys_user_sex').then((res) => {
-        if (res.code == 200) {
-          this.sexOptions = res.data;
+      this.getRoles();
+      this.dialogTitle = '添加用户';
+      // this.formDialog.password = this.initPassword
+      this.visibleModel = true;
+    },
+    // 修改
+    handleUpdate(row) {
+      if (!row.id) {
+        let cellsChecked = this.$refs.userListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          this.ids = [];
+          this.ids.push(element.id);
+        });
+      }
+      this.reset();
+      this.getTreeselect();
+      this.getRoles();
+      const id = row.id || this.ids;
+      // this.ids = [];
+      // this.ids.push(id);
+      console.log(id);
+      hongtuConfig.userCofigSearchById(id).then((response) => {
+        if (response.code == 200) {
+          console.log(response);
+          this.formDialog = response.data;
+          this.formDialog.postIds = response.data.postIds;
+          this.formDialog.roleIds = response.data.roleIds;
+          this.visibleModel = true;
+          this.dialogTitle = '修改用户';
+          this.formDialog.password = '';
         }
       });
     },
-    methods: {
-      selectBox(selection) {
-        // console.log(selection.selection)
-        this.single = selection.selection.length > 0 ? false : true;
-      },
-      onChange() {
-        var vm = this;
-        //添加这行代码是为了只点击搜索才触发
-        vm.searchValue = vm.searchStr;
-        //如果搜索值为空，则不展开任何项，expandedKeys置为空
-        //如果搜索值不位空，则expandedKeys的值要为搜索值的父亲及其所有祖先
-        if (vm.searchValue === '') {
-          vm.expandedKeys = [];
-        } else {
-          //首先将展开项与展开项副本置为空
-          vm.expandedKeys = [];
-          vm.backupsExpandedKeys = [];
-          //获取所有存在searchValue的节点
-          let candidateKeysList = vm.getkeyList(vm.searchValue, vm.deptOptions, []);
-          //遍历满足条件的所有节点
-          candidateKeysList.map((item) => {
-            //获取每个节点的母亲节点
-            var key = vm.getParentKey(item, vm.deptOptions);
-            //当item是最高一级，父key为undefined，将不放入到数组中
-            //如果母亲已存在于数组中，也不放入到数组中
-            if (key && !vm.backupsExpandedKeys.some((item) => item === key)) vm.backupsExpandedKeys.push(key);
-          });
-          let length = this.backupsExpandedKeys.length;
-          for (let i = 0; i < length; i++) {
-            vm.getAllParentKey(vm.backupsExpandedKeys[i], vm.deptOptions);
-          }
-          vm.expandedKeys = vm.backupsExpandedKeys.slice();
-        }
-      },
-      //获取节点中含有value的所有id集合
-      getkeyList(value, tree, keyList) {
-        //遍历所有同一级的树
-        for (let i = 0; i < tree.length; i++) {
-          let node = tree[i];
-          //如果该节点存在value值则push
-          if (node.label.indexOf(value) > -1) {
-            keyList.push(node.id);
-          }
-          //如果拥有孩子继续遍历
-          if (node.children) {
-            this.getkeyList(value, node.children, keyList);
-          }
-        }
-        //因为是引用类型，所有每次递归操作的都是同一个数组
-        return keyList;
-      },
-      //该递归主要用于获取key的父亲节点的key值
-      getParentKey(key, tree) {
-        let parentKey, temp;
-        //遍历同级节点
-        for (let i = 0; i < tree.length; i++) {
-          const node = tree[i];
-          if (node.children) {
-            //如果该节点的孩子中存在该key值，则该节点就是我们要找的父亲节点
-            //如果不存在，继续遍历其子节点
-            if (node.children.some((item) => item.id === key)) {
-              parentKey = node.id;
-            } else if ((temp = this.getParentKey(key, node.children))) {
-              //parentKey = this.getParentKey(key,node.children)
-              //改进，避免二次遍历
-              parentKey = temp;
-            }
-          }
-        }
-        return parentKey;
-      },
-      //获取该节点的所有祖先节点
-      getAllParentKey(key, tree) {
-        var parentKey;
-        if (key) {
-          //获得父亲节点
-          parentKey = this.getParentKey(key, tree);
-          if (parentKey) {
-            //如果父亲节点存在，判断是否已经存在于展开列表里，不存在就进行push
-            if (!this.backupsExpandedKeys.some((item) => item === parentKey)) {
-              this.backupsExpandedKeys.push(parentKey);
-            }
-            //继续向上查找祖先节点
-            this.getAllParentKey(parentKey, tree);
-          }
-        }
-      },
-      onExpand(expandedKeys) {
-        //用户点击展开时，取消自动展开效果
-        this.expandedKeys = expandedKeys;
-        this.autoExpandParent = false;
-      },
-      onCheck(checkedKeys) {
-        // console.log('onCheck', checkedKeys);
-        this.checkedKeys = checkedKeys;
-      },
-      onSelect(selectedKeys, info) {
-        console.log('onSelect', info);
-        this.selectedKeys = selectedKeys;
-      },
-      // 获取表格数据
-      getUserList() {
-        if (this.queryParams.dateRange) {
-          this.dateRange = this.queryParams.dateRange;
-        } else {
-          this.dateRange = [];
-        }
-        console.log(this.addDateRange(this.queryParams, this.dateRange))
-        hongtuConfig.userCofigList(this.addDateRange(this.queryParams, this.dateRange)).then((response) => {
-          debugger
-
-          console.log(response);
-          this.userListData = response.data.pageData;
-          this.paginationTotal = response.data.totalCount;
-        });
-      },
-      // 用户状态修改
-      handleStatus(row) {
-        row.status = row.status == '0' ? '1' : '0';
-        let text = row.status === '0' ? '启用' : '停用';
-        let statusData = {
-          id: row.id,
-          status: row.status,
-        };
-        this.$confirm({
-          title: '确认要"' + text + '""' + row.userName + '"用户吗?',
-          content: '',
-          okText: '确定',
-          okType: 'danger',
-          cancelText: '取消',
-          onOk: () => {
-            console.log(statusData);
-            hongtuConfig.editUserStatus(statusData).then((res) => {
-              if (res.code == 200) {
-                this.$message.success('修改状态成功');
+    handleOk() {
+      console.log(this.formDialog);
+      this.$refs.formModel.validate((valid) => {
+        if (valid) {
+          if (!this.formDialog.id) {
+            hongtuConfig.userCofigAdd(this.formDialog).then((response) => {
+              console.log(response);
+              if (response.code == 200) {
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
                 this.getUserList();
               }
             });
-          },
-          onCancel() {},
-        });
-      },
-      // 获取角色列表
-      getRoles() {
-        hongtuConfig.roleConfigList(this.queryParams).then((res) => {
-          this.roleOptions = res.data.pageData;
-          console.log(res);
-        });
-      },
-      // 获取部门下拉树列表
-      getTreeselect() {
-        hongtuConfig.treeselect(this.formDialog).then((res) => {
-          this.deptOptions = res.data;
-        });
-      },
-      moment,
-      range(start, end) {
-        const result = [];
-        for (let i = start; i < end; i++) {
-          result.push(i);
-        }
-        return result;
-      },
-      onTimeChange(value, dataString) {
-        console.log(value)
-        console.log(dataString)
-        debugger;
-        this.queryParams.dateRange[0] = this.parseTime(dataString[0]);
-        
-        this.queryParams.dateRange[1] = this.parseTime(dataString[1]);
-        // console.log(this.queryParams.dateRange);
-      },
-      // 表单重置
-      reset() {
-        this.formDialog = {
-          id: undefined,
-          deptId: undefined,
-          userName: undefined,
-          nickName: undefined,
-          password: undefined,
-          phonenumber: undefined,
-          email: undefined,
-          sex: undefined,
-          status: '0',
-          remark: undefined,
-          postIds: [],
-          roleIds: [],
-        };
-      },
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.getUserList();
-      },
-      // 分页事件
-      handlePageChange({ currentPage, pageSize }) {
-        this.queryParams.pageNum = currentPage;
-        this.queryParams.pageSize = pageSize;
-        this.getUserList();
-      },
-      // 新增
-      handleAdd() {
-        this.reset();
-        this.getTreeselect();
-        this.getRoles();
-        this.dialogTitle = '添加用户';
-        // this.formDialog.password = this.initPassword
-        this.visibleModel = true;
-      },
-      // 修改
-      handleUpdate(row) {
-        if (!row.id) {
-          let cellsChecked = this.$refs.userListRef.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            this.ids = [];
-            this.ids.push(element.id);
-          });
-        }
-        this.reset();
-        this.getTreeselect();
-        this.getRoles();
-        const id = row.id || this.ids;
-        // this.ids = [];
-        // this.ids.push(id);
-        console.log(id);
-        hongtuConfig.userCofigSearchById(id).then((response) => {
-          if (response.code == 200) {
-            console.log(response);
-            this.formDialog = response.data;
-            this.formDialog.postIds = response.data.postIds;
-            this.formDialog.roleIds = response.data.roleIds;
-            this.visibleModel = true;
-            this.dialogTitle = '修改用户';
-            this.formDialog.password = '';
-          }
-        });
-      },
-      handleOk() {
-        console.log(this.formDialog);
-        this.$refs.formModel.validate((valid) => {
-          if (valid) {
-            if (!this.formDialog.id) {
-              hongtuConfig.userCofigAdd(this.formDialog).then((response) => {
-                console.log(response);
-                if (response.code == 200) {
-                  this.$message.success(this.dialogTitle + '成功');
-                  this.visibleModel = false;
-                  this.getUserList();
-                }
-              });
-            } else {
-              hongtuConfig.userCofigEdit(this.formDialog).then((response) => {
-                if (response.code == 200) {
-                  this.$message.success(this.dialogTitle + '成功');
-                  this.$refs.formModel.resetFields();
-                  this.visibleModel = false;
-                  this.getUserList();
-                }
-              });
-            }
-          }
-        });
-      },
-      handleCancel() {},
-      handleSelect() {},
-      // 删除
-      handleDelete(row) {
-        // console.log(row)
-        let ids = [];
-        let deletName = [];
-        if (!row.id) {
-          let cellsChecked = this.$refs.userListRef.getCheckboxRecords();
-          cellsChecked.forEach((element) => {
-            ids.push(element.id);
-            deletName.push(element.userName);
-          });
-        } else {
-          ids.push(row.id);
-          deletName.push(row.userName);
-        }
-        this.$confirm({
-          title: '是否确认删除用户名称为' + deletName.join(',') + '的数据项',
-          content: '',
-          okText: '确定',
-          okType: 'danger',
-          cancelText: '取消',
-          onOk: () => {
-            hongtuConfig.userCofigDelete(ids.join(',')).then((response) => {
+          } else {
+            hongtuConfig.userCofigEdit(this.formDialog).then((response) => {
               if (response.code == 200) {
-                this.$message.success('删除成功');
-                this.resetQuery();
+                this.$message.success(this.dialogTitle + '成功');
+                this.$refs.formModel.resetFields();
+                this.visibleModel = false;
+                this.getUserList();
               }
             });
-          },
-          onCancel() {},
-        });
-      },
-      // 重置
-      resetQuery() {
-        this.queryParams = {
-          pageNum: 1,
-          pageSize: 10,
-          userName: undefined,
-          phonenumber: undefined,
-          status: undefined,
-          beginTime: undefined,
-          endTime: undefined,
-        };
-        this.getUserList();
-      },
-      handleResetPwd(row) {
-        this.name = row.userName;
-        this.psdForm = row;
-        console.log(this.psdForm);
-        this.psdForm.password = '';
-        this.visible = true;
-      },
-      handlePsd() {
-        let data = {
-          id: this.psdForm.id,
-          password: this.psdForm.password,
-        };
-        hongtuConfig.resetUserPwd(data).then((res) => {
-          if (res.code == 200) {
-            this.$message.success('重置密码成功！');
           }
-        });
-        this.visible = false;
-      },
-      handleCancelPsd() {
-        this.visible = false;
-      },
-      handleExport() {
-        hongtuConfig.exportUser(this.queryParams).then((res) => {
-          this.downloadfileCommon(res);
-        });
-      },
+        }
+      });
     },
-  };
+    handleCancel() {},
+    handleSelect() {},
+    // 删除
+    handleDelete(row) {
+      // console.log(row)
+      let ids = [];
+      let deletName = [];
+      if (!row.id) {
+        let cellsChecked = this.$refs.userListRef.getCheckboxRecords();
+        cellsChecked.forEach((element) => {
+          ids.push(element.id);
+          deletName.push(element.userName);
+        });
+      } else {
+        ids.push(row.id);
+        deletName.push(row.userName);
+      }
+      this.$confirm({
+        title: '是否确认删除用户名称为' + deletName.join(',') + '的数据项',
+        content: '',
+        okText: '确定',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: () => {
+          hongtuConfig.userCofigDelete(ids.join(',')).then((response) => {
+            if (response.code == 200) {
+              this.$message.success('删除成功');
+              this.resetQuery();
+            }
+          });
+        },
+        onCancel() {},
+      });
+    },
+    // 重置
+    resetQuery() {
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10,
+        userName: undefined,
+        phonenumber: undefined,
+        status: undefined,
+        beginTime: undefined,
+        endTime: undefined,
+      };
+      this.getUserList();
+    },
+    handleResetPwd(row) {
+      this.name = row.userName;
+      this.psdForm = row;
+      console.log(this.psdForm);
+      this.psdForm.password = '';
+      this.visible = true;
+    },
+    handlePsd() {
+      let data = {
+        id: this.psdForm.id,
+        password: this.psdForm.password,
+      };
+      hongtuConfig.resetUserPwd(data).then((res) => {
+        if (res.code == 200) {
+          this.$message.success('重置密码成功！');
+        }
+      });
+      this.visible = false;
+    },
+    handleCancelPsd() {
+      this.visible = false;
+    },
+    handleExport() {
+      hongtuConfig.exportUser(this.queryParams).then((res) => {
+        this.downloadfileCommon(res);
+      });
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-  .userMonitorTemplate {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    box-shadow: $plane_shadow;
+.userMonitorTemplate {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  box-shadow: $plane_shadow;
 
-    .rightContent {
-      width: calc(100% - 250px);
-      margin-left: 10px;
+  .rightContent {
+    width: calc(100% - 250px);
+    margin-left: 10px;
+    height: 100%;
+    .el-scrollbar {
       height: 100%;
-      .el-scrollbar {
-        height: 100%;
-      }
-    }
-    .dialogBox {
-      .ant-form-item {
-        margin-bottom: 30px;
-      }
     }
   }
+  .dialogBox {
+    .ant-form-item {
+      margin-bottom: 30px;
+    }
+  }
+}
 </style>
 <style scoped>
-  .ant-radio-group {
-    padding-top: 10px;
-  }
+.ant-radio-group {
+  padding-top: 10px;
+}
 </style>
