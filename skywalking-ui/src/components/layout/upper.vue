@@ -173,9 +173,9 @@ export default {
     }).then((data) => {
       this.warnNum = data.data.length;
     });
-    var domain = window.location.host;
-    // var domain = '1.119.5.177:12800';
-    createWebSocket('ws://' + domain + '/ws/webSocket/12345', '');
+    // var domain = window.location.host;
+    var domain = '10.1.100.35:12801';
+    createWebSocket('ws://' + domain + '/webSocket/12345', '');
   },
   mounted() {
     window.wsonmessage = this;
