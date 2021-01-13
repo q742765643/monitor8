@@ -13,10 +13,10 @@
         <span class="icon iconfont iconlingdang" @click="jumper">
           <span v-if="warnNum" class="warnNum">{{ warnNum }}</span>
         </span>
-        <span class="icon iconfont iconskin"></span>
+        <span class="icon iconfont iconskin" @click="changeColor"></span>
         <span class="icon iconfont iconxinxi" @click="aboutInfo"></span>
-        <span class="out" @click="logout">注销/退出</span>
-        <!-- <span class="icon iconfont iconguanbi1" @click="logout"></span> -->
+        <!-- <span class="out" @click="logout">注销/退出</span> -->
+        <span class="icon iconfont iconguanbi1" @click="logout"></span>
       </div>
     </div>
     <audio muted style="display: none" id="ring1">
@@ -75,7 +75,7 @@
     <a-modal
       v-model="visibleModelAbout"
       title="关于"
-      @ok="handleOk"
+      @ok="visibleModelAbout = false"
       width="460px"
       :maskClosable="false"
       class="dialogBox aboutDialog"
@@ -95,6 +95,25 @@
           <img src="../../assets/imgs/icon2.png" alt="" />
           <img src="../../assets/imgs/icon3.png" alt="" />
         </div>
+      </div>
+    </a-modal>
+
+    <a-modal
+      v-model="visibleModelChange"
+      title="主题颜色"
+      @ok="trueChange"
+      width="460px"
+      :maskClosable="false"
+      class="dialogBox changeDialog"
+      okText="确定"
+      cancelText="取消"
+    >
+      <div v-if="visibleModelChange" class="changeBox">
+        <a-radio-group name="radioGroup" v-model="SelectColorBody" @change="changeSelectColor">
+          <a-radio value="whiteBody"> 白色主题 </a-radio>
+          <a-radio value="blueBody"> 深蓝主题 </a-radio>
+          <a-radio value="darkBody"> 黑色主题 </a-radio>
+        </a-radio-group>
       </div>
     </a-modal>
   </div>
@@ -124,6 +143,8 @@ export default {
       }
     };
     return {
+      SelectColorBody: localStorage.getItem('colorBody') == undefined ? 'whiteBody' : localStorage.getItem('colorBody'),
+      visibleModelChange: false,
       visibleModelAbout: false,
       warnNum: 0,
       visibleModelPassword: false,
@@ -145,14 +166,15 @@ export default {
     };
   },
   created() {
+    document.getElementsByTagName('body')[0].className = this.SelectColorBody;
     request({
       url: '/main/getAlarm',
       method: 'get',
     }).then((data) => {
       this.warnNum = data.data.length;
     });
-    //var domain = window.location.host;
-    var domain = '1.119.5.177:12800';
+    var domain = window.location.host;
+    // var domain = '1.119.5.177:12800';
     createWebSocket('ws://' + domain + '/ws/webSocket/12345', '');
   },
   mounted() {
@@ -160,6 +182,20 @@ export default {
   },
   destroyed() {},
   methods: {
+    changeSelectColor(val) {
+      this.SelectColorBody = val.target.value;
+    },
+    trueChange() {
+      debugger;
+      localStorage.setItem('colorBody', this.SelectColorBody);
+      document.getElementsByTagName('body')[0].className = this.SelectColorBody;
+      this.visibleModelChange = false;
+    },
+    changeColor() {
+      this.visibleModelChange = true;
+      //document.getElementsByTagName('body')[0].className = 'blueBody';
+      // return require('@/assets/css/blue.scss');
+    },
     aboutInfo() {
       this.visibleModelAbout = true;
     },

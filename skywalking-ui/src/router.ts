@@ -40,7 +40,7 @@ window.axiosCancel = [];
 
 
 const router = new Router({
-  mode: 'history',
+  mode: 'hash',
   //base: process.env.BASE_URL,
   base: '/',
   linkActiveClass: 'active',

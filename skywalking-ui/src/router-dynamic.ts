@@ -54,7 +54,7 @@ export const constantRoutes = [
 ]
 
 const router = new Router({
-    mode: 'history',
+    mode: 'hash',
     //base: process.env.BASE_URL,
     base: '/',
     linkActiveClass: 'active',
@@ -63,17 +63,17 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
 
-    if(getToken()) {
-        if(to.path === '/login') {
+    if (getToken()) {
+        if (to.path === '/login') {
             next({ path: '/' })
-        }else {
+        } else {
             store.dispatch('GenerateRoutes').then((accessRoutes) => {
                 router.addRoutes(accessRoutes)
                 next()
             })
         }
     }
-    
+
     //
     /*  const token = window.localStorage.getItem('skywalking-authority');
     if (window.axiosCancel.length !== 0) {

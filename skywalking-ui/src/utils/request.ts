@@ -14,8 +14,8 @@ export interface AjaxResponse {
 }
 
 // baseURL根据实际进行定义
+// const baseURL = 'http://10.1.100.35:12801/';
 const baseURL = '/monitor';
-
 // 创建axios实例
 const service = axios.default.create({
   baseURL,
@@ -57,7 +57,7 @@ service.interceptors.response.use(
       notification.open({
         message: '错误',
         description: response.data.msg,
-        onClick: () => {},
+        onClick: () => { },
       });
       return Promise.reject(new Error(response.data.msg));
     } else {
