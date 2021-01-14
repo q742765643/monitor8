@@ -166,6 +166,9 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
 
 
     public boolean regularCheck(FileMonitorDto fileMonitorDto) {
+        if(fileMonitorDto.getFileNum()==1){
+            return true;
+        }
         String regular = fileMonitorDto.getFolderRegular() + "/" + fileMonitorDto.getFilenameRegular();
         Matcher m = PATTERN.matcher(regular);
         while (m.find()) {
