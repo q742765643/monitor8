@@ -10,6 +10,7 @@ import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.api.host.ProcessConfigService;
 import com.piesat.skywalking.dto.*;
 import com.piesat.skywalking.mapper.HostConfigMapper;
+import com.piesat.skywalking.service.timing.CronExpression;
 import com.piesat.skywalking.vo.AlarmDistributionVo;
 import com.piesat.skywalking.vo.MonitorViewVo;
 import com.piesat.util.IndexNameUtil;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -262,6 +264,7 @@ public class MainService {
         List<Integer[]> data = new ArrayList<>();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         String indexName = IndexNameConstant.T_MT_FILE_STATISTICS;
+        List<String> has=new ArrayList<>();
         try {
             BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
             RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("start_time_s");
@@ -287,10 +290,43 @@ public class MainService {
                     d[1]=Integer.parseInt(daysMap.get(taskId));
                     d[2]=Integer.parseInt(status);
                     data.add(d);
+                    has.add(d[0]+"#"+d[1]);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if(null!=fileMonitorList){
+            for(int i=0;i<fileMonitorList.size();i++){
+               FileMonitorDto fileMonitorDtoN=fileMonitorList.get(i);
+               String taskId=fileMonitorDtoN.getId();
+               if(fileMonitorDtoN.getTriggerStatus()==0&&StringUtil.isNotEmpty(fileMonitorDtoN.getJobCron())){
+                   long nowTime=startTime;
+                   if(nowTime<=fileMonitorDtoN.getUpdateTime().getTime()){
+                       nowTime=fileMonitorDtoN.getUpdateTime().getTime();
+                   }
+                   while (nowTime <= endTime) {
+                       try {
+                           Date nextValidTime = new CronExpression(fileMonitorDtoN.getJobCron()).getNextValidTimeAfter(new Date(nowTime));
+                           nowTime = nextValidTime.getTime();
+                           if (nowTime <= endTime) {
+                               String hour=qh.format(nowTime);
+                               if(StringUtil.isNotEmpty(daysMap.get(taskId))&&StringUtil.isNotEmpty(hoursMap.get(hour))){
+                                   Integer[] d=new Integer[3];
+                                   d[0]=Integer.parseInt(hoursMap.get(hour));
+                                   d[1]=Integer.parseInt(daysMap.get(taskId));
+                                   d[2]=5;
+                                   //if(!has.contains(d[0]+"#"+d[1])){
+                                       data.add(d);
+                                   //}
+                               }
+                           }
+                       } catch (Exception e) {
+                           e.printStackTrace();
+                       }
+                   }
+               }
+            }
         }
         Map<String,Object> returnMap=new HashMap<>();
         returnMap.put("days",daysList);
@@ -352,7 +388,27 @@ public class MainService {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         String indexName = IndexNameConstant.T_MT_PROCESS_DOWN_LOG;
         List<Integer[]> nums = new ArrayList<>();
-
+        for(int i=0;i<processConfigDtos.size();i++){
+            ProcessConfigDto processConfigDto=processConfigDtos.get(i);
+            long nowTime=startTime;
+            String id=processConfigDto.getId();
+            if(nowTime<=processConfigDto.getCreateTime().getTime()){
+                String hour1=qh.format(nowTime);
+                String hour2=qh.format(processConfigDto.getCreateTime());
+                if(StringUtil.isNotEmpty(daysMap.get(id))&&StringUtil.isNotEmpty(hoursMap.get(hour1))&&StringUtil.isNotEmpty(hoursMap.get(hour2))){
+                    Integer[] d=new Integer[4];
+                    d[0]=Integer.parseInt(daysMap.get(id));
+                    d[1]=Integer.parseInt(hoursMap.get(hour1));
+                    d[2]=Integer.parseInt(hoursMap.get(hour2));
+                    if(d[1]==d[2]){
+                        d[2]=d[1]+1;
+                    }
+                    d[3]=3;
+                    nums.add(d);
+                    all.get(d[0]).add(d);
+                }
+            }
+        }
         try {
             BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
             //boolBuilder.should(QueryBuilders.rangeQuery("start_time").from(startTime).includeLower(true));
@@ -395,6 +451,7 @@ public class MainService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         for(int i=0;i<processConfigDtos.size();i++){
             try {
                 List<Integer[]> list=all.get(i);

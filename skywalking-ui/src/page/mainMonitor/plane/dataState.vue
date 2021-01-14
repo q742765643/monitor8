@@ -35,6 +35,7 @@
           { label: '故障', value: 2, color: '#9C82ED' },
           { label: '正常', value: 3, color: '#2BB9F7' },
           { label: '未执行', value: 4, color: '#FF0000' },
+          { label: '未启动', value: 5, color: '#0CB218' },
         ];
 
         let option = {

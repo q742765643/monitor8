@@ -33,12 +33,15 @@ module.exports = {
     devServer: {
         proxy: {
             '/graphql': {
-                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800'}`,
+                target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
                 changeOrigin: true,
             },
             '/monitor': {
-                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12800 '}`,
+                target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
                 changeOrigin: true,
+                pathRewrite: {
+                    ["^/monitor"]: ""
+                }
             },
         },
     },

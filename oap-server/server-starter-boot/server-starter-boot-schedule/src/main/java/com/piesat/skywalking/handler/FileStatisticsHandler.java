@@ -61,7 +61,7 @@ public class FileStatisticsHandler implements BaseHandler {
         long endTime = startTime + 86400 * 1000;
 
         for (FileMonitorDto fileMonitorDto : fileMonitorDtos) {
-            long nowTime = startTime;
+            long nowTime = fileMonitorDto.getCreateTime().getTime();
             int i = 0;
             while (nowTime <= endTime) {
                 try {

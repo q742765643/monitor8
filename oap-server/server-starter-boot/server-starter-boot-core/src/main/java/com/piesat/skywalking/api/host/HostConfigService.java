@@ -37,4 +37,8 @@ public interface HostConfigService {
     public List<Map<String,Object>> findStateStatistics();
 
     public void trigger(String id);
+
+    public void getUpdateTime(HostConfigDto hostConfigDto);
+
+    public void getPacketLoss(HostConfigDto hostConfigDto);
 }

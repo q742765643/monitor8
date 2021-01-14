@@ -83,12 +83,12 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                             }
                         }
                         hostConfig.setMonitoringMethods(2);
-                        hostConfig.setJobCron(new Random().nextInt(59)+"/30 * * * * ?");
+                        hostConfig.setJobCron(new Random().nextInt(29)+"/30 * * * * ?");
                         //hostConfig.setId(ip);
                         hostConfig.setTriggerStatus(1);
                         hostConfigService.save(hostConfig);
                     } else {
-                        hostConfig.setJobCron(new Random().nextInt(59)+"/30 * * * * ?");
+                        hostConfig.setJobCron(new Random().nextInt(29)+"/30 * * * * ?");
                         //hostConfig.setId(ip);
                         hostConfig.setTriggerStatus(1);
                         hostConfig.setMonitoringMethods(3);

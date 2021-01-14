@@ -14,19 +14,31 @@ import com.piesat.skywalking.entity.HostConfigEntity;
 import com.piesat.skywalking.mapper.HostConfigMapper;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
+import com.piesat.util.JsonParseUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +54,8 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
     private HostConfigMapper hostConfigMapper;
     @Autowired
     private AlarmEsLogService alarmEsLogService;
+    @Autowired
+    private ElasticSearch7Client elasticSearch7Client;
 
     @Override
     public BaseDao<HostConfigEntity> getBaseDao() {
@@ -280,5 +294,56 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
 
     public void trigger(String id){
         hostConfigQuartzService.trigger(this.findById(id));
+    }
+
+    public void getUpdateTime(HostConfigDto hostConfigDto){
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.uptime");
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", hostConfigDto.getIp());
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+        search.query(boolBuilder);
+        search.size(1);
+        search.fetchSource(new String[]{"system.uptime.duration.ms"}, null);
+        search.sort("@timestamp", SortOrder.DESC);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            SearchHits hits = searchResponse.getHits();
+            SearchHit[] searchHits = hits.getHits();
+            for (SearchHit hit : searchHits) {
+                Map jsonMap = new LinkedHashMap();
+                JsonParseUtil.parseJSON2Map(jsonMap, hit.getSourceAsString(), null);
+                long hours = new BigDecimal(String.valueOf(jsonMap.get("system.uptime.duration.ms"))).divide(new BigDecimal(1000 * 60 * 60), 2, BigDecimal.ROUND_HALF_UP).longValue();
+                hostConfigDto.setMaxUptime(hours);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public void getPacketLoss(HostConfigDto hostConfigDto){
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.packet");
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", hostConfigDto.getIp());
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+        search.query(boolBuilder);
+        search.size(1);
+        search.fetchSource(new String[]{"loss"}, null);
+        search.sort("@timestamp", SortOrder.DESC);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", search);
+            SearchHits hits = searchResponse.getHits();
+            SearchHit[] searchHits = hits.getHits();
+            for (SearchHit hit : searchHits) {
+                float loss = new BigDecimal(String.valueOf(hit.getSourceAsMap().get("loss"))).floatValue();
+                hostConfigDto.setPacketLoss(loss*100);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
