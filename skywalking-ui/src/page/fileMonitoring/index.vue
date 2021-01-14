@@ -227,14 +227,7 @@ export default {
     this.selectAcount();
     this.queryTable();
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-    window.addEventListener('resize', () => {
-      this.setTableHeight();
-    });
-  },
+  mounted() {},
   methods: {
     moment,
     range(start, end) {
@@ -279,9 +272,9 @@ export default {
       this.queryParams = {
         pageNum: 1,
         pageSize: 10,
-        ip: '',
-        triggerLastTime: '',
-        triggerNextTime: '',
+        taskName: '',
+        beginTime: '',
+        endTime: '',
       };
       this.queryTable();
     },
@@ -293,6 +286,7 @@ export default {
     },
     /* table方法 */
     queryTable() {
+      debugger;
       hongtuConfig.fileMonitorList(this.queryParams).then((response) => {
         this.tableData = response.data.pageData;
         this.paginationTotal = response.data.totalCount;
@@ -373,14 +367,7 @@ export default {
         onCancel() {},
       });
     },
-    setTableHeight() {
-      let h = document.getElementById('tablediv').offsetHeight;
-      let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
-      let h_page = document.getElementById('page_table').offsetHeight;
 
-      // let chartHeight = document.getElementById("chartdiv").clientHeight;
-      this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
-    },
     startJob(row) {
       const id = row.id;
       let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };

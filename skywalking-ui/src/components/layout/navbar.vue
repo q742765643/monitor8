@@ -309,7 +309,7 @@ export default {
   .leftMenuScroll {
     height: calc(100% - 90px);
     #menuNav {
-      background: #f1f2f4;
+      background: none;
       padding: 0 30px;
       padding-top: 30px;
       font-size: $nav_fontSize;
@@ -340,8 +340,8 @@ export default {
           color: #5d76ae;
         }
       }
-      .ant-menu-item[id='main']:hover {
-        color: #1890ff !important;
+      .ant-menu-item:hover {
+        color: #1890ff;
         a {
           color: #1890ff;
         }

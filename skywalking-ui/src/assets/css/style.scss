@@ -75,7 +75,6 @@ body {
 
 .ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-title {
     span {
-        // color: rgba(0, 0, 0, 0.65);
         color: #5d76ae;
 
         .iconfont {
@@ -87,11 +86,6 @@ body {
     box-shadow: none;
 }
 
-// .ant-menu-submenu .ant-menu-submenu-inline .ant-menu-submenu-title:hover {
-//     span {
-//         color: #1890ff !important;
-//     }
-// }
 .ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-selected .ant-menu-submenu-title {
 
     span,
@@ -130,11 +124,7 @@ body {
     }
 }
 
-// .log .ant-menu-submenu .ant-menu-inline .ant-menu-submenu-open .ant-menu-submenu-selected .ant-menu-submenu-title:hover {
-//     span {
-//         color: #fff !important;
-//     }
-// }
+
 // table样式
 .vxe-table {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
@@ -336,5 +326,95 @@ body {
         box-shadow: none;
         margin-bottom: 0;
         padding-bottom: 30px;
+    }
+}
+
+
+/* 蓝色,黑色主题 */
+.blueBody,
+.darkBody {
+
+    #slider {
+        .timeBox {
+            color: #fff;
+        }
+
+        .leftMenuScroll {
+            #menuNav {
+                color: #bfcbd9;
+
+                .ant-menu-item>a,
+                .ant-menu-item span {
+                    color: #bfcbd9;
+                }
+
+                .ant-menu-item-selected>a,
+                .ant-menu-item-selected>a:hover {
+                    color: #1890ff;
+                }
+            }
+        }
+    }
+
+    .ant-menu-submenu-inline>.ant-menu-submenu-title .ant-menu-submenu-arrow::before,
+    .ant-menu-submenu-vertical>.ant-menu-submenu-title .ant-menu-submenu-arrow::after,
+    .ant-menu-submenu-selected>.ant-menu-submenu-title:hover .ant-menu-submenu-arrow::before,
+    .ant-menu-submenu-selected>.ant-menu-submenu-title:hover .ant-menu-submenu-arrow::after,
+    .ant-menu-submenu-inline>.ant-menu-submenu-title .ant-menu-submenu-arrow::after {
+        background-image: linear-gradient(to right, rgba(191, 203, 217, 0.65), rgba(191, 203, 217, 0.65));
+    }
+
+    .ant-menu-submenu>.ant-menu {
+        background: none;
+    }
+
+}
+
+/* 黑色主题 */
+.darkBody {
+    #components-layout {
+        .leftAside {
+            background: #304156;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5);
+        }
+    }
+
+    #slider .leftMenuScroll #menuNav .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+        background: none;
+
+        &:before {
+            border: none;
+        }
+    }
+}
+
+/* 蓝色主题 */
+
+.blueBody {
+    #components-layout {
+        .leftAside {
+            background: url(../imgs/menubk.png);
+            background-repeat: repeat-x;
+            background-size: 100% 100%;
+        }
+    }
+
+    #slider {
+        .timeBox {
+            color: #fff;
+        }
+
+        .leftMenuScroll {
+            #menuNav {
+
+                .ant-menu-item>a:hover,
+                .ant-menu-item span:hover,
+                .ant-menu-item:hover .iconfont,
+                .ant-menu-submenu-title:hover,
+                .ant-menu-item:hover {
+                    color: #fff100;
+                }
+            }
+        }
     }
 }
