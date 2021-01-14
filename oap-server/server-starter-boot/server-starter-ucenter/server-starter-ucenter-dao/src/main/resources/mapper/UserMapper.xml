@@ -26,6 +26,7 @@
         <result column="UPDATE_BY" jdbcType="VARCHAR" property="updateBy"/>
         <result column="USER_NAME" jdbcType="VARCHAR" property="userName"/>
         <result column="USER_TYPE" jdbcType="VARCHAR" property="userType"/>
+        <result column="THEME" jdbcType="VARCHAR" property="theme"/>
         <association property="dept" column="dept_id" javaType="com.piesat.ucenter.entity.system.DeptEntity"
                      resultMap="deptResult"/>
         <collection property="roles" javaType="java.util.List" resultMap="RoleResult"/>
@@ -54,12 +55,12 @@
         -->
         ID, CREATE_TIME, DEL_FLAG, UPDATE_TIME, VERSION, AVATAR, CREATE_BY, DEPT_ID, EMAIL,
         LOGIN_DATE, LOGIN_IP, NICK_NAME, PASSWORD, PHONENUMBER, REMARK, SEX, STATUS, UPDATE_BY,
-        USER_NAME, USER_TYPE
+        USER_NAME, USER_TYPE,THEME
     </sql>
 
     <sql id="selectUserVo">
-        select u.id, u.dept_id, u.user_name, u.nick_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark,
-       d.id, d.parent_id, d.dept_name, d.order_num, d.leader, d.status as dept_status,
+        select u.id, u.dept_id, u.user_name, u.nick_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark,u.th
+       u.theme,d.id, d.parent_id, d.dept_name, d.order_num, d.leader, d.status as dept_status,
         r.id as role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
         from t_sod_user u
 		    left join t_sod_dept d on u.dept_id =d.id

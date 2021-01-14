@@ -62,6 +62,9 @@ public class FileStatisticsHandler implements BaseHandler {
 
         for (FileMonitorDto fileMonitorDto : fileMonitorDtos) {
             long nowTime = fileMonitorDto.getCreateTime().getTime();
+            if(nowTime<startTime){
+                nowTime=startTime;
+            }
             int i = 0;
             while (nowTime <= endTime) {
                 try {
@@ -70,6 +73,7 @@ public class FileStatisticsHandler implements BaseHandler {
                     if (nowTime <= endTime) {
                         FileStatisticsDto fileStatisticsDto = new FileStatisticsDto();
                         fileStatisticsDto.setStatus(4);
+                        fileStatisticsDto.setTaskName(fileMonitorDto.getTaskName());
                         fileStatisticsDto.setId(fileMonitorDto.getId() + "_" + nowTime);
                         fileStatisticsDto.setTaskId(fileMonitorDto.getId());
                         fileStatisticsDto.setFilenameRegular(fileMonitorDto.getFilenameRegular());
@@ -99,6 +103,7 @@ public class FileStatisticsHandler implements BaseHandler {
                 continue;
             }
             source.put("task_id", fileStatisticsDto.getTaskId());
+            source.put("task_name", fileStatisticsDto.getTaskName());
             source.put("filename_regular", fileStatisticsDto.getFilenameRegular());
             source.put("file_num", fileStatisticsDto.getFileNum());
             source.put("file_size", fileStatisticsDto.getFileSize());
@@ -108,6 +113,7 @@ public class FileStatisticsHandler implements BaseHandler {
             source.put("real_file_size", fileStatisticsDto.getRealFileSize());
             source.put("per_file_num", fileStatisticsDto.getPerFileNum());
             source.put("per_file_size", fileStatisticsDto.getPerFileSize());
+            source.put("late_num", fileStatisticsDto.getLateNum());
             source.put("status", fileStatisticsDto.getStatus());
             source.put("@timestamp", new Date());
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, fileStatisticsDto.getId()).source(source);

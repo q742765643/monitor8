@@ -131,6 +131,34 @@ public class SysProfileController {
         }
 
     }
-
+    @ApiOperation(value = "修改主题", notes = "修改主题")
+    @Log(title = "个人信息", businessType = BusinessType.UPDATE)
+    @PutMapping("/updateTheme")
+    public ResultT<String> updateTheme(String theme){
+        ResultT<String> resultT = new ResultT<>();
+        try {
+            UserDto userDto = (UserDto) SecurityUtils.getSubject().getPrincipal();
+            userDto = userService.selectUserById(userDto.getId());
+            userDto.setTheme(theme);
+            userService.updateProfile(userDto);
+            resultT.setData(theme);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultT;
+    }
+    @ApiOperation(value = "获取主题", notes = "获取主题")
+    @GetMapping("/getTheme")
+    public ResultT<String> getTheme(){
+        ResultT<String> resultT = new ResultT<>();
+        try {
+            UserDto userDto = (UserDto) SecurityUtils.getSubject().getPrincipal();
+            userDto = userService.selectUserById(userDto.getId());
+            resultT.setData(userDto.getTheme());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultT;
+    }
 }
 

@@ -89,11 +89,11 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         rangeQueryBuilder.timeZone("+08:00");
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
         boolBuilder.filter(rangeQueryBuilder);
-        if (null!=query.getTaskName()) {
+        if (StringUtils.isNotEmpty(query.getTaskName())) {
             WildcardQueryBuilder taskName = QueryBuilders.wildcardQuery("task_name.keyword", "*" + query.getTaskName() + "*");
             boolBuilder.must(taskName);
         }
-        if (null!=query.getTaskId()) {
+        if (StringUtils.isNotEmpty(query.getTaskId())) {
             WildcardQueryBuilder taskId = QueryBuilders.wildcardQuery("task_id", query.getTaskId());
             boolBuilder.must(taskId);
         }
