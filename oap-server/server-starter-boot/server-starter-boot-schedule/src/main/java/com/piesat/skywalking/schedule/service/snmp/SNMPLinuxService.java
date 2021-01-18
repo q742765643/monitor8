@@ -299,8 +299,9 @@ public class SNMPLinuxService extends SNMPService {
             if (runPath == null || runPath.length() < 2) {
                 continue;
             }
-            if(redisUtil.hasKey(key)){
-                long lastTime= new BigDecimal(String.valueOf(redisUtil.get(key))).longValue();
+            if(redisUtil.hasKey(key)&&null!=redisUtil.get(key)){
+                String dateString=String.valueOf(redisUtil.get(key));
+                long lastTime= new BigDecimal(dateString).longValue();
                 long nextTime=new BigDecimal(cpu).longValue();
                 long interval=(nextTime - lastTime);
                 mapInterval.put(id,String.valueOf(interval));

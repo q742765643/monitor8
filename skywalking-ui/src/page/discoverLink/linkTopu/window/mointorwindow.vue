@@ -295,7 +295,7 @@ export default {
     drawChart2(id) {
       let params = {
         ip: this.ip,
-        startTime: this.parseTime(new Date().getTime() - 10 * 1000 * 60),
+        startTime: this.parseTime(new Date().getTime() - 30 * 1000 * 60),
         endTime: this.parseTime(new Date().getTime()),
       };
       let XAxisData = [];

@@ -72,7 +72,7 @@ public class SystemService {
 
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("@timestamp");
-        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(30));
+        dateHis.dateHistogramInterval(DateHistogramInterval.seconds(60));
         AvgAggregationBuilder sumInBytes = AggregationBuilders.avg("sumInBytes");
         sumInBytes.field("system.network.in.bytes");
         DerivativePipelineAggregationBuilder derivativeInBytes = PipelineAggregatorBuilders.derivative("derivativeInBytes", "sumInBytes");
@@ -99,12 +99,12 @@ public class SystemService {
         dateHis.subAggregation(derivativeInBytes);
         dateHis.subAggregation(derivativeOutBytes);
 
-        Script selectInBytes = new Script("params.derivativeOutBytes != null && params.derivativeOutBytes > 0");
+        Script selectInBytes = new Script("params.derivativeOutBytes != null && params.derivativeOutBytes >=0");
         Map<String, String> selectInBytesMap = new HashMap<>();
         selectInBytesMap.put("derivativeOutBytes", "derivativeOutBytes");
         BucketSelectorPipelineAggregationBuilder bucketSelectorInBytes = PipelineAggregatorBuilders.bucketSelector("selectInBytes", selectInBytesMap, selectInBytes);
 
-        dateHis.subAggregation(bucketSelectorInBytes);
+        //dateHis.subAggregation(bucketSelectorInBytes);
 
         dateHis.subAggregation(bucketScriptInBytes);
         dateHis.subAggregation(bucketScriptOutBytes);
@@ -132,6 +132,12 @@ public class SystemService {
                     ParsedSimpleValue outSpeedParsed = bucket.getAggregations().get("outSpeed");
                     if (outSpeedParsed != null) {
                         networkVo.setOutSpeed(new BigDecimal(outSpeedParsed.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP));
+                    }
+                    if(null==networkVo.getInSpeed()){
+                        networkVo.setInSpeed(new BigDecimal(0));
+                    }
+                    if(null==networkVo.getOutSpeed()){
+                        networkVo.setOutSpeed(new BigDecimal(0));
                     }
                     networkVos.add(networkVo);
 

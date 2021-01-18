@@ -95,14 +95,15 @@ public class FileSmaService extends FileBaseService {
     }
 
     public void multipleFiles(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, DirectoryAccountDto directoryAccountDto, ResultT<String> resultT) {
-        SmbFileFilter smbFileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
-        if (!resultT.isSuccess()) {
-            return;
-        }
+
         try {
-            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
             String remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
             fileMonitorLogDto.setRemotePath(remotePath);
+            SmbFileFilter smbFileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
+            if (!resultT.isSuccess()) {
+                return;
+            }
+            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
             SmbFile file = new SmbFile(remotePath, auth);
             HtFileUtil.loopFiles(file, smbFileFilter);
         } catch (Exception e) {

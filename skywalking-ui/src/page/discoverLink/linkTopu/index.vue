@@ -14,10 +14,10 @@
           <div class="column">
             <div class="cell">
               <span>
-                设备别名:
+                设备名称:
                 <i></i>
               </span>
-              <span>{{ infoData.alias }}</span>
+              <span>{{ infoData.hostName }}</span>
             </div>
 
             <div class="cell">
@@ -70,7 +70,7 @@
                 运行时长:
                 <i></i>
               </span>
-              <span>{{ infoData.maxUptime }}</span>
+              <span>{{ infoData.maxUptime }}h</span>
             </div>
             <div class="cell">
               <span>
@@ -84,7 +84,7 @@
                 区域:
                 <i></i>
               </span>
-              <span>{{ infoData.name }}</span>
+              <span>{{ statusFormat(areaOptions, infoData.area) }}</span>
             </div>
           </div>
         </div>
@@ -100,10 +100,11 @@ import topuTree from './toupuchart/toputree1';
 import planeTitle from '@/components/titile/planeTitle.vue';
 import { remFontSize } from '@/components/utils/fontSize.js';
 import request from '@/utils/request';
-
+import hongtuConfig from '@/utils/services';
 export default {
   data() {
     return {
+      areaOptions: [], //区域
       infoData: {
         name: '',
         alias: '',
@@ -121,6 +122,10 @@ export default {
   },
   components: { /* toupuChart ,*/ topuTree, planeTitle },
   methods: {
+    /* 字典格式化 */
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
+    },
     findInfoData(info) {
       this.infoData = info;
     },
@@ -208,6 +213,13 @@ export default {
 
       this.charts.setOption(option);
     },
+  },
+  created() {
+    hongtuConfig.getDicts('media_area').then((res) => {
+      if (res.code == 200) {
+        this.areaOptions = res.data;
+      }
+    });
   },
   mounted() {
     this.findStateStatistics();

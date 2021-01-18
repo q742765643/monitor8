@@ -2,6 +2,7 @@ package com.piesat.ucenter.entity.system;
 
 import com.piesat.common.annotation.Excel;
 import com.piesat.common.jpa.entity.BaseEntity;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -236,4 +237,7 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "REASON", length = 500)
     private String reason;
+
+    @Column(name = "THEME", length = 500)
+    private String  theme;
 }

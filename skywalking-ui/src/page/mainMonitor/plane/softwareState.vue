@@ -31,10 +31,10 @@
         dataList: [],
         longhoursList: [],
         types: [
-          //{ name: '未监控', color: '#0CB218', color1: '#01F21D' },
           { name: '不在线', color: '#0063C8', color1: '#00C9FD' },
           { name: '可能异常', color: '#5A15AB', color1: '#9620F3' },
           { name: '在线', color: '#159D9F', color1: '#0AEBF1' },
+          { name: '未监控', color: '#0CB218', color1: '#01F21D' }
         ],
         categories: [],
       };

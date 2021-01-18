@@ -80,13 +80,14 @@ public class FileLocalService extends FileBaseService {
     }
 
     public void multipleFiles(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, ResultT<String> resultT) {
-        FileFilter fileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
-        if (!resultT.isSuccess()) {
-            return;
-        }
+
         try {
             File file = new File(fileMonitorLogDto.getFolderRegular());
             fileMonitorLogDto.setRemotePath(fileMonitorLogDto.getFolderRegular());
+            FileFilter fileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
+            if (!resultT.isSuccess()) {
+                return;
+            }
             HtFileUtil.loopFiles(file, fileFilter);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));

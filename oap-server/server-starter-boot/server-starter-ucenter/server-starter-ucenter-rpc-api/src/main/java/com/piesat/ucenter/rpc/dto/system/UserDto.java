@@ -192,4 +192,7 @@ public class UserDto extends BaseDto {
 
     @ApiModelProperty("拒绝原因")
     private String reason;
+
+    @ApiModelProperty("主题")
+    private String  theme;
 }

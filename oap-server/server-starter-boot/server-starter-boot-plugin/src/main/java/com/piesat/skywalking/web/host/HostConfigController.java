@@ -37,6 +37,8 @@ public class HostConfigController {
     public ResultT<HostConfigDto> getInfo(@PathVariable String id) {
         ResultT<HostConfigDto> resultT = new ResultT<>();
         HostConfigDto hostConfigDto = hostConfigService.findById(id);
+        hostConfigService.getUpdateTime(hostConfigDto);
+        hostConfigService.getPacketLoss(hostConfigDto);
         resultT.setData(hostConfigDto);
         return resultT;
     }
