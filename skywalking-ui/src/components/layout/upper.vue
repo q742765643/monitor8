@@ -143,7 +143,7 @@ export default {
       }
     };
     return {
-      SelectColorBody: localStorage.getItem('colorBody') == undefined ? 'whiteBody' : localStorage.getItem('colorBody'),
+      SelectColorBody: '',
       visibleModelChange: false,
       visibleModelAbout: false,
       warnNum: 0,
@@ -159,14 +159,20 @@ export default {
             message: '密码在8-20位之间',
             trigger: 'blur',
           },
-          { required: true, validator: passwordValidate, trigger: 'blur' },
+          /*  { required: true, validator: passwordValidate, trigger: 'blur' }, */
         ],
         newPassword2: [{ required: true, validator: passwordValidate2, trigger: 'blur' }],
       }, //规则
     };
   },
   created() {
-    document.getElementsByTagName('body')[0].className = this.SelectColorBody;
+    hongtuConfig.getTheme().then((response) => {
+      if (response.code == 200) {
+        localStorage.setItem('colorBody', response.data);
+        this.SelectColorBody = response.data == undefined ? 'whiteBody' : response.data;
+        document.getElementsByTagName('body')[0].className = this.SelectColorBody;
+      }
+    });
     request({
       url: '/main/getAlarm',
       method: 'get',
@@ -186,10 +192,15 @@ export default {
       this.SelectColorBody = val.target.value;
     },
     trueChange() {
-      debugger;
-      localStorage.setItem('colorBody', this.SelectColorBody);
-      document.getElementsByTagName('body')[0].className = this.SelectColorBody;
-      this.visibleModelChange = false;
+      // theme
+      hongtuConfig.updateTheme(this.SelectColorBody).then((response) => {
+        if (response.code == 200) {
+          this.$message.success('操作成功');
+          localStorage.setItem('colorBody', this.SelectColorBody);
+          document.getElementsByTagName('body')[0].className = this.SelectColorBody;
+          this.visibleModelChange = false;
+        }
+      });
     },
     changeColor() {
       this.visibleModelChange = true;
@@ -205,12 +216,12 @@ export default {
     handleOk() {
       this.$refs.formModel.validate((valid) => {
         if (valid) {
-          /*  hongtuConfig.updatePwd(this.formDialogWord.newPassword, this.formDialogWord.oldPassword).then((response) => {
+          hongtuConfig.updatePwd(this.formDialogWord.newPassword, this.formDialogWord.oldPassword).then((response) => {
             if (response.code == 200) {
               this.$message.success('重置成功');
               this.visibleModelPassword = false;
             }
-          }); */
+          });
         } else {
           console.log('error submit!!');
           return false;

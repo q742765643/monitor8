@@ -1030,6 +1030,33 @@ const dataService = {
           reject(err)
         })
     })
+  },
+
+  // 修改主题
+  updateTheme(newPassword: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .put('/system/user/profile/updateTheme?theme=' + newPassword)
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  },
+  // 查看主题
+  getTheme() {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/system/user/profile/getTheme')
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
   }
 };
 
