@@ -230,6 +230,7 @@ export default {
           params: {
             ip: this.ip,
             titleName: '设备运行状态',
+            parentPageName: 'linkTopu',
           },
         });
       });
@@ -241,9 +242,6 @@ export default {
       }).then((data) => {
         this.$emit('findInfoData', data.data);
       });
-    },
-    closeMonWindow() {
-      this.showMointorWindow = false;
     },
   },
 };

@@ -2,7 +2,7 @@
   <div id="mointorWindow">
     <div class="palne_titile">
       <span>{{ this.titleName }}-{{ this.ip }}</span>
-      <!-- <span class="icon iconfont iconbaseline-close-px" v-on:click="closeWindow"></span> -->
+      <span class="icon iconfont iconbaseline-close-px" v-on:click="closeWindow"></span>
     </div>
     <div class="contentBox">
       <div class="cell1">
@@ -113,9 +113,11 @@ export default {
       let h = document.getElementById('tableChart').clientHeight;
       this.table_height = h - 3;
     },
-    // closeWindow() {
-    //   this.$parent.closeMonWindow();
-    // },
+    closeWindow() {
+      this.$router.push({
+        name: this.$route.params.parentPageName,
+      });
+    },
     initXdata() {
       let t = '';
       for (let i = 0; i < 10; i++) {
