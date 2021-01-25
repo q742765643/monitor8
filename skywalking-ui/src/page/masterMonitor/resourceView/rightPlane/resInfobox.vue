@@ -57,6 +57,7 @@ export default {
         params: {
           ip: this.name,
           titleName: '主机监测信息',
+          parentPageName: 'resourceView',
         },
       });
     },
