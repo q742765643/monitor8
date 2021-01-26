@@ -1,25 +1,25 @@
 <template>
   <div class="roleTemplate">
-    <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
-      <a-form-model-item label="任务名称">
-        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
-      </a-form-model-item>
-      <a-form-model-item label="时间">
-        <a-range-picker
-          @change="onTimeChange"
-          v-model="values"
-          :show-time="{
-            hideDisabledOptions: true,
-            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-          }"
-          format="YYYY-MM-DD HH:mm:ss"
-        />
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-      </a-form-model-item>
-    </a-form-model>
+    <div class="timerSelect">
+      <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
+        <a-form-model-item label="任务名称">
+          <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="时间">
+          <selectDate
+            class="selectDate"
+            @changeDate="changeDate"
+            :HandleDateRange="dateRange"
+            ref="selectDateRef"
+          ></selectDate>
+        </a-form-model-item>
+        <a-form-model-item>
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        </a-form-model-item>
+      </a-form-model>
+    </div>
+
     <div class="tableDateBox">
       <!-- <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
@@ -80,81 +80,76 @@
 </template>
 
 <script>
-  import hongtuConfig from '@/utils/services';
-  import request from '@/utils/request';
-  import moment from 'moment';
-  export default {
-    data() {
-      return {
-        queryParams: {
-          taskName: '',
-          pageNum: 1,
-          pageSize: 10,
-
-        },
-        dateRange: [],
-        fileListData: [],
-        paginationTotal: 0,
-        values:undefined,
-      };
+import hongtuConfig from '@/utils/services';
+import request from '@/utils/request';
+import moment from 'moment';
+import selectDate from '@/components/date/select.vue';
+export default {
+  data() {
+    return {
+      queryParams: {
+        taskName: '',
+        pageNum: 1,
+        pageSize: 10,
+      },
+      dateRange: [],
+      fileListData: [],
+      paginationTotal: 0,
+      values: undefined,
+    };
+  },
+  components: { selectDate },
+  created() {
+    this.getFileList();
+  },
+  methods: {
+    changeDate(data) {
+      this.dateRange = data;
     },
-    created() {
+    moment,
+    range(start, end) {
+      const result = [];
+      for (let i = start; i < end; i++) {
+        result.push(i);
+      }
+      return result;
+    },
+
+    getFileList() {
+      console.log(this.dateRange);
+      hongtuConfig.fileDetail(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
+        console.log(res);
+        this.fileListData = res.data.pageData;
+        this.paginationTotal = res.data.totalCount;
+      });
+    },
+    handleQuery() {
+      this.queryParams.pageNum = 1;
       this.getFileList();
     },
-    methods: {
-      moment,
-      range(start, end) {
-        const result = [];
-        for (let i = start; i < end; i++) {
-          result.push(i);
-        }
-        return result;
-      },
-      onTimeChange(value, dateString) {
-        // this.queryParams.startTime = dateString[0];
-        // this.queryParams.endTime = dateString[1];
-        console.log(this.values)
-        this.queryParams.dateRange = dateString
-      },
-      getFileList() {
-        if (this.queryParams.dateRange) {
-          this.dateRange = this.queryParams.dateRange;
-        } else {
-          this.dateRange = [];
-        }
-        console.log(this.dateRange)
-        hongtuConfig.fileDetail(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
-          console.log(res);
-          this.fileListData = res.data.pageData;
-          this.paginationTotal = res.data.totalCount;
-        });
-      },
-      handleQuery() {
-        this.queryParams.pageNum = 1;
-        this.getFileList();
-      },
-      resetQuery() {
-        this.queryParams = {
-          pageNum: 1,
-          pageSize: 10,
-          taskName: "",
-        };
-        this.getFileList();
-      },
-     
-      selectBox(selection) {
-        console.log(selection.selection);
-        this.single = selection.selection.length > 0 ? false : true;
-      },
-
-      // 分页事件
-      handlePageChange({ currentPage, pageSize }) {
-        this.queryParams.pageNum = currentPage;
-        this.queryParams.pageSize = pageSize;
-        this.getFileList();
-      },
+    resetQuery() {
+      this.queryParams = {
+        pageNum: 1,
+        pageSize: 10,
+        taskName: '',
+      };
+      this.$refs.selectDateRef.changeDate();
+      this.getFileList();
     },
-  };
+
+    selectBox(selection) {
+      console.log(selection.selection);
+      this.single = selection.selection.length > 0 ? false : true;
+    },
+
+    // 分页事件
+    handlePageChange({ currentPage, pageSize }) {
+      this.queryParams.pageNum = currentPage;
+      this.queryParams.pageSize = pageSize;
+      this.getFileList();
+    },
+  },
+};
 </script>
 
 <style scoped></style>

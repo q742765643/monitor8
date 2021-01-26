@@ -30,7 +30,7 @@
       <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column type="checkbox"></vxe-table-column>
         <vxe-table-column field="taskName" title="网段名称"></vxe-table-column>
-        <vxe-table-column field="jobCron" title="发现策略" show-overflow></vxe-table-column>
+        <vxe-table-column field="jobCron" title="cron策略" show-overflow></vxe-table-column>
         <vxe-table-column field="ipRange" title="ip范围" show-overflow></vxe-table-column>
         <vxe-table-column field="triggerStatus" title="状态" show-overflow>
           <template v-slot="{ row }">
@@ -98,8 +98,18 @@
           </a-col>
 
           <a-col :span="12">
-            <a-form-model-item label="发现策略" prop="jobCron">
-              <a-input v-model="formDialog.jobCron" placeholder="请输入发现策略"> </a-input>
+            <a-form-model-item label="cron策略" prop="jobCron">
+              <el-popover v-model.trim="cronPopover">
+                <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
+                <el-input
+                  class="jobCronEl"
+                  size="small"
+                  slot="reference"
+                  @click="cronPopover = true"
+                  v-model.trim="formDialog.jobCron"
+                  placeholder="请输入cron策略"
+                ></el-input>
+              </el-popover>
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
@@ -148,7 +158,12 @@ export default {
         triggerStatus: '',
         jobDesc: '',
       },
-      rules: { taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }] }, //规则
+      rules: {
+        taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
+        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
+      }, //规则
+      cronExpression: '',
+      cronPopover: false,
     };
   },
   created() {
@@ -168,6 +183,38 @@ export default {
     });
   },
   methods: {
+    changeCron(val) {
+      this.cronExpression = val;
+      if (val.substring(0, 5) == '* * *') {
+        this.msgError('小时,分钟,秒必填');
+      } else {
+        this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
+        console.log(this.formDialog.jobCron);
+      }
+    },
+    closeCronPopover() {
+      if (this.cronExpression.substring(0, 5) == '* * *') {
+        return;
+      }
+      this.cronPopover = false;
+      // else {
+      //   this.CronPopover = false;
+      //    getNextTime({
+      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
+      //   }).then((res) => {
+      //     let times = res.data;
+      //     let html = "";
+      //     times.forEach((element) => {
+      //       html += "<p>" + element + "</p>";
+      //     });
+      //     this.$alert(html, "前5次执行时间", {
+      //       dangerouslyUseHTMLString: true,
+      //     }).then(() => {
+      //       this.CronPopover = false;
+      //     });
+      //   });
+      // }
+    },
     /* 查询 */
     handleQuery() {
       this.queryParams.pageNum = 1;
@@ -202,6 +249,7 @@ export default {
       return hongtuConfig.formatterselectDictLabel(list, text);
     },
     handleAdd() {
+      this.closeCronPopover = false;
       /* 新增 */
       this.dialogTitle = '新增';
       this.formDialog = {
@@ -215,6 +263,7 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
+      this.closeCronPopover = false;
       hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
         if (response.code == 200) {
           response.data.triggerStatus = response.data.triggerStatus + '';

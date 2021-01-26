@@ -33,8 +33,11 @@ import { parseDate } from '@/components/util';
 export default {
   name: 'selectDate',
   props: {
-    handleRange: {
+    handleDiffRange: {
       type: Number,
+    },
+    HandleDateRange: {
+      type: Array,
     },
   },
   data() {
@@ -47,8 +50,8 @@ export default {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [parseDate(start) + ' 00:00:00', parseDate(end) + ' 23:59:59']);
-              // picker.$emit('pick', [start, end]);
+              //picker.$emit('pick', [parseDate(start) + ' 00:00:00', parseDate(end) + ' 23:59:59']);
+              picker.$emit('pick', [start, end]);
             },
           },
           {
@@ -57,7 +60,7 @@ export default {
               const end = parseDate(new Date()) + ' 00:00:00';
               const start = parseDate(new Date()) + ' 00:00:00';
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [parseDate(start) + ' 00:00:00', parseDate(end) + ' 23:59:59']);
+              picker.$emit('pick', [start, end]);
             },
           },
           {
@@ -66,7 +69,7 @@ export default {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [parseDate(start) + ' 00:00:00', parseDate(end) + ' 23:59:59']);
+              picker.$emit('pick', [start, end]);
             },
           },
         ],
@@ -76,12 +79,15 @@ export default {
     };
   },
   created() {
-    console.log(this.handleRange);
-    if (this.handleRange) {
+    console.log(this.handleDiffRange);
+    if (this.handleDiffRange) {
       const end = new Date();
       const start = new Date();
       start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
       this.dateRange = [parseDate(start) + ' 00:00:00', parseDate(end) + ' 23:59:59'];
+    }
+    if (this.HandleDateRange) {
+      this.dateRange = this.HandleDateRange;
     }
     this.changeDate();
     // console.log(this.dateRange)
@@ -89,9 +95,11 @@ export default {
   methods: {
     changeDate() {
       console.log('123');
-      if (this.dateRange[0].indexOf('00:00:00') == '-1') {
+      if (this.dateRange.length > 0 && this.dateRange[0].indexOf('00:00:00') == '-1') {
         this.dateRange[0] += ' 00:00:00';
         this.dateRange[1] += ' 23:59:59';
+      } else {
+        this.dateRange = [];
       }
       console.log(this.dateRange);
       this.$emit('changeDate', this.dateRange);

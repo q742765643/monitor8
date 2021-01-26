@@ -30,7 +30,7 @@
       <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column type="checkbox" width="50"></vxe-table-column>
         <vxe-table-column field="taskName" title="设备别名" width="100"></vxe-table-column>
-        <vxe-table-column field="jobCron" title="监控策略" width="160" show-overflow></vxe-table-column>
+        <vxe-table-column field="jobCron" title="cron策略" width="160" show-overflow></vxe-table-column>
         <vxe-table-column field="currentStatus" title="设备状态" width="100" show-overflow>
           <template v-slot="{ row }">
             <span> {{ statusFormat(currentStatusOptions, row.currentStatus) }}</span>
@@ -97,7 +97,7 @@
       width="50%"
       @ok="submitForm"
     >
-      <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form">
+      <a-form-model :label-col="{ span: 6 }" :wrapperCol="{ span: 17 }" :model="form" ref="form" :rules="rules">
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="设备别名" prop="taskName">
@@ -130,8 +130,18 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="监控策略" prop="jobCron">
-              <a-input v-model="form.jobCron" placeholder="请输入监控策略"> </a-input>
+            <a-form-model-item label="cron策略" prop="jobCron">
+              <el-popover v-model.trim="cronPopover">
+                <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
+                <el-input
+                  class="jobCronEl"
+                  size="small"
+                  slot="reference"
+                  @click="cronPopover = true"
+                  v-model.trim="form.jobCron"
+                  placeholder="请输入cron策略"
+                ></el-input>
+              </el-popover>
             </a-form-model-item>
           </a-col>
         </a-row>
@@ -241,6 +251,11 @@ export default {
       title: '',
       ids: [],
       ips: [],
+      cronExpression: '',
+      cronPopover: false,
+      rules: {
+        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
+      }, //规则
     };
   },
   created() {
@@ -290,6 +305,38 @@ export default {
     },
   },
   methods: {
+    changeCron(val) {
+      this.cronExpression = val;
+      if (val.substring(0, 5) == '* * *') {
+        this.msgError('小时,分钟,秒必填');
+      } else {
+        this.form.jobCron = val.split(' ?')[0] + ' ?';
+        console.log(this.form.jobCron);
+      }
+    },
+    closeCronPopover() {
+      if (this.cronExpression.substring(0, 5) == '* * *') {
+        return;
+      }
+      this.cronPopover = false;
+      // else {
+      //   this.CronPopover = false;
+      //    getNextTime({
+      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
+      //   }).then((res) => {
+      //     let times = res.data;
+      //     let html = "";
+      //     times.forEach((element) => {
+      //       html += "<p>" + element + "</p>";
+      //     });
+      //     this.$alert(html, "前5次执行时间", {
+      //       dangerouslyUseHTMLString: true,
+      //     }).then(() => {
+      //       this.CronPopover = false;
+      //     });
+      //   });
+      // }
+    },
     handlePageChange({ currentPage, pageSize }) {
       this.queryParams.pageNum = currentPage;
       this.queryParams.pageSize = pageSize;
@@ -321,6 +368,8 @@ export default {
       });
     },
     handleAdd() {
+      this.closeCronPopover = false;
+      this.form.jobCron = '';
       this.form.id = undefined;
       this.title = '新增链路设备';
       this.visible = true;
@@ -332,6 +381,7 @@ export default {
       this.fetch();
     },
     handleUpdate(row) {
+      this.closeCronPopover = false;
       this.form = {};
       const id = row.id || this.ids;
 

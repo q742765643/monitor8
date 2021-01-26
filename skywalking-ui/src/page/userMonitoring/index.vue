@@ -29,51 +29,48 @@
     </div>
     <div class="rightContent">
       <el-scrollbar>
-        <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
-          <a-form-model-item label="用户名称">
-            <a-input v-model="queryParams.userName" placeholder="请输入用户名称" style="width: 120px"> </a-input>
-          </a-form-model-item>
+        <div class="timerSelect">
+          <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
+            <a-form-model-item label="用户名称">
+              <a-input v-model="queryParams.userName" placeholder="请输入用户名称" style="width: 120px"> </a-input>
+            </a-form-model-item>
 
-          <a-form-model-item label="状态">
-            <a-select v-model="queryParams.status" style="width: 70px">
-              <a-select-option v-for="item in statusOptions" :key="item.dictValue">{{
-                item.dictLabel
-              }}</a-select-option>
-            </a-select>
-          </a-form-model-item>
-          <a-form-model-item label="创建时间">
-            <!--  <a-range-picker
-              v-model="queryParams.dateRange"
-              @change="onTimeChange"
-              format="YYYY-MM-DD HH:mm:ss"
-              :show-time="{
-                hideDisabledOptions: true,
-                defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-              }"
-<<<<<<< HEAD
-            /> -->
+            <a-form-model-item label="状态">
+              <a-select v-model="queryParams.status" style="width: 70px">
+                <a-select-option v-for="item in statusOptions" :key="item.dictValue">{{
+                  item.dictLabel
+                }}</a-select-option>
+              </a-select>
+            </a-form-model-item>
+            <a-form-model-item label="创建时间">
+              <!-- <el-date-picker
+                type="datetimerange"
+                v-model="dateRange"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="onTimeChange"
+                align="right"
+              >
+              </el-date-picker> -->
 
-            <el-date-picker
-              type="datetimerange"
-              v-model="dateRange"
-              value-format="yyyy-MM-dd HH:mm:ss"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              @change="onTimeChange"
-              align="right"
-            >
-            </el-date-picker>
+              <selectDate
+                class="selectDate"
+                @changeDate="changeDate"
+                :HandleDateRange="dateRange"
+                ref="selectDateRef"
+              ></selectDate>
 
-            <!--
-              v-model="queryParams.dateRange"  -->
-          </a-form-model-item>
-          <a-form-model-item>
-            <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-            <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-          </a-form-model-item>
-        </a-form-model>
-
+              <!--
+                v-model="queryParams.dateRange"  -->
+            </a-form-model-item>
+            <a-form-model-item>
+              <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+              <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+            </a-form-model-item>
+          </a-form-model>
+        </div>
         <div class="tableDateBox">
           <a-row type="flex" class="rowToolbar" :gutter="10">
             <a-col :span="1.5">
@@ -107,12 +104,12 @@
                 <a-switch :checked="row.status == '0' ? true : false" @change="handleStatus(row)" />
               </template>
             </vxe-table-column>
-            <vxe-table-column field="createTime" title="创建时间">
+            <vxe-table-column field="createTime" title="创建时间" width="180">
               <template slot-scope="scope">
                 <span>{{ parseTime(scope.row.createTime) }}</span>
               </template>
             </vxe-table-column>
-            <vxe-table-column field="userOperation" title="操作" width="220">
+            <vxe-table-column field="userOperation" title="操作" width="260">
               <template v-slot="{ row }">
                 <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
                 <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
@@ -236,8 +233,9 @@ import hongtuConfig from '@/utils/services';
 import moment from 'moment';
 import Treeselect from '@riophae/vue-treeselect';
 import '@riophae/vue-treeselect/dist/vue-treeselect.css';
+import selectDate from '@/components/date/select.vue';
 export default {
-  components: { Treeselect },
+  components: { Treeselect, selectDate },
   data() {
     return {
       expandedKeys: [],
@@ -278,6 +276,7 @@ export default {
       visible: false,
       psdForm: {},
       name: '',
+      dateRange: [],
     };
   },
   created() {
@@ -296,6 +295,9 @@ export default {
     });
   },
   methods: {
+    changeDate(data) {
+      this.dateRange = data;
+    },
     selectBox(selection) {
       // console.log(selection.selection)
       this.single = selection.selection.length > 0 ? false : true;
@@ -591,6 +593,7 @@ export default {
         beginTime: undefined,
         endTime: undefined,
       };
+      this.$refs.selectDateRef.changeDate();
       this.getUserList();
     },
     handleResetPwd(row) {

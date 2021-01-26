@@ -1,27 +1,34 @@
 <template>
   <div class="roleTemplate">
-    <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
-      <a-form-model-item label="角色名称">
-        <a-input v-model="queryParams.roleName" placeholder="请输入角色名称"> </a-input>
-      </a-form-model-item>
-      <a-form-model-item label="权限字符">
-        <a-input v-model="queryParams.roleKey" placeholder="请输入权限字符"> </a-input>
-      </a-form-model-item>
-      <a-form-model-item label="状态">
-        <a-select v-model="queryParams.status" style="width: 120px">
-          <a-select-option v-for="dict in statusOptions" :key="dict.dictValue">
-            {{ dict.dictLabel }}
-          </a-select-option>
-        </a-select>
-      </a-form-model-item>
-      <a-form-model-item label="创建时间">
-        <a-range-picker v-model.trim="queryParams.dateRange" />
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-      </a-form-model-item>
-    </a-form-model>
+    <div class="timerSelect">
+      <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
+        <a-form-model-item label="角色名称">
+          <a-input v-model="queryParams.roleName" placeholder="请输入角色名称"> </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="权限字符">
+          <a-input v-model="queryParams.roleKey" placeholder="请输入权限字符"> </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="状态">
+          <a-select v-model="queryParams.status" style="width: 120px">
+            <a-select-option v-for="dict in statusOptions" :key="dict.dictValue">
+              {{ dict.dictLabel }}
+            </a-select-option>
+          </a-select>
+        </a-form-model-item>
+        <a-form-model-item label="创建时间">
+          <selectDate
+            class="selectDate"
+            @changeDate="changeDate"
+            :HandleDateRange="dateRange"
+            ref="selectDateRef"
+          ></selectDate>
+        </a-form-model-item>
+        <a-form-model-item>
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        </a-form-model-item>
+      </a-form-model>
+    </div>
     <div class="tableDateBox">
       <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
@@ -166,7 +173,9 @@
 <script>
 import hongtuConfig from '@/utils/services';
 import request from '@/utils/request';
+import selectDate from '@/components/date/select.vue';
 export default {
+  components: { selectDate },
   data() {
     return {
       queryParams: {
@@ -198,6 +207,7 @@ export default {
       statusOptions: [],
       ids: [],
       single: true,
+      dateRange: [],
     };
   },
   created() {
@@ -209,16 +219,14 @@ export default {
     });
   },
   methods: {
+    changeDate(data) {
+      this.dateRange = data;
+    },
     selectBox(selection) {
       console.log(selection.selection);
       this.single = selection.selection.length > 0 ? false : true;
     },
     getRoleList() {
-      if (this.queryParams.dateRange) {
-        this.dateRange = this.queryParams.dateRange;
-      } else {
-        this.dateRange = [];
-      }
       hongtuConfig.roleConfigList(this.addDateRange(this.queryParams, this.dateRange)).then((res) => {
         console.log(res);
         this.roleListData = res.data.pageData;
@@ -261,6 +269,7 @@ export default {
         roleKey: undefined,
         status: undefined,
       };
+      this.$refs.selectDateRef.changeDate();
       this.getRoleList();
     },
     handleSelectChange() {},

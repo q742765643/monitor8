@@ -1,7 +1,7 @@
 <template>
   <div class="fileReportRowTemplate">
     <div class="hasHandleExportBox">
-      <selectDate @changeDate="onTimeChange" :handleRange="7"></selectDate>
+      <selectDate @changeDate="onTimeChange" :handleDiffRange="7"></selectDate>
       <a-button type="primary" @click="exportEventXls" style="margin-right: 10px"> 导出excel </a-button>
     </div>
     <div class="tableDateBox">

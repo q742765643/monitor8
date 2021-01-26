@@ -1,25 +1,24 @@
 <template>
   <div class="alarmMonitoringTemplate">
-    <a-form-model layout="inline" :model="queryParams" class="queryForm">
-      <a-form-model-item label="告警任务名称">
-        <a-input v-model="queryParams.taskName" placeholder="请输入告警任务名称"> </a-input>
-      </a-form-model-item>
-      <a-form-model-item label="时间">
-        <a-range-picker
-          @change="onTimeChange"
-          :show-time="{
-            hideDisabledOptions: true,
-            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-          }"
-          format="YYYY-MM-DD HH:mm:ss"
-        />
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-      </a-form-model-item>
-    </a-form-model>
-
+    <div class="timerSelect">
+      <a-form-model layout="inline" :model="queryParams" class="queryForm">
+        <a-form-model-item label="告警任务名称">
+          <a-input v-model="queryParams.taskName" placeholder="请输入告警任务名称"> </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="时间">
+          <selectDate
+            class="selectDate"
+            @changeDate="changeDate"
+            :HandleDateRange="dateRange"
+            ref="selectDateRef"
+          ></selectDate>
+        </a-form-model-item>
+        <a-form-model-item>
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        </a-form-model-item>
+      </a-form-model>
+    </div>
     <div class="tableDateBox">
       <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
@@ -47,6 +46,7 @@
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </vxe-table-column>
+
         <vxe-table-column width="400" field="date" title="操作">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
@@ -112,15 +112,16 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="corn表达式1" prop="jobCron">
+            <a-form-model-item label="cron策略" prop="jobCron">
               <el-popover v-model.trim="cronPopover">
                 <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
                 <el-input
+                  class="jobCronEl"
                   size="small"
                   slot="reference"
                   @click="cronPopover = true"
                   v-model.trim="formDialog.jobCron"
-                  placeholder="请输入定时策略"
+                  placeholder="请输入cron策略"
                 ></el-input>
               </el-popover>
             </a-form-model-item>
@@ -275,6 +276,7 @@ import echarts from 'echarts';
 import hongtuConfig from '@/utils/services';
 import moment from 'moment';
 import request from '@/utils/request';
+import selectDate from '@/components/date/select.vue';
 export default {
   data() {
     //校验是否为cron表达式
@@ -321,8 +323,10 @@ export default {
         taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
         //jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
       }, //规则
+      dateRange: [],
     };
   },
+  components: { selectDate },
   created() {
     hongtuConfig.getDicts('alarm_operator').then((res) => {
       if (res.code == 200) {
@@ -356,6 +360,9 @@ export default {
     });
   },
   methods: {
+    changeDate(data) {
+      this.dateRange = data;
+    },
     changeCron(val) {
       this.cronExpression = val;
       if (val.substring(0, 5) == '* * *') {
@@ -368,6 +375,7 @@ export default {
       if (this.cronExpression.substring(0, 5) == '* * *') {
         return;
       } else {
+        this.cronPopover = false;
         /*   getNextTime({
           cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
         }).then((res) => {
@@ -421,6 +429,7 @@ export default {
         beginTime: '',
         endTime: '',
       };
+      this.$refs.selectDateRef.changeDate();
       this.queryTable();
     },
     /* 翻页 */
@@ -431,7 +440,7 @@ export default {
     },
     /* table方法 */
     queryTable() {
-      hongtuConfig.alarmCofigList(this.queryParams).then((response) => {
+      hongtuConfig.alarmCofigList(this.addDateRange(this.queryParams, this.dateRange)).then((response) => {
         this.tableData = response.data.pageData;
         this.paginationTotal = response.data.totalCount;
       });
@@ -477,9 +486,11 @@ export default {
       this.formDialog.severitys.splice(index, 1);
     },
     handleAdd() {
+      this.closeCronPopover = false;
       /* 新增 */
       this.dialogTitle = '新增';
       this.formDialog = {
+        jobCron: '',
         taskName: '',
         dangers: [{ operate: 'and', paramname: '', paramvalue: '' }],
         severitys: [{ operate: 'and', paramname: '', paramvalue: '' }],
@@ -489,6 +500,7 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
+      this.closeCronPopover = false;
       hongtuConfig.alarmCofigDetail(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;

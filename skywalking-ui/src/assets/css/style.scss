@@ -328,7 +328,15 @@ body {
         padding-bottom: 30px;
     }
 }
-
+.timerSelect{
+    .ant-row{
+        .queryForm {
+            box-shadow: none;
+            margin-bottom: 0;
+            padding: 0;
+        }
+    }
+}
 
 /* 蓝色,黑色主题 */
 .blueBody,
@@ -440,5 +448,15 @@ body {
 
     #tab-5 {
         display: none;
+    }
+}
+
+.jobCronEl {
+    height: 32px;
+    line-height: 32px;
+
+    .el-input__inner {
+        height: 32px;
+        line-height: 32px;
     }
 }

@@ -56,7 +56,7 @@
         <a-button icon="delete" size="small" @click="handleDelete(record)"> 删除 </a-button>
       </span>
     </a-table> -->
-      <vxe-table border ref="xTable" :data="data" highlight-hover-row align="center">
+      <vxe-table border ref="xTable" :data="data" highlight-hover-row align="center" :rules="rules">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>
         <vxe-table-column field="jobCron" title="执行策略" show-overflow> </vxe-table-column>
@@ -107,8 +107,18 @@
         <a-form-model-item label="任务名称" prop="taskName">
           <a-input v-model="form.taskName" placeholder="请输入任务名称"> </a-input>
         </a-form-model-item>
-        <a-form-model-item label="调度策略" prop="jobCron">
-          <a-input v-model="form.jobCron" placeholder="请输入cron表达式"> </a-input>
+        <a-form-model-item label="cron策略" prop="jobCron">
+          <el-popover v-model.trim="cronPopover">
+            <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
+            <el-input
+              class="jobCronEl"
+              size="small"
+              slot="reference"
+              @click="cronPopover = true"
+              v-model.trim="form.jobCron"
+              placeholder="请输入cron策略"
+            ></el-input>
+          </el-popover>
         </a-form-model-item>
         <a-form-model-item label="调度执行器" prop="jobHandler">
           <a-select v-model="form.jobHandler" placeholder="调度执行器">
@@ -189,6 +199,11 @@ export default {
       ids: [],
       taskNames: [],
       paginationTotal: 0,
+      cronExpression: '',
+      cronPopover: false,
+      rules: {
+        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
+      }, //规则
     };
   },
   created() {
@@ -219,6 +234,38 @@ export default {
     },
   },
   methods: {
+    changeCron(val) {
+      this.cronExpression = val;
+      if (val.substring(0, 5) == '* * *') {
+        this.msgError('小时,分钟,秒必填');
+      } else {
+        this.form.jobCron = val.split(' ?')[0] + ' ?';
+        console.log(this.form.jobCron);
+      }
+    },
+    closeCronPopover() {
+      if (this.cronExpression.substring(0, 5) == '* * *') {
+        return;
+      }
+      this.cronPopover = false;
+      // else {
+      //   this.CronPopover = false;
+      //    getNextTime({
+      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
+      //   }).then((res) => {
+      //     let times = res.data;
+      //     let html = "";
+      //     times.forEach((element) => {
+      //       html += "<p>" + element + "</p>";
+      //     });
+      //     this.$alert(html, "前5次执行时间", {
+      //       dangerouslyUseHTMLString: true,
+      //     }).then(() => {
+      //       this.CronPopover = false;
+      //     });
+      //   });
+      // }
+    },
     statusFormat(status) {
       return this.selectDictLabel(this.statusOptions, status);
     },
@@ -247,6 +294,7 @@ export default {
       });
     },
     handleAdd() {
+      this.closeCronPopover = false;
       this.form.id = undefined;
       this.title = '新增调度任务';
       this.visible = true;
@@ -263,6 +311,7 @@ export default {
       this.fetch();
     },
     handleUpdate(row) {
+      this.closeCronPopover = false;
       this.form = {};
       const id = row.id || this.ids;
       request({

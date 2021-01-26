@@ -1,24 +1,24 @@
 <template>
   <div class="fileMonitorTemplate">
-    <a-form-model layout="inline" :model="queryParams" class="queryForm">
-      <a-form-model-item label="任务名称">
-        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
-      </a-form-model-item>
-      <a-form-model-item label="时间">
-        <a-range-picker
-          @change="onTimeChange"
-          :show-time="{
-            hideDisabledOptions: true,
-            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-          }"
-          format="YYYY-MM-DD HH:mm:ss"
-        />
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-        <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-      </a-form-model-item>
-    </a-form-model>
+    <div class="timerSelect">
+      <a-form-model layout="inline" :model="queryParams" class="queryForm">
+        <a-form-model-item label="任务名称">
+          <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="时间">
+          <selectDate
+            class="selectDate"
+            @changeDate="changeDate"
+            :HandleDateRange="dateRange"
+            ref="selectDateRef"
+          ></selectDate>
+        </a-form-model-item>
+        <a-form-model-item>
+          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+        </a-form-model-item>
+      </a-form-model>
+    </div>
 
     <div class="tableDateBox">
       <a-row type="flex" class="rowToolbar" :gutter="10">
@@ -46,7 +46,7 @@
             <span v-if="row.isUt == 1">世界时 </span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="jobCron" title="corn表达式" show-overflow></vxe-table-column>
+        <vxe-table-column field="jobCron" title="cron策略" show-overflow></vxe-table-column>
         <vxe-table-column width="320" field="date" title="操作">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
@@ -166,18 +166,29 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="12">
-            <a-form-model-item label="corn表达式" prop="jobCron">
-              <a-input-search v-model="formDialog.jobCron" placeholder="请输入定时策略" @search="CronPopover = true">
+            <a-form-model-item label="cron策略" prop="jobCron">
+              <!-- <a-input-search v-model="formDialog.jobCron" placeholder="请输入定时策略" @search="CronPopover = true">
                 <a-button slot="enterButton"> 帮助 </a-button>
-              </a-input-search>
-              <!-- <a-input @click="cronPopover = true" v-model="formDialog.jobCron" placeholder="请输入定时策略"></a-input> -->
+              </a-input-search> -->
+              <el-popover v-model.trim="cronPopover">
+                <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
+                <el-input
+                  class="jobCronEl"
+                  size="small"
+                  slot="reference"
+                  @click="cronPopover = true"
+                  v-model.trim="formDialog.jobCron"
+                  placeholder="请输入cron策略"
+                ></el-input>
+              </el-popover>
             </a-form-model-item>
           </a-col>
-          <a-col :span="24" v-show="CronPopover">
-            <a-form-model-item label="corn表达式" :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
+
+          <!-- <a-col :span="24" v-show="CronPopover">
+            <a-form-model-item label="cron策略" :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
               <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
             </a-form-model-item>
-          </a-col>
+          </a-col> -->
           <a-col :span="24">
             <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="任务描述" prop="jobDesc">
               <a-input type="textarea" v-model="formDialog.jobDesc" placeholder="任务描述"> </a-input>
@@ -194,8 +205,8 @@ import echarts from 'echarts';
 // 接口地址
 import hongtuConfig from '@/utils/services';
 import request from '@/utils/request';
-
 import moment from 'moment';
+import selectDate from '@/components/date/select.vue';
 export default {
   data() {
     return {
@@ -225,12 +236,14 @@ export default {
         folderRegular: [{ required: true, message: '请输入资料文件目录规则', trigger: 'blur' }],
         fileNum: [{ required: true, message: '请输入应到数量', trigger: 'blur' }],
         fileSize: [{ required: true, message: '请输入应到大小', trigger: 'blur' }],
-        jobCron: [{ required: true, message: '请输入corn表达式', trigger: 'blur' }],
+        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
       }, //规则
       cronExpression: '',
-      CronPopover: false,
+      cronPopover: false,
+      dateRange: [],
     };
   },
+  components: { selectDate },
   created() {
     this.getDicts('scan_type').then((response) => {
       this.scanTypeOptions = response.data;
@@ -240,6 +253,9 @@ export default {
   },
   mounted() {},
   methods: {
+    changeDate(data) {
+      this.dateRange = data;
+    },
     changeCron(val) {
       this.cronExpression = val;
       if (val.substring(0, 5) == '* * *') {
@@ -253,10 +269,7 @@ export default {
       if (this.cronExpression.substring(0, 5) == '* * *') {
         return;
       }
-      this.formDialog.jobCron = this.cronExpression.split(' ?')[0] + ' ?';
-      console.log(this.formDialog.jobCron);
-      console.log(this.cronExpression);
-      this.CronPopover = false;
+      this.cronPopover = false;
       // else {
       //   this.CronPopover = false;
       //    getNextTime({
@@ -283,10 +296,7 @@ export default {
       }
       return result;
     },
-    onTimeChange(value, dateString) {
-      this.queryParams.beginTime = dateString[0];
-      this.queryParams.endTime = dateString[1];
-    },
+
     selectAcount() {
       request({
         url: '/directoryAccount/selectAll',
@@ -322,6 +332,7 @@ export default {
         beginTime: '',
         endTime: '',
       };
+      this.$refs.selectDateRef.changeDate();
       this.queryTable();
     },
     /* 翻页 */
@@ -332,7 +343,7 @@ export default {
     },
     /* table方法 */
     queryTable() {
-      hongtuConfig.fileMonitorList(this.queryParams).then((response) => {
+      hongtuConfig.fileMonitorList(this.addDateRange(this.queryParams, this.dateRange)).then((response) => {
         this.tableData = response.data.pageData;
         this.paginationTotal = response.data.totalCount;
       });
@@ -342,6 +353,7 @@ export default {
       return hongtuConfig.formatterselectDictLabel(list, text);
     },
     handleAdd() {
+      this.closeCronPopover = false;
       /* 新增 */
       this.dialogTitle = '新增';
       this.formDialog = {
@@ -352,6 +364,7 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
+      this.closeCronPopover = false;
       hongtuConfig.fileMonitorDetail(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;
@@ -444,6 +457,8 @@ export default {
 
 <style lang="scss">
 .fileMonitoringdialogBox {
+  .selectDate {
+  }
   .ant-col-3 {
     width: 10.5%;
   }
