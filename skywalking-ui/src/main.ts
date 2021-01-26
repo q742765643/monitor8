@@ -55,14 +55,15 @@ import VXETable from 'vxe-table';
 import 'vxe-table/lib/style.css';
 import 'ant-design-vue/dist/antd.css';
 import { FormModel } from 'ant-design-vue';
-//全局引入 cron表达式
-import VueCron from 'vue-cron';
-Vue.use(VueCron); //使用方式：<vueCron></vueCron>
+
 Vue.use(ElementUI);
 Vue.use(FormModel);
 Vue.use(VXETable);
 Vue.use(Antd);
 VXETable.setup({ size: 'mini' });
+//全局引入 cron表达式
+import VueCron from 'vue-cron';
+Vue.use(VueCron); //使用方式：<vueCron></vueCron>
 
 import '@/assets/css/reset.scss';
 import '@/assets/css/style.scss';
@@ -107,11 +108,11 @@ declare module 'vue/types/vue' {
     downloadfileCommon(datas: any): any;
   }
 }
-Vue.prototype.msgSuccess = function(msg: any) {
+Vue.prototype.msgSuccess = function (msg: any) {
   this.$message.success(msg);
 };
 
-Vue.prototype.msgError = function(msg: any) {
+Vue.prototype.msgError = function (msg: any) {
   this.$message.success(msg);
 };
 Vue.use(eventBus);

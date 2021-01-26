@@ -1,33 +1,11 @@
 <template>
   <div class="managerTemplate">
-    <!--   <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
-      <a-form-model-item label="时间">
-        <a-range-picker
-          @change="onTimeChange"
-          :show-time="{
-            hideDisabledOptions: true,
-            defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-          }"
-          format="YYYY-MM-DD HH:mm:ss"
-        />
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-col :span="24">
-          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-          <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
-        </a-col>
-      </a-form-model-item>
-    </a-form-model> -->
     <div class="hasHandleExportBox">
       <selectDate @changeDate="onTimeChange"></selectDate>
       <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
           <a-button type="primary" @click="exportEventXls"> 导出excel </a-button>
         </a-col>
-        <!-- <a-col :span="1.5">
-          <a-button type="primary" @click="exportEventPdf"> 导出pdf </a-button>
-        </a-col> -->
       </a-row>
     </div>
     <div class="tableDateBox">

@@ -167,7 +167,15 @@
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="corn表达式" prop="jobCron">
-              <a-input v-model="formDialog.jobCron" placeholder="corn表达式"> </a-input>
+              <a-input-search v-model="formDialog.jobCron" placeholder="请输入定时策略" @search="CronPopover = true">
+                <a-button slot="enterButton"> 帮助 </a-button>
+              </a-input-search>
+              <!-- <a-input @click="cronPopover = true" v-model="formDialog.jobCron" placeholder="请输入定时策略"></a-input> -->
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="24" v-show="CronPopover">
+            <a-form-model-item label="corn表达式" :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
+              <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
@@ -205,6 +213,7 @@ export default {
       dialogTitle: '',
       formDialog: {
         taskName: '',
+        jobCron: '',
       },
       scanTypeOptions: [],
       accountOptions: [],
@@ -218,6 +227,8 @@ export default {
         fileSize: [{ required: true, message: '请输入应到大小', trigger: 'blur' }],
         jobCron: [{ required: true, message: '请输入corn表达式', trigger: 'blur' }],
       }, //规则
+      cronExpression: '',
+      CronPopover: false,
     };
   },
   created() {
@@ -229,6 +240,41 @@ export default {
   },
   mounted() {},
   methods: {
+    changeCron(val) {
+      this.cronExpression = val;
+      if (val.substring(0, 5) == '* * *') {
+        this.msgError('小时,分钟,秒必填');
+      } else {
+        this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
+        console.log(this.formDialog.jobCron);
+      }
+    },
+    closeCronPopover() {
+      if (this.cronExpression.substring(0, 5) == '* * *') {
+        return;
+      }
+      this.formDialog.jobCron = this.cronExpression.split(' ?')[0] + ' ?';
+      console.log(this.formDialog.jobCron);
+      console.log(this.cronExpression);
+      this.CronPopover = false;
+      // else {
+      //   this.CronPopover = false;
+      //    getNextTime({
+      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
+      //   }).then((res) => {
+      //     let times = res.data;
+      //     let html = "";
+      //     times.forEach((element) => {
+      //       html += "<p>" + element + "</p>";
+      //     });
+      //     this.$alert(html, "前5次执行时间", {
+      //       dangerouslyUseHTMLString: true,
+      //     }).then(() => {
+      //       this.CronPopover = false;
+      //     });
+      //   });
+      // }
+    },
     moment,
     range(start, end) {
       const result = [];
@@ -286,7 +332,6 @@ export default {
     },
     /* table方法 */
     queryTable() {
-      debugger;
       hongtuConfig.fileMonitorList(this.queryParams).then((response) => {
         this.tableData = response.data.pageData;
         this.paginationTotal = response.data.totalCount;
@@ -301,6 +346,7 @@ export default {
       this.dialogTitle = '新增';
       this.formDialog = {
         scanType: '1',
+        jobCron: '',
       };
       this.visibleModel = true;
     },
@@ -377,7 +423,7 @@ export default {
         data: data,
       }).then((response) => {
         this.$message.success('启动成功');
-        this.handleQuery();
+        this.queryTable();
       });
     },
     endJob(row) {
@@ -389,7 +435,7 @@ export default {
         data: data,
       }).then((response) => {
         this.$message.success('停止成功');
-        this.handleQuery();
+        this.queryTable();
       });
     },
   },
@@ -406,6 +452,9 @@ export default {
   }
   .ant-input-number {
     width: 100%;
+  }
+  #changeContab .language {
+    display: none;
   }
 }
 </style>

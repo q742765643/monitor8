@@ -29,7 +29,7 @@
             </div>
             <div class="cell">
               <span>
-                网关:
+                网关地址:
                 <i></i>
               </span>
               <span>{{ infoData.gateway }}</span>
@@ -49,14 +49,7 @@
             </div>
             <div class="cell">
               <span>
-                丢包率:
-                <i></i>
-              </span>
-              <span>{{ infoData.packetLoss }}</span>
-            </div>
-            <div class="cell">
-              <span>
-                连线状态:
+                设备状态:
                 <i></i>
               </span>
               <span v-if="infoData.currentStatus == '11'">未知</span>
@@ -74,17 +67,24 @@
             </div>
             <div class="cell">
               <span>
+                丢包率:
+                <i></i>
+              </span>
+              <span>{{ infoData.packetLoss }}</span>
+            </div>
+            <div class="cell">
+              <span>
+                区域分类:
+                <i></i>
+              </span>
+              <span>{{ statusFormat(areaOptions, infoData.area) }}</span>
+            </div>
+            <div class="cell">
+              <span>
                 详细地址:
                 <i></i>
               </span>
               <span>{{ infoData.location }}</span>
-            </div>
-            <div class="cell">
-              <span>
-                区域:
-                <i></i>
-              </span>
-              <span>{{ statusFormat(areaOptions, infoData.area) }}</span>
             </div>
           </div>
         </div>
@@ -287,6 +287,7 @@ export default {
         }
 
         span:last-child {
+          width: calc(100% - 100px);
           font-size: $ant_font_size;
           margin-left: 10px;
         }

@@ -76,13 +76,14 @@
       v-model="visibleModelAbout"
       title="关于"
       @ok="visibleModelAbout = false"
-      width="460px"
+      width="520px"
       :maskClosable="false"
       class="dialogBox aboutDialog"
       :footer="null"
     >
       <div v-if="visibleModelAbout" class="aboutBox">
-        <h4>气象海洋空间天气信息系统综合监控平台</h4>
+        <h4 style="margin-bottom: 0">气象海洋空间天气信息</h4>
+        <h4>系统综合监控平台</h4>
         <p><span>版本：</span> V1.0.1</p>
         <p><span>XX：</span>XXXXXX</p>
         <p><span>XX：</span>XXXXXX</p>

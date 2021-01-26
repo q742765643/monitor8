@@ -1,7 +1,7 @@
 <template>
   <div id="leftPlane">
     <div id="topCell">
-      <planeTitle titleName="主机节点状态"> </planeTitle>
+      <planeTitle titleName="主机概览"> </planeTitle>
       <div class="chart_info">
         <div id="statuChart"></div>
         <div class="info">
@@ -14,7 +14,7 @@
       </div>
     </div>
     <div id="bottomCell">
-      <planeTitle titleName="主机节点状态"> <div class="subtitle" slot="right">计算资源总利用率</div></planeTitle>
+      <planeTitle titleName="计算资源总利用率"> </planeTitle>
       <div id="usageChart">
         <div class="chart_info">
           <div id="cpuChart"></div>

@@ -418,3 +418,27 @@ body {
         }
     }
 }
+
+// cron表达式
+#changeContab {
+
+    .el-input-number--small .el-input-number__decrease,
+    .el-input-number--small .el-input-number__increase {
+        height: 92%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bottom {
+        .el-button--primary {
+            padding: 0 15px;
+            font-size: 16px;
+            height: 32px;
+        }
+    }
+
+    #tab-5 {
+        display: none;
+    }
+}

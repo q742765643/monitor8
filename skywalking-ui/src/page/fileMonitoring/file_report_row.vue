@@ -1,7 +1,7 @@
 <template>
   <div class="fileReportRowTemplate">
     <div class="hasHandleExportBox">
-      <selectDate @changeDate="onTimeChange"></selectDate>
+      <selectDate @changeDate="onTimeChange" :handleRange="7"></selectDate>
       <a-button type="primary" @click="exportEventXls" style="margin-right: 10px"> 导出excel </a-button>
     </div>
     <div class="tableDateBox">
@@ -59,7 +59,7 @@ export default {
       Ydata: [],
       charts: [],
       colors: ['#428AFF', '#6c50f3', '#00ca95'],
-      chartType: ['bar', 'line', 'line'],
+      chartType: ['line'],
       // name: ['离线时长', '最大cpu使用率', '最大内存使用率'],
     };
   },
@@ -148,6 +148,9 @@ export default {
               color: '#999',
             },
           },
+          formatter: function (params) {
+            return params[0].value + '%';
+          },
         },
 
         grid: {
@@ -178,22 +181,11 @@ export default {
         yAxis: [
           {
             min: 0,
-            interval: 500,
+            max: 100,
             type: 'value',
             name: '到报率',
             axisLabel: {
-              formatter: '{value} h',
-              fontSize: remFontSize(12 / 64),
-            },
-          },
-          {
-            type: 'value',
-            name: '平均/最大丢包率',
-            min: 0,
-            max: 100,
-            interval: 20,
-            axisLabel: {
-              formatter: '{value}%',
+              formatter: '{value} %',
               fontSize: remFontSize(12 / 64),
             },
           },
@@ -205,46 +197,21 @@ export default {
     },
 
     chart() {
-      // let Ydata1 = [],
-      //   Ydata2 = [],
-      //   Ydata3 = [];
-      // this.Xdata = [];
-      // this.Ydata = [];
-      // this.chartData.forEach((item, index) => {
-      //   this.Xdata.push(item.processName);
-      //   Ydata1.push(parseFloat(item.downTime));
-      //   Ydata2.push(parseFloat(item.maxCpuPct));
-      //   Ydata3.push(parseFloat(item.maxMemoryPct));
-      // });
-
-      // this.Ydata.push(Ydata1, Ydata2, Ydata3);
-      this.Ydata = this.chartData;
-      this.series = this.chartType.map((item, index) => {
+      this.series = [];
+      this.chartData.forEach((element, index) => {
         let obj = {};
-        obj.name = this.chartTitle[index];
-        obj.type = item;
-        obj.data = this.Ydata[index].data;
-        console.log(obj.data);
-        if (item == 'bar') {
-          obj.barWidth = '40%';
-          obj.itemStyle = {
-            color: this.colors[index],
-          };
-        } else {
-          obj.lineStyle = {
-            normal: {
-              color: this.colors[index],
-            },
-          };
-        }
-
-        if (obj.type == 'bar') {
-          obj.yAxisIndex = 0;
-        } else {
-          obj.yAxisIndex = 1;
-        }
-        return obj;
+        obj.name = element.name;
+        obj.type = 'line';
+        obj.data = [10, 5];
+        obj.data = element.data;
+        // obj.lineStyle = {
+        //   normal: {
+        //     color: '#6c50f3',
+        //   },
+        // };
+        this.series.push(obj);
       });
+      console.log(this.series);
     },
 
     statusFormat(status) {
