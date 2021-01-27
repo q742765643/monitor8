@@ -145,11 +145,13 @@ export default {
         callback(new Error('请输入cron策略!'));
       } else {
         let flag = true;
-        await getNextTime({
-          cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
-        }).then((res) => {
-          flag = false;
-        });
+        await hongtuConfig
+          .getNextTime({
+            cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+          })
+          .then((res) => {
+            flag = false;
+          });
         if (flag) {
           callback(new Error('cron策略表达式错误!'));
         } else {
