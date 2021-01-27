@@ -233,10 +233,12 @@ export default {
         let flag = true;
         await hongtuConfig
           .getNextTime({
-            cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+            cronExpression: this.form.jobCron.split(' ?')[0] + ' ?',
           })
           .then((res) => {
-            flag = false;
+            if (res.code == 200) {
+              flag = false;
+            }
           });
         if (flag) {
           callback(new Error('cron策略表达式错误!'));

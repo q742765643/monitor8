@@ -208,10 +208,10 @@ export default {
         let flag = true;
         await hongtuConfig
           .getNextTime({
-            cronExpression: this.msgFormDialog.jobCron.split(' ?')[0] + ' ?',
+            cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
           })
           .then((res) => {
-            if (res.data.code == 200) {
+            if (res.code == 200) {
               flag = false;
             }
           });
