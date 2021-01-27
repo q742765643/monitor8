@@ -167,9 +167,6 @@
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="cron策略" prop="jobCron">
-              <!-- <a-input-search v-model="formDialog.jobCron" placeholder="请输入定时策略" @search="CronPopover = true">
-                <a-button slot="enterButton"> 帮助 </a-button>
-              </a-input-search> -->
               <el-popover v-model.trim="cronPopover">
                 <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
                 <el-input
@@ -183,12 +180,6 @@
               </el-popover>
             </a-form-model-item>
           </a-col>
-
-          <!-- <a-col :span="24" v-show="CronPopover">
-            <a-form-model-item label="cron策略" :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }">
-              <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
-            </a-form-model-item>
-          </a-col> -->
           <a-col :span="24">
             <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="任务描述" prop="jobDesc">
               <a-input type="textarea" v-model="formDialog.jobDesc" placeholder="任务描述"> </a-input>
@@ -209,6 +200,28 @@ import moment from 'moment';
 import selectDate from '@/components/date/select.vue';
 export default {
   data() {
+    //校验是否为cron表达式
+    var handleCronValidate = async (rule, value, callback) => {
+      if (value == '') {
+        callback(new Error('请输入cron策略!'));
+      } else {
+        let flag = true;
+        await hongtuConfig
+          .getNextTime({
+            cronExpression: this.msgFormDialog.jobCron.split(' ?')[0] + ' ?',
+          })
+          .then((res) => {
+            if (res.data.code == 200) {
+              flag = false;
+            }
+          });
+        if (flag) {
+          callback(new Error('cron策略表达式错误!'));
+        } else {
+          callback();
+        }
+      }
+    };
     return {
       queryParams: {
         pageNum: 1,
@@ -236,7 +249,7 @@ export default {
         folderRegular: [{ required: true, message: '请输入资料文件目录规则', trigger: 'blur' }],
         fileNum: [{ required: true, message: '请输入应到数量', trigger: 'blur' }],
         fileSize: [{ required: true, message: '请输入应到大小', trigger: 'blur' }],
-        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
+        jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
       }, //规则
       cronExpression: '',
       cronPopover: false,
@@ -269,24 +282,22 @@ export default {
       if (this.cronExpression.substring(0, 5) == '* * *') {
         return;
       }
-      this.cronPopover = false;
-      // else {
-      //   this.CronPopover = false;
-      //    getNextTime({
-      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
-      //   }).then((res) => {
-      //     let times = res.data;
-      //     let html = "";
-      //     times.forEach((element) => {
-      //       html += "<p>" + element + "</p>";
-      //     });
-      //     this.$alert(html, "前5次执行时间", {
-      //       dangerouslyUseHTMLString: true,
-      //     }).then(() => {
-      //       this.CronPopover = false;
-      //     });
-      //   });
-      // }
+      hongtuConfig
+        .getNextTime({
+          cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
+        })
+        .then((res) => {
+          let times = res.data;
+          let html = '';
+          times.forEach((element) => {
+            html += '<p>' + element + '</p>';
+          });
+          this.$alert(html, '前5次执行时间', {
+            dangerouslyUseHTMLString: true,
+          }).then(() => {
+            this.cronPopover = false;
+          });
+        });
     },
     moment,
     range(start, end) {
@@ -353,7 +364,7 @@ export default {
       return hongtuConfig.formatterselectDictLabel(list, text);
     },
     handleAdd() {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       /* 新增 */
       this.dialogTitle = '新增';
       this.formDialog = {
@@ -364,7 +375,7 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       hongtuConfig.fileMonitorDetail(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;

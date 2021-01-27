@@ -593,7 +593,7 @@ export default {
         beginTime: undefined,
         endTime: undefined,
       };
-      this.$refs.selectDateRef.changeDate();
+      this.$refs.selectDateRef.changeDate('resetQuery');
       this.getUserList();
     },
     handleResetPwd(row) {

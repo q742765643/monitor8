@@ -93,12 +93,12 @@ export default {
     // console.log(this.dateRange)
   },
   methods: {
-    changeDate() {
-      console.log('123');
+    changeDate(val) {
       if (this.dateRange.length > 0 && this.dateRange[0].indexOf('00:00:00') == '-1') {
         this.dateRange[0] += ' 00:00:00';
         this.dateRange[1] += ' 23:59:59';
-      } else {
+      }
+      if (val == 'resetQuery') {
         this.dateRange = [];
       }
       console.log(this.dateRange);

@@ -269,7 +269,7 @@ export default {
         roleKey: undefined,
         status: undefined,
       };
-      this.$refs.selectDateRef.changeDate();
+      this.$refs.selectDateRef.changeDate('resetQuery');
       this.getRoleList();
     },
     handleSelectChange() {},

@@ -228,6 +228,24 @@ import hongtuConfig from '@/utils/services';
 import request from '@/utils/request';
 export default {
   data() {
+    //校验是否为cron表达式
+    var handleCronValidate = async (rule, value, callback) => {
+      if (value == '') {
+        callback(new Error('请输入cron策略!'));
+      } else {
+        let flag = true;
+        await getNextTime({
+          cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+        }).then((res) => {
+          flag = false;
+        });
+        if (flag) {
+          callback(new Error('cron策略表达式错误!'));
+        } else {
+          callback();
+        }
+      }
+    };
     return {
       queryParams: {
         pageNum: 1,
@@ -262,7 +280,7 @@ export default {
       },
       rules: {
         taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
-        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
+        jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
       }, //规则
       cronExpression: '',
       cronPopover: false,
@@ -311,24 +329,22 @@ export default {
       if (this.cronExpression.substring(0, 5) == '* * *') {
         return;
       }
-      this.cronPopover = false;
-      // else {
-      //   this.CronPopover = false;
-      //    getNextTime({
-      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
-      //   }).then((res) => {
-      //     let times = res.data;
-      //     let html = "";
-      //     times.forEach((element) => {
-      //       html += "<p>" + element + "</p>";
-      //     });
-      //     this.$alert(html, "前5次执行时间", {
-      //       dangerouslyUseHTMLString: true,
-      //     }).then(() => {
-      //       this.CronPopover = false;
-      //     });
-      //   });
-      // }
+      hongtuConfig
+        .getNextTime({
+          cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
+        })
+        .then((res) => {
+          let times = res.data;
+          let html = '';
+          times.forEach((element) => {
+            html += '<p>' + element + '</p>';
+          });
+          this.$alert(html, '前5次执行时间', {
+            dangerouslyUseHTMLString: true,
+          }).then(() => {
+            this.cronPopover = false;
+          });
+        });
     },
 
     /* 查询 */
@@ -365,7 +381,7 @@ export default {
       return hongtuConfig.formatterselectDictLabel(list, text);
     },
     handleAdd() {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       /* 新增 */
       this.dialogTitle = '新增';
       this.formDialog = {
@@ -387,7 +403,7 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       hongtuConfig.hostConfigDetail(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;

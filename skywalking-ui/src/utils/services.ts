@@ -1057,7 +1057,22 @@ const dataService = {
           reject(err)
         })
     })
-  }
+  },
+  // 近五次执行时间
+  getNextTime(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/jobInfo/getNextTime', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
 };
 
 export default dataService;

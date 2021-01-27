@@ -177,6 +177,24 @@ import request from '@/utils/request';
 
 export default {
   data() {
+    //校验是否为cron表达式
+    var handleCronValidate = async (rule, value, callback) => {
+      if (value == '') {
+        callback(new Error('请输入cron策略!'));
+      } else {
+        let flag = true;
+        await getNextTime({
+          cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+        }).then((res) => {
+          flag = false;
+        });
+        if (flag) {
+          callback(new Error('cron策略表达式错误!'));
+        } else {
+          callback();
+        }
+      }
+    };
     return {
       data: [],
       pagination: {},
@@ -202,7 +220,7 @@ export default {
       cronExpression: '',
       cronPopover: false,
       rules: {
-        jobCron: [{ required: true, message: '请输入cron策略', trigger: 'blur' }],
+        jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
       }, //规则
     };
   },
@@ -247,24 +265,22 @@ export default {
       if (this.cronExpression.substring(0, 5) == '* * *') {
         return;
       }
-      this.cronPopover = false;
-      // else {
-      //   this.CronPopover = false;
-      //    getNextTime({
-      //     cronExpression: this.cronExpression.split(" ?")[0] + " ?",
-      //   }).then((res) => {
-      //     let times = res.data;
-      //     let html = "";
-      //     times.forEach((element) => {
-      //       html += "<p>" + element + "</p>";
-      //     });
-      //     this.$alert(html, "前5次执行时间", {
-      //       dangerouslyUseHTMLString: true,
-      //     }).then(() => {
-      //       this.CronPopover = false;
-      //     });
-      //   });
-      // }
+      hongtuConfig
+        .getNextTime({
+          cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
+        })
+        .then((res) => {
+          let times = res.data;
+          let html = '';
+          times.forEach((element) => {
+            html += '<p>' + element + '</p>';
+          });
+          this.$alert(html, '前5次执行时间', {
+            dangerouslyUseHTMLString: true,
+          }).then(() => {
+            this.cronPopover = false;
+          });
+        });
     },
     statusFormat(status) {
       return this.selectDictLabel(this.statusOptions, status);
@@ -294,7 +310,7 @@ export default {
       });
     },
     handleAdd() {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       this.form.id = undefined;
       this.title = '新增调度任务';
       this.visible = true;
@@ -311,7 +327,7 @@ export default {
       this.fetch();
     },
     handleUpdate(row) {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       this.form = {};
       const id = row.id || this.ids;
       request({

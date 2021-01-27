@@ -133,7 +133,7 @@ export default {
         pageSize: 10,
         taskName: '',
       };
-      this.$refs.selectDateRef.changeDate();
+      this.$refs.selectDateRef.changeDate('resetQuery');
       this.getFileList();
     },
 

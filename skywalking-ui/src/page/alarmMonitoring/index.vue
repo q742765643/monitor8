@@ -282,7 +282,7 @@ export default {
     //校验是否为cron表达式
     var handleCronValidate = async (rule, value, callback) => {
       if (value == '') {
-        callback(new Error('请输入执行策略!'));
+        callback(new Error('请输入cron策略!'));
       } else {
         let flag = true;
         await getNextTime({
@@ -291,7 +291,7 @@ export default {
           flag = false;
         });
         if (flag) {
-          callback(new Error('执行策略表达式错误!'));
+          callback(new Error('cron策略表达式错误!'));
         } else {
           callback();
         }
@@ -321,7 +321,7 @@ export default {
       },
       rules: {
         taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
-        //jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
+        jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
       }, //规则
       dateRange: [],
     };
@@ -375,21 +375,22 @@ export default {
       if (this.cronExpression.substring(0, 5) == '* * *') {
         return;
       } else {
-        this.cronPopover = false;
-        /*   getNextTime({
-          cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
-        }).then((res) => {
-          let times = res.data;
-          let html = '';
-          times.forEach((element) => {
-            html += '<p>' + element + '</p>';
+        hongtuConfig
+          .getNextTime({
+            cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
+          })
+          .then((res) => {
+            let times = res.data;
+            let html = '';
+            times.forEach((element) => {
+              html += '<p>' + element + '</p>';
+            });
+            this.$alert(html, '前5次执行时间', {
+              dangerouslyUseHTMLString: true,
+            }).then(() => {
+              this.cronPopover = false;
+            });
           });
-          this.$alert(html, '前5次执行时间', {
-            dangerouslyUseHTMLString: true,
-          }).then(() => {
-            this.CronPopover = false;
-          });
-        }); */
       }
     },
     changeType(val) {
@@ -429,7 +430,7 @@ export default {
         beginTime: '',
         endTime: '',
       };
-      this.$refs.selectDateRef.changeDate();
+      this.$refs.selectDateRef.changeDate('resetQuery');
       this.queryTable();
     },
     /* 翻页 */
