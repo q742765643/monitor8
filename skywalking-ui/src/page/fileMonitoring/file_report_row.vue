@@ -2,7 +2,7 @@
   <div class="fileReportRowTemplate">
     <div class="hasHandleExportBox">
       <selectDate @changeDate="onTimeChange" :handleDiffRange="7"></selectDate>
-      <a-button type="primary" @click="exportEventXls" style="margin-right: 10px"> 导出excel </a-button>
+      <a-button type="primary" @click="exportEventXls" style="margin-right: 20px"> 导出excel </a-button>
       <a-button type="primary" @click="exportEventPdf" style="margin-right: 10px"> 导出pdf </a-button>
 
     </div>

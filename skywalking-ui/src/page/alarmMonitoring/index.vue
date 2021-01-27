@@ -389,7 +389,7 @@ export default {
             times.forEach((element) => {
               html += '<p>' + element + '</p>';
             });
-            this.$alert(html, '前5次执行时间', {
+            this.$alert(html, '下5次执行时间', {
               dangerouslyUseHTMLString: true,
             }).then(() => {
               this.cronPopover = false;
