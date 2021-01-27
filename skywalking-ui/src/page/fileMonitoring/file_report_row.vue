@@ -3,6 +3,8 @@
     <div class="hasHandleExportBox">
       <selectDate @changeDate="onTimeChange" :handleDiffRange="7"></selectDate>
       <a-button type="primary" @click="exportEventXls" style="margin-right: 10px"> 导出excel </a-button>
+      <a-button type="primary" @click="exportEventPdf" style="margin-right: 10px"> 导出pdf </a-button>
+
     </div>
     <div class="tableDateBox">
       <div id="barlineChart"></div>
@@ -32,6 +34,7 @@ import echarts from 'echarts';
 import { remFontSize } from '@/components/utils/fontSize.js';
 import request from '@/utils/request';
 import moment from 'moment';
+import Qs from 'qs';
 export default {
   data() {
     return {
@@ -227,10 +230,26 @@ export default {
       this.handleQuery();
     },
     exportEventXls() {
+      this.queryParams.chart = this.getFullCanvasDataURL('barlineChart');
+      let params = this.addDateRange(this.queryParams, this.dateRange);
       request({
         url: '/fileQReport/exportFileReportRow',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
+        method: 'post',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: Qs.stringify(params),
+        responseType: 'arraybuffer',
+      }).then((res) => {
+        this.downloadfileCommon(res);
+      });
+    },
+    exportEventPdf() {
+      this.queryParams.chart = this.getFullCanvasDataURL('barlineChart');
+      let params = this.addDateRange(this.queryParams, this.dateRange);
+      request({
+        url: '/fileQReport/exportFileReportRowPdf',
+        method: 'post',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: Qs.stringify(params),
         responseType: 'arraybuffer',
       }).then((res) => {
         this.downloadfileCommon(res);

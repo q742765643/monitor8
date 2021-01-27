@@ -6,10 +6,7 @@ import com.piesat.util.ResultT;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -69,9 +66,14 @@ public class FileQReportController {
     }
 
     @ApiOperation(value = "导出文件报表-按行合并", notes = "导出文件报表-按行合并")
-    @GetMapping("/exportFileReportRow")
-    public void exportFileReportRow(SystemQueryDto systemQueryDto){
-        fileQReportService.exportFileReportRow(systemQueryDto);
+    @PostMapping("/exportFileReportRow")
+    public void exportFileReportRow(SystemQueryDto systemQueryDto,String chart){
+        fileQReportService.exportFileReportRow(systemQueryDto,chart);
+    }
+    @ApiOperation(value = "导出文件报表-按行合并", notes = "导出文件报表-按行合并")
+    @PostMapping("/exportFileReportRowPdf")
+    public void exportFileReportRowPdf(SystemQueryDto systemQueryDto,String chart){
+        fileQReportService.exportFileReportRowPdf(systemQueryDto,chart);
     }
 
     @ApiOperation(value = "文件报表折线图-到报率查询", notes = "文件报表折线图-到报率查询 " +

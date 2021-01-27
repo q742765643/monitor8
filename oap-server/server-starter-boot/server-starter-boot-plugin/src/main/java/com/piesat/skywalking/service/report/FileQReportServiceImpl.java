@@ -1,6 +1,7 @@
 package com.piesat.skywalking.service.report;
 
 import com.piesat.common.utils.CellModel;
+import com.piesat.common.utils.ExcelToPdf;
 import com.piesat.common.utils.ServletUtils;
 import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.constant.IndexNameConstant;
@@ -8,9 +9,12 @@ import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.api.folder.FileQReportService;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
+import com.piesat.skywalking.vo.ImageVo;
+import com.piesat.util.ImageUtils;
 import com.piesat.util.JsonParseUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.StringUtil;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFCell;
@@ -276,7 +280,7 @@ public class FileQReportServiceImpl implements FileQReportService {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static SXSSFWorkbook createCSVUtilRow(String sheetName, SXSSFWorkbook wb, List<CellModel> cellModelList,
-                                              String[] headers, List<LinkedHashMap> exportData)throws Exception {
+                                                 String[] headers, List<LinkedHashMap> exportData, List<ImageVo> imageVos, int st)throws Exception {
         Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
         CellStyle style = wb.createCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
@@ -319,14 +323,41 @@ public class FileQReportServiceImpl implements FileQReportService {
         //设置表格名称
         Sheet sheet = wb.createSheet(sheetName);
         sheet.setDefaultColumnWidth(20);
-        Row row =  sheet.createRow(0);
+        if(null!=imageVos){
+            for(int k=0;k<imageVos.size();k++){
+                ImageVo imageVo=imageVos.get(k);
+                CreationHelper helper = wb.getCreationHelper();
+                Drawing drawing = sheet.createDrawingPatriarch();
+                ClientAnchor anchor = helper.createClientAnchor();
+
+                // 图片插入坐标
+                anchor.setDx1(0);
+                anchor.setDy1(0);
+                anchor.setDx2(0);
+                anchor.setDy2(0);
+                anchor.setCol1(imageVo.getCol1());
+                anchor.setCol2(imageVo.getCol2());
+                anchor.setRow1(imageVo.getRow1());
+                anchor.setRow2(imageVo.getRow2());
+                anchor.setAnchorType(ClientAnchor.AnchorType.byId(3));
+                // 插入图片
+                Picture pict = drawing.createPicture(anchor, wb.addPicture(imageVo.getBytes(), HSSFWorkbook.PICTURE_TYPE_PNG));
+                // 合并日期占两行(4个参数，分别为起始行，结束行，起始列，结束列)
+                // 行和列都是从0开始计数，且起始结束都会合并
+                // 这里是合并excel中日期的两行为一行
+                CellRangeAddress region = new CellRangeAddress(imageVo.getRow1(), imageVo.getRow2()-1, imageVo.getCol1(), imageVo.getCol2()-1);
+                sheet.addMergedRegion(region);
+            }
+            st=st+1;
+        }
+        Row row =  sheet.createRow(st);
         for (int i = 0; i < headers.length; i++) {
             // 遍历插入表头
             Cell cell = row.createCell(i);
             cell.setCellValue(headers[i]);
             cell.setCellStyle(styles.get("header"));
         }
-        int rowNum=1;
+        int rowNum=st+1;
         for (LinkedHashMap hashMap : exportData) {
             Row rowValue = sheet.createRow(rowNum);
             rowNum++;
@@ -355,7 +386,7 @@ public class FileQReportServiceImpl implements FileQReportService {
 
         return wb;
     }
-    public void exportFileReportRow(SystemQueryDto systemQueryDto){
+    public void exportFileReportRow(SystemQueryDto systemQueryDto,String chart){
         HttpServletResponse response = ServletUtils.getResponse();
 
         OutputStream out = null;
@@ -395,8 +426,17 @@ public class FileQReportServiceImpl implements FileQReportService {
                     cellModelList.add(cellModel);
                 }
             }
+            List<ImageVo> imageVos=new ArrayList<>();
+            ImageVo charIm=new ImageVo();
+            byte[] charByte= ImageUtils.generateImageToByte(chart);
+            charIm.setCol1(1);
+            charIm.setCol2(6);
+            charIm.setRow1(0);
+            charIm.setRow2(18);
+            charIm.setBytes(charByte);
+            imageVos.add(charIm);
             String[] headers=new String[]{"名称","时间","准时到","晚到","应到","大小kb","到报率","及时率"};
-            wb = this.createCSVUtilRow("文件报表",wb, cellModelList, headers, exportData);
+            wb = this.createCSVUtilRow("文件报表",wb, cellModelList, headers, exportData,imageVos,18);
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
             response.addHeader("Access-Control-Expose-Headers", "content-disposition");
@@ -424,6 +464,87 @@ public class FileQReportServiceImpl implements FileQReportService {
         }
 
     }
+
+    public void exportFileReportRowPdf(SystemQueryDto systemQueryDto,String chart){
+        HttpServletResponse response = ServletUtils.getResponse();
+
+        OutputStream out = null;
+        //设置最大数据行数
+        SXSSFWorkbook wb = new SXSSFWorkbook(5000);
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+
+        try {
+            String  filename = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_文件报表.xlsx";
+            List<CellModel> cellModelList = new ArrayList<>();
+            Map<String, Object> fileList=this.findFileReportRow(systemQueryDto);
+            List<Map<String, Object>> list= (List<Map<String, Object>>) fileList.get("tableData");
+            List<Map<String,Object>> mergeCells= (List<Map<String, Object>>) fileList.get("mergeCells");
+            List<LinkedHashMap> exportData = new ArrayList<LinkedHashMap>();
+            if(null!=list&&list.size()>0){
+                for(Map<String,Object> dataMap:list){
+                    LinkedHashMap<String,String> rowPut=new LinkedHashMap<>();
+                    rowPut.put("1", !String.valueOf(dataMap.get("taskName")).equals("null")?String.valueOf(dataMap.get("taskName")):"");
+                    rowPut.put("2", !String.valueOf(dataMap.get("timestamp")).equals("null")?String.valueOf(dataMap.get("timestamp")):"");
+                    rowPut.put("3", !String.valueOf(dataMap.get("sumRealFileNum")).equals("null")?String.valueOf(dataMap.get("sumRealFileNum")):"");
+                    rowPut.put("4", !String.valueOf(dataMap.get("sumLateNum")).equals("null")?String.valueOf(dataMap.get("sumLateNum")):"");
+                    rowPut.put("5", !String.valueOf(dataMap.get("sumFileNum")).equals("null")?String.valueOf(dataMap.get("sumFileNum")):"");
+                    rowPut.put("6", !String.valueOf(dataMap.get("sumRealFileSize")).equals("null")?String.valueOf(dataMap.get("sumRealFileSize")):"");
+                    rowPut.put("7", !String.valueOf(dataMap.get("toQuoteRate")).equals("null")?String.valueOf(dataMap.get("toQuoteRate")):"");
+                    rowPut.put("8", !String.valueOf(dataMap.get("timelinessRate")).equals("null")?String.valueOf(dataMap.get("timelinessRate")):"");
+
+                    exportData.add(rowPut);
+                }
+            }
+            if(null!=mergeCells&&mergeCells.size()>0){
+                for(Map<String,Object> dataMap:mergeCells){
+                    CellModel cellModel=new CellModel();
+                    cellModel.setStartColumn((Integer) dataMap.get("col"));
+                    cellModel.setEndColumn((Integer) dataMap.get("col"));
+                    cellModel.setStartRow((Integer) dataMap.get("row")+1);
+                    cellModel.setEndRow((Integer) dataMap.get("rowspan")+cellModel.getStartRow()-1);
+                    cellModelList.add(cellModel);
+                }
+            }
+            List<ImageVo> imageVos=new ArrayList<>();
+            ImageVo charIm=new ImageVo();
+            byte[] charByte= ImageUtils.generateImageToByte(chart);
+            charIm.setCol1(1);
+            charIm.setCol2(6);
+            charIm.setRow1(0);
+            charIm.setRow2(18);
+            charIm.setBytes(charByte);
+            imageVos.add(charIm);
+            String[] headers=new String[]{"名称","时间","准时到","晚到","应到","大小kb","到报率","及时率"};
+            wb = this.createCSVUtilRow("文件报表",wb, cellModelList, headers, exportData,imageVos,18);
+            filename = filename.replaceAll(".xlsx",".pdf");
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.addHeader("Access-Control-Expose-Headers", "content-disposition");
+            response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+            out = response.getOutputStream();
+            ExcelToPdf.excel2pdf(wb, out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (wb != null) {
+                try {
+                    wb.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+
+    }
+
     /**
      * 生成表格（用于生成复杂表头）
      *

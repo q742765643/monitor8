@@ -4,6 +4,7 @@ import com.piesat.skywalking.dto.model.HtJobInfoDto;
 import com.piesat.skywalking.service.timing.JobInfoService;
 import com.piesat.sso.client.annotation.Log;
 import com.piesat.sso.client.enums.BusinessType;
+import com.piesat.util.CronExpression;
 import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -77,11 +78,11 @@ public class JobInfoController {
         ResultT< List<String>> resultT=new ResultT<>();
         List<String> cronTimeList = new ArrayList<>();
         try {
-            CronSequenceGenerator cronSequenceGenerator = new CronSequenceGenerator(cronExpression);
+            CronExpression cron=new CronExpression(cronExpression);
             Date nextTimePoint = new Date();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (int i = 0; i < 5; i++) {
-                nextTimePoint = cronSequenceGenerator.next(nextTimePoint);
+                nextTimePoint = cron.getNextValidTimeAfter(nextTimePoint);
                 cronTimeList.add(sdf.format(nextTimePoint));
             }
             resultT.setData(cronTimeList);
