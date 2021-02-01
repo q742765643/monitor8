@@ -184,7 +184,7 @@ export default {
         series: [
           {
             type: 'pie',
-            radius: ['25%', '60%'],
+            radius: ['20%', '40%'],
             center: ['50%', '50%'],
             selectedMode: 'single',
             data: this.pieData,
@@ -196,7 +196,7 @@ export default {
               formatter: '{b}\n\n{c}',
             },
             labelLine: {
-              length: remFontSize(30 / 64),
+              length: remFontSize(10 / 64),
               length2: remFontSize(50 / 64),
               lineStyle: { color: '#acacac', width: 0.5 },
             },
@@ -268,11 +268,7 @@ export default {
     width: 90%;
     margin: auto;
     .column {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
       .cell {
-        flex: 1;
         display: flex;
         span:first-child {
           font-size: $ant_font_size;
