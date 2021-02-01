@@ -58,9 +58,9 @@
             <span v-if="row.status == 4">未执行 </span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="startTimeL" title="应开始时间long型">
+        <vxe-table-column field="ddataTime" title="资料时次">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.startTimeL) }}</span>
+            <span>{{ parseTime(scope.row.ddataTime) }}</span>
           </template>
         </vxe-table-column>
       </vxe-table>

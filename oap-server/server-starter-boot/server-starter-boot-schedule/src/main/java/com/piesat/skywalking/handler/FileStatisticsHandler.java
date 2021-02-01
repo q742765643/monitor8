@@ -8,6 +8,7 @@ import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.handler.base.BaseHandler;
 import com.piesat.skywalking.util.CronExpression;
+import com.piesat.util.DdataTimeUtil;
 import com.piesat.util.IndexNameUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
@@ -81,6 +82,7 @@ public class FileStatisticsHandler implements BaseHandler {
                         fileStatisticsDto.setFileSize(fileMonitorDto.getFileSize());
                         fileStatisticsDto.setStartTimeL(nowTime);
                         fileStatisticsDto.setStartTimeS(new Date(nowTime));
+                        fileStatisticsDto.setDdataTime(DdataTimeUtil.repalceRegx(fileMonitorDto.getFilenameRegular(),nowTime));
                         fileStatisticsDtos.add(fileStatisticsDto);
                     }
                 } catch (ParseException e) {
@@ -115,6 +117,7 @@ public class FileStatisticsHandler implements BaseHandler {
             source.put("per_file_size", fileStatisticsDto.getPerFileSize());
             source.put("late_num", fileStatisticsDto.getLateNum());
             source.put("status", fileStatisticsDto.getStatus());
+            source.put("d_data_time", fileStatisticsDto.getDdataTime());
             source.put("@timestamp", new Date());
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, fileStatisticsDto.getId()).source(source);
             request.add(indexRequest);

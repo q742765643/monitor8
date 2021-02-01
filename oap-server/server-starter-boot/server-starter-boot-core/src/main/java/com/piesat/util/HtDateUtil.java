@@ -64,8 +64,9 @@ public class HtDateUtil {
         map.put("month", str.substring(4, 6));
         map.put("day", str.substring(6, 8));
         map.put("hour", str.substring(8, 10));
-        map.put("minute", str.substring(10, 12));
-        map.put("second", str.substring(12, 14));
+        //map.put("minute", str.substring(10, 12));
+        map.put("minute", "00");
+        map.put("second", "00");
         return map;
     }
 

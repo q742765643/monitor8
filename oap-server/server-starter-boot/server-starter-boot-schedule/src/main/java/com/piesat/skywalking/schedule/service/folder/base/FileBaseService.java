@@ -162,6 +162,7 @@ public abstract class FileBaseService {
             fileStatisticsDto.setPerFileSize(new BigDecimal(fileMonitorLogDto.getRealFileSize()).divide(new BigDecimal(fileMonitorLogDto.getFileSize()), 4, BigDecimal.ROUND_HALF_UP).floatValue());
             fileStatisticsDto.setTimelinessRate(new BigDecimal(fileMonitorLogDto.getRealFileNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()), 4, BigDecimal.ROUND_HALF_UP).floatValue());
             fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum() + fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()), 4, BigDecimal.ROUND_HALF_UP).floatValue());
+            fileStatisticsDto.setDdataTime(fileMonitorLogDto.getDdataTime());
             Map<String, Object> source = new HashMap<>();
             source.put("task_id", fileStatisticsDto.getTaskId());
             source.put("task_name", fileStatisticsDto.getTaskName());
@@ -180,6 +181,7 @@ public abstract class FileBaseService {
             source.put("start_time_a", new Date());
             source.put("end_time_a", new Date());
             source.put("@timestamp", new Date());
+            source.put("d_data_time", fileStatisticsDto.getDdataTime());
             String statisticsIndexName = IndexNameConstant.T_MT_FILE_STATISTICS;
    /*         try {
                 boolean flag = elasticSearch7Client.isExistsIndex(statisticsIndexName);

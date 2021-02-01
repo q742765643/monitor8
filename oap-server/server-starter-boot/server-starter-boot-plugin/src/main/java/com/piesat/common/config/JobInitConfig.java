@@ -3,6 +3,7 @@ package com.piesat.common.config;
 import com.google.gson.Gson;
 import com.piesat.skywalking.service.quartz.timing.*;
 import com.piesat.skywalking.service.timing.JobScheduleHelper;
+import com.piesat.sso.client.util.RedisUtil;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.management.ui.template.mt.*;
@@ -53,9 +54,12 @@ public class JobInitConfig implements ApplicationRunner {
     protected final ColumnTypeEsMapping columnTypeEsMapping =new ColumnTypeEsMapping();
     @Autowired
     private ElasticSearch7Client elasticSearch7Client;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        redisUtil.deleteAll();
         autoDiscoveryQuartzService.initJob();
         hostConfigQuartzService.initJob();
         alarmConfigQuartzService.initJob();

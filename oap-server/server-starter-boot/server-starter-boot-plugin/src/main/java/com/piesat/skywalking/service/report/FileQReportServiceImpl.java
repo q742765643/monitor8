@@ -103,6 +103,7 @@ public class FileQReportServiceImpl implements FileQReportService {
             for (SearchHit hit : searchHits) {
                 Map jsonMap = new LinkedHashMap();
                 JsonParseUtil.parseJSON2Map(jsonMap, hit.getSourceAsString(), null);
+                jsonMap.put("d_data_time",JsonParseUtil.formateToDate((String) jsonMap.get("d_data_time")));
                 list.add(jsonMap);
             }
         } catch (IOException e) {
@@ -115,7 +116,7 @@ public class FileQReportServiceImpl implements FileQReportService {
         Map<String, String> mapTaskName=this.findHeaderRow();
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
-        dateHis.field("start_time_s");
+        dateHis.field("d_data_time");
         dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
         dateHis.format("yyyy-MM-dd HH:mm:ss");
         dateHis.timeZone(ZoneId.of("Asia/Shanghai"));
@@ -162,10 +163,10 @@ public class FileQReportServiceImpl implements FileQReportService {
                         long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         if (sumFileNumL > 0) {
-                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
-                            map.put(formatter.format(date), String.valueOf(toQuoteRate));
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 4, BigDecimal.ROUND_HALF_UP).floatValue();
+                            map.put(formatter.format(date), String.valueOf(toQuoteRate*100));
                         }else {
-                            map.put(formatter.format(date), "1");
+                            map.put(formatter.format(date), "100");
                         }
                         list.add(map);
                         timeSet.add(formatter.format(date));
@@ -268,7 +269,7 @@ public class FileQReportServiceImpl implements FileQReportService {
     public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
         rangeQueryBuilder.gte(systemQueryDto.getStartTime());
         rangeQueryBuilder.lte(systemQueryDto.getEndTime());
         rangeQueryBuilder.timeZone("+08:00");
@@ -655,7 +656,7 @@ public class FileQReportServiceImpl implements FileQReportService {
         List<Map<String,Object>> mergeCells=new ArrayList<>();
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
-        dateHis.field("@timestamp");
+        dateHis.field("d_data_time");
         dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
         dateHis.format("yyyy-MM-dd HH:mm:ss");
         dateHis.timeZone(ZoneId.of("Asia/Shanghai"));
@@ -724,13 +725,13 @@ public class FileQReportServiceImpl implements FileQReportService {
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         totalFileNumL+=sumFileNumL;
                         if (sumFileNumL > 0) {
-                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
-                            float timelinessRate = new BigDecimal(sumRealFileNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
-                            map.put("toQuoteRate", toQuoteRate);
-                            map.put("timelinessRate",timelinessRate);
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 4, BigDecimal.ROUND_HALF_UP).floatValue();
+                            float timelinessRate = new BigDecimal(sumRealFileNumL).divide(new BigDecimal(sumFileNumL), 4, BigDecimal.ROUND_HALF_UP).floatValue();
+                            map.put("toQuoteRate", toQuoteRate*100);
+                            map.put("timelinessRate",timelinessRate*100);
                         }else {
-                            map.put("toQuoteRate", 1);
-                            map.put("timelinessRate",1);
+                            map.put("toQuoteRate", 100);
+                            map.put("timelinessRate",100);
                         }
                         map.put("sumRealFileNum", sumRealFileNumL);
                         map.put("sumLateNum", sumLateNumL);
@@ -750,13 +751,13 @@ public class FileQReportServiceImpl implements FileQReportService {
                     map.put("sumRealFileSize", totalRealFileSizeL);
                     map.put("sumFileNum", totalFileNumL);
                     if (totalFileNumL > 0) {
-                        float toQuoteRate = new BigDecimal(totalRealFileNumL + totalLateNumL).divide(new BigDecimal(totalFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
-                        float timelinessRate = new BigDecimal(totalRealFileNumL).divide(new BigDecimal(totalFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
-                        map.put("toQuoteRate", toQuoteRate);
-                        map.put("timelinessRate",timelinessRate);
+                        float toQuoteRate = new BigDecimal(totalRealFileNumL + totalLateNumL).divide(new BigDecimal(totalFileNumL), 4, BigDecimal.ROUND_HALF_UP).floatValue();
+                        float timelinessRate = new BigDecimal(totalRealFileNumL).divide(new BigDecimal(totalFileNumL), 4, BigDecimal.ROUND_HALF_UP).floatValue();
+                        map.put("toQuoteRate", toQuoteRate*100);
+                        map.put("timelinessRate",timelinessRate*100);
                     }else {
-                        map.put("toQuoteRate", 1);
-                        map.put("timelinessRate",1);
+                        map.put("toQuoteRate", 100);
+                        map.put("timelinessRate",100);
                     }
                     list.add(map);
 

@@ -4,6 +4,8 @@ import com.piesat.util.BaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @ClassName : FileMonitorLogDto
  * @Description :
@@ -54,5 +56,7 @@ public class FileMonitorLogDto extends BaseDto {
     private Integer status;
     @ApiModelProperty(value = "提取全正则")
     private String allExpression;
+    @ApiModelProperty(value = "资料时间")
+    private Date ddataTime;
 }
 

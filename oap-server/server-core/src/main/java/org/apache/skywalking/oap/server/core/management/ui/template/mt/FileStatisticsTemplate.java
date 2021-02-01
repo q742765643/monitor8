@@ -100,6 +100,9 @@ public class FileStatisticsTemplate extends ManagementData {
     @Column(columnName = "timeliness_rate")
     private float timelinessRate;
 
+    @Column(columnName = "d_data_time")
+    private Date ddataTime;
+
     @Override
     public String id() {
         return "";
