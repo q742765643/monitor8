@@ -328,8 +328,9 @@ body {
         padding-bottom: 30px;
     }
 }
-.timerSelect{
-    .ant-row{
+
+.timerSelect {
+    .ant-row {
         .queryForm {
             box-shadow: none;
             margin-bottom: 0;
@@ -458,5 +459,10 @@ body {
     .el-input__inner {
         height: 32px;
         line-height: 32px;
+    }
+
+    .el-input-group__append {
+        height: 28px;
+        line-height: 28px;
     }
 }

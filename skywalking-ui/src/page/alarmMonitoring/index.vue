@@ -119,10 +119,23 @@
                   class="jobCronEl"
                   size="small"
                   slot="reference"
-                  @click="cronPopover = true"
+                  @click="
+                    cronPopover = true;
+                    window.event.stopPropagation();
+                  "
                   v-model.trim="formDialog.jobCron"
                   placeholder="请输入cron策略"
-                ></el-input>
+                >
+                  <!-- <template slot="append">
+                    <el-link
+                      target="_blank"
+                      :href="'http://localhost:8180/web/vue/excel/城镇预报.xlsx'"
+                      :underline="false"
+                    >
+                      帮助
+                    </el-link>
+                  </template> -->
+                </el-input>
               </el-popover>
             </a-form-model-item>
           </a-col>
@@ -355,14 +368,7 @@ export default {
     });
     this.queryTable();
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-    window.addEventListener('resize', () => {
-      this.setTableHeight();
-    });
-  },
+  mounted() {},
   methods: {
     changeDate(data) {
       this.dateRange = data;
@@ -491,7 +497,7 @@ export default {
       this.formDialog.severitys.splice(index, 1);
     },
     handleAdd() {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       /* 新增 */
       this.dialogTitle = '新增';
       this.formDialog = {
@@ -505,7 +511,7 @@ export default {
     },
     /* 编辑 */
     handleEdit(row) {
-      this.closeCronPopover = false;
+      this.cronPopover = false;
       hongtuConfig.alarmCofigDetail(row.id).then((response) => {
         if (response.code == 200) {
           this.formDialog = response.data;
@@ -567,14 +573,7 @@ export default {
         onCancel() {},
       });
     },
-    setTableHeight() {
-      let h = document.getElementById('tablediv').offsetHeight;
-      let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
-      let h_page = document.getElementById('page_table').offsetHeight;
 
-      // let chartHeight = document.getElementById("chartdiv").clientHeight;
-      this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
-    },
     startJob(row) {
       const id = row.id;
       let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };

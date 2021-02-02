@@ -20,6 +20,7 @@ import { remFontSize } from '@/components/utils/fontSize.js';
 import echarts from 'echarts';
 import moment from 'moment';
 import request from '@/utils/request';
+import { forEach } from 'lodash';
 export default {
   name: 'distributAlarm',
   components: { planeTitle },
@@ -60,9 +61,20 @@ export default {
           fontFamily: 'Alibaba-PuHuiTi-Regular',
         },
         tooltip: {
-          position: 'top',
+          position: 'left',
           formatter: (params) => {
-            return states[params.value[2]].label;
+            console.log(params);
+            let html =
+              '<p style="margin-bottom: 0;"><span  style="width: 10px;height: 10px;border-radius: 50%;background: #0cb218;display: inline-block;margin-right: 2px;background:' +
+              states[params.value[2]].color +
+              '"></span>名称:' +
+              days[params.value[1]] +
+              '    时间:' +
+              hours[params.value[0]] +
+              '    状态:' +
+              states[params.value[2]].label +
+              '</p>';
+            return html;
           },
         },
         animation: false,
@@ -215,6 +227,17 @@ export default {
         // font-size: $ant_font_size;
         font-size: 24px;
       }
+    }
+  }
+  .chartsTips {
+    margin-bottom: 0;
+    span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0cb218;
+      display: inline-block;
+      margin-right: 2px;
     }
   }
 }
