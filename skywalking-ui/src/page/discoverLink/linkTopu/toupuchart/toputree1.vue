@@ -1,6 +1,9 @@
 <template>
   <div id="left">
     <div id="mountNode"></div>
+    <div class="serachBox">
+      <a-input v-model="topuIp" placeholder="请输入IP地址" @keyup.enter.native="handleQuery"> </a-input>
+    </div>
     <div id="legend">
       <span class="titile">图例</span>
       <div v-for="(item, index) in legendList" :key="index">
@@ -30,6 +33,8 @@ export default {
       TopyData: {},
       ip: '',
       selectRect: null,
+      topuIp: '',
+      Ggraph: null,
     };
   },
   components: { mointorWindow },
@@ -42,26 +47,51 @@ export default {
       method: 'get',
     }).then((data) => {
       let nodes = [];
+      let firsttopuId = '';
       this.TopyData = data.data;
       this.TopyData.nodes.forEach((item, index) => {
         item.img = computerIcon;
         if (index == 0) {
-          item.firstFlag = true;
-          let topuId = item.id;
-          this.getInfoById(topuId);
+          firsttopuId = item.id;
+          this.getInfoById(firsttopuId);
         }
         nodes.push(item);
       });
       this.TopyData.nodes = nodes;
       this.drawRectTree();
+      // 通过ID查询节点实例
+      this.selectRect = this.Ggraph.findById(firsttopuId);
+      // this.Ggraph.updateItem(item);
+      this.Ggraph.setItemState(this.selectRect, 'selected', true);
     });
   },
   mounted() {
     this.$nextTick(() => {});
   },
   methods: {
+    handleQuery() {
+      if (this.topuIp) {
+        let that = this;
+        let id = null;
+        this.TopyData.nodes.forEach((element) => {
+          if (element.ip == that.topuIp) {
+            id = element.id;
+            that.getInfoById(id);
+          }
+        });
+        if (this.selectRect) {
+          // 取消单个状态
+          this.Ggraph.clearItemStates(this.selectRect, 'selected');
+        }
+        // 通过ID查询节点实例
+        this.selectRect = this.Ggraph.findById(id);
+        // this.Ggraph.updateItem(item);
+        this.Ggraph.setItemState(this.selectRect, 'selected', true);
+        //将元素移动到视口中心，该方法可用于做搜索后的缓动动画
+        this.Ggraph.focusItem(this.selectRect);
+      }
+    },
     drawRectTree() {
-      let sortByCombo = true;
       let width = document.getElementById('mountNode').clientWidth - 20;
       var g6Height = document.getElementById('mountNode').clientHeight - 20;
       G6.registerNode(
@@ -69,9 +99,7 @@ export default {
         {
           drawShape: function drawShape(cfg, group) {
             var firstFill = '';
-            if (cfg.firstFlag) {
-              firstFill = 'rgba(0,255,255,0.5)';
-            }
+
             let img = computerIcon;
             if (cfg.mediaType == 1 || cfg.mediaType == 0) {
               img = serveiceIcon;
@@ -124,6 +152,7 @@ export default {
             });
             const shape = group.addShape('rect', {
               attrs: {
+                id: cfg.ip,
                 x: 0,
                 y: 0,
                 width: 36,
@@ -142,6 +171,7 @@ export default {
         },
         'single-node',
       );
+
       var graph = new G6.Graph({
         width,
         container: 'mountNode',
@@ -234,6 +264,7 @@ export default {
           },
         });
       });
+      this.Ggraph = graph;
     },
     getInfoById(topuId) {
       request({
@@ -261,7 +292,15 @@ export default {
   width: 100%;
   height: 100%;
 }
-
+.serachBox {
+  position: absolute;
+  z-index: 500;
+  left: 20px;
+  top: 10px;
+  box-shadow: 1px 1px 10px 0 #ccc;
+  background: #fff;
+  font-size: 14px;
+}
 #legend {
   width: 150px;
   user-select: none;
