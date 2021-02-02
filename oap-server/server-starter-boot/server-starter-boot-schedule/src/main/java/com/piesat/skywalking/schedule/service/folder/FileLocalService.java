@@ -29,15 +29,21 @@ public class FileLocalService extends FileBaseService {
     @Autowired
     private AlarmFileService alarmFileService;
 
+
     @Override
     public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
+        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(monitor.getFilenameRegular(),monitor.getTriggerLastTime()));
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        resultT.setSuccessMessage("资料时次为:"+simpleDateFormat.format(fileMonitorLogDto.getDdataTime()));
         long starTime = System.currentTimeMillis();
+        String remotePath="";
         try {
             if (monitor.getFileNum() == 1) {
                 String folderRegular = DateExpressionEngine.formatDateExpression(monitor.getFolderRegular(), monitor.getTriggerLastTime());
                 fileMonitorLogDto.setRemotePath(folderRegular);
                 String filenameRegular = DateExpressionEngine.formatDateExpression(monitor.getFilenameRegular(), monitor.getTriggerLastTime());
+                remotePath=folderRegular+"/"+filenameRegular;
                 File file = new File(folderRegular, filenameRegular);
                 if (file.exists() && file.isFile() && file.length() > 0) {
                     this.putFile(file, fileMonitorLogDto, fileList, resultT);
@@ -47,8 +53,12 @@ public class FileLocalService extends FileBaseService {
 
             }
         } catch (Exception e) {
-            resultT.setSuccessMessage(OwnException.get(e));
+            //resultT.setSuccessMessage(OwnException.get(e));
         }
+        if(fileList.size()==0){
+            resultT.setSuccessMessage("检索到文件失败:"+remotePath+"进行目录扫描匹配");
+        }
+
         try {
             if(fileList.size()==0){
                 this.multipleFiles(fileMonitorLogDto, fileList, resultT);
@@ -91,6 +101,15 @@ public class FileLocalService extends FileBaseService {
             HtFileUtil.loopFiles(file, fileFilter);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
+        }finally {
+            if(fileList.size()==0){
+                resultT.setErrorMessage("扫描文件夹:"+fileMonitorLogDto.getFolderRegular()+"未扫描到文件" );
+            }else {
+                resultT.setSuccessMessage("扫描文件夹:"+fileMonitorLogDto.getFolderRegular()+"检索到文件" );
+                for(int i=0;i<fileList.size();i++){
+                    resultT.setSuccessMessage(String.valueOf(fileList.get(i).get("full_path")));
+                }
+            }
         }
     }
 

@@ -685,4 +685,13 @@ public class RedisUtil {
             return Boolean.FALSE;
         });
     }
+
+    public void deleteAll(){
+        try {
+            Set<String> keys = redisTemplate.keys("*");
+            redisTemplate.delete(keys);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -13,9 +13,11 @@ import jcifs.smb1.smb1.NtlmPasswordAuthentication;
 import jcifs.smb1.smb1.SmbException;
 import jcifs.smb1.smb1.SmbFile;
 import jcifs.smb1.smb1.SmbFileFilter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +31,7 @@ import java.util.regex.Pattern;
  * @Author : zzj
  * @Date: 2020-10-24 17:02
  */
+@Slf4j
 @Service
 public class FileSmaService extends FileBaseService {
     @GrpcHthtClient
@@ -39,6 +42,9 @@ public class FileSmaService extends FileBaseService {
     @Override
     public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
+        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(monitor.getFilenameRegular(),monitor.getTriggerLastTime()));
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        resultT.setSuccessMessage("资料时次为:"+simpleDateFormat.format(fileMonitorLogDto.getDdataTime()));
         long starTime = System.currentTimeMillis();
         DirectoryAccountDto directoryAccountDto = directoryAccountService.findById(monitor.getAcountId());
         if (monitor.getFileNum() == 1) {
@@ -50,16 +56,16 @@ public class FileSmaService extends FileBaseService {
             fileMonitorLogDto.setRemotePath(remotePath);
             try {
                 SmbFile file = new SmbFile(remotePath, auth);
-                System.out.println(file.isFile());
-                System.out.println(file.exists());
-                System.out.println(file.length());
                 if (file.exists() && file.isFile() && file.length() > 0) {
                     this.putFile(file, fileMonitorLogDto, fileList, resultT);
                     fileMonitorLogDto.setFolderRegular(folderRegular);
                     fileMonitorLogDto.setFilenameRegular(filenameRegular);
+                    resultT.setSuccessMessage("检索到文件成功:"+remotePath);
                 }
             } catch (Exception e) {
-                resultT.setSuccessMessage(OwnException.get(e));
+            }
+            if(fileList.size()==0){
+                resultT.setSuccessMessage("检索到文件失败:"+remotePath+"进行目录扫描匹配");
             }
 
         }
@@ -89,15 +95,20 @@ public class FileSmaService extends FileBaseService {
             long endTime = System.currentTimeMillis();
             long elapsedTime = (endTime - starTime) / 1000;
             fileMonitorLogDto.setElapsedTime(elapsedTime);
+            fileMonitorLogDto.setRealFileSize(new BigDecimal(fileMonitorLogDto.getRealFileSize()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue());
+            log.info("资料{}更新开始",fileMonitorLogDto.getTaskName());
             this.updateLog(fileMonitorLogDto);
+            log.info("资料{}更新结束",fileMonitorLogDto.getTaskName());
+
+
         }
 
     }
 
     public void multipleFiles(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, DirectoryAccountDto directoryAccountDto, ResultT<String> resultT) {
-
+        String remotePath="";
         try {
-            String remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
+            remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
             fileMonitorLogDto.setRemotePath(remotePath);
             SmbFileFilter smbFileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
             if (!resultT.isSuccess()) {
@@ -107,7 +118,16 @@ public class FileSmaService extends FileBaseService {
             SmbFile file = new SmbFile(remotePath, auth);
             HtFileUtil.loopFiles(file, smbFileFilter);
         } catch (Exception e) {
-            resultT.setErrorMessage(OwnException.get(e));
+            //resultT.setErrorMessage(OwnException.get(e));
+        }finally {
+            if(fileList.size()==0){
+                resultT.setErrorMessage("扫描文件夹:"+remotePath+"未扫描到文件" );
+            }else {
+                resultT.setSuccessMessage("扫描文件夹:"+remotePath+"检索到文件" );
+                for(int i=0;i<fileList.size();i++){
+                    resultT.setSuccessMessage(String.valueOf(fileList.get(i).get("full_path")));
+                }
+            }
         }
 
     }

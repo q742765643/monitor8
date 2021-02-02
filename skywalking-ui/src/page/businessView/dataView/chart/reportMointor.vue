@@ -45,7 +45,7 @@
           this.actualList = [];
           this.tempList = [];
           list.forEach((item, index) => {
-            this.timeList.push(this.parseTime(item.start_time_l, '{d}/{h}:{i}'));
+            this.timeList.push(this.parseTime(item.d_data_time, '{d}/{h}:{i}'));
             this.lateList.push(item.late_num);
             this.shouldList.push(item.file_num);
             this.tempList.push(item.file_num);

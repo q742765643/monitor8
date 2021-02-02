@@ -63,4 +63,7 @@ public class FileStatisticsDto {
     @ApiModelProperty(value = "级别")
     private long level;
 
+    @ApiModelProperty(value = "资料时间")
+    private Date ddataTime;
+
 }

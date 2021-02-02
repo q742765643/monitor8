@@ -13,6 +13,7 @@ import com.piesat.skywalking.dto.FileMonitorLogDto;
 import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.entity.FileMonitorLogEntity;
 import com.piesat.skywalking.mapstruct.FileMonitorLogMapstruct;
+import com.piesat.util.JsonParseUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -30,7 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +83,7 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         FileMonitorLogEntity query = fileMonitorLogMapstruct.toEntity(pageForm.getT());
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
         if (StringUtils.isNotNullString((String) query.getParamt().get("beginTime"))) {
             rangeQueryBuilder.gte((String) query.getParamt().get("beginTime"));
         }
@@ -90,14 +94,14 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
         boolBuilder.filter(rangeQueryBuilder);
         if (StringUtils.isNotEmpty(query.getTaskName())) {
-            WildcardQueryBuilder taskName = QueryBuilders.wildcardQuery("task_name.keyword", "*" + query.getTaskName() + "*");
+            WildcardQueryBuilder taskName = QueryBuilders.wildcardQuery("task_name", "*" + query.getTaskName() + "*");
             boolBuilder.must(taskName);
         }
         if (StringUtils.isNotEmpty(query.getTaskId())) {
             WildcardQueryBuilder taskId = QueryBuilders.wildcardQuery("task_id", query.getTaskId());
             boolBuilder.must(taskId);
         }
-        search.query(boolBuilder).sort("@timestamp", SortOrder.DESC);
+        search.query(boolBuilder).sort("start_time_l", SortOrder.DESC);
         search.trackTotalHits(true);
         try {
             int startIndex = (pageForm.getCurrentPage() - 1) * pageForm.getPageSize();
@@ -115,6 +119,8 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
                 fileStatisticsDto.setTaskId(String.valueOf(map.get("task_id")));
                 fileStatisticsDto.setTaskName(String.valueOf(map.get("task_name")));
                 fileStatisticsDto.setStartTimeL((Long) map.get("start_time_l"));
+
+                fileStatisticsDto.setDdataTime(JsonParseUtil.formateToDate((String) map.get("d_data_time")));
                 fileStatisticsDto.setStatus(Integer.parseInt(String.valueOf(map.get("status"))));
                 fileStatisticsDto.setFileNum(new BigDecimal(String.valueOf(map.get("file_num"))).longValue());
                 fileStatisticsDto.setRealFileNum(new BigDecimal(String.valueOf(map.get("real_file_num"))).longValue());

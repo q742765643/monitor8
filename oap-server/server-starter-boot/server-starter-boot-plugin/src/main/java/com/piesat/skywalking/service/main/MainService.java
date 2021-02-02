@@ -13,10 +13,7 @@ import com.piesat.skywalking.mapper.HostConfigMapper;
 import com.piesat.skywalking.service.timing.CronExpression;
 import com.piesat.skywalking.vo.AlarmDistributionVo;
 import com.piesat.skywalking.vo.MonitorViewVo;
-import com.piesat.util.IndexNameUtil;
-import com.piesat.util.JsonParseUtil;
-import com.piesat.util.NullUtil;
-import com.piesat.util.StringUtil;
+import com.piesat.util.*;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -264,24 +261,25 @@ public class MainService {
         List<Integer[]> data = new ArrayList<>();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         String indexName = IndexNameConstant.T_MT_FILE_STATISTICS;
-        List<String> has=new ArrayList<>();
+        Map<String,Integer> has=new HashMap<>();
         try {
             BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("start_time_s");
+            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
             rangeQueryBuilder.gte(format.format(startTime));
             rangeQueryBuilder.lte(format.format(endTime));
             rangeQueryBuilder.timeZone("+08:00");
             rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
             boolBuilder.filter(rangeQueryBuilder);
-            searchSourceBuilder.size(1000);
+            searchSourceBuilder.size(10000);
             searchSourceBuilder.query(boolBuilder);
+            searchSourceBuilder.sort("d_data_time",SortOrder.ASC);
             SearchResponse response = elasticSearch7Client.search(indexName, searchSourceBuilder);
             SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
             SearchHit[] searchHits = hits.getHits();
             for (SearchHit hit : searchHits) {
                 Map<String, Object> source = hit.getSourceAsMap();
                 String taskId= (String) source.get("task_id");
-                long startTimel=new BigDecimal(String.valueOf(source.get("start_time_l"))).longValue();
+                long startTimel=JsonParseUtil.formateToDate(String.valueOf(source.get("d_data_time"))).getTime();
                 String status=String.valueOf(source.get("status"));
                 String hour=qh.format(startTimel);
                 if(StringUtil.isNotEmpty(daysMap.get(taskId))&&StringUtil.isNotEmpty(hoursMap.get(hour))){
@@ -289,9 +287,27 @@ public class MainService {
                     d[0]=Integer.parseInt(hoursMap.get(hour));
                     d[1]=Integer.parseInt(daysMap.get(taskId));
                     d[2]=Integer.parseInt(status);
-                    data.add(d);
-                    has.add(d[0]+"#"+d[1]);
+                    if(null==has.get(d[0]+"#"+d[1])){
+                        has.put(d[0]+"#"+d[1],d[2]);
+                    }else{
+                        Integer d1=has.get(d[0]+"#"+d[1]);
+                        if((d1<3||d1==4)&&d[2]<3&&d[2]>d1){
+                            has.put(d[0]+"#"+d[1],d[2]);
+                        }
+                        if(d1==3&&d[2]!=3){
+                            has.put(d[0]+"#"+d[1],d[2]);
+                        }
+
+                    }
+
                 }
+            }
+            for (Map.Entry<String, Integer> entry : has.entrySet()) {
+                Integer[] d=new Integer[3];
+                d[0]=Integer.parseInt(entry.getKey().split("#")[0]);
+                d[1]=Integer.parseInt(entry.getKey().split("#")[1]);
+                d[2]=entry.getValue();
+                data.add(d);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -310,7 +326,7 @@ public class MainService {
                            Date nextValidTime = new CronExpression(fileMonitorDtoN.getJobCron()).getNextValidTimeAfter(new Date(nowTime));
                            nowTime = nextValidTime.getTime();
                            if (nowTime <= endTime) {
-                               String hour=qh.format(nowTime);
+                               String hour=qh.format(DdataTimeUtil.repalceRegx(fileMonitorDtoN.getFilenameRegular(),nowTime));
                                if(StringUtil.isNotEmpty(daysMap.get(taskId))&&StringUtil.isNotEmpty(hoursMap.get(hour))){
                                    Integer[] d=new Integer[3];
                                    d[0]=Integer.parseInt(hoursMap.get(hour));

@@ -18,7 +18,12 @@
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
-        <vxe-table-column field="folderRegular" title="文件目录" width="270"> </vxe-table-column>
+        <vxe-table-column field="fileNum" title="应到" > </vxe-table-column>
+        <vxe-table-column field="realFileNum" title="实到" > </vxe-table-column>
+        <vxe-table-column field="lateNum" title="晚到" > </vxe-table-column>
+        <vxe-table-column field="fileSize" title="应到大小(K)" > </vxe-table-column>
+        <vxe-table-column field="realFileSize" title="实到大小(K)" > </vxe-table-column>
+<!--        <vxe-table-column field="folderRegular" title="文件目录" > </vxe-table-column>-->
         <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
         <vxe-table-column field="isCompensation" title="是否补偿">
           <template v-slot="{ row }">
@@ -37,7 +42,7 @@
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column width="260" field="date" title="操作">
+        <vxe-table-column width="200" field="date" title="操作">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 查看 </a-button>
             <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
