@@ -1,42 +1,44 @@
 <template>
   <div class="fileLogTemplate">
-    <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
-      <a-form-model-item label="任务名称" prop="name">
-        <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
-      </a-form-model-item>
-      <a-form-model-item label="执行状态" prop="handleCode">
-        <a-select style="width: 120px" v-model="queryParams.handleCode" placeholder="执行状态">
-          <a-select-option v-for="dict in handleCodeOptions" :key="dict.dictValue" :value="dict.dictValue">
-            {{ dict.dictLabel }}
-          </a-select-option>
-        </a-select>
-      </a-form-model-item>
-      <a-form-model-item label="时间">
-        <selectDate
-                class="selectDate"
-                @changeDate="changeDate"
-                :HandleDateRange="dateRange"
-                ref="selectDateRef"
-        ></selectDate>
-      </a-form-model-item>
-      <a-form-model-item>
-        <a-col :span="24">
-          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-          <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-        </a-col>
-      </a-form-model-item>
-    </a-form-model>
+    <div class="timerSelect">
+      <a-form-model layout="inline" :model="queryParams" class="queryForm" ref="queryForm">
+        <a-form-model-item label="任务名称" prop="taskName">
+          <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
+        </a-form-model-item>
+        <a-form-model-item label="执行状态" prop="handleCode">
+          <a-select style="width: 120px" v-model="queryParams.handleCode" placeholder="执行状态">
+            <a-select-option v-for="dict in handleCodeOptions" :key="dict.dictValue" :value="dict.dictValue">
+              {{ dict.dictLabel }}
+            </a-select-option>
+          </a-select>
+        </a-form-model-item>
+        <a-form-model-item label="时间">
+          <selectDate
+            class="selectDate"
+            @changeDate="changeDate"
+            :HandleDateRange="dateRange"
+            ref="selectDateRef"
+          ></selectDate>
+        </a-form-model-item>
+        <a-form-model-item>
+          <a-col :span="24">
+            <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+            <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+          </a-col>
+        </a-form-model-item>
+      </a-form-model>
+    </div>
     <div class="tableDateBox">
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
-        <vxe-table-column field="fileNum" title="应到" > </vxe-table-column>
-        <vxe-table-column field="realFileNum" title="准时到" > </vxe-table-column>
-        <vxe-table-column field="lateNum" title="晚到" > </vxe-table-column>
-        <vxe-table-column field="fileSize" title="应到大小(K)" > </vxe-table-column>
-        <vxe-table-column field="realFileSize" title="实到大小(K)" > </vxe-table-column>
-<!--        <vxe-table-column field="folderRegular" title="文件目录" > </vxe-table-column>-->
-<!--
+        <vxe-table-column field="fileNum" title="应到"> </vxe-table-column>
+        <vxe-table-column field="realFileNum" title="准时到"> </vxe-table-column>
+        <vxe-table-column field="lateNum" title="晚到"> </vxe-table-column>
+        <vxe-table-column field="fileSize" title="应到大小(K)"> </vxe-table-column>
+        <vxe-table-column field="realFileSize" title="实到大小(K)"> </vxe-table-column>
+        <!--        <vxe-table-column field="folderRegular" title="文件目录" > </vxe-table-column>-->
+        <!--
         <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
 -->
         <vxe-table-column field="isCompensation" title="是否补偿">
@@ -164,6 +166,7 @@ export default {
       names: [],
       visible: false,
       handleCodeOptions: [],
+      statusOptions: [],
     };
   },
   created() {
@@ -172,7 +175,6 @@ export default {
         this.handleCodeOptions = response.data;
       }
     });
-
   },
   mounted() {
     this.fetch();
@@ -205,7 +207,7 @@ export default {
         params: this.addDateRange(this.queryParams, this.dateRange),
       }).then((data) => {
         this.tableData = data.data.pageData;
-        console.log(this.tableData)
+        console.log(this.tableData);
         this.total = data.data.totalCount;
       });
     },

@@ -1,6 +1,6 @@
 <template>
   <div class="userMonitorTemplate">
-    <div class="childLeftAside">
+    <!-- <div class="childLeftAside">
       <a-input-search
         style="margin-bottom: 8px"
         allow-clear
@@ -26,24 +26,23 @@
           </template>
         </a-tree>
       </el-scrollbar>
-    </div>
-    <div class="rightContent">
-      <el-scrollbar>
-        <div class="timerSelect">
-          <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
-            <a-form-model-item label="用户名称">
-              <a-input v-model="queryParams.userName" placeholder="请输入用户名称" style="width: 120px"> </a-input>
-            </a-form-model-item>
+    </div> -->
+    <el-scrollbar>
+      <div class="timerSelect">
+        <a-form-model layout="inline" :model="queryParams" ref="queryForm" class="queryForm">
+          <a-form-model-item label="用户名称">
+            <a-input v-model="queryParams.userName" placeholder="请输入用户名称" style="width: 120px"> </a-input>
+          </a-form-model-item>
 
-            <a-form-model-item label="状态">
-              <a-select v-model="queryParams.status" style="width: 70px">
-                <a-select-option v-for="item in statusOptions" :key="item.dictValue">{{
-                  item.dictLabel
-                }}</a-select-option>
-              </a-select>
-            </a-form-model-item>
-            <a-form-model-item label="创建时间">
-              <!-- <el-date-picker
+          <a-form-model-item label="状态">
+            <a-select v-model="queryParams.status" style="width: 70px">
+              <a-select-option v-for="item in statusOptions" :key="item.dictValue">{{
+                item.dictLabel
+              }}</a-select-option>
+            </a-select>
+          </a-form-model-item>
+          <a-form-model-item label="创建时间">
+            <!-- <el-date-picker
                 type="datetimerange"
                 v-model="dateRange"
                 value-format="yyyy-MM-dd HH:mm:ss"
@@ -55,82 +54,81 @@
               >
               </el-date-picker> -->
 
-              <selectDate
-                class="selectDate"
-                @changeDate="changeDate"
-                :HandleDateRange="dateRange"
-                ref="selectDateRef"
-              ></selectDate>
+            <selectDate
+              class="selectDate"
+              @changeDate="changeDate"
+              :HandleDateRange="dateRange"
+              ref="selectDateRef"
+            ></selectDate>
 
-              <!--
+            <!--
                 v-model="queryParams.dateRange"  -->
-            </a-form-model-item>
-            <a-form-model-item>
-              <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
-              <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
-            </a-form-model-item>
-          </a-form-model>
-        </div>
-        <div class="tableDateBox">
-          <a-row type="flex" class="rowToolbar" :gutter="10">
-            <a-col :span="1.5">
-              <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
-            </a-col>
-            <a-col :span="1.5">
-              <a-button type="primary" :disabled="single" icon="edit" @click="handleUpdate"> 修改 </a-button>
-            </a-col>
-            <a-col :span="1.5">
-              <a-button type="danger" :disabled="single" icon="delete" @click="handleDelete"> 删除 </a-button>
-            </a-col>
-            <a-col :span="1.5">
-              <a-button type="primary" icon="vertical-align-bottom" @click="handleExport"> 导出 </a-button>
-            </a-col>
-          </a-row>
-          <vxe-table
-            :data="userListData"
-            align="center"
-            @checkbox-change="selectBox"
-            highlight-hover-row
-            ref="userListRef"
-            border
-          >
-            <vxe-table-column type="checkbox" width="50"></vxe-table-column>
-            <vxe-table-column field="userName" width="80" title="用户名称"></vxe-table-column>
-            <vxe-table-column field="nickName" title="用户昵称"></vxe-table-column>
-            <vxe-table-column field="dept.deptName" title="部门"></vxe-table-column>
-            <vxe-table-column field="phonenumber" title="手机号码"></vxe-table-column>
-            <vxe-table-column width="70" title="状态">
-              <template v-slot="{ row }">
-                <a-switch :checked="row.status == '0' ? true : false" @change="handleStatus(row)" />
-              </template>
-            </vxe-table-column>
-            <vxe-table-column field="createTime" title="创建时间" width="180">
-              <template slot-scope="scope">
-                <span>{{ parseTime(scope.row.createTime) }}</span>
-              </template>
-            </vxe-table-column>
-            <vxe-table-column field="userOperation" title="操作" width="260">
-              <template v-slot="{ row }">
-                <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
-                <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
-                <a-button type="danger" icon="setting" @click="handleResetPwd(row)"> 重置 </a-button>
-              </template>
-            </vxe-table-column>
-          </vxe-table>
-          <vxe-pager
-            id="page_table"
-            perfect
-            :current-page.sync="queryParams.pageNum"
-            :page-size.sync="queryParams.pageSize"
-            :total="paginationTotal"
-            :page-sizes="[10, 20, 100]"
-            :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-            @page-change="handlePageChange"
-          >
-          </vxe-pager>
-        </div>
-      </el-scrollbar>
-    </div>
+          </a-form-model-item>
+          <a-form-model-item>
+            <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+            <a-button :style="{ marginLeft: '8px' }" @click="resetQuery"> 重置 </a-button>
+          </a-form-model-item>
+        </a-form-model>
+      </div>
+      <div class="tableDateBox">
+        <a-row type="flex" class="rowToolbar" :gutter="10">
+          <a-col :span="1.5">
+            <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button type="primary" :disabled="single" icon="edit" @click="handleUpdate"> 修改 </a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button type="danger" :disabled="single" icon="delete" @click="handleDelete"> 删除 </a-button>
+          </a-col>
+          <a-col :span="1.5">
+            <a-button type="primary" icon="vertical-align-bottom" @click="handleExport"> 导出 </a-button>
+          </a-col>
+        </a-row>
+        <vxe-table
+          :data="userListData"
+          align="center"
+          @checkbox-change="selectBox"
+          highlight-hover-row
+          ref="userListRef"
+          border
+        >
+          <vxe-table-column type="checkbox" width="50"></vxe-table-column>
+          <vxe-table-column field="userName" width="80" title="用户名称"></vxe-table-column>
+          <vxe-table-column field="nickName" title="用户昵称"></vxe-table-column>
+          <vxe-table-column field="dept.deptName" title="部门"></vxe-table-column>
+          <vxe-table-column field="phonenumber" title="手机号码"></vxe-table-column>
+          <vxe-table-column width="70" title="状态">
+            <template v-slot="{ row }">
+              <a-switch :checked="row.status == '0' ? true : false" @change="handleStatus(row)" />
+            </template>
+          </vxe-table-column>
+          <vxe-table-column field="createTime" title="创建时间" width="180">
+            <template slot-scope="scope">
+              <span>{{ parseTime(scope.row.createTime) }}</span>
+            </template>
+          </vxe-table-column>
+          <vxe-table-column field="userOperation" title="操作" width="260">
+            <template v-slot="{ row }">
+              <a-button type="primary" icon="edit" @click="handleUpdate(row)"> 修改 </a-button>
+              <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
+              <a-button type="danger" icon="setting" @click="handleResetPwd(row)"> 重置 </a-button>
+            </template>
+          </vxe-table-column>
+        </vxe-table>
+        <vxe-pager
+          id="page_table"
+          perfect
+          :current-page.sync="queryParams.pageNum"
+          :page-size.sync="queryParams.pageSize"
+          :total="paginationTotal"
+          :page-sizes="[10, 20, 100]"
+          :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
+          @page-change="handlePageChange"
+        >
+        </vxe-pager>
+      </div>
+    </el-scrollbar>
     <!-- 添加或修改对话框 -->
     <a-modal
       v-model="visibleModel"
@@ -629,18 +627,12 @@ export default {
 
 <style lang="scss" scoped>
 .userMonitorTemplate {
-  display: flex;
   width: 100%;
   height: 100%;
   box-shadow: $plane_shadow;
 
-  .rightContent {
-    width: calc(100% - 250px);
-    margin-left: 10px;
+  .el-scrollbar {
     height: 100%;
-    .el-scrollbar {
-      height: 100%;
-    }
   }
   .dialogBox {
     .ant-form-item {

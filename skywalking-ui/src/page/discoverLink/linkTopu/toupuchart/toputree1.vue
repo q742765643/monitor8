@@ -171,7 +171,46 @@ export default {
         },
         'single-node',
       );
+      //registerEdge函数会遍历每一个节点
+      //下面这两个参数是为了设置连线上圆圈的不同颜色
+      let edgeCircleColorIndex = 0;
+      let edgeCircleColorArr = '#2bb9f7';
 
+      G6.registerEdge(
+        'circle-running',
+        {
+          afterDraw(cfg, group) {
+            const shape = group.get('children')[0];
+            const startPoint = shape.getPoint(0);
+            //创建节点之间的圆圈，并为每一个设置样式
+            const circle = group.addShape('circle', {
+              attrs: {
+                x: startPoint.x,
+                y: startPoint.y,
+                fill: edgeCircleColorArr,
+                r: 4, //圆圈大小
+              },
+              name: 'circle-shape',
+            });
+
+            // 实现动态效果
+            circle.animate(
+              (ratio) => {
+                const tmpPoint = shape.getPoint(ratio);
+                return {
+                  x: tmpPoint.x,
+                  y: tmpPoint.y,
+                };
+              },
+              {
+                repeat: true, //动画是否重复
+                duration: 3000, //一次动画持续时长
+              },
+            );
+          },
+        },
+        'cubic',
+      );
       var graph = new G6.Graph({
         width,
         container: 'mountNode',
@@ -188,7 +227,7 @@ export default {
             {
               type: 'tooltip',
               formatText(model) {
-                const text = '单击编辑属性,双击显示详情';
+                const text = '单击显示属性,双击显示详情';
                 return text;
               },
               offset: 20,
@@ -209,7 +248,7 @@ export default {
           type: 'card-node',
         },
 
-        defaultEdge: {
+        /*   defaultEdge: {
           size: 1,
           type: 'line-arrow',
           style: {
@@ -218,6 +257,14 @@ export default {
               path: 'M 0,0 L 12,4 L 6,0 L 12,-4 Z',
               fill: '#F6BD16',
             },
+          },
+        }, */
+        defaultEdge: {
+          type: 'circle-running', //节点之间连线类型
+          style: {
+            //节点之间连线的样式
+            lineWidth: 2,
+            stroke: '#bae7ff',
           },
         },
         nodeStateStyles: {
