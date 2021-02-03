@@ -4,8 +4,20 @@
       <a-form-model-item label="任务名称" prop="name">
         <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
       </a-form-model-item>
-      <a-form-model-item label="ip" prop="ip">
-        <a-input v-model="queryParams.ip" placeholder="请输入ip"> </a-input>
+      <a-form-model-item label="执行状态" prop="handleCode">
+        <a-select style="width: 120px" v-model="queryParams.handleCode" placeholder="执行状态">
+          <a-select-option v-for="dict in handleCodeOptions" :key="dict.dictValue" :value="dict.dictValue">
+            {{ dict.dictLabel }}
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item label="时间">
+        <selectDate
+                class="selectDate"
+                @changeDate="changeDate"
+                :HandleDateRange="dateRange"
+                ref="selectDateRef"
+        ></selectDate>
       </a-form-model-item>
       <a-form-model-item>
         <a-col :span="24">
@@ -24,7 +36,9 @@
         <vxe-table-column field="fileSize" title="应到大小(K)" > </vxe-table-column>
         <vxe-table-column field="realFileSize" title="实到大小(K)" > </vxe-table-column>
 <!--        <vxe-table-column field="folderRegular" title="文件目录" > </vxe-table-column>-->
+<!--
         <vxe-table-column field="elapsedTime" title="执行耗时"></vxe-table-column>
+-->
         <vxe-table-column field="isCompensation" title="是否补偿">
           <template v-slot="{ row }">
             <span v-if="row.isCompensation == 0">否 </span>
@@ -36,7 +50,11 @@
             <span> {{ statusFormat(row.handleCode) }}</span>
           </template>
         </vxe-table-column>
-
+        <vxe-table-column field="ddataTime" title="资料时间" show-overflow>
+          <template slot-scope="scope">
+            <span>{{ parseTime(scope.row.ddataTime) }}</span>
+          </template>
+        </vxe-table-column>
         <vxe-table-column field="createTime" title="采集时间" show-overflow>
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -125,6 +143,7 @@
 
 <script>
 import request from '@/utils/request';
+import selectDate from '@/components/date/select.vue';
 export default {
   data() {
     return {
@@ -145,6 +164,7 @@ export default {
       names: [],
       visible: false,
       handleCodeOptions: [],
+      statusOptions:[]
     };
   },
   created() {
@@ -153,12 +173,16 @@ export default {
         this.handleCodeOptions = response.data;
       }
     });
+
   },
   mounted() {
     this.fetch();
   },
-  computed: {},
+  components: { selectDate },
   methods: {
+    changeDate(data) {
+      this.dateRange = data;
+    },
     statusFormat(status) {
       return this.selectDictLabel(this.handleCodeOptions, status);
     },
@@ -182,6 +206,7 @@ export default {
         params: this.addDateRange(this.queryParams, this.dateRange),
       }).then((data) => {
         this.tableData = data.data.pageData;
+        console.log(this.tableData)
         this.total = data.data.totalCount;
       });
     },

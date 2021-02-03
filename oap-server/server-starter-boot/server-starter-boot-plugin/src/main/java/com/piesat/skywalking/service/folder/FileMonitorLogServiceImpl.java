@@ -66,11 +66,14 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         if (StringUtils.isNotNullString(fileMonitorLogEntity.getTaskName())) {
             specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), fileMonitorLogEntity.getTaskName());
         }
+        if(null!=fileMonitorLogEntity.getHandleCode()){
+            specificationBuilder.addOr("handleCode", SpecificationOperator.Operator.eq.name(), fileMonitorLogEntity.getHandleCode());
+        }
         if (StringUtils.isNotNullString((String) fileMonitorLogEntity.getParamt().get("beginTime"))) {
-            specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) fileMonitorLogEntity.getParamt().get("beginTime"));
+            specificationBuilder.add("ddataTime", SpecificationOperator.Operator.ges.name(), (String) fileMonitorLogEntity.getParamt().get("beginTime"));
         }
         if (StringUtils.isNotNullString((String) fileMonitorLogEntity.getParamt().get("endTime"))) {
-            specificationBuilder.add("createTime", SpecificationOperator.Operator.les.name(), (String) fileMonitorLogEntity.getParamt().get("endTime"));
+            specificationBuilder.add("ddataTime", SpecificationOperator.Operator.les.name(), (String) fileMonitorLogEntity.getParamt().get("endTime"));
         }
         Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
@@ -97,6 +100,10 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         if (StringUtils.isNotEmpty(query.getTaskName())) {
             WildcardQueryBuilder taskName = QueryBuilders.wildcardQuery("task_name", "*" + query.getTaskName() + "*");
             boolBuilder.must(taskName);
+        }
+        if(null!=query.getHandleCode()){
+            MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("status", query.getHandleCode());
+            boolBuilder.must(matchEvent);
         }
         if (StringUtils.isNotEmpty(query.getTaskId())) {
             WildcardQueryBuilder taskId = QueryBuilders.wildcardQuery("task_id", query.getTaskId());

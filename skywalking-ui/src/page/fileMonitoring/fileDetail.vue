@@ -5,6 +5,25 @@
         <a-form-model-item label="任务名称">
           <a-input v-model="queryParams.taskName" placeholder="请输入任务名称"> </a-input>
         </a-form-model-item>
+        <a-form-model-item label="执行状态" prop="handleCode">
+          <a-select style="width: 120px" v-model="queryParams.handleCode" placeholder="执行状态">
+            <a-select-option key="0" value="0">
+              一般
+            </a-select-option>
+            <a-select-option key="1" value="1">
+              危险
+            </a-select-option>
+            <a-select-option key="2" value="2">
+              故障
+            </a-select-option>
+            <a-select-option key="3" value="3">
+              正常
+            </a-select-option>
+            <a-select-option key="4" value="4">
+              未执行
+            </a-select-option>
+          </a-select>
+        </a-form-model-item>
         <a-form-model-item label="时间">
           <selectDate
             class="selectDate"

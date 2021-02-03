@@ -160,7 +160,7 @@ public class FileLocalService extends FileBaseService {
                         lastModified = lastModified - 1000 * 3600 * 8;
                     }
                     long ddataTime = getDataTime(createTime, file.getName(), expression, resultT);
-                    if (ddataTime <= finalBeginTime || ddataTime > finalEndTime) {
+                    if (ddataTime < finalBeginTime || ddataTime >= finalEndTime) {
                         return false;
                     }
                     String fullpath = file.getPath();
