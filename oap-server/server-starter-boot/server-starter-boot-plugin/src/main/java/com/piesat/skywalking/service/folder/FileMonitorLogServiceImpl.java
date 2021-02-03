@@ -14,6 +14,7 @@ import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.entity.FileMonitorLogEntity;
 import com.piesat.skywalking.mapstruct.FileMonitorLogMapstruct;
 import com.piesat.util.JsonParseUtil;
+import com.piesat.util.StringUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -121,7 +122,11 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
                 fileStatisticsDto.setStartTimeL((Long) map.get("start_time_l"));
 
                 fileStatisticsDto.setDdataTime(JsonParseUtil.formateToDate((String) map.get("d_data_time")));
-                fileStatisticsDto.setStatus(Integer.parseInt(String.valueOf(map.get("status"))));
+                String status=String.valueOf(map.get("status"));
+                if(StringUtil.isEmpty(status)||"null".equals(status)){
+                    status="4";
+                }
+                fileStatisticsDto.setStatus(Integer.parseInt(status));
                 fileStatisticsDto.setFileNum(new BigDecimal(String.valueOf(map.get("file_num"))).longValue());
                 fileStatisticsDto.setRealFileNum(new BigDecimal(String.valueOf(map.get("real_file_num"))).longValue());
                 fileStatisticsDto.setLateNum(new BigDecimal(String.valueOf(map.get("late_num"))).longValue());

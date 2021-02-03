@@ -90,12 +90,29 @@ public class FileQReportServiceImpl implements FileQReportService {
 
     public List<Map<String, Object>> fileLineDiagram(String taskId) {
         List<Map<String, Object>> list = new ArrayList<>();
+        FileMonitorDto fileMonitorDto=fileMonitorService.findById(taskId);
+        long endTime=System.currentTimeMillis();
+        if(1==fileMonitorDto.getIsUt()){
+            endTime=endTime-3600*8*1000;
+        }
+        long startTime=endTime-86400*1000;
+        SystemQueryDto systemQueryDto=new SystemQueryDto();
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        systemQueryDto.setStartTime(format.format(startTime));
+        systemQueryDto.setEndTime(format.format(endTime));
         SearchSourceBuilder search = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        search.query(boolBuilder);
         MatchQueryBuilder matchTaskId = QueryBuilders.matchQuery("task_id", taskId);
         boolBuilder.must(matchTaskId);
-        search.query(boolBuilder).sort("@timestamp", SortOrder.DESC);
-        search.size(10);
+        search.query(boolBuilder).sort("d_data_time", SortOrder.DESC);
+        search.size(10000);
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
             SearchHits hits = searchResponse.getHits();

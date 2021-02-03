@@ -220,7 +220,7 @@ public class MainService {
         //calendar.set(Calendar.MINUTE, 0);
         //calendar.set(Calendar.SECOND, 0);
         //calendar.set(Calendar.MILLISECOND, 0);
-        long endTime = calendar.getTime().getTime();
+        long endTime = calendar.getTime().getTime()+3600*1000;
         long startTime = endTime - 86400 * 1000;
 
         List<String> hoursList=new ArrayList<>();
@@ -279,38 +279,52 @@ public class MainService {
             for (SearchHit hit : searchHits) {
                 Map<String, Object> source = hit.getSourceAsMap();
                 String taskId= (String) source.get("task_id");
-                long startTimel=JsonParseUtil.formateToDate(String.valueOf(source.get("d_data_time"))).getTime();
+                long startTimel= 0;
+                try {
+                    startTimel = JsonParseUtil.formateToDate(String.valueOf(source.get("d_data_time"))).getTime();
+                } catch (Exception e) {
+                    continue;
+                }
                 String status=String.valueOf(source.get("status"));
                 String hour=qh.format(startTimel);
                 if(StringUtil.isNotEmpty(daysMap.get(taskId))&&StringUtil.isNotEmpty(hoursMap.get(hour))){
                     Integer[] d=new Integer[3];
-                    d[0]=Integer.parseInt(hoursMap.get(hour));
-                    d[1]=Integer.parseInt(daysMap.get(taskId));
-                    d[2]=Integer.parseInt(status);
-                    if(null==has.get(d[0]+"#"+d[1])){
-                        has.put(d[0]+"#"+d[1],d[2]);
-                    }else{
-                        Integer d1=has.get(d[0]+"#"+d[1]);
-                        if((d1<3||d1==4)&&d[2]<3&&d[2]>d1){
-                            has.put(d[0]+"#"+d[1],d[2]);
+                    try {
+                        d[0]=Integer.parseInt(hoursMap.get(hour));
+                        d[1]=Integer.parseInt(daysMap.get(taskId));
+                        if(StringUtil.isEmpty(status)||"null".equals(status)){
+                            status="4";
                         }
-                        if(d1==3&&d[2]!=3){
+                        d[2]=Integer.parseInt(status);
+                        if(null==has.get(d[0]+"#"+d[1])){
                             has.put(d[0]+"#"+d[1],d[2]);
-                        }
+                        }else{
+                            Integer d1=has.get(d[0]+"#"+d[1]);
+                            if((d1<3||d1==4)&&d[2]<3&&d[2]>d1){
+                                has.put(d[0]+"#"+d[1],d[2]);
+                            }
+                            if(d1==3&&d[2]!=3){
+                                has.put(d[0]+"#"+d[1],d[2]);
+                            }
 
+                        }
+                    } catch (NumberFormatException e) {
+                      System.out.println("任务id"+taskId);
                     }
 
                 }
             }
-            for (Map.Entry<String, Integer> entry : has.entrySet()) {
-                Integer[] d=new Integer[3];
-                d[0]=Integer.parseInt(entry.getKey().split("#")[0]);
-                d[1]=Integer.parseInt(entry.getKey().split("#")[1]);
-                d[2]=entry.getValue();
-                data.add(d);
-            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        for (Map.Entry<String, Integer> entry : has.entrySet()) {
+            Integer[] d=new Integer[3];
+            d[0]=Integer.parseInt(entry.getKey().split("#")[0]);
+            d[1]=Integer.parseInt(entry.getKey().split("#")[1]);
+            d[2]=entry.getValue();
+            data.add(d);
         }
         if(null!=fileMonitorList){
             for(int i=0;i<fileMonitorList.size();i++){
