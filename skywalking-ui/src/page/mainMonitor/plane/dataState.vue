@@ -76,7 +76,7 @@ export default {
               days[params.value[1]] +
               '    时间:' +
               hours[params.value[0]] +
-              '    及时率:' +
+              '    准时率:' +
               params.value[2] +
               '%' +
               '</br>' +
@@ -86,7 +86,7 @@ export default {
               this.tipsList[thatIndex][1] +
               '    晚到:' +
               this.tipsList[thatIndex][2] +
-              '    准时率:' +
+              '    到报率:' +
               this.tipsList[thatIndex][3] +
               '    时次:' +
               this.tipsList[thatIndex][4];

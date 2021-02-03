@@ -64,10 +64,10 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         Specification specification = specificationBuilder.generateSpecification();
         if (StringUtils.isNotNullString(fileMonitorLogEntity.getTaskName())) {
-            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), fileMonitorLogEntity.getTaskName());
+            specificationBuilder.add("taskName", SpecificationOperator.Operator.likeAll.name(), fileMonitorLogEntity.getTaskName());
         }
         if(null!=fileMonitorLogEntity.getHandleCode()){
-            specificationBuilder.addOr("handleCode", SpecificationOperator.Operator.eq.name(), fileMonitorLogEntity.getHandleCode());
+            specificationBuilder.add("handleCode", SpecificationOperator.Operator.eq.name(), fileMonitorLogEntity.getHandleCode());
         }
         if (StringUtils.isNotNullString((String) fileMonitorLogEntity.getParamt().get("beginTime"))) {
             specificationBuilder.add("ddataTime", SpecificationOperator.Operator.ges.name(), (String) fileMonitorLogEntity.getParamt().get("beginTime"));
