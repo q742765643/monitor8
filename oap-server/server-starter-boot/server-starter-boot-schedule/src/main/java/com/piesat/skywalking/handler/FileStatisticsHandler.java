@@ -117,6 +117,9 @@ public class FileStatisticsHandler implements BaseHandler {
             source.put("per_file_size", fileStatisticsDto.getPerFileSize());
             source.put("late_num", fileStatisticsDto.getLateNum());
             source.put("status", fileStatisticsDto.getStatus());
+            if(null==fileStatisticsDto.getStatus()){
+                log.info("状态为null");
+            }
             source.put("d_data_time", fileStatisticsDto.getDdataTime());
             source.put("@timestamp", new Date());
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, fileStatisticsDto.getId()).source(source);

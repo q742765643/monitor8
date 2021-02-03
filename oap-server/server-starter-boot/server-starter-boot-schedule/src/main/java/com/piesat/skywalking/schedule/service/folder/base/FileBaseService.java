@@ -7,6 +7,7 @@ import com.piesat.skywalking.dto.FileMonitorLogDto;
 import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.schedule.service.folder.FileLogService;
 import com.piesat.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -39,6 +40,7 @@ import java.util.regex.Pattern;
  * @Author : zzj
  * @Date: 2020-10-24 17:00
  */
+@Slf4j
 @Service
 public abstract class FileBaseService {
     protected static final String REGEX = "(\\$\\{(.*?)\\})";
@@ -178,6 +180,9 @@ public abstract class FileBaseService {
             source.put("late_num", fileStatisticsDto.getLateNum());
             source.put("timeliness_rate", fileStatisticsDto.getTimelinessRate());
             source.put("status", fileStatisticsDto.getStatus());
+            if(null==fileStatisticsDto.getStatus()){
+                log.info("状态为null");
+            }
             source.put("start_time_a", new Date());
             source.put("end_time_a", new Date());
             source.put("@timestamp", new Date());

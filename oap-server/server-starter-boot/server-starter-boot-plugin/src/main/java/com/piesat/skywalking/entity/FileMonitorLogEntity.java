@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * @ClassName : FileMonitorLogEntity
@@ -67,5 +68,7 @@ public class FileMonitorLogEntity extends BaseEntity {
     private String taskName;
     @Column(name = "is_compensation", length = 1)
     private Integer isCompensation;
+    @Column(name = "d_data_time")
+    private Date ddataTime;
 }
 
