@@ -2,7 +2,7 @@
   <div class="alarmReportChartsTemplate">
     <div class="leftBox">
       <div class="colCardBox">
-        <planeTitle titleName="告警分布" />
+        <planeTitle titleName="未处理告警分布" />
         <!-- <a-row type="flex" justify="center" align="middle">
           <a-col :span="12" align="center">
             <span style="font-size: 30px">{{ deviceNum }}</span
@@ -15,7 +15,7 @@
             <p>故障数量</p>
           </a-col>
         </a-row> -->
-        <div id="alarmLevel" class="colCardbody"></div>
+        <div id="alarmLevel" class="colCardbody" @dblclick="gopage"></div>
       </div>
       <!--  <div class="colCardBox" >
         <planeTitle titleName="当前故障级别" />
@@ -80,6 +80,11 @@ export default {
     this.selectAlarmList();
   },
   methods: {
+    gopage() {
+      this.$router.push({
+        name: 'unAlarm',
+      });
+    },
     selectAlarmNum() {
       request({
         url: '/alarmEsLog/selectAlarmNum',

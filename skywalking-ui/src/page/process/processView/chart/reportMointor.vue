@@ -123,6 +123,10 @@ export default {
                 width: 0.5,
               },
             },
+            axisLabel: {
+              formatter: '{value}%',
+              fontSize: remFontSize(12 / 64),
+            },
           },
           {
             type: 'value',
@@ -141,6 +145,10 @@ export default {
             },
             splitLine: {
               show: false,
+            },
+            axisLabel: {
+              formatter: '{value}%',
+              fontSize: remFontSize(12 / 64),
             },
           },
         ],
