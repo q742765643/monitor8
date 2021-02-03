@@ -141,10 +141,10 @@ public class FileSmaService extends FileBaseService {
                 return null;
             }
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-            if("测试".equals(fileMonitorLogDto.getTaskName())){
+         /*   if("测试".equals(fileMonitorLogDto.getTaskName())){
                 log.info("1");
                 fileMonitorLogDto.setTriggerTime(1612317600000l);
-            }
+            }*/
             long endTime= fileMonitorLogDto.getTriggerTime();
             long beginTime=CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
             if(StringUtil.isNotEmpty(fileMonitorLogDto.getAllExpression())){

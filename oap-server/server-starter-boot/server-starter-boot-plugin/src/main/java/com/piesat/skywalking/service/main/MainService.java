@@ -212,8 +212,143 @@ public class MainService {
         return list;
 
     }
+    public Map<String,Object> getFileStatus() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        long endTime = calendar.getTime().getTime()+3600*1000;
+        long startTime = endTime - 86400 * 1000;
+
+        List<String> hoursList=new ArrayList<>();
+        List<String> hoursList1=new ArrayList<>();
+        Map<String,String> hoursMap=new LinkedHashMap<>();
+        SimpleDateFormat qh=new SimpleDateFormat("d/H");
+        SimpleDateFormat qh1=new SimpleDateFormat("yyyy-MM-dd HH:00:00");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
+        Calendar calendarTemp = Calendar.getInstance();
+        calendarTemp.setTimeInMillis(startTime);
+        for(int i=0;i<30;i++){
+            if(calendarTemp.getTime().getTime()>endTime){
+                break;
+            }
+            int hour=calendarTemp.get(Calendar.HOUR_OF_DAY);
+            if(i==0||hour==0){
+                hoursList.add(qh.format(calendarTemp.getTimeInMillis()));
+            }else {
+                hoursList.add(String.valueOf(hour));
+            }
+            hoursList1.add(qh1.format(calendarTemp.getTimeInMillis()));
+            hoursMap.put(qh.format(calendarTemp.getTimeInMillis()),String.valueOf(i));
+            calendarTemp.setTimeInMillis(calendarTemp.getTimeInMillis()+3600*1000);
+        }
+
+        FileMonitorDto fileMonitorDto=new FileMonitorDto();
+        NullUtil.changeToNull(fileMonitorDto);
+        List<FileMonitorDto> fileMonitorList=fileMonitorService.selectBySpecification(fileMonitorDto);
+        List<String> daysList=new ArrayList<>();
+        Map<String,String> daysMap=new HashMap<>();
+        if(null!=fileMonitorList){
+            for(int i=0;i<fileMonitorList.size();i++){
+                daysList.add(fileMonitorList.get(i).getTaskName());
+                daysMap.put(fileMonitorList.get(i).getId(),String.valueOf(i));
+            }
+        }
+
+
+        List<Integer[]> data = new ArrayList<>();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        String indexName = IndexNameConstant.T_MT_FILE_STATISTICS;
+        Map<String,Map<String,Long>> has=new LinkedHashMap<>();
+        try {
+            BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+            RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
+            rangeQueryBuilder.gte(format.format(startTime));
+            rangeQueryBuilder.lte(format.format(endTime));
+            rangeQueryBuilder.timeZone("+08:00");
+            rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+            boolBuilder.filter(rangeQueryBuilder);
+            searchSourceBuilder.size(10000);
+            searchSourceBuilder.query(boolBuilder);
+            searchSourceBuilder.sort("d_data_time",SortOrder.ASC);
+            SearchResponse response = elasticSearch7Client.search(indexName, searchSourceBuilder);
+            SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
+            SearchHit[] searchHits = hits.getHits();
+            for (SearchHit hit : searchHits) {
+                Map<String, Object> source = hit.getSourceAsMap();
+                String taskId= (String) source.get("task_id");
+                long startTimel= 0;
+                try {
+                    startTimel = JsonParseUtil.formateToDate(String.valueOf(source.get("d_data_time"))).getTime();
+                } catch (Exception e) {
+                    continue;
+                }
+                long file_num=new BigDecimal(String.valueOf(source.get("file_num"))).longValue();
+                long real_file_num=new BigDecimal(String.valueOf(source.get("real_file_num"))).longValue();
+                long late_num=new BigDecimal(String.valueOf(source.get("late_num"))).longValue();
+                String hour=qh.format(startTimel);
+                if(StringUtil.isNotEmpty(daysMap.get(taskId))&&StringUtil.isNotEmpty(hoursMap.get(hour))){
+                    Integer[] d=new Integer[3];
+                    try {
+                        d[0]=Integer.parseInt(hoursMap.get(hour));
+                        d[1]=Integer.parseInt(daysMap.get(taskId));
+                        String key=d[0]+"#"+d[1];
+                        if(has.containsKey(key)){
+                            has.get(key).put("file_num",has.get(key).get("file_num")+file_num);
+                            has.get(key).put("real_file_num",has.get(key).get("real_file_num")+real_file_num);
+                            has.get(key).put("late_num",has.get(key).get("late_num")+late_num);
+                        }else{
+                            Map<String,Long> hh=new HashMap<>();
+                            hh.put("file_num",file_num);
+                            hh.put("real_file_num",real_file_num);
+                            hh.put("late_num",real_file_num);
+                            has.put(key,hh);
+                        }
+
+
+                    } catch (Exception e) {
+                        System.out.println("任务id"+taskId);
+                    }
+
+                }
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        List<String[]> tips=new ArrayList<>();
+        for (Map.Entry<String, Map<String,Long>> entry : has.entrySet()) {
+            Integer[] d = new Integer[3];
+            d[0] = Integer.parseInt(entry.getKey().split("#")[0]);
+            d[1] = Integer.parseInt(entry.getKey().split("#")[1]);
+            Map<String, Long> hh = entry.getValue();
+            long file_num = hh.get("file_num");
+            long real_file_num = hh.get("real_file_num");
+            long late_num = hh.get("late_num");
+            Integer onTimeRate = new BigDecimal(real_file_num * 100).divide(new BigDecimal(file_num), 2, BigDecimal.ROUND_UP).intValue();
+            Integer rate = new BigDecimal(real_file_num * 100+late_num).divide(new BigDecimal(file_num), 2, BigDecimal.ROUND_UP).intValue();
+            d[2] = onTimeRate;
+            if (file_num > 0) {
+                if(late_num>0){
+                    System.out.println(11);
+                }
+                data.add(d);
+                String[] tip = new String[]{String.valueOf(file_num), String.valueOf(real_file_num), String.valueOf(late_num),rate+"%", hoursList1.get(d[0])};
+                tips.add(tip);
+            }
+        }
+        Map<String,Object> returnMap=new HashMap<>();
+        returnMap.put("days",daysList);
+        returnMap.put("hours",hoursList);
+        returnMap.put("data",data);
+        returnMap.put("tip",tips);
+        return returnMap;
+
+    }
+
+
+/*
     public Map<String,Object> getFileStatus() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -365,6 +500,7 @@ public class MainService {
         return returnMap;
 
     }
+*/
 
     public Map<String,Object> getProcess(){
         Calendar calendar = Calendar.getInstance();

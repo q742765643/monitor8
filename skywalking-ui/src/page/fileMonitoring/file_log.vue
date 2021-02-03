@@ -164,7 +164,6 @@ export default {
       names: [],
       visible: false,
       handleCodeOptions: [],
-      statusOptions:[]
     };
   },
   created() {
