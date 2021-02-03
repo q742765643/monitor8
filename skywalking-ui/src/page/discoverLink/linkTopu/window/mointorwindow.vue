@@ -79,14 +79,27 @@ export default {
       chart4: '',
       chart5: '',
       ip: '',
+      parentPageName: '',
     };
   },
   created() {
     this.getDicts('current_status').then((response) => {
       this.alarmLevelOptions = response.data;
     });
-    this.ip = this.$route.params.ip;
-    this.titleName = this.$route.params.titleName == undefined ? '设备运行状态' : this.$route.params.titleName;
+
+    if (this.$route.params.ip) {
+      this.ip = this.$route.params.ip;
+      this.titleName = this.$route.params.titleName == undefined ? '设备运行状态' : this.$route.params.titleName;
+      this.parentPageName = this.$route.params.parentPageName;
+      localStorage.setItem('paramsIp', this.ip);
+      localStorage.setItem('paramsTitleName', this.titleName);
+      localStorage.setItem('paramsParentPageName', this.parentPageName);
+    } else {
+      this.ip = localStorage.getItem('paramsIp');
+      this.titleName = localStorage.getItem('paramsTitleName');
+      this.parentPageName = localStorage.getItem('paramsParentPageName');
+    }
+
     // console.log(this.$route.params)
   },
   mounted() {
@@ -115,7 +128,7 @@ export default {
     },
     closeWindow() {
       this.$router.push({
-        name: this.$route.params.parentPageName,
+        name: this.parentPageName,
       });
     },
     initXdata() {
@@ -165,7 +178,7 @@ export default {
               fontSize: remFontSize(12 / 64),
             },
           },
-          grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
+          grid: { left: '15%', top: '10%', right: '5%', bottom: '15%' },
           color: '#15E125',
 
           yAxis: {
@@ -237,7 +250,7 @@ export default {
               fontSize: remFontSize(12 / 64),
             },
           },
-          grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
+          grid: { left: '15%', top: '10%', right: '5%', bottom: '15%' },
           color: '#15E125',
 
           yAxis: {
@@ -554,6 +567,9 @@ export default {
           },
           tooltip: {
             trigger: 'axis',
+            // formatter: function (params) {
+            //   return params[0].value * 100 + '%';
+            // },
           },
           xAxis: {
             boundaryGap: false,
@@ -570,7 +586,7 @@ export default {
               fontSize: remFontSize(12 / 64),
             },
           },
-          grid: { left: '10%', top: '10%', right: '5%', bottom: '15%' },
+          grid: { left: '15%', top: '10%', right: '5%', bottom: '15%' },
           color: '#15E125',
 
           yAxis: {
@@ -580,7 +596,7 @@ export default {
             axisLabel: {
               fontSize: remFontSize(12 / 64),
               formatter: function (value) {
-                return value + '%';
+                return value * 100 + '%';
               },
             },
           },
