@@ -57,6 +57,7 @@ export default {
           bottom: '10%',
           top: '5%',
           right: '0%',
+          left: '12%',
         },
         tooltip: {
           position: 'left',

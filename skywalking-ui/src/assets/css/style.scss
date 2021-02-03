@@ -178,11 +178,18 @@ body {
 .ant-input-number,
 .ant-input-number-input,
 .ant-btn,
-.ant-select-selection--single {
+.ant-select-selection--single,
+.vue-treeselect__control {
     font-size: 16px;
     height: 32px;
 }
 
+.vue-treeselect__control,
+.vue-treeselect__placeholder,
+.vue-treeselect__single-value {
+    height: 32px !important;
+    line-height: 32px !important;
+}
 
 
 .ant-input {
