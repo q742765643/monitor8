@@ -31,7 +31,7 @@
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
         <vxe-table-column field="fileNum" title="应到" > </vxe-table-column>
-        <vxe-table-column field="realFileNum" title="实到" > </vxe-table-column>
+        <vxe-table-column field="realFileNum" title="准时到" > </vxe-table-column>
         <vxe-table-column field="lateNum" title="晚到" > </vxe-table-column>
         <vxe-table-column field="fileSize" title="应到大小(K)" > </vxe-table-column>
         <vxe-table-column field="realFileSize" title="实到大小(K)" > </vxe-table-column>
