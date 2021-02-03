@@ -28,7 +28,6 @@
         <vxe-table-column field="name" title="远程凭证名称"></vxe-table-column>
         <vxe-table-column field="ip" title="IP地址"> </vxe-table-column>
         <vxe-table-column field="user" title="用户名"></vxe-table-column>
-        <vxe-table-column field="pass" title="密码"></vxe-table-column>
         <vxe-table-column field="createTime" title="创建时间" show-overflow>
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -72,7 +71,7 @@
           <a-input v-model="form.user" placeholder="请输入用户名"> </a-input>
         </a-form-model-item>
         <a-form-model-item label="密码" prop="pass">
-          <a-input v-model="form.pass" placeholder="请输入密码"> </a-input>
+          <a-input-password v-model="form.pass" placeholder="请输入密码" />
         </a-form-model-item>
       </a-form-model>
     </a-modal>

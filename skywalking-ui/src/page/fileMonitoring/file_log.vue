@@ -37,7 +37,7 @@
           </template>
         </vxe-table-column>
 
-        <vxe-table-column field="createTime" title="创建时间" show-overflow>
+        <vxe-table-column field="createTime" title="采集时间" show-overflow>
           <template slot-scope="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>

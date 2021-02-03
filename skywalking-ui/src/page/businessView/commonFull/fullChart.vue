@@ -123,7 +123,9 @@ export default {
         this.isReloadData = true;
         let el = document.getElementById(this.chartID);
         let bigChart = document.getElementById('bigChart');
-        el.style.height = bigChart.clientHeight - 48 + 'px';
+        if (el) {
+          el.style.height = bigChart.clientHeight - 48 + 'px';
+        }
       });
     },
   },
