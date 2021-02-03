@@ -187,7 +187,7 @@ public class FileSmaService extends FileBaseService {
                     if (!resultT.isSuccess()) {
                         return false;
                     }
-                    if (ddataTime < finalBeginTime || ddataTime >= finalEndTime) {
+                    if (ddataTime <= finalBeginTime || ddataTime > finalEndTime) {
                         return false;
                     }
                     String fullpath = smbFile.getPath();

@@ -73,23 +73,24 @@ public class HtDateUtil {
     public static long matchingTime(Date date, String format, Map<String, String> map) throws Exception {
         SimpleDateFormat df = new SimpleDateFormat(FORMAT_FULL_);
         String str = df.format(date);
-        format = format.toUpperCase();
-        if (format.indexOf("Y") != -1) {
+        //format = format.toUpperCase();
+        //yyyyMMddHHmmss
+        if (format.indexOf("y") != -1) {
             map.put("year", str.substring(0, 4));
         }
         if (format.indexOf("M") != -1) {
             map.put("month", str.substring(4, 6));
         }
-        if (format.indexOf("D") != -1) {
+        if (format.indexOf("d") != -1) {
             map.put("day", str.substring(6, 8));
         }
         if (format.indexOf("H") != -1) {
             map.put("hour", str.substring(8, 10));
         }
-        if (format.indexOf("M") != -1) {
+        if (format.indexOf("m") != -1) {
             map.put("minute", str.substring(10, 12));
         }
-        if (format.indexOf("S") != -1) {
+        if (format.indexOf("s") != -1) {
             map.put("second", str.substring(12, 14));
         }
         String realStr = map.get("year") + map.get("month") + map.get("day") + map.get("hour") + map.get("minute") + map.get("second");
