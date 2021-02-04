@@ -4,6 +4,7 @@ import com.piesat.common.grpc.annotation.GrpcHthtClient;
 import com.piesat.skywalking.api.folder.FileMonitorLogService;
 import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
+import com.piesat.util.DdataTimeUtil;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,6 +31,7 @@ public class FileLogService {
         fileMonitorLogDto.setJobCron(fileMonitorDto.getJobCron());
         fileMonitorLogDto.setTaskName(fileMonitorDto.getTaskName());
         fileMonitorLogDto.setIsCompensation(fileMonitorDto.getIsCompensation());
+        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(fileMonitorDto.getFilenameRegular(),fileMonitorDto.getTriggerLastTime()));
         return fileMonitorLogService.save(fileMonitorLogDto);
     }
 
