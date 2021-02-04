@@ -72,13 +72,16 @@ export default {
             //thatIndex = 0;
             //应到，实到 ，晚到 ，准时率，时次
             let html =
-              '<p style="margin-bottom: 0;">名称:' +
+              '<p style="margin-bottom: 0;">资料名称:' +
               days[params.value[1]] +
-              '    时间:' +
+              '    时次:' +
               hours[params.value[0]] +
+              '</br>' +
               '    准时率:' +
               params.value[2] +
               '%' +
+              '    到报率:' +
+              this.tipsList[thatIndex][3] +
               '</br>' +
               '应到:' +
               this.tipsList[thatIndex][0] +
@@ -86,9 +89,8 @@ export default {
               this.tipsList[thatIndex][1] +
               '    晚到:' +
               this.tipsList[thatIndex][2] +
-              '    到报率:' +
-              this.tipsList[thatIndex][3] +
-              '    时次:' +
+              '</br>' +
+              '    资料时间:' +
               this.tipsList[thatIndex][4];
             ('</p>');
             return html;

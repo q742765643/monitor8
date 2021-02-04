@@ -63,7 +63,7 @@ export default {
       this.mixChart = echarts.init(document.getElementById(id));
       var colors = ['#5793f3', '#d14a61', '#675bba'];
       let shouldA = this.tempList.sort((a, b) => a - b);
-      let shouldL = Number(shouldA[shouldA.length - 1]) + 20;
+      let shouldL = Number(shouldA[shouldA.length - 1]) + 2;
       let options = {
         textStyle: {
           fontFamily: 'Alibaba-PuHuiTi-Regular',
