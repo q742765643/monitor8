@@ -48,7 +48,8 @@ public class AlarmFileService extends AlarmBaseService {
         this.fitAlarmLog(alarmConfigDto, alarmLogDto);
         this.judgeAlarm(alarmLogDto);
         fileMonitorLogDto.setStatus(3);
-        if (alarmLogDto.isAlarm()&&0==fileMonitorLogDto.getIsCompensation()) {
+        //if (alarmLogDto.isAlarm()&&0==fileMonitorLogDto.getIsCompensation()) {
+        if (alarmLogDto.isAlarm()) {
             String message = fileMonitorLogDto.getTaskName()+":"+fileMonitorLogDto.getRemotePath()+":未采集到文件,请检查环境";
             if (alarmLogDto.getUsage() > 0) {
                 message = fileMonitorLogDto.getTaskName()+":"+fileMonitorLogDto.getRemotePath()+":文件到达率为" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP) + "%";
