@@ -3,6 +3,7 @@ package com.piesat.skywalking.api.folder;
 import com.piesat.common.grpc.annotation.GrpcHthtService;
 import com.piesat.common.grpc.constant.SerializeType;
 import com.piesat.skywalking.dto.FileMonitorDto;
+import com.piesat.util.ResultT;
 import com.piesat.util.constant.GrpcConstant;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
@@ -23,7 +24,7 @@ public interface FileMonitorService {
 
     public long selectCount(FileMonitorDto fileMonitorDto);
 
-    public boolean regularCheck(FileMonitorDto fileMonitorDto);
+    public boolean regularCheck(FileMonitorDto fileMonitorDto, ResultT<String> resultT);
 
     public FileMonitorDto updateFileMonitor(FileMonitorDto fileMonitorDto);
 

@@ -12,6 +12,7 @@ import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.entity.FileMonitorEntity;
 import com.piesat.skywalking.mapstruct.FileMonitorMapstruct;
 import com.piesat.skywalking.service.quartz.timing.FileMonitorQuartzService;
+import com.piesat.util.ResultT;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,11 +166,12 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
     }
 
 
-    public boolean regularCheck(FileMonitorDto fileMonitorDto) {
-        if(fileMonitorDto.getFileNum()==1){
+    public boolean regularCheck(FileMonitorDto fileMonitorDto, ResultT<String> resultT) {
+    /*    if(fileMonitorDto.getFileNum()==1){
             return true;
-        }
-        String regular = fileMonitorDto.getFolderRegular() + "/" + fileMonitorDto.getFilenameRegular();
+        }*/
+        //String regular = fileMonitorDto.getFolderRegular() + "/" + fileMonitorDto.getFilenameRegular();
+        String regular = fileMonitorDto.getFilenameRegular();
         Matcher m = PATTERN.matcher(regular);
         while (m.find()) {
             String expression = m.group(2);
@@ -179,7 +181,14 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         regular = regular.replace("?", "[\\s\\S]{1}").replace("*", "[\\s\\S]*");
         Pattern pattern = Pattern.compile(regular);
         Matcher matcher = pattern.matcher(fileMonitorDto.getFileSample());
-        return matcher.matches();
+
+        if (matcher.find( )) {
+            resultT.setMessage("正则匹配通过:提取到内容"+matcher.group(0) );
+        }else {
+            resultT.setErrorMessage("正则校验不通过请重新配置");
+        }
+        //resultT.setMessage(resultT.getMsg()+"</br>实际正则表达式为:"+regular);
+        return true;
     }
 
     public void trigger(String id){

@@ -42,9 +42,13 @@ public class FileSmaService extends FileBaseService {
     @Override
     public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
-        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(monitor.getFilenameRegular(),monitor.getTriggerLastTime()));
+        //fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(monitor.getFilenameRegular(),monitor.getTriggerLastTime(),monitor.getIsUt()));
         SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        resultT.setSuccessMessage("资料时次为:"+simpleDateFormat.format(fileMonitorLogDto.getDdataTime()));
+        if(1==monitor.getIsUt()){
+            resultT.setSuccessMessage("资料为北京时"+simpleDateFormat.format(fileMonitorLogDto.getDdataTime())+",实际文件名称中时间 -8");
+        }else {
+            resultT.setSuccessMessage("资料为北京时"+simpleDateFormat.format(fileMonitorLogDto.getDdataTime())+",实际文件名称中时间 -0");
+        }
         long starTime = System.currentTimeMillis();
         DirectoryAccountDto directoryAccountDto = directoryAccountService.findById(monitor.getAcountId());
         if (monitor.getFileNum() == 1) {

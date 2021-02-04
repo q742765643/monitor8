@@ -67,7 +67,7 @@ public class FileMonitorController {
     @PostMapping("/regularCheck")
     public ResultT<String> regularCheck(@RequestBody FileMonitorDto fileMonitorDto) {
         ResultT<String> resultT = new ResultT<>();
-        boolean flag = fileMonitorService.regularCheck(fileMonitorDto);
+        boolean flag = fileMonitorService.regularCheck(fileMonitorDto,resultT);
         if (!flag) {
             resultT.setErrorMessage("正则校验不通过请重新配置");
         }

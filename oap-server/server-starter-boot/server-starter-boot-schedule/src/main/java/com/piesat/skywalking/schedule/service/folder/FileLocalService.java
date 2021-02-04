@@ -33,7 +33,7 @@ public class FileLocalService extends FileBaseService {
     @Override
     public void singleFile(FileMonitorDto monitor, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         FileMonitorLogDto fileMonitorLogDto = this.insertLog(monitor);
-        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(monitor.getFilenameRegular(),monitor.getTriggerLastTime()));
+        //fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(monitor.getFilenameRegular(),monitor.getTriggerLastTime()));
         SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         resultT.setSuccessMessage("资料时次为:"+simpleDateFormat.format(fileMonitorLogDto.getDdataTime()));
         long starTime = System.currentTimeMillis();

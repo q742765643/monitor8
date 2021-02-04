@@ -31,7 +31,7 @@ public class FileLogService {
         fileMonitorLogDto.setJobCron(fileMonitorDto.getJobCron());
         fileMonitorLogDto.setTaskName(fileMonitorDto.getTaskName());
         fileMonitorLogDto.setIsCompensation(fileMonitorDto.getIsCompensation());
-        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(fileMonitorDto.getFilenameRegular(),fileMonitorDto.getTriggerLastTime()));
+        fileMonitorLogDto.setDdataTime(DdataTimeUtil.repalceRegx(fileMonitorDto.getFilenameRegular(),fileMonitorDto.getTriggerLastTime(),fileMonitorDto.getIsUt()));
         return fileMonitorLogService.save(fileMonitorLogDto);
     }
 

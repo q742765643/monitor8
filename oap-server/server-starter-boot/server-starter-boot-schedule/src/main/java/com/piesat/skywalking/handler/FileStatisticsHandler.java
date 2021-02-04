@@ -82,9 +82,13 @@ public class FileStatisticsHandler implements BaseHandler {
                         fileStatisticsDto.setFileSize(fileMonitorDto.getFileSize());
                         fileStatisticsDto.setStartTimeL(nowTime);
                         fileStatisticsDto.setStartTimeS(new Date(nowTime));
-                        fileStatisticsDto.setDdataTime(DdataTimeUtil.repalceRegx(fileMonitorDto.getFilenameRegular(),nowTime));
+                        fileStatisticsDto.setDdataTime(DdataTimeUtil.repalceRegx(fileMonitorDto.getFilenameRegular(),nowTime,fileMonitorDto.getIsUt()));
+                        if(fileStatisticsDto.getDdataTime().getTime()>endTime){
+                            break;
+                        }
                         fileStatisticsDtos.add(fileStatisticsDto);
                     }
+
                 } catch (ParseException e) {
                     i++;
                     e.printStackTrace();

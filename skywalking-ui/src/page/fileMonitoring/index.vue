@@ -323,7 +323,7 @@ export default {
         data: this.formDialog,
       }).then((response) => {
         if (response.code === 200) {
-          this.msgSuccess('校验成功');
+          this.msgSuccess(response.msg);
         } else {
           this.msgError(response.msg);
         }

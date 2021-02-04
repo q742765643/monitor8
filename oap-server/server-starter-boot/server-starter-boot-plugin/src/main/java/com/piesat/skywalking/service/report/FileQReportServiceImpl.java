@@ -92,9 +92,9 @@ public class FileQReportServiceImpl implements FileQReportService {
         List<Map<String, Object>> list = new ArrayList<>();
         FileMonitorDto fileMonitorDto=fileMonitorService.findById(taskId);
         long endTime=System.currentTimeMillis();
-        if(1==fileMonitorDto.getIsUt()){
+        /*if(1==fileMonitorDto.getIsUt()){
             endTime=endTime-3600*8*1000;
-        }
+        }*/
         long startTime=endTime-86400*1000;
         SystemQueryDto systemQueryDto=new SystemQueryDto();
         SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

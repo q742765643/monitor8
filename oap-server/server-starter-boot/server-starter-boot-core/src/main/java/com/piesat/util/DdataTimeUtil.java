@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class DdataTimeUtil {
     protected static final String REGEX = "(\\$\\{(.*?)\\})";
     protected static final Pattern PATTERN = Pattern.compile(REGEX);
-    public static Date repalceRegx(String fileName,long time) {
+    public static Date repalceRegx(String fileName,long time,Integer isUt) {
         String expression = "";
         try {
             Matcher m = PATTERN.matcher(fileName);
@@ -38,6 +38,9 @@ public class DdataTimeUtil {
 
             }
         } catch (Exception e) {
+        }
+        if(1==isUt){
+            time=time+3600*8*1000;
         }
         return new Date(time);
     }
@@ -69,7 +72,7 @@ public class DdataTimeUtil {
     }
 
     public static void main(String[] args){
-        System.out.println(repalceRegx("${MMdd,-15d}",new Date().getTime()));
+        System.out.println(repalceRegx("${MMdd,-15d}",new Date().getTime(),1));
     }
 }
 
