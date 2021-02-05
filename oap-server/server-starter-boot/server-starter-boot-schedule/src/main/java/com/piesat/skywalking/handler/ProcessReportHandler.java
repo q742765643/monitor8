@@ -255,7 +255,10 @@ public class ProcessReportHandler implements BaseHandler {
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system." + type);
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
         WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
-        boolBuilder.must(wild);
+        WildcardQueryBuilder process = QueryBuilders.wildcardQuery("process.name", "*"+processConfigDto.getProcessName()+"*");
+
+        boolBuilder.should(wild);
+        boolBuilder.should(process);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");

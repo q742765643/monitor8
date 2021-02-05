@@ -98,7 +98,9 @@ public class AlarmProcessService extends AlarmBaseService {
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.process");
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
         WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
-        boolBuilder.must(wild);
+        WildcardQueryBuilder processSe = QueryBuilders.wildcardQuery("process.name", "*"+processConfigDto.getProcessName()+"*");
+        boolBuilder.should(wild);
+        boolBuilder.should(processSe);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
 
