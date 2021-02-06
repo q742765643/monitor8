@@ -187,7 +187,7 @@ public class FileSmaService extends FileBaseService {
                         createTime = createTime - 1000 * 3600 * 8;
                         lastModified = lastModified - 1000 * 3600 * 8;
                     }
-                    long ddataTime = getDataTime(createTime, smbFile.getName(), expression, resultT);
+                    long ddataTime = getDataTime(createTime,fileMonitorLogDto.getFilenameRegular(), smbFile.getName(), expression, resultT);
                     if (!resultT.isSuccess()) {
                         return false;
                     }
@@ -223,7 +223,7 @@ public class FileSmaService extends FileBaseService {
                 createTime = createTime - 1000 * 3600 * 8;
                 lastModified = lastModified - 1000 * 3600 * 8;
             }
-            long ddataTime = getDataTime(createTime, file.getName(), expression, resultT);
+            long ddataTime = getDataTime(createTime,fileMonitorLogDto.getFilenameRegular(), file.getName(), expression, resultT);
             String fullpath = file.getPath();
             Map<String, Object> source = new HashMap<>();
             source.put("last_modified_time", new Date(lastModified));

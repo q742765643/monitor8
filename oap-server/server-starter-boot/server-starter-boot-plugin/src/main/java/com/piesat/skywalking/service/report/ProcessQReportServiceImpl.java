@@ -262,7 +262,7 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                     ParsedAvg parsedAvgMemory = bucket.getAggregations().get("avg_memory_pct");
                     if (parsedAvgMemory != null&&!"Infinity".equals(parsedAvgMemory.getValueAsString())) {
                         try {
-                            map.put("memory",new BigDecimal(parsedAvgMemory.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+                            map.put("memory",new BigDecimal(parsedAvgMemory.getValueAsString()).divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_UP).floatValue());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -270,7 +270,7 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                     ParsedAvg parsedAvgCpu = bucket.getAggregations().get("avg_cpu_pct");
                     if (parsedAvgCpu != null&&!"Infinity".equals(parsedAvgCpu.getValueAsString())) {
                         try {
-                            map.put("cpu",new BigDecimal(parsedAvgCpu.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue());
+                            map.put("cpu",new BigDecimal(parsedAvgCpu.getValueAsString()).divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_UP).floatValue());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

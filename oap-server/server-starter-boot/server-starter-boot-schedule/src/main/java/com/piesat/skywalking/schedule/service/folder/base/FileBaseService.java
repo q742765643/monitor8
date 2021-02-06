@@ -69,7 +69,7 @@ public abstract class FileBaseService {
                 }
                 fileMonitorLogDto.setAllExpression("${" + expression1.replace(expression,"yyyyMMddHHmmss") + "}");
                 String replaceMent = expression1.split(",")[0].replaceAll("[ymdhsYMDHS]", "\\\\d");
-                filenameRegular = filenameRegular.replace("${" + expression1 + "}", replaceMent);
+                filenameRegular = filenameRegular.replace("${" + expression1 + "}", "("+replaceMent+")");
             }
             /*while (m.find()){
                 expression = m.group(2);
@@ -88,16 +88,24 @@ public abstract class FileBaseService {
         return expression;
     }
 
-    public long getDataTime(long createTime, String fileName, String dataFilePattern, ResultT<String> resultT) {
+    public long getDataTime(long createTime,String filenameRegular, String fileName, String dataFilePattern, ResultT<String> resultT) {
         try {
             if (dataFilePattern != null && !"".equals(dataFilePattern)) {
-                Pattern p = Pattern.compile(getRegFromDatePattern(dataFilePattern));
+                Pattern p = Pattern.compile(filenameRegular);
                 Matcher m = p.matcher(fileName);
-                if (m.find()) {
-                    String timeStr = m.group(0);
-                    SimpleDateFormat format = new SimpleDateFormat(dataFilePattern);
-                    Map<String, String> map = HtDateUtil.getTime(new Date(createTime));
-                    return HtDateUtil.matchingTime(DateUtil.parse(timeStr, format), dataFilePattern, map);
+                while (m.find()) {
+                    for (int j = 0; j <= m.groupCount(); j++){
+                        try {
+                            String timeStr = m.group(j);
+                            SimpleDateFormat format = new SimpleDateFormat(dataFilePattern);
+                            Map<String, String> map = HtDateUtil.getTime(new Date(createTime));
+                            Date fileTime=DateUtil.parse(timeStr, format);
+                            return HtDateUtil.matchingTime(fileTime, dataFilePattern, map);
+                        } catch (Exception e) {
+                            //e.printStackTrace();
+                        }
+                    }
+
                 }
             }
         } catch (Exception e) {
