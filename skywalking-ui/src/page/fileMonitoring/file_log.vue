@@ -29,6 +29,11 @@
       </a-form-model>
     </div>
     <div class="tableDateBox">
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>

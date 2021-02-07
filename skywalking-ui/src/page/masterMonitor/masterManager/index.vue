@@ -27,6 +27,11 @@
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column type="checkbox" width="50"></vxe-table-column>
         <vxe-table-column field="taskName" title="设备别名" width="100"></vxe-table-column>

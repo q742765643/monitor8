@@ -56,6 +56,11 @@
         <a-button icon="delete" size="small" @click="handleDelete(record)"> 删除 </a-button>
       </span>
     </a-table> -->
+    <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table border ref="xTable" :data="data" highlight-hover-row align="center" :rules="rules">
         <vxe-table-column type="checkbox" width="80"></vxe-table-column>
         <vxe-table-column field="taskName" title="任务名称"></vxe-table-column>

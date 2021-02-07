@@ -11,6 +11,11 @@
     </div>
     <div class="tableDateBox">
       <div id="barlineChart"></div>
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table border ref="xTable" :span-method="mergeRowMethod" :data="tableData" resizable stripe align="center">
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
         <vxe-table-column field="timestamp" title="时间" show-overflow>

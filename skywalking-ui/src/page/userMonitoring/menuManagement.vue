@@ -27,6 +27,11 @@
           <a-button type="primary" icon="plus" @click="handleLogin"> 登录 </a-button>
         </a-col> -->
       </a-row>
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table :data="tableData" align="center" :tree-config="{}" highlight-hover-row ref="tablevxe">
         <vxe-table-column field="menuName" title="菜单名称" tree-node></vxe-table-column>
         <vxe-table-column field="icon" title="图标" show-overflow></vxe-table-column>

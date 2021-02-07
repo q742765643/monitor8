@@ -18,6 +18,11 @@
       </a-form-model-item>
     </a-form-model>
     <div class="tableDateBox">
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table
         :data="departmentListData"
         :tree-config="{}"

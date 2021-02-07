@@ -54,7 +54,11 @@
           <a-button type="primary" icon="vertical-align-bottom" @click="handleUpload"> 导出 </a-button>
         </a-col>
       </a-row> -->
-
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table
         :data="fileListData"
         @checkbox-change="selectBox"

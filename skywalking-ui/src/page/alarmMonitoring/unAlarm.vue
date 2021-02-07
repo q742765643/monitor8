@@ -25,6 +25,11 @@
       </a-form-model-item>
     </a-form-model>
     <div class="tableDateBox">
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center">
         <vxe-table-column field="monitorType" title="告警事件类型" :formatter="formatMonitorType"></vxe-table-column>
         <vxe-table-column field="告警事件IP" title="ip">

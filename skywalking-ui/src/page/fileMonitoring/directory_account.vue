@@ -23,6 +23,11 @@
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
       </a-row>
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
         <vxe-table-column type="checkbox" width="60"></vxe-table-column>
         <vxe-table-column field="name" title="远程凭证名称"></vxe-table-column>

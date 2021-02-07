@@ -5,6 +5,11 @@
       <a-button type="primary" @click="exportEventXls" style="margin-right: 4px"> 导出excel </a-button>
     </div>
     <div class="tableDateBox">
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table show-overflow :data="tableData" align="center" highlight-hover-row ref="tablevxe">
         <vxe-table-column field="deviceType" title="类型" show-overflow></vxe-table-column>
         <vxe-table-column field="general" title="一般" show-overflow></vxe-table-column>

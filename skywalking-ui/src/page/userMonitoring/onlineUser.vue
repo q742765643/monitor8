@@ -13,6 +13,11 @@
       </a-form-model-item>
     </a-form-model>
     <div class="tableDateBox">
+      <div id="toolbar">
+        <vxe-toolbar custom>
+          <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
+        </vxe-toolbar>
+      </div>
       <vxe-table :data="onlineUserListData" align="center" highlight-hover-row ref="onlineUserListRef" border>
         <vxe-table-column field="userName" title="登录名称"></vxe-table-column>
         <vxe-table-column field="deptName" title="部门名称"></vxe-table-column>

@@ -180,6 +180,7 @@ export default {
         'circle-running',
         {
           afterDraw(cfg, group) {
+            debugger
             const shape = group.get('children')[0];
             const startPoint = shape.getPoint(0);
             //创建节点之间的圆圈，并为每一个设置样式
@@ -271,15 +272,24 @@ export default {
           selected: {
             fill: 'rgba(0,255,255,0.5)',
           },
+           selectedError: {
+            fill: 'rgba(230,0,18,0.5)',
+          },
         },
         edgeStateStyles: {
           selected: {
             fill: 'rgba(0,255,255,0.5)',
           },
+          selectedError: {
+            fill: 'rgba(230,0,18,0.5)',
+          },
         },
         stateStyles: {
           selected: {
             fill: 'rgba(0,255,255,0.5)',
+          },
+          selectedError: {
+            fill: 'rgba(230,0,18,0.5)',
           },
         },
       });
