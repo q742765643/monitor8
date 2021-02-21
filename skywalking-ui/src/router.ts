@@ -246,6 +246,11 @@ const router = new Router({
           name: 'processView',
           component: () => import('@/page/process/processView/index.vue'),
         },
+        {
+          path: '/fileMonitoring/fileAllLine',
+          name: 'fileAllLine',
+          component: () => import('@/page/fileMonitoring/fileAllLine.vue'),
+        },
       ],
     },
   ],
