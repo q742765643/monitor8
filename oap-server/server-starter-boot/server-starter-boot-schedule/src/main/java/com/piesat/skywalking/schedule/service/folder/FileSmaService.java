@@ -129,6 +129,9 @@ public class FileSmaService extends FileBaseService {
             }else {
                 resultT.setSuccessMessage("扫描文件夹:"+remotePath+"检索到文件" );
                 for(int i=0;i<fileList.size();i++){
+                    if(i>10){
+                       break;
+                    }
                     resultT.setSuccessMessage(String.valueOf(fileList.get(i).get("full_path")));
                 }
             }
@@ -158,6 +161,8 @@ public class FileSmaService extends FileBaseService {
             List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
             long finalBeginTime = beginTime;
             long finalEndTime = endTime;
+            SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            resultT.setSuccessMessage("资料时间范围>{}<={}",format1.format(finalBeginTime),format1.format(finalEndTime));
             fileFilter = new SmbFileFilter() {
                 @Override
                 public boolean accept(SmbFile smbFile) throws SmbException {

@@ -50,6 +50,7 @@ public class AlarmDiskService extends AlarmBaseService {
                 continue;
             }
             this.toAlarm(alarmLogDto, alarmConfigDto, hostConfigDto);
+
         }
     }
 
@@ -66,9 +67,13 @@ public class AlarmDiskService extends AlarmBaseService {
             if (alarmLogDto.isAlarm()) {
                 String message = hostConfigDto.getIp()+":未采集到磁盘使用率,请检查环境";
                 alarmLogDto.setMessage(message);
-                this.insertEs(alarmLogDto);
+                if(1==alarmConfigDto.getTriggerStatus()){
+                    this.insertEs(alarmLogDto);
+                }
             }
-            this.insertUnprocessed(alarmLogDto);
+            if(1==alarmConfigDto.getTriggerStatus()) {
+                this.insertUnprocessed(alarmLogDto);
+            }
         }else {
             for(int i=0;i<fileSystemVos.size();i++){
                 alarmLogDto.setUsage(fileSystemVos.get(i).getUsage().floatValue());
@@ -77,9 +82,13 @@ public class AlarmDiskService extends AlarmBaseService {
                 if (alarmLogDto.isAlarm()) {
                     String message =  hostConfigDto.getIp()+":"+fileSystemVos.get(i).getDiskName()+"磁盘使用率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)  + "%";
                     alarmLogDto.setMessage(message);
-                    this.insertEs(alarmLogDto);
+                    if(1==alarmConfigDto.getTriggerStatus()) {
+                        this.insertEs(alarmLogDto);
+                    }
                 }
-                this.insertUnprocessed(alarmLogDto);
+                if(1==alarmConfigDto.getTriggerStatus()) {
+                    this.insertUnprocessed(alarmLogDto);
+                }
             }
 
         }

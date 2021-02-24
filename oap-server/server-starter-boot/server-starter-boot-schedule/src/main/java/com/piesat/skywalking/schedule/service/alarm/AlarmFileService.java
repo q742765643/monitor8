@@ -55,10 +55,14 @@ public class AlarmFileService extends AlarmBaseService {
                 message = fileMonitorLogDto.getTaskName()+":"+fileMonitorLogDto.getRemotePath()+":文件到达率为" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP) + "%";
             }
             alarmLogDto.setMessage(message);
-            this.insertEs(alarmLogDto);
+            if(1==alarmConfigDto.getTriggerStatus()) {
+                this.insertEs(alarmLogDto);
+            }
             fileMonitorLogDto.setStatus(alarmLogDto.getLevel());
         }
-        this.insertUnprocessed(alarmLogDto);
+        if(1==alarmConfigDto.getTriggerStatus()) {
+            this.insertUnprocessed(alarmLogDto);
+        }
     }
 }
 

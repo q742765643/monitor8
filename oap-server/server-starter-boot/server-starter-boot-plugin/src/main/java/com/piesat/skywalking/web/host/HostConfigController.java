@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @Api(value = "主机配置接口", tags = {"主机配置接口"})
@@ -79,6 +80,15 @@ public class HostConfigController {
     public ResultT<String> trigger(@PathVariable("id") String id){
         ResultT<String> resultT = new ResultT<>();
         hostConfigService.trigger(id);
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询所有主机", notes = "查询所有主机")
+    @GetMapping("/selectAll")
+    public ResultT<List<HostConfigDto>> selectAll() {
+        ResultT<List<HostConfigDto>> resultT = new ResultT<>();
+        List<HostConfigDto> list = hostConfigService.selectAllOrderByIp();
+        resultT.setData(list);
         return resultT;
     }
 }

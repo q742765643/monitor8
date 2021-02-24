@@ -176,6 +176,11 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         List<HostConfigEntity> list = super.getAll(sort);
         return hostConfigMapstruct.toDto(list);
     }
+    public List<HostConfigDto> selectAllOrderByIp() {
+        Sort sort = Sort.by("ip");
+        List<HostConfigEntity> list = super.getAll(sort);
+        return hostConfigMapstruct.toDto(list);
+    }
 
     @Override
     public HostConfigDto findById(String id) {

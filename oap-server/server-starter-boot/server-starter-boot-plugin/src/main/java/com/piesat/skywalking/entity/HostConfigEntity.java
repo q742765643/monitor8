@@ -82,4 +82,10 @@ public class HostConfigEntity extends HtJobInfo {
     @Transient
     private List<Integer> mediaTypes;
 
+    /**
+     * 备注
+     */
+    @Column(name = "remark", length = 500)
+    private String remark;
+
 }
