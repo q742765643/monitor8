@@ -42,7 +42,7 @@ public class OverdueCleanHandler implements BaseHandler {
 
     @Override
     public void execute(JobContext jobContext, ResultT<String> resultT) {
-        this.deleteMysqlRecord("t_mt_file_monitor_log",30);
+        this.deleteMysqlRecord("t_mt_file_monitor_log",3);
         this.deleteEsRecordString(IndexNameConstant.T_MT_ALARM_LOG,"@timestamp",30);
         this.deleteEsIndex(IndexNameConstant.METRICBEAT,7);
 

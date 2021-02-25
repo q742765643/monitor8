@@ -22,6 +22,8 @@ public interface HostConfigService {
 
     public List<HostConfigDto> selectAll();
 
+    public List<HostConfigDto> selectAllOrderByIp();
+
     public HostConfigDto findById(String id);
 
     public void deleteByIds(List<String> ids);

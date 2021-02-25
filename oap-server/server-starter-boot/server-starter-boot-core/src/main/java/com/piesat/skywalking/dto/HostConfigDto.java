@@ -78,4 +78,10 @@ public class HostConfigDto extends HtJobInfoDto {
     private String alarmChart;
 
     private String useageChart;
+
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
+    private String remark;
 }

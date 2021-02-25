@@ -59,6 +59,7 @@ public class AlarmProcessService extends AlarmBaseService {
             ProcessConfigDto processConfigDto=processConfigDtos.get(i);
             alarmLogDto.setUsage(this.findProcess(processConfigDto));
             this.toAlarm(alarmLogDto, alarmConfigDto, processConfigDto);
+
         }
     }
 
@@ -76,11 +77,15 @@ public class AlarmProcessService extends AlarmBaseService {
                 message =processConfigDto.getIp()+":进程"+processConfigDto.getProcessName()+" cpu变化率为" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP)+"%"  ;
             }
             alarmLogDto.setMessage(message);
-            this.insertEs(alarmLogDto);
+            if(1==alarmConfigDto.getTriggerStatus()){
+                this.insertEs(alarmLogDto);
+            }
             processConfigDto.setCurrentStatus(alarmLogDto.getLevel());
         }
         this.outageStatistics(processConfigDto,alarmLogDto);
-        this.insertUnprocessed(alarmLogDto);
+        if(1==alarmConfigDto.getTriggerStatus()){
+            this.insertUnprocessed(alarmLogDto);
+        }
         processConfigService.save(processConfigDto);
     }
 

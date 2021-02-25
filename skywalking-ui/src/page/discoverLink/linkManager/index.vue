@@ -220,6 +220,11 @@
               <a-input type="textarea" v-model="formDialog.location" placeholder="详细地址"> </a-input>
             </a-form-model-item>
           </a-col>
+          <a-col :span="24">
+            <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="备注" prop="remark">
+              <a-input type="textarea" v-model="formDialog.remark" placeholder="备注"> </a-input>
+            </a-form-model-item>
+          </a-col>
         </a-row>
       </a-form-model>
     </a-modal>

@@ -47,6 +47,7 @@ public class AlarmPingService extends AlarmBaseService {
             HostConfigDto hostConfigDto = hostConfigDtos.get(i);
             alarmLogDto.setUsage(this.getMap(hostConfigDto.getIp(), map));
             this.toAlarm(alarmLogDto, alarmConfigDto, hostConfigDto);
+
         }
     }
 
@@ -63,9 +64,13 @@ public class AlarmPingService extends AlarmBaseService {
                 message = hostConfigDto.getIp()+":丢包率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP) + "%";
             }
             alarmLogDto.setMessage(message);
-            this.insertEs(alarmLogDto);
+            if(1==alarmConfigDto.getTriggerStatus()){
+                this.insertEs(alarmLogDto);
+            }
         }
-        this.insertUnprocessed(alarmLogDto);
+        if(1==alarmConfigDto.getTriggerStatus()){
+            this.insertUnprocessed(alarmLogDto);
+        }
     }
 
 

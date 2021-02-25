@@ -77,15 +77,15 @@ export default {
               '    时次:' +
               hours[params.value[0]] +
               '</br>' +
-              '    准时率:' +
+              '    到报率:' +
               params.value[2] +
               '%' +
-              '    到报率:' +
+              '    准时率:' +
               this.tipsList[thatIndex][3] +
               '</br>' +
               '应到:' +
               this.tipsList[thatIndex][0] +
-              '    实到:' +
+              '    准时到:' +
               this.tipsList[thatIndex][1] +
               '    晚到:' +
               this.tipsList[thatIndex][2] +
