@@ -26,7 +26,7 @@ public class ScheduleService {
         if (jobInfo.getTriggerStatus() == 1) {
             redisUtil.hset(QUARTZ_HTHT_JOBDETAIL, jobInfo.getId(), jobInfo);
             try {
-                Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(new Date(new Date().getTime()));
+                Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(new Date(new Date().getTime()-jobInfo.getDelayTime()));
                 double score = 0;
                 if (!redisUtil.hasKey(QUARTZ_HTHT_JOB)) {
                     score = 0;
@@ -34,7 +34,7 @@ public class ScheduleService {
                     score = redisUtil.zScore(QUARTZ_HTHT_JOB, jobInfo.getId());
                 }
                 double x = score - nextValidTime.getTime();
-                redisUtil.zsetAdd(QUARTZ_HTHT_JOB, jobInfo.getId(), nextValidTime.getTime());
+                redisUtil.zsetAdd(QUARTZ_HTHT_JOB, jobInfo.getId(), nextValidTime.getTime()+jobInfo.getDelayTime());
 
             } catch (Exception e) {
                 e.printStackTrace();

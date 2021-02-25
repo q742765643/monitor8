@@ -66,4 +66,6 @@ public class FileStatisticsDto {
     @ApiModelProperty(value = "资料时间")
     private Date ddataTime;
 
+    private String folderRegular;
+
 }

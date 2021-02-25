@@ -30,4 +30,6 @@ public interface FileMonitorService {
 
     public void trigger(String id);
 
+    public List<FileMonitorDto> selectAll();
+
 }

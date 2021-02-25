@@ -77,7 +77,7 @@ public class FileCompensationHandler implements BaseHandler {
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
 
         RangeQueryBuilder perPct = QueryBuilders.rangeQuery("per_file_num");
-        perPct.lte(1f);
+        perPct.lt(1f);
 
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
         rangeQueryBuilder.gte(systemQueryDto.getStartTime());

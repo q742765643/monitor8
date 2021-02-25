@@ -115,6 +115,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         } else {
             fileMonitorDto.setDelayTime(0);
         }
+        this.computingTime(fileMonitorDto);
         fileMonitorDto.setJobHandler("fileMonitorHandler");
         FileMonitorEntity fileMonitorEntity = fileMonitorMapstruct.toEntity(fileMonitorDto);
         fileMonitorEntity = super.saveNotNull(fileMonitorEntity);
@@ -126,6 +127,10 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         fileMonitorEntity = super.saveNotNull(fileMonitorEntity);
         fileMonitorQuartzService.handleJob(fileMonitorMapstruct.toDto(fileMonitorEntity));
         return fileMonitorDto;
+    }
+
+    public List<FileMonitorDto> selectAll(){
+        return fileMonitorMapstruct.toDto(super.getAll());
     }
     @Override
     public FileMonitorDto findById(String id) {
@@ -193,6 +198,23 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
 
     public void trigger(String id){
         fileMonitorQuartzService.trigger(this.findById(id));
+    }
+
+    public void computingTime(FileMonitorDto fileMonitorDto){
+        long time=0;
+        if("D".equals(fileMonitorDto.getDelayStartUnit())){
+            time=1000*60*60*24*fileMonitorDto.getDelayStart();
+        }
+        if("H".equals(fileMonitorDto.getDelayStartUnit())){
+            time=1000*60*60*fileMonitorDto.getDelayStart();
+        }
+        if("M".equals(fileMonitorDto.getDelayStartUnit())){
+            time=1000*60*fileMonitorDto.getDelayStart();
+        }
+        if("S".equals(fileMonitorDto.getDelayStartUnit())){
+            time=1000*fileMonitorDto.getDelayStart();
+        }
+        fileMonitorDto.setDelayTime(fileMonitorDto.getDelayTime()+time);
     }
 
 }

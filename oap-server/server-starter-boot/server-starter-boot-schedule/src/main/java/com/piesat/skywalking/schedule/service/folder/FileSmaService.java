@@ -75,11 +75,11 @@ public class FileSmaService extends FileBaseService {
         }
         try {
             if(fileList.size()==0){
-                this.multipleFiles(fileMonitorLogDto, fileList, directoryAccountDto, resultT);
+                this.multipleFiles(monitor,fileMonitorLogDto, fileList, directoryAccountDto, resultT);
             }
-            if (!resultT.isSuccess()) {
+      /*      if (!resultT.isSuccess()) {
                 return;
-            }
+            }*/
             this.insertFilePath(fileList, fileMonitorLogDto, resultT);
             if (!resultT.isSuccess()) {
                 return;
@@ -109,12 +109,12 @@ public class FileSmaService extends FileBaseService {
 
     }
 
-    public void multipleFiles(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, DirectoryAccountDto directoryAccountDto, ResultT<String> resultT) {
+    public void multipleFiles(FileMonitorDto monitor,FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, DirectoryAccountDto directoryAccountDto, ResultT<String> resultT) {
         String remotePath="";
         try {
             remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
             fileMonitorLogDto.setRemotePath(remotePath);
-            SmbFileFilter smbFileFilter = this.filterFile(fileMonitorLogDto, fileList, resultT);
+            SmbFileFilter smbFileFilter = this.filterFile(monitor,fileMonitorLogDto, fileList, resultT);
             if (!resultT.isSuccess()) {
                 return;
             }
@@ -139,7 +139,7 @@ public class FileSmaService extends FileBaseService {
 
     }
 
-    public SmbFileFilter filterFile(FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, ResultT<String> resultT) {
+    public SmbFileFilter filterFile(FileMonitorDto monitor,FileMonitorLogDto fileMonitorLogDto, List<Map<String, Object>> fileList, ResultT<String> resultT) {
         SmbFileFilter fileFilter = null;
         try {
             String expression = this.repalceRegx(fileMonitorLogDto, resultT);
@@ -154,9 +154,12 @@ public class FileSmaService extends FileBaseService {
             }*/
             long endTime= fileMonitorLogDto.getTriggerTime();
             long beginTime=CronUtil.calculateLastTime(fileMonitorLogDto.getJobCron(), endTime);
-            if(StringUtil.isNotEmpty(fileMonitorLogDto.getAllExpression())){
+            /*if(StringUtil.isNotEmpty(fileMonitorLogDto.getAllExpression())){
                 beginTime =format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),beginTime)).getTime();
                 endTime = format.parse(DateExpressionEngine.formatDateExpression(fileMonitorLogDto.getAllExpression(),fileMonitorLogDto.getTriggerTime())).getTime();
+            }*/
+            if(null!=monitor.getRangeTime()&&monitor.getRangeTime()>0){
+                beginTime=endTime-this.computingTime(monitor);
             }
             List<String> fullpaths = this.findExist(fileMonitorLogDto.getTaskId(), fileMonitorLogDto.getTriggerTime());
             long finalBeginTime = beginTime;
@@ -242,6 +245,23 @@ public class FileSmaService extends FileBaseService {
         } catch (SmbException e) {
             e.printStackTrace();
         }
+    }
+
+    public long computingTime(FileMonitorDto fileMonitorDto){
+        long time=0;
+        if("D".equals(fileMonitorDto.getRangeUnit())){
+            time=1000*60*60*24*fileMonitorDto.getRangeTime();
+        }
+        if("H".equals(fileMonitorDto.getRangeUnit())){
+            time=1000*60*60*fileMonitorDto.getRangeTime();
+        }
+        if("M".equals(fileMonitorDto.getRangeUnit())){
+            time=1000*60*fileMonitorDto.getRangeTime();
+        }
+        if("S".equals(fileMonitorDto.getRangeUnit())){
+            time=1000*fileMonitorDto.getRangeTime();
+        }
+        return time;
     }
 }
 

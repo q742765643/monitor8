@@ -2,9 +2,9 @@
   <div class="dataAllLineTem">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="资料名称">
-        <a-select style="width: 120px" v-model="queryParams.dataName" placeholder="请选择">
-          <a-select-option v-for="dict in dataOptions" :key="dict.dictValue" :value="dict.dictValue">
-            {{ dict.dictLabel }}
+        <a-select style="width: 120px" v-model="queryParams.taskId" placeholder="请选择">
+          <a-select-option v-for="dict in dataOptions" :value="dict.id" :key="dict.id">
+            {{ dict.taskName }}
           </a-select-option>
         </a-select>
       </a-form-model-item>
@@ -20,37 +20,45 @@
         </vxe-toolbar>
       </div>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center">
-        <vxe-table-column field="monitorType" title="资料名称"></vxe-table-column>
-        <vxe-table-column field="timestamp" title="最新时间（北京时）">
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.timestamp) }}</span>
+        <vxe-table-column field="taskName" title="资料名称"></vxe-table-column>
+        <vxe-table-column field="ddataTime" title="最新时间（北京时）">
+          <template slot-scope="scope" >
+            <span  v-if="null!=scope.row.ddataTime">{{ parseTime(scope.row.ddataTime) }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="alarmNum" title="缺收" width="80"></vxe-table-column>
-        <vxe-table-column field="message" title="实收" width="80"></vxe-table-column>
-        <vxe-table-column field="duration" title="应收" width="80"></vxe-table-column>
-        <vxe-table-column field="jishilv" title="及时率">
+        <vxe-table-column field="alarmNum" title="缺收" width="80">
           <template slot-scope="scope">
-            <el-progress
-              :text-inside="true"
-              :stroke-width="20"
-              :percentage="scope.row.jishilv"
-              status="success"
-            ></el-progress>
+            <span>{{ scope.row.fileNum- scope.row.realFileNum}}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="daobaolv" title="到报率">
+        <vxe-table-column field="realFileNum" title="实收" width="80"></vxe-table-column>
+        <vxe-table-column field="fileNum" title="应收" width="80"></vxe-table-column>
+        <vxe-table-column field="timelinessRate" title="及时率">
           <template slot-scope="scope">
             <el-progress
               :text-inside="true"
               :stroke-width="20"
-              :percentage="scope.row.daobaolv"
+              :percentage="scope.row.timelinessRate"
               status="success"
             ></el-progress>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="duration" title="目的路径"></vxe-table-column>
-        <vxe-table-column field="duration" title="最新采集时间"></vxe-table-column>
+        <vxe-table-column field="perFileNum" title="到报率">
+          <template slot-scope="scope">
+            <el-progress
+              :text-inside="true"
+              :stroke-width="20"
+              :percentage="scope.row.perFileNum"
+              status="success"
+            ></el-progress>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="folderRegular" title="目的路径"></vxe-table-column>
+        <vxe-table-column field="startTimeA" title="最新采集时间">
+          <template slot-scope="scope" >
+            <span v-if="null!=scope.row.startTimeA">{{ parseTime(scope.row.startTimeA) }}</span>
+          </template>
+        </vxe-table-column>
       </vxe-table>
       <vxe-pager
         id="page_table"
@@ -60,7 +68,7 @@
         :total="paginationTotal"
         :page-sizes="[10, 20, 100]"
         :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
-        @page-change="queryTable"
+        @page-change="handlePageChange"
       >
       </vxe-pager>
     </div>
@@ -69,6 +77,7 @@
 
 <script>
 import request from '@/utils/request';
+import hongtuConfig from '@/utils/services';
 export default {
   data() {
     return {
@@ -77,12 +86,18 @@ export default {
         pageNum: 1,
         pageSize: 10,
       },
-      tableData: [{ jishilv: 70, daobaolv: 40 }], //表格
+      tableData: [], //表格
       paginationTotal: 0,
     };
   },
   created() {
-    //this.queryTable();
+    request({
+      url: '/fileMonitor/selectAll',
+      method: 'get',
+    }).then((response) => {
+      this.dataOptions = response.data;
+    });
+    this.queryTable();
   },
   mounted() {},
   methods: {
@@ -101,13 +116,9 @@ export default {
     },
     /* table方法 */
     queryTable() {
-      request({
-        url: '',
-        method: 'get',
-        params: this.queryParams,
-      }).then((data) => {
-        this.tableData = data.data.pageData;
-        this.paginationTotal = data.data.totalCount;
+      hongtuConfig.fileDetail(this.queryParams).then((res) => {
+        this.tableData = res.data.pageData;
+        this.paginationTotal = res.data.totalCount;
       });
     },
     /* 翻页 */

@@ -35,5 +35,17 @@ public class FileMonitorEntity extends HtJobInfo {
     @Column(name = "acount_id", length = 50)
     private String acountId;
 
+    @Column(name = "delay_start", length = 50)
+    private Integer delayStart;
+
+    @Column(name = "delay_start_unit", length = 50)
+    private String delayStartUnit;
+
+    @Column(name = "range_time", length = 50)
+    private Integer rangeTime;
+
+    @Column(name = "range_unit", length = 50)
+    private String rangeUnit;
+
 
 }

@@ -185,6 +185,36 @@
               </el-popover>
             </a-form-model-item>
           </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="12">
+            <a-form-model-item label="延迟启动" prop="delayStart" >
+              <a-input v-model="formDialog.delayStart" placeholder="延迟启动" style="width: 30%;"> </a-input>
+              <span>
+                <a-select v-model="formDialog.delayStartUnit" style="width: 20%;">
+                  <a-select-option value="D"> 日 </a-select-option>
+                  <a-select-option value="H"> 时 </a-select-option>
+                  <a-select-option value="M"> 分 </a-select-option>
+                  <a-select-option value="S"> 秒 </a-select-option>
+               </a-select>
+              </span>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-model-item label="采集范围" prop="rangeTime">
+              <a-input v-model="formDialog.rangeTime" placeholder="采集范围" style="width: 30%;"> </a-input>
+              <span>
+                 <a-select v-model="formDialog.rangeUnit" style="width: 20%;">
+                   <a-select-option value="D"> 日 </a-select-option>
+                   <a-select-option value="H"> 时 </a-select-option>
+                   <a-select-option value="M"> 分 </a-select-option>
+                   <a-select-option value="S"> 秒 </a-select-option>
+                 </a-select>
+              </span>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <a-row>
           <a-col :span="24">
             <a-form-model-item :label-col="{ span: 3 }" :wrapperCol="{ span: 21 }" label="任务描述" prop="jobDesc">
               <a-input type="textarea" v-model="formDialog.jobDesc" placeholder="任务描述"> </a-input>
@@ -375,6 +405,10 @@ export default {
       this.formDialog = {
         scanType: '1',
         jobCron: '',
+        rangeTime:0,
+        rangeUnit:'M',
+        delayStart: 0,
+        delayStartUnit: 'M',
       };
       this.visibleModel = true;
     },

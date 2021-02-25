@@ -219,9 +219,10 @@ public class FileQReportServiceImpl implements FileQReportService {
     }
 
     public List<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto) {
+        systemQueryDto.setEndTime(null);
         SearchSourceBuilder search = this.buildWhere(systemQueryDto);
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
-        dateHis.field("start_time_s");
+        dateHis.field("d_data_time");
         dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
         dateHis.format("yyyy-MM-dd HH:mm:ss");
         dateHis.timeZone(ZoneId.of("Asia/Shanghai"));
@@ -265,8 +266,10 @@ public class FileQReportServiceImpl implements FileQReportService {
                         long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         if (sumFileNumL > 0) {
-                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL), 2, BigDecimal.ROUND_HALF_UP).floatValue();
+                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL*100), 0, BigDecimal.ROUND_HALF_UP).floatValue();
                             map.put(taskId + "_toQuoteRate", toQuoteRate);
+                        }else {
+                            map.put(taskId + "_toQuoteRate", 100);
                         }
                         map.put(taskId + "_sumRealFileNum", sumRealFileNumL);
                         map.put(taskId + "_sumLateNum", sumLateNumL);
@@ -278,6 +281,9 @@ public class FileQReportServiceImpl implements FileQReportService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        for(int i=0;i<list.size();i++){
+
         }
         return list;
 

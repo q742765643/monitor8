@@ -92,4 +92,12 @@ public class FileMonitorController {
         fileMonitorService.trigger(id);
         return resultT;
     }
+    @ApiOperation(value = "查询所有任务", notes = "查询所有任务")
+    @GetMapping("/selectAll")
+    public ResultT<List<FileMonitorDto>> selectAll() {
+        ResultT<List<FileMonitorDto>> resultT = new ResultT<>();
+        List<FileMonitorDto> list = fileMonitorService.selectAll();
+        resultT.setData(list);
+        return resultT;
+    }
 }

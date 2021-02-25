@@ -10,18 +10,19 @@
     </div>
     <div class="tableDateBox">
       <vxe-table border ref="xTable" :data="tableData" stripe align="center">
-        <vxe-table-column field="timestamp" title="时间" show-overflow>
-          <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.timestamp) }}</span>
-          </template>
+        <vxe-table-column field="timestamp" title="时间" >
+            <template slot-scope="scope">
+              <span v-if="scope.row.timestamp == '合计'">{{ scope.row.timestamp }}</span>
+              <span v-if="scope.row.timestamp !== '合计'">{{ parseTime(scope.row.timestamp, '{y}-{m}-{d}') }}</span>
+            </template>
         </vxe-table-column>
-        <vxe-table-colgroup v-for="(item, index) in headers" :key="index" :title="item.title">
-          <vxe-table-column :field="item.taskId + '_sumRealFileNum'" title="准时到"></vxe-table-column>
-          <vxe-table-column :field="item.taskId + '_sumLateNum'" title="晚到"></vxe-table-column>
-          <vxe-table-column :field="item.taskId + '_sumFileNum'" title="应到"></vxe-table-column>
-          <vxe-table-column :field="item.taskId + '_sumRealFileSize'" title="大小KB"></vxe-table-column>
-          <vxe-table-column :field="item.taskId + '_toQuoteRate'" title="到报率"></vxe-table-column>
-        </vxe-table-colgroup>
+        <vxe-table-column  v-for="(item, index) in headers" :key="index" :title="item.title" :field="item.taskId + '_toQuoteRate'">
+          <!--  <vxe-table-column :field="item.taskId + '_sumRealFileNum'" title="准时到"></vxe-table-column>
+           <vxe-table-column :field="item.taskId + '_sumLateNum'" title="晚到"></vxe-table-column>
+           <vxe-table-column :field="item.taskId + '_sumFileNum'" title="应到"></vxe-table-column>
+           <vxe-table-column :field="item.taskId + '_sumRealFileSize'" title="大小KB"></vxe-table-column>
+          <vxe-table-column :field="item.taskId + '_toQuoteRate'" title="到报率"></vxe-table-column>-->
+        </vxe-table-column>
       </vxe-table>
     </div>
   </div>

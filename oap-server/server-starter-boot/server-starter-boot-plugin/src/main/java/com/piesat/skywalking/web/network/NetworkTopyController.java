@@ -79,14 +79,16 @@ public class NetworkTopyController {
 
     @ApiOperation(value = "保存连线", notes = "保存连线")
     @PostMapping("/saveSource")
-    public ResultT<String> saveSource(@RequestParam(value = "target[]") String target[], String source){
+    public ResultT<String> saveSource(@RequestParam(value = "target[]",required = false) String target[], String source){
         ResultT<String> resultT=new ResultT<>();
         List<EdgesDto> edgesDtos=new ArrayList<>();
-        for(int i=0;i<target.length;i++){
-            EdgesDto edgesDto=new EdgesDto();
-            edgesDto.setSource(source);
-            edgesDto.setTarget(target[i]);
-            edgesDtos.add(edgesDto);
+        if(null!=target){
+            for(int i=0;i<target.length;i++){
+                EdgesDto edgesDto=new EdgesDto();
+                edgesDto.setSource(source);
+                edgesDto.setTarget(target[i]);
+                edgesDtos.add(edgesDto);
+            }
         }
         edgesService.updateTopy(source,edgesDtos);
         return resultT;

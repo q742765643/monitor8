@@ -227,6 +227,7 @@ export default {
       this.dialogTitle = '设置链路';
       this.formDialog.ip=ip;
       this.formDialog.source=id;
+      this.targetLists=[];
       this.hostLists.forEach((item) => {
         if(id!=item.id){
           this.targetLists.push(item);

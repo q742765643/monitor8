@@ -7,8 +7,10 @@ import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.folder.FileMonitorLogService;
+import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.dao.FileMonitorLogDao;
 import com.piesat.skywalking.dto.AlarmLogDto;
+import com.piesat.skywalking.dto.FileMonitorDto;
 import com.piesat.skywalking.dto.FileMonitorLogDto;
 import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.entity.FileMonitorLogEntity;
@@ -34,10 +36,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @ClassName : FileMonitorLogServiceImpl
@@ -49,6 +48,8 @@ import java.util.Map;
 public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity> implements FileMonitorLogService {
     @Autowired
     private FileMonitorLogDao fileMonitorLogDao;
+    @Autowired
+    private FileMonitorService fileMonitorService;
     @Autowired
     private FileMonitorLogMapstruct fileMonitorLogMapstruct;
     @Autowired
@@ -75,7 +76,7 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
         if (StringUtils.isNotNullString((String) fileMonitorLogEntity.getParamt().get("endTime"))) {
             specificationBuilder.add("ddataTime", SpecificationOperator.Operator.les.name(), (String) fileMonitorLogEntity.getParamt().get("endTime"));
         }
-        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        Sort sort = Sort.by(Sort.Direction.DESC, "ddataTime");
         PageBean pageBean = this.getPage(specification, pageForm, sort);
         pageBean.setPageData(fileMonitorLogMapstruct.toDto(pageBean.getPageData()));
         return pageBean;
@@ -83,6 +84,13 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
     }
 
     public PageBean selectPageListDetail(PageForm<FileMonitorLogDto> pageForm) {
+        List<FileMonitorDto> fileMonitorDtos=fileMonitorService.selectAll();
+        Map<String,String> mapPath=new HashMap<>();
+        if(null!=fileMonitorDtos){
+            for(int i=0;i<fileMonitorDtos.size();i++){
+                mapPath.put(fileMonitorDtos.get(i).getId(),fileMonitorDtos.get(i).getFolderRegular());
+            }
+        }
         PageBean<FileStatisticsDto> pageBean=new PageBean<>();
         FileMonitorLogEntity query = fileMonitorLogMapstruct.toEntity(pageForm.getT());
         SearchSourceBuilder search = new SearchSourceBuilder();
@@ -109,7 +117,7 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
             WildcardQueryBuilder taskId = QueryBuilders.wildcardQuery("task_id", query.getTaskId());
             boolBuilder.must(taskId);
         }
-        search.query(boolBuilder).sort("start_time_l", SortOrder.DESC);
+        search.query(boolBuilder).sort("d_data_time", SortOrder.DESC);
         search.trackTotalHits(true);
         try {
             int startIndex = (pageForm.getCurrentPage() - 1) * pageForm.getPageSize();
@@ -123,7 +131,7 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
             for (SearchHit hit : searchHits) {
                 Map<String, Object> map = hit.getSourceAsMap();
                 FileStatisticsDto fileStatisticsDto=new FileStatisticsDto();
-                fileStatisticsDto.setId(String.valueOf(map.get("id")));
+                fileStatisticsDto.setId(hit.getId());
                 fileStatisticsDto.setTaskId(String.valueOf(map.get("task_id")));
                 fileStatisticsDto.setTaskName(String.valueOf(map.get("task_name")));
                 fileStatisticsDto.setStartTimeL((Long) map.get("start_time_l"));
@@ -133,10 +141,22 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
                 if(StringUtil.isEmpty(status)||"null".equals(status)){
                     status="4";
                 }
+                if(null!=map.get("start_time_a")){
+                    fileStatisticsDto.setStartTimeA(JsonParseUtil.formateToDate((String) map.get("start_time_a")));
+                }
+                if(null!=mapPath.get(fileStatisticsDto.getTaskId())){
+                    fileStatisticsDto.setFolderRegular(mapPath.get(fileStatisticsDto.getTaskId()));
+                }
                 fileStatisticsDto.setStatus(Integer.parseInt(status));
                 fileStatisticsDto.setFileNum(new BigDecimal(String.valueOf(map.get("file_num"))).longValue());
-                fileStatisticsDto.setRealFileNum(new BigDecimal(String.valueOf(map.get("real_file_num"))).longValue());
+                fileStatisticsDto.setRealFileNum(new BigDecimal(String.valueOf(map.get("real_file_num"))).longValue()+new BigDecimal(String.valueOf(map.get("late_num"))).longValue());
                 fileStatisticsDto.setLateNum(new BigDecimal(String.valueOf(map.get("late_num"))).longValue());
+                if(null!=map.get("timeliness_rate")){
+                    fileStatisticsDto.setTimelinessRate(new BigDecimal(String.valueOf(map.get("timeliness_rate"))).longValue());
+                }
+                if(null!=map.get("per_file_num")){
+                    fileStatisticsDto.setPerFileNum(new BigDecimal(String.valueOf(map.get("per_file_num"))).longValue());
+                }
                 fileStatisticsDtos.add(fileStatisticsDto);
             }
             pageBean.setPageData(fileStatisticsDtos);

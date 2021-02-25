@@ -22,4 +22,9 @@ public class FileMonitorDto extends HtJobInfoDto {
     private Integer scanType;
     @ApiModelProperty(value = "账号ID")
     private String acountId;
+    private Integer delayStart;
+    private String delayStartUnit;
+    private Integer rangeTime;
+    private String rangeUnit;
+
 }
