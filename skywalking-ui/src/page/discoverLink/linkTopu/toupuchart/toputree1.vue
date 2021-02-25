@@ -175,12 +175,15 @@ export default {
       //下面这两个参数是为了设置连线上圆圈的不同颜色
       let edgeCircleColorIndex = 0;
       let edgeCircleColorArr = '#2bb9f7';
-
       G6.registerEdge(
         'circle-running',
         {
           afterDraw(cfg, group) {
-            debugger
+            if(2==cfg.currentStatus){
+              edgeCircleColorArr = 'red';
+            }else {
+              edgeCircleColorArr = '#2bb9f7';
+            }
             const shape = group.get('children')[0];
             const startPoint = shape.getPoint(0);
             //创建节点之间的圆圈，并为每一个设置样式

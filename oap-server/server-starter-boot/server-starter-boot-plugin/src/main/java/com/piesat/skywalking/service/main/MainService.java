@@ -301,7 +301,7 @@ public class MainService {
                             Map<String,Long> hh=new HashMap<>();
                             hh.put("file_num",file_num);
                             hh.put("real_file_num",real_file_num);
-                            hh.put("late_num",real_file_num);
+                            hh.put("late_num",late_num);
                             has.put(key,hh);
                         }
 
@@ -327,14 +327,14 @@ public class MainService {
             long real_file_num = hh.get("real_file_num");
             long late_num = hh.get("late_num");
             Integer onTimeRate = new BigDecimal(real_file_num * 100).divide(new BigDecimal(file_num), 2, BigDecimal.ROUND_UP).intValue();
-            Integer rate = new BigDecimal(real_file_num * 100+late_num).divide(new BigDecimal(file_num), 2, BigDecimal.ROUND_UP).intValue();
-            d[2] = onTimeRate;
+            Integer rate = new BigDecimal((real_file_num +late_num)* 100).divide(new BigDecimal(file_num), 2, BigDecimal.ROUND_UP).intValue();
+            d[2] = rate;
             if (file_num > 0) {
                 if(late_num>0){
                     System.out.println(11);
                 }
                 data.add(d);
-                String[] tip = new String[]{String.valueOf(file_num), String.valueOf(real_file_num), String.valueOf(late_num),rate+"%", hoursList1.get(d[0])};
+                String[] tip = new String[]{String.valueOf(file_num), String.valueOf(real_file_num), String.valueOf(late_num),onTimeRate+"%", hoursList1.get(d[0])};
                 tips.add(tip);
             }
         }

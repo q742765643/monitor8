@@ -36,6 +36,8 @@ public class HostConfigHandler implements BaseHandler {
     @Autowired
     private SNMPH3cService snmph3cService;
     @Autowired
+    private SNMPHuaWeiService snmpHuaWeiService;
+    @Autowired
     private ElasticSearch7Client elasticSearch7Client;
 
     @Override
@@ -53,9 +55,13 @@ public class HostConfigHandler implements BaseHandler {
                     snmpCiscoService.getSystemInfo(ip, "161", "2", date, snmp);
                 } else if (os.indexOf("Ruijie") != -1) {
                     snmpRuijieService.getSystemInfo(ip, "161", "2", date, snmp);
-                } else if (os.indexOf("H3C S5130") != -1) {
+                } else if (os.indexOf("H3C") != -1) {
+                    log.info("H3C交换机采集");
                     snmph3cService.getSystemInfo(ip, "161", "2", date, snmp);
-                } else if (os.indexOf("Windows") != -1) {
+                }else if (os.indexOf("Huawei") != -1) {
+                    log.info("Huawei交换机采集");
+                    snmpHuaWeiService.getSystemInfo(ip, "161", "2", date, snmp);
+                }  else if (os.indexOf("Windows") != -1) {
                     snmpWindowsService.getSystemInfo(ip, "161", "2", date, snmp);
                 } else {
                     snmpLinuxService.getSystemInfo(ip, "161", "2", date, snmp);

@@ -58,9 +58,13 @@ public class AlarmCpuService extends AlarmBaseService {
                 message = hostConfigDto.getIp()+":cpu使用率到达" + new BigDecimal(alarmLogDto.getUsage()).setScale(2,BigDecimal.ROUND_HALF_UP) + "%";
             }
             alarmLogDto.setMessage(message);
-            this.insertEs(alarmLogDto);
+            if(1==alarmConfigDto.getTriggerStatus()){
+                this.insertEs(alarmLogDto);
+            }
         }
-        this.insertUnprocessed(alarmLogDto);
+        if(1==alarmConfigDto.getTriggerStatus()) {
+            this.insertUnprocessed(alarmLogDto);
+        }
     }
 
 

@@ -36,11 +36,11 @@ module.exports = {
                 target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
                 changeOrigin: true,
             },
-            '/': {
-                target: `${process.env.SW_PROXY_TARGET || 'http://1.119.169.74:10002'}`,
+            '/monitor': {
+                target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
                 changeOrigin: true,
                 pathRewrite: {
-                    ["^/"]: ""
+                    ["^/monitor"]: ""
                 }
             },
         },
