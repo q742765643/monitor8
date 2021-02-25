@@ -1,5 +1,5 @@
 import * as axios from 'axios';
-
+import router from '@/router'
 // 这里可根据具体使用的ui组件库进行替换
 /* import { Message, MessageBox } from 'element-ui'; */
 import { AxiosResponse, AxiosRequestConfig } from 'axios';
@@ -33,6 +33,7 @@ service.interceptors.request.use(
     if (getToken()) {
       config.headers['Authorization'] = getToken(); // 让每个请求携带自定义token 请根据实际情况自行修改
     } else {
+      // router.push("/login");
       config.headers['Authorization'] = Cookies.get(TokenKey);
     }
     return config;
@@ -59,6 +60,7 @@ service.interceptors.response.use(
         description: response.data.msg,
         onClick: () => { },
       });
+      router.push("/login");
       return Promise.reject(new Error(response.data.msg));
     } else {
       let res = response.data;
