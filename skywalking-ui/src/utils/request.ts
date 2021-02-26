@@ -60,7 +60,9 @@ service.interceptors.response.use(
         description: response.data.msg,
         onClick: () => { },
       });
-      router.push("/login");
+      if (code == 401) {
+        router.push("/login");
+      }
       return Promise.reject(new Error(response.data.msg));
     } else {
       let res = response.data;
