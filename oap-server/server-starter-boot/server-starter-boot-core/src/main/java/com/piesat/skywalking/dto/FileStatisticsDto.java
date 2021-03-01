@@ -68,4 +68,7 @@ public class FileStatisticsDto {
 
     private String folderRegular;
 
+    private String errorReason;
+    private String remark;
+
 }

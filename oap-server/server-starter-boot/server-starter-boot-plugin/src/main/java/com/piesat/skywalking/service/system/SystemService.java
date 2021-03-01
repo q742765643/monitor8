@@ -416,7 +416,9 @@ public class SystemService {
                 fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024)).setScale(2,BigDecimal.ROUND_HALF_UP));
                 fileSystemVo.setUsage(new BigDecimal(String.valueOf(used.get("pct"))).multiply(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
                 fileSystemVo.setUseByte(new BigDecimal(String.valueOf(used.get("bytes"))).divide(new BigDecimal(1024 * 1024 * 1024)).setScale(2,BigDecimal.ROUND_HALF_UP));
-                fileSystemVos.add(fileSystemVo);
+                if(!fileSystemVo.getDiskName().equals("Virtual Memory")&&!fileSystemVo.getDiskName().equals("Physical Memory")){
+                     fileSystemVos.add(fileSystemVo);
+                }
             }
 
         }

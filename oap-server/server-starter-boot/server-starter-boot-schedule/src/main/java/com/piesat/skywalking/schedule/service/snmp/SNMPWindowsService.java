@@ -283,7 +283,7 @@ public class SNMPWindowsService extends SNMPService {
 
     }
 
-    @SneakyThrows
+    /*@SneakyThrows
     public void processMap(SNMPSessionUtil snmp, Map<String, Object> basicInfo, List<Map<String, Object>> esList) {
         String[] sysProcess = {
                 "1.3.6.1.2.1.25.4.2.1.1",  //index
@@ -305,17 +305,15 @@ public class SNMPWindowsService extends SNMPService {
             String id = values[0].getVariable().toString();
             String cpu = values[5].getVariable().toString();
             String key= PROCESSKEY+snmp.getHostComputer()+":"+id;
-            String runPath = values[2].getVariable().toString();
-            String type = values[4].getVariable().toString();
             if (id == null) {
                 continue;
             }
-         /*   if (!"4".equals(type)) {
+         *//*   if (!"4".equals(type)) {
                 continue;
-            }*/
-      /*      if (runPath == null || runPath.length() < 2) {
+            }*//*
+      *//*      if (runPath == null || runPath.length() < 2) {
                 continue;
-            }*/
+            }*//*
             if(redisUtil.hasKey(key)){
                 long lastTime= new BigDecimal(String.valueOf(redisUtil.get(key))).longValue();
                 long nextTime=new BigDecimal(cpu).longValue();
@@ -333,18 +331,8 @@ public class SNMPWindowsService extends SNMPService {
             if (id == null) {
                 continue;
             }
-            if("21828".equals(id)){
-              System.out.println();
-            }
             String runPath = values[2].getVariable().toString();
             String parameters = values[3].getVariable().toString();
-            String type = values[4].getVariable().toString();
-          /*  if (!"4".equals(type)) {
-                continue;
-            }*/
-        /*    if (runPath == null || runPath.length() < 2) {
-                continue;
-            }*/
             if (parameters == null) {
                 parameters = "";
             }
@@ -392,5 +380,5 @@ public class SNMPWindowsService extends SNMPService {
         }
 
 
-    }
+    }*/
 }

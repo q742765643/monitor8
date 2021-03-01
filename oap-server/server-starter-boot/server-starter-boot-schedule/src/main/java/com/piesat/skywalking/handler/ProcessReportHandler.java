@@ -88,11 +88,16 @@ public class ProcessReportHandler implements BaseHandler {
         MaxAggregationBuilder maxMemory = AggregationBuilders.max("max_memory_pct").field("system.process.memory.rss.pct").format("0.0000");
         AvgAggregationBuilder avgCpu = AggregationBuilders.avg("avg_cpu_pct").field("system.process.cpu.total.norm.pct").format("0.0000");
         MaxAggregationBuilder maxCpu = AggregationBuilders.max("max_cpu_pct").field("system.process.cpu.total.norm.pct").format("0.0000");
+        MaxAggregationBuilder maxMemorySize = AggregationBuilders.max("max_memory_size").field("system.process.memory.rss.bytes").format("0.0000");
+        AvgAggregationBuilder avgMemorySize = AggregationBuilders.avg("avg_memory_size").field("system.process.memory.rss.bytes").format("0.0000");
+
         search.size(1);
         search.aggregation(avgMemory);
         search.aggregation(maxMemory);
         search.aggregation(avgCpu);
         search.aggregation(maxCpu);
+        search.aggregation(maxMemorySize);
+        search.aggregation(avgMemorySize);
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", search);
             if(searchResponse.getHits().getHits().length==0){
@@ -104,10 +109,14 @@ public class ProcessReportHandler implements BaseHandler {
                 Max maxMemoryPct=agg.get("max_memory_pct");
                 Avg avgCpuPct=agg.get("avg_cpu_pct");
                 Max maxCpuPct=agg.get("max_cpu_pct");
+                Avg avgMemoryS=agg.get("avg_memory_size");
+                Max maxMemoryS=agg.get("max_memory_size");
                 processReportTemplate.setAvgMemoryPct(new BigDecimal(avgMemoryPct.getValueAsString()).floatValue());
                 processReportTemplate.setMaxMemoryPct(new BigDecimal(maxMemoryPct.getValueAsString()).floatValue());
                 processReportTemplate.setAvgCpuPct(new BigDecimal(avgCpuPct.getValueAsString()).floatValue());
                 processReportTemplate.setMaxCpuPct(new BigDecimal(maxCpuPct.getValueAsString()).floatValue());
+                processReportTemplate.setMaxMemorySize(new BigDecimal(maxMemoryS.getValueAsString()).floatValue());
+                processReportTemplate.setAvgMemorySize(new BigDecimal(avgMemoryS.getValueAsString()).floatValue());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -252,13 +261,15 @@ public class ProcessReportHandler implements BaseHandler {
     public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto,ProcessConfigDto processConfigDto, String type) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolBuilder1 = QueryBuilders.boolQuery();
+
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system." + type);
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
         WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
         WildcardQueryBuilder process = QueryBuilders.wildcardQuery("process.name", "*"+processConfigDto.getProcessName()+"*");
-
-        boolBuilder.should(wild);
-        boolBuilder.should(process);
+        boolBuilder1.should(wild);
+        boolBuilder1.should(process);
+        boolBuilder.must(boolBuilder1);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");

@@ -150,21 +150,21 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         hostConfigDto.setDelayTime(0);
         hostConfigDto.setJobHandler("hostConfigHandler");
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
-        hostConfig = super.saveNotNull(hostConfig);
-        if(hostConfig.getMonitoringMethods()==2){
-            hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        HostConfigEntity hostConfigNew = super.saveNotNull(hostConfig);
+        if(hostConfigNew.getMonitoringMethods()==2){
+            hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfigNew));
         }
         return hostConfigMapstruct.toDto(hostConfig);
     }
     public HostConfigDto updateHost(HostConfigDto hostConfigDto) {
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
-        hostConfig = super.saveNotNull(hostConfig);
-        if(null!=hostConfig.getMonitoringMethods()){
-            if(hostConfig.getMonitoringMethods()==2){
-                hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+        HostConfigEntity hostConfigNew  = super.saveNotNull(hostConfig);
+        if(null!=hostConfigNew.getMonitoringMethods()){
+            if(hostConfigNew.getMonitoringMethods()==2){
+                hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfigNew));
             }else{
                 hostConfig.setTriggerStatus(0);
-                hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfig));
+                hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfigNew));
             }
         }
 

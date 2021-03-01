@@ -103,6 +103,12 @@ public class FileStatisticsTemplate extends ManagementData {
     @Column(columnName = "d_data_time")
     private Date ddataTime;
 
+    @Column(columnName = "error_reason")
+    private String errorReason;
+
+    @Column(columnName = "remark")
+    private String remark;
+
     @Override
     public String id() {
         return "";

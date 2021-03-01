@@ -59,6 +59,12 @@ public class ProcessReportTemplate extends ManagementData {
     @Column(columnName = "avg.memory.pct")
     private float avgMemoryPct;
 
+    @Column(columnName = "avg.memory.size")
+    private float avgMemorySize;
+
+    @Column(columnName = "max.memory.size")
+    private float maxMemorySize;
+
     @Column(columnName = "ip")
     private String ip;
 
@@ -110,6 +116,8 @@ public class ProcessReportTemplate extends ManagementData {
             map.put("related_id", storageData.getRelatedId());
             map.put("max.cpu.pct", storageData.getMaxCpuPct());
             map.put("max.memory.pct", storageData.getMaxMemoryPct());
+            map.put("max.memory.size", storageData.getMaxMemorySize());
+            map.put("avg.memory.size", storageData.getAvgMemorySize());
             map.put("max.uptime.pct", storageData.getMaxUptimePct());
             map.put("down.num", storageData.getDownNum());
             map.put("down.time", storageData.getDownTime());

@@ -106,7 +106,7 @@ public class GenericDaoImpl<T, ID extends Serializable> extends SimpleJpaReposit
                 mergedEntity = managedEntity;
             }
         }
-        return entity;
+        return mergedEntity;
     }
 
     @Override

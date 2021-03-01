@@ -266,6 +266,7 @@ public class SNMPLinuxService extends SNMPService {
 
     }
 
+/*
     @SneakyThrows
     public void processMap(SNMPSessionUtil snmp, Map<String, Object> basicInfo, List<Map<String, Object>> esList) {
         String[] sysProcess = {
@@ -375,6 +376,7 @@ public class SNMPLinuxService extends SNMPService {
 
 
     }
+*/
 
 
 }

@@ -13,12 +13,15 @@ import lombok.Data;
 @Data
 public class ProcessReportVo {
 
-    @ApiModelProperty(name = "进程名称")
-    private String processName;
+
 
     @Excel(name = "ip",height = 55)
     @ApiModelProperty(name = "ip")
     private String ip;
+
+    @Excel(name = "进程名称",height = 55)
+    @ApiModelProperty(name = "进程名称")
+    private String processName;
 
     @Excel(name = "告警次数",height = 55)
     @ApiModelProperty(name = "告警次数")
@@ -40,7 +43,7 @@ public class ProcessReportVo {
     @ApiModelProperty(name = "最大cpu使用率")
     private float maxCpuPct;
 
-    @Excel(name = "最大内存使用率",height = 55)
+    //@Excel(name = "最大内存使用率",height = 55)
     @ApiModelProperty(name = "最大内存使用率")
     private float maxMemoryPct;
 
@@ -63,6 +66,11 @@ public class ProcessReportVo {
     @Excel(name = "异常时长",height = 55)
     @ApiModelProperty(name = "异常时长")
     private float exeptionTime;
+
+    @Excel(name = "平均内存(K)",height = 55)
+    private float avgMemorySize;
+    @Excel(name = "最大内存(K)",height = 55)
+    private float maxMemorySize;
 
 }
 

@@ -51,11 +51,11 @@ export default {
         dataAll.data.forEach((element) => {
           if (element.name == '平均cpu使用率') {
             element.data.forEach((item) => {
-              this.cpuList.push(item * 100);
+              this.cpuList.push(item);
             });
           } else if (element.name == '平均内存使用率') {
             element.data.forEach((item) => {
-              this.memoryList.push(item * 100);
+              this.memoryList.push(item);
             });
           }
         });

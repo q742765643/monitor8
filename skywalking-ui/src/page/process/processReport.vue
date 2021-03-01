@@ -30,7 +30,12 @@
         <vxe-table-column field="alarmNum" title="告警次数"></vxe-table-column>
         <vxe-table-column field="maxCpuPct" title="最大cpu使用率"></vxe-table-column>
         <vxe-table-column field="avgCpuPct" title="平均cpu使用率"></vxe-table-column>
+<!--
         <vxe-table-column field="maxMemoryPct" title="最大内存使用率"></vxe-table-column>
+-->
+        <vxe-table-column field="maxMemorySize" title="最大内存(K)"></vxe-table-column>
+        <vxe-table-column field="avgMemorySize" title="平均内存(K)"></vxe-table-column>
+
       </vxe-table>
     </div>
   </div>

@@ -90,7 +90,7 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         ProcessConfigEntity process = processConfigMapstruct.toEntity(processConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(process.getIp())) {
-            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
+            specificationBuilder.addOr("ip", SpecificationOperator.Operator.eq.name(), process.getIp());
         }
         if (StringUtils.isNotNullString(process.getProcessName())) {
             specificationBuilder.addOr("processName", SpecificationOperator.Operator.likeAll.name(), process.getProcessName());
@@ -198,7 +198,7 @@ public class ProcessConfigServiceImpl extends BaseService<ProcessConfigEntity> i
         ProcessConfigEntity process = processConfigMapstruct.toEntity(processConfigDto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(process.getIp())) {
-            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), process.getIp());
+            specificationBuilder.addOr("ip", SpecificationOperator.Operator.eq.name(), process.getIp());
         }
         if (StringUtils.isNotNullString(process.getProcessName())) {
             specificationBuilder.addOr("processName", SpecificationOperator.Operator.likeAll.name(), process.getProcessName());

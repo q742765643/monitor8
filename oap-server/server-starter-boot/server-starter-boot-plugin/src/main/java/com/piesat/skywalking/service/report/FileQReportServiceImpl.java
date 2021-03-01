@@ -3,20 +3,27 @@ package com.piesat.skywalking.service.report;
 import com.piesat.common.utils.CellModel;
 import com.piesat.common.utils.ExcelToPdf;
 import com.piesat.common.utils.ServletUtils;
+import com.piesat.common.utils.StringUtils;
 import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.api.folder.FileQReportService;
 import com.piesat.skywalking.dto.FileMonitorDto;
+import com.piesat.skywalking.dto.FileMonitorLogDto;
+import com.piesat.skywalking.dto.FileStatisticsDto;
 import com.piesat.skywalking.dto.SystemQueryDto;
+import com.piesat.skywalking.entity.FileMonitorLogEntity;
 import com.piesat.skywalking.vo.ImageVo;
 import com.piesat.util.ImageUtils;
 import com.piesat.util.JsonParseUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.StringUtil;
+import com.piesat.util.page.PageBean;
+import com.piesat.util.page.PageForm;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
@@ -24,11 +31,9 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -54,6 +59,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -218,9 +224,21 @@ public class FileQReportServiceImpl implements FileQReportService {
         return result;
     }
 
-    public List<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto) {
-        systemQueryDto.setEndTime(null);
-        SearchSourceBuilder search = this.buildWhere(systemQueryDto);
+    public Map<String, Object> findFileReport(SystemQueryDto systemQueryDto,List<String> taskLists) {
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        if(taskLists.size()==0){
+            boolBuilder.must(QueryBuilders.termQuery("task_id", "null"));
+        }else {
+            boolBuilder.must(QueryBuilders.termsQuery("task_id", taskLists));
+        }
+        search.query(boolBuilder);
         DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
         dateHis.field("d_data_time");
         dateHis.dateHistogramInterval(DateHistogramInterval.days(1));
@@ -238,6 +256,8 @@ public class FileQReportServiceImpl implements FileQReportService {
         dateHis.subAggregation(groupByTaskId);
         search.aggregation(dateHis);
         List<Map<String, Object>> list = new ArrayList<>();
+        List<Map<String,Object>> mergeCells=new ArrayList<>();
+        StringBuilder stringBuilder=new StringBuilder();
         try {
             SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
             Aggregations aggregations = searchResponse.getAggregations();
@@ -263,18 +283,13 @@ public class FileQReportServiceImpl implements FileQReportService {
                         ParsedSum sumFileNumV = bucketV.getAggregations().get("sumFileNum");
                         long sumRealFileNumL = new BigDecimal(sumRealFileNumV.getValueAsString()).longValue();
                         long sumLateNumL = new BigDecimal(sumLateNumV.getValueAsString()).longValue();
-                        long sumRealFileSizeL = new BigDecimal(sumRealFileSizeV.getValueAsString()).divide(new BigDecimal(1024), 0, BigDecimal.ROUND_UP).longValue();
                         long sumFileNumL = new BigDecimal(sumFileNumV.getValueAsString()).longValue();
                         if (sumFileNumL > 0) {
-                            float toQuoteRate = new BigDecimal(sumRealFileNumL + sumLateNumL).divide(new BigDecimal(sumFileNumL*100), 0, BigDecimal.ROUND_HALF_UP).floatValue();
-                            map.put(taskId + "_toQuoteRate", toQuoteRate);
+                            float toQuoteRate = new BigDecimal((sumRealFileNumL + sumLateNumL)*100).divide(new BigDecimal(sumFileNumL), 0, BigDecimal.ROUND_HALF_UP).floatValue();
+                            map.put(taskId, toQuoteRate);
                         }else {
-                            map.put(taskId + "_toQuoteRate", 100);
+                            map.put(taskId, 100);
                         }
-                        map.put(taskId + "_sumRealFileNum", sumRealFileNumL);
-                        map.put(taskId + "_sumLateNum", sumLateNumL);
-                        map.put(taskId + "_sumRealFileSize", sumRealFileSizeL);
-                        map.put(taskId + "_sumFileNum", sumFileNumL);
                     }
                     list.add(map);
                 }
@@ -282,10 +297,102 @@ public class FileQReportServiceImpl implements FileQReportService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        FileMonitorDto fileMonitorDto = new FileMonitorDto();
+        NullUtil.changeToNull(fileMonitorDto);
+        List<FileMonitorDto> fileMonitorDtos = fileMonitorService.selectBySpecification(fileMonitorDto);
+        Map<String,String> taskNameMap=new HashMap<>();
+        for (int i = 0; i < fileMonitorDtos.size(); i++) {
+            FileMonitorDto file = fileMonitorDtos.get(i);
+            taskNameMap.put(file.getId(),file.getTaskName());
+        }
+        Map<String,Object> mergeCell=new HashMap<>();
+        mergeCell.put("row",list.size()+1);
+        mergeCell.put("rowspan",1);
+        mergeCell.put("col",1);
+        mergeCell.put("colspan",taskLists.size()+1);
+        mergeCells.add(mergeCell);
+        Map<String,Float> mapHjRT=new HashMap<>();
+        int fate=0;
         for(int i=0;i<list.size();i++){
+            Map<String, Object> map = list.get(i);
+            float toQuoteRateSum=0;
+            for(int j=0;j<taskLists.size();j++){
+                float toQuoteRate=0;
+                if(null!=map.get(taskLists.get(j))){
+                    toQuoteRate = (float) map.get(taskLists.get(j));
+                }else{
+                    map.put(taskLists.get(j),0);
+                }
+                toQuoteRateSum=toQuoteRateSum+toQuoteRate;
+                if(0==i){
+                    mapHjRT.put(taskLists.get(j),toQuoteRate);
+                }else {
+                    mapHjRT.put(taskLists.get(j),mapHjRT.get(taskLists.get(j))+toQuoteRate);
+                }
+            }
+            BigDecimal toQuoteRateC=new BigDecimal(toQuoteRateSum).divide(new BigDecimal(taskLists.size()),0,BigDecimal.ROUND_HALF_UP);
+            map.put("hjC",toQuoteRateC);
+            if(toQuoteRateC.compareTo(new BigDecimal(100))>-1){
+                fate++;
+            }
 
         }
-        return list;
+        Map<String,Object> mapHjR=new HashMap<>();
+        BigDecimal hjoQuoteRateT=new BigDecimal(0);
+        StringBuilder zlBl=new StringBuilder();
+        for (Map.Entry<String,Float> entry : mapHjRT.entrySet()) {
+            BigDecimal oQuoteRate=new BigDecimal(0);
+            if(list.size()>0){
+                 oQuoteRate=new BigDecimal(entry.getValue()).divide(new BigDecimal(list.size()),0,BigDecimal.ROUND_HALF_UP);
+            }
+            hjoQuoteRateT=hjoQuoteRateT.add(oQuoteRate);
+            mapHjR.put(entry.getKey(),oQuoteRate);
+            if(oQuoteRate.compareTo(new BigDecimal(100))>-1){
+                zlBl.append(taskNameMap.get(entry.getKey())+",");
+            }
+        }
+        BigDecimal hjoQuoteRateC=new BigDecimal(0);
+        if(taskLists.size()>0){
+             hjoQuoteRateC=hjoQuoteRateT.divide(new BigDecimal(taskLists.size()),0,BigDecimal.ROUND_HALF_UP);
+        }
+        String atime="当前";
+        String btime="当前";
+        SimpleDateFormat f1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat f2=new SimpleDateFormat("yyyy/MM/dd");
+        if(null!=systemQueryDto.getStartTime()){
+            try {
+                atime=f2.format(f1.parse(systemQueryDto.getStartTime()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if(null!=systemQueryDto.getEndTime()){
+            try {
+                btime=f2.format(f1.parse(systemQueryDto.getEndTime()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        stringBuilder.append(atime).append("至").append(btime).append(" ");
+        stringBuilder.append("平均到报率为").append(hjoQuoteRateC).append("%,");
+        stringBuilder.append("其中,").append(fate).append("天到报率为100%,").append(list.size()-fate).append("天存在缺报");
+        stringBuilder.append(zlBl).append("到报率为100%");
+        mapHjR.put("hjC",hjoQuoteRateC);
+        mapHjR.put("timestamp","(日期)平均");
+        list.add(mapHjR);
+        Map<String,Object> mapHjJl=new HashMap<>();
+        mapHjJl.put("timestamp","结论");
+
+        if(taskLists.size()>0){
+            mapHjJl.put(taskLists.get(0),stringBuilder.toString());
+        }
+        list.add(mapHjJl);
+        Map<String, Object> result=new HashMap<>();
+        result.put("tableData",list);
+        result.put("mergeCells",mergeCells);
+        result.put("title","资料监视文件及时率报告（"+atime+"至"+btime +")" );
+
+        return result;
 
     }
 
@@ -575,13 +682,148 @@ public class FileQReportServiceImpl implements FileQReportService {
      * @param sheetName sheet名称
      * @param wb 表对象
      * @param cellListMap 表头数据 {key=cellRowNum-1}
-     * @param cellRowNum 表头总占用行数
+     * @param  表头总占用行数
      * @param exportData 行数据
      * @param
      * @return
      * @throws Exception
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static SXSSFWorkbook createCSVUtil(String sheetName, SXSSFWorkbook wb,String title,String title1,
+                                              List<String> headers, List<LinkedHashMap> exportData,List<String> headers1, List<LinkedHashMap> exportData1)throws Exception {
+        Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
+        CellStyle style = wb.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        Font dataFont = wb.createFont();
+        dataFont.setFontName("宋体");
+        dataFont.setFontHeightInPoints((short) 10);
+        style.setFont(dataFont);
+        style.setWrapText(true);
+        styles.put("data", style);
+
+        style = wb.createCellStyle();
+        style.cloneStyleFrom(styles.get("data"));
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style.setWrapText(true);
+        Font headerFont = wb.createFont();
+        headerFont.setFontName("宋体");
+        headerFont.setFontHeightInPoints((short) 10);
+        headerFont.setBold(true);
+        //headerFont.setColor(IndexedColors.WHITE.getIndex());
+        style.setFont(headerFont);
+        styles.put("header", style);
+        //设置表格名称
+        Sheet sheet = wb.createSheet(sheetName);
+        sheet.setDefaultColumnWidth(20);
+        Row row0 =  sheet.createRow(0);
+        CellRangeAddress cra =new CellRangeAddress(0,
+                0, 0, headers.size()-1);
+        sheet.addMergedRegion(cra);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, cra, sheet); // 下边框
+        RegionUtil.setBorderLeft(BorderStyle.THIN, cra, sheet); // 左边框
+        RegionUtil.setBorderRight(BorderStyle.THIN, cra, sheet); // 有边框
+        RegionUtil.setBorderTop(BorderStyle.THIN, cra, sheet); // 上边框
+        RegionUtil.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra,sheet);
+        RegionUtil.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra,sheet);
+        RegionUtil.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra,sheet);
+        RegionUtil.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra,sheet);
+        Cell cell1 = row0.createCell(0);
+        cell1.setCellValue(title);
+        cell1.setCellStyle(styles.get("header"));
+        int st=1;
+        Row row =  sheet.createRow(st);
+        for (int i = 0; i < headers.size(); i++) {
+            // 遍历插入表头
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headers.get(i));
+            cell.setCellStyle(styles.get("header"));
+        }
+        int rowNum=st+1;
+        for (LinkedHashMap hashMap : exportData) {
+            Row rowValue = sheet.createRow(rowNum);
+            rowNum++;
+            Iterator<Map.Entry> iteratorRow = hashMap.entrySet().iterator();
+            while (iteratorRow.hasNext()) {
+                Map.Entry entryRow = iteratorRow.next();
+                Integer key = Integer.valueOf(entryRow.getKey().toString());
+                String value = "";
+                if (entryRow.getValue() != null) {
+                    value = entryRow.getValue().toString();
+                } else {
+                    value = "";
+                }
+                Cell cellValue =  rowValue.createCell(key - 1);
+                cellValue.setCellValue(value);
+                cellValue.setCellStyle(styles.get("data"));
+            }
+        }
+        sheet.addMergedRegion(new CellRangeAddress(exportData.size()+1,
+                exportData.size()+1, 1, headers.size()-1));
+        rowNum++;
+        Row rown =  sheet.createRow(rowNum);
+        CellRangeAddress cra1= new CellRangeAddress( rowNum,
+                rowNum, 0, headers1.size()-1);
+        sheet.addMergedRegion(cra1);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, cra1, sheet); // 下边框
+        RegionUtil.setBorderLeft(BorderStyle.THIN, cra1, sheet); // 左边框
+        RegionUtil.setBorderRight(BorderStyle.THIN, cra1, sheet); // 有边框
+        RegionUtil.setBorderTop(BorderStyle.THIN, cra1, sheet); // 上边框
+        RegionUtil.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra1,sheet);
+        RegionUtil.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra1,sheet);
+        RegionUtil.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra1,sheet);
+        RegionUtil.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex(),cra1,sheet);
+        Cell celln = rown.createCell(0);
+        celln.setCellValue(title1);
+        celln.setCellStyle(styles.get("header"));
+        rowNum++;
+        Row row1 =  sheet.createRow(rowNum);
+        rowNum++;
+        for (int i = 0; i < headers1.size(); i++) {
+            // 遍历插入表头
+            Cell cell = row1.createCell(i);
+            cell.setCellValue(headers1.get(i));
+            cell.setCellStyle(styles.get("header"));
+        }
+        for (LinkedHashMap hashMap : exportData1) {
+            Row rowValue = sheet.createRow(rowNum);
+            rowNum++;
+            Iterator<Map.Entry> iteratorRow = hashMap.entrySet().iterator();
+            while (iteratorRow.hasNext()) {
+                Map.Entry entryRow = iteratorRow.next();
+                Integer key = Integer.valueOf(entryRow.getKey().toString());
+                String value = "";
+                if (entryRow.getValue() != null) {
+                    value = entryRow.getValue().toString();
+                } else {
+                    value = "";
+                }
+                Cell cellValue =  rowValue.createCell(key - 1);
+                cellValue.setCellValue(value);
+                cellValue.setCellStyle(styles.get("data"));
+            }
+        }
+
+        return wb;
+    }
+/*    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static SXSSFWorkbook createCSVUtil(String sheetName, SXSSFWorkbook wb, Map<String,List<CellModel>> cellListMap,
                                               Integer cellRowNum, List<LinkedHashMap> exportData)throws Exception {
         Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
@@ -661,7 +903,7 @@ public class FileQReportServiceImpl implements FileQReportService {
             }
         }
         return wb;
-    }
+    }*/
     public Map<String, String> findHeaderRow() {
         Map<String, String> map = new HashMap<>();
         List<Map<String, String>> list = new ArrayList<>();
@@ -795,99 +1037,79 @@ public class FileQReportServiceImpl implements FileQReportService {
         return result;
 
     }
-    public void exportFileReport(SystemQueryDto systemQueryDto){
+    public void exportFileReport(SystemQueryDto systemQueryDto,List<String> taskLists){
         HttpServletResponse response = ServletUtils.getResponse();
 
         OutputStream out = null;
         //设置最大数据行数
         SXSSFWorkbook wb = new SXSSFWorkbook(5000);
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-
+        FileMonitorDto fileMonitorDto = new FileMonitorDto();
+        NullUtil.changeToNull(fileMonitorDto);
+        List<FileMonitorDto> fileMonitorDtos = fileMonitorService.selectBySpecification(fileMonitorDto);
+        Map<String,String> taskNameMap=new HashMap<>();
+        for (int i = 0; i < fileMonitorDtos.size(); i++) {
+            FileMonitorDto file = fileMonitorDtos.get(i);
+            taskNameMap.put(file.getId(),file.getTaskName());
+        }
         try {
             String  filename = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_文件报表.xlsx";
             Map<String,List<CellModel>> map = new HashMap<String,List<CellModel>>();
-            List<Map<String, String>> list=this.findHeader();
             // 设置数据
-            List<CellModel> firstRow = new ArrayList<CellModel>();
-            List<CellModel> seRow = new ArrayList<CellModel>();
-            //总占用3行
-            Integer cellRow = 2;
-            CellModel cellModel = new CellModel();
-            cellModel.setCellName("时间");
-            cellModel.setStartRow(0);
-            cellModel.setEndRow(1);
-            cellModel.setStartColumn(0);
-            cellModel.setEndColumn(0);
-            firstRow.add(cellModel);
-            for(int i=0;i<list.size();i++){
-                Map<String, String> header =list.get(i);
-                CellModel cellModel1 = new CellModel();
-                cellModel1.setCellName(header.get("title"));
-                cellModel1.setStartRow(0);
-                cellModel1.setEndRow(0);
-                cellModel1.setStartColumn(i*5+1);
-                cellModel1.setEndColumn((i+1)*5);
-                CellModel cellModel2 = new CellModel();
-                cellModel2.setCellName("准时到");
-                cellModel2.setStartRow(1);
-                cellModel2.setEndRow(1);
-                cellModel2.setStartColumn(i*5+1);
-                cellModel2.setEndColumn(i*5+1);
-                CellModel cellModel3 = new CellModel();
-                cellModel3.setCellName("晚到");
-                cellModel3.setStartRow(1);
-                cellModel3.setEndRow(1);
-                cellModel3.setStartColumn(i*5+2);
-                cellModel3.setEndColumn(i*5+2);
-                CellModel cellModel4 = new CellModel();
-                cellModel4.setCellName("应到");
-                cellModel4.setStartRow(1);
-                cellModel4.setEndRow(1);
-                cellModel4.setStartColumn(i*5+3);
-                cellModel4.setEndColumn(i*5+3);
-                CellModel cellModel5 = new CellModel();
-                cellModel5.setCellName("大小");
-                cellModel5.setStartRow(1);
-                cellModel5.setEndRow(1);
-                cellModel5.setStartColumn(i*5+4);
-                cellModel5.setEndColumn(i*5+4);
-                CellModel cellModel6 = new CellModel();
-                cellModel6.setCellName("到报率");
-                cellModel6.setStartRow(1);
-                cellModel6.setEndRow(1);
-                cellModel6.setStartColumn(i*5+5);
-                cellModel6.setEndColumn(i*5+5);
-                firstRow.add(cellModel1);
-                seRow.add(cellModel2);
-                seRow.add(cellModel3);
-                seRow.add(cellModel4);
-                seRow.add(cellModel5);
-                seRow.add(cellModel6);
-
+            List<String> headers = new ArrayList<String>();//总占用3行
+            List<String> headers1 = new ArrayList<String>();//总占用3行
+            String[] hheader=new String[]{"资料名称","资料时间","采集时间","应到(个)","实到(个)","迟到(个)","应到大小(KB)","实到大小(KB)","原因","值班员备注"};
+            headers1= Arrays.asList(hheader);
+            headers.add("时间");
+            for(int i=0;i<taskLists.size();i++){
+                headers.add(taskNameMap.get(taskLists.get(i)));
             }
-            map.put("0", firstRow);
-            map.put("1", seRow);
-            List<Map<String, Object>> fileList=this.findFileReport(systemQueryDto);
+            headers.add("(类别)平均");
+            Map<String, Object> fileMap=this.findFileReport(systemQueryDto,taskLists);
+            String tilte= (String) fileMap.get("title");
+            List<Map<String, Object>> fileList= (List<Map<String, Object>>) fileMap.get("tableData");
             List<LinkedHashMap> exportData = new ArrayList<LinkedHashMap>();
             for (int i = 0; i < fileList.size(); i++) {
                 Map<String, Object> map1=fileList.get(i);
                 LinkedHashMap<String, String> rowPut = new LinkedHashMap<String, String>();
                 rowPut.put("1", String.valueOf(map1.get("timestamp")));
                 int k=1;
-                for(int q=0;q<list.size();q++){
-                    Map<String,String> headerMap=list.get(q);
-                    rowPut.put(String.valueOf(k+1), !String.valueOf(map1.get(headerMap.get("taskId")+"_sumRealFileNum")).equals("null")?String.valueOf(map1.get(headerMap.get("taskId")+"_sumRealFileNum")):"");
-                    rowPut.put(String.valueOf(k+2), !String.valueOf(map1.get(headerMap.get("taskId")+"_sumLateNum")).equals("null")?String.valueOf(map1.get(headerMap.get("taskId")+"_sumLateNum")):"");
-                    rowPut.put(String.valueOf(k+3), !String.valueOf(map1.get(headerMap.get("taskId")+"_sumFileNum")).equals("null")?String.valueOf(map1.get(headerMap.get("taskId")+"_sumFileNum")):"");
-                    rowPut.put(String.valueOf(k+4), !String.valueOf(map1.get(headerMap.get("taskId")+"_sumRealFileSize")).equals("null")?String.valueOf(map1.get(headerMap.get("taskId")+"_sumRealFileSize")):"");
-                    rowPut.put(String.valueOf(k+5), !String.valueOf(map1.get(headerMap.get("taskId")+"_toQuoteRate")).equals("null")?String.valueOf(map1.get(headerMap.get("taskId")+"_toQuoteRate")):"");
-                    k=k+5;
+
+                for(int q=0;q<taskLists.size();q++){
+                    rowPut.put(String.valueOf(k+1), !String.valueOf(map1.get(taskLists.get(q))).equals("null")?String.valueOf(map1.get(taskLists.get(q))):"");
+                    k=k+1;
                 }
+                rowPut.put(String.valueOf(k+1),String.valueOf(map1.get("hjC")));
                 exportData.add(rowPut);
             }
+            List<LinkedHashMap> exportData1 = new ArrayList<LinkedHashMap>();
+            Map<String, Object> fileDetailMap=this.selectPageListDetail(systemQueryDto,taskLists);
+            String tilte1= (String) fileDetailMap.get("title");
+            List<FileStatisticsDto>  fileDetailList= (List<FileStatisticsDto>) fileDetailMap.get("tableData");
+            SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (int i = 0; i < fileDetailList.size(); i++) {
+                LinkedHashMap<String, String> rowPut = new LinkedHashMap<String, String>();
+                FileStatisticsDto fileStatisticsDto=fileDetailList.get(i);
+                rowPut.put("1",fileStatisticsDto.getTaskName());
+                rowPut.put("2",format.format(fileStatisticsDto.getDdataTime()));
+                rowPut.put("3",format.format(fileStatisticsDto.getStartTimeA()));
+                rowPut.put("4",String.valueOf(fileStatisticsDto.getFileNum()));
+                rowPut.put("5",String.valueOf(fileStatisticsDto.getRealFileNum()));
+                rowPut.put("6",String.valueOf(fileStatisticsDto.getLateNum()));
+                rowPut.put("7",String.valueOf(fileStatisticsDto.getFileSize()));
+                rowPut.put("8",String.valueOf(fileStatisticsDto.getRealFileSize() ));
+                if(null==fileStatisticsDto.getErrorReason()){
+                    fileStatisticsDto.setErrorReason("");
+                }
+                if(null==fileStatisticsDto.getRemark()){
+                    fileStatisticsDto.setRemark("");
+                }
+                rowPut.put("9",String.valueOf(fileStatisticsDto.getErrorReason() ));
+                rowPut.put("10",String.valueOf(fileStatisticsDto.getRemark()));
+                exportData1.add(rowPut);
+            }
 
-
-            wb = this.createCSVUtil("文件报表",wb, map, cellRow, exportData);
+            wb = this.createCSVUtil("文件报表",wb,tilte,tilte1, headers, exportData,headers1,exportData1);
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
             response.addHeader("Access-Control-Expose-Headers", "content-disposition");
@@ -915,5 +1137,209 @@ public class FileQReportServiceImpl implements FileQReportService {
         }
 
     }
+
+    public Map<String,Object> selectPageListDetail(SystemQueryDto systemQueryDto,List<String> taskLists) {
+        Map<String, Object> result=new HashMap<>();
+        SearchSourceBuilder search = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("d_data_time");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        if(taskLists.size()==0){
+            boolBuilder.must(QueryBuilders.termQuery("task_id", "null"));
+        }else {
+            boolBuilder.must(QueryBuilders.termsQuery("task_id", taskLists));
+        }
+        RangeQueryBuilder perPct = QueryBuilders.rangeQuery("per_file_num");
+        perPct.lt(1f);
+        boolBuilder.must(perPct);
+        search.query(boolBuilder).sort("d_data_time", SortOrder.DESC);
+        search.trackTotalHits(true);
+        try {
+            search.size(10000);
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.T_MT_FILE_STATISTICS, search);
+            SearchHits hits = response.getHits();  //SearchHits提供有关所有匹配的全局信息，例如总命中数或最高分数：
+            long count = hits.getTotalHits().value;
+            List<FileStatisticsDto> fileStatisticsDtos=new ArrayList<>();
+            SearchHit[] searchHits = hits.getHits();
+            for (SearchHit hit : searchHits) {
+                Map<String, Object> map = hit.getSourceAsMap();
+                FileStatisticsDto fileStatisticsDto=new FileStatisticsDto();
+                fileStatisticsDto.setId(hit.getId());
+                fileStatisticsDto.setTaskId(String.valueOf(map.get("task_id")));
+                fileStatisticsDto.setTaskName(String.valueOf(map.get("task_name")));
+                fileStatisticsDto.setStartTimeL((Long) map.get("start_time_l"));
+
+                fileStatisticsDto.setDdataTime(JsonParseUtil.formateToDate((String) map.get("d_data_time")));
+                String status=String.valueOf(map.get("status"));
+                if(StringUtil.isEmpty(status)||"null".equals(status)){
+                    status="4";
+                }
+                if(null!=map.get("start_time_a")){
+                    fileStatisticsDto.setStartTimeA(JsonParseUtil.formateToDate((String) map.get("start_time_a")));
+                }
+                fileStatisticsDto.setStatus(Integer.parseInt(status));
+                fileStatisticsDto.setFileNum(new BigDecimal(String.valueOf(map.get("file_num"))).longValue());
+                fileStatisticsDto.setFileSize(new BigDecimal(String.valueOf(map.get("file_size"))).longValue());
+                fileStatisticsDto.setRealFileSize(new BigDecimal(String.valueOf(map.get("real_file_size"))).divide(new BigDecimal(1024),0,BigDecimal.ROUND_HALF_UP).longValue());
+                fileStatisticsDto.setRealFileNum(new BigDecimal(String.valueOf(map.get("real_file_num"))).longValue()+new BigDecimal(String.valueOf(map.get("late_num"))).longValue());
+                fileStatisticsDto.setLateNum(new BigDecimal(String.valueOf(map.get("late_num"))).longValue());
+                if(null!=map.get("timeliness_rate")){
+                    fileStatisticsDto.setTimelinessRate(new BigDecimal(String.valueOf(map.get("timeliness_rate"))).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue()*100);
+                }
+                if(null!=map.get("per_file_num")){
+                    fileStatisticsDto.setPerFileNum(new BigDecimal(String.valueOf(map.get("per_file_num"))).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue()*100);
+                }
+                if(null!=map.get("error_reason")){
+                    fileStatisticsDto.setErrorReason(String.valueOf(map.get("error_reason")));
+                }
+                if(null!=map.get("remark")){
+                    fileStatisticsDto.setRemark(String.valueOf(map.get("remark")));
+                }
+                fileStatisticsDtos.add(fileStatisticsDto);
+            }
+            result.put("tableData",fileStatisticsDtos);
+            String atime="当前";
+            String btime="当前";
+            SimpleDateFormat f1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat f2=new SimpleDateFormat("yyyy/MM/dd");
+            if(null!=systemQueryDto.getStartTime()){
+                try {
+                    atime=f2.format(f1.parse(systemQueryDto.getStartTime()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(null!=systemQueryDto.getEndTime()){
+                try {
+                    btime=f2.format(f1.parse(systemQueryDto.getEndTime()));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            result.put("title","资料缺报详情报告（"+atime+"至"+btime +")" );
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+
+    }
+
+    public void updateDetail(FileStatisticsDto fileStatisticsDto){
+        try {
+            GetResponse response = elasticSearch7Client.get(IndexNameConstant.T_MT_FILE_STATISTICS,fileStatisticsDto.getId());
+            Map<String, Object> source = response.getSourceAsMap();
+            source.put("remark", fileStatisticsDto.getRemark());
+            source.put("error_reason", fileStatisticsDto.getErrorReason());
+            elasticSearch7Client.forceInsert(IndexNameConstant.T_MT_FILE_STATISTICS,fileStatisticsDto.getId(),source);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void exportFileReportPdf(SystemQueryDto systemQueryDto,List<String> taskLists){
+        HttpServletResponse response = ServletUtils.getResponse();
+
+        OutputStream out = null;
+        //设置最大数据行数
+        SXSSFWorkbook wb = new SXSSFWorkbook(5000);
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
+        FileMonitorDto fileMonitorDto = new FileMonitorDto();
+        NullUtil.changeToNull(fileMonitorDto);
+        List<FileMonitorDto> fileMonitorDtos = fileMonitorService.selectBySpecification(fileMonitorDto);
+        Map<String,String> taskNameMap=new HashMap<>();
+        for (int i = 0; i < fileMonitorDtos.size(); i++) {
+            FileMonitorDto file = fileMonitorDtos.get(i);
+            taskNameMap.put(file.getId(),file.getTaskName());
+        }
+        try {
+            String  filename = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_文件报表.xlsx";
+            Map<String,List<CellModel>> map = new HashMap<String,List<CellModel>>();
+            // 设置数据
+            List<String> headers = new ArrayList<String>();//总占用3行
+            List<String> headers1 = new ArrayList<String>();//总占用3行
+            String[] hheader=new String[]{"资料名称","资料时间","采集时间","应到(个)","实到(个)","迟到(个)","应到大小(KB)","实到大小(KB)","原因","值班员备注"};
+            headers1= Arrays.asList(hheader);
+            headers.add("时间");
+            for(int i=0;i<taskLists.size();i++){
+                headers.add(taskNameMap.get(taskLists.get(i)));
+            }
+            headers.add("(类别)平均");
+            Map<String, Object> fileMap=this.findFileReport(systemQueryDto,taskLists);
+            String tilte= (String) fileMap.get("title");
+            List<Map<String, Object>> fileList= (List<Map<String, Object>>) fileMap.get("tableData");
+            List<LinkedHashMap> exportData = new ArrayList<LinkedHashMap>();
+            for (int i = 0; i < fileList.size(); i++) {
+                Map<String, Object> map1=fileList.get(i);
+                LinkedHashMap<String, String> rowPut = new LinkedHashMap<String, String>();
+                rowPut.put("1", String.valueOf(map1.get("timestamp")));
+                int k=1;
+
+                for(int q=0;q<taskLists.size();q++){
+                    rowPut.put(String.valueOf(k+1), !String.valueOf(map1.get(taskLists.get(q))).equals("null")?String.valueOf(map1.get(taskLists.get(q))):"");
+                    k=k+1;
+                }
+                rowPut.put(String.valueOf(k+1),String.valueOf(map1.get("hjC")));
+                exportData.add(rowPut);
+            }
+            List<LinkedHashMap> exportData1 = new ArrayList<LinkedHashMap>();
+            Map<String, Object> fileDetailMap=this.selectPageListDetail(systemQueryDto,taskLists);
+            String tilte1= (String) fileDetailMap.get("title");
+            List<FileStatisticsDto>  fileDetailList= (List<FileStatisticsDto>) fileDetailMap.get("tableData");
+            SimpleDateFormat format= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (int i = 0; i < fileDetailList.size(); i++) {
+                LinkedHashMap<String, String> rowPut = new LinkedHashMap<String, String>();
+                FileStatisticsDto fileStatisticsDto=fileDetailList.get(i);
+                rowPut.put("1",fileStatisticsDto.getTaskName());
+                rowPut.put("2",format.format(fileStatisticsDto.getDdataTime()));
+                rowPut.put("3",format.format(fileStatisticsDto.getStartTimeA()));
+                rowPut.put("4",String.valueOf(fileStatisticsDto.getFileNum()));
+                rowPut.put("5",String.valueOf(fileStatisticsDto.getRealFileNum()));
+                rowPut.put("6",String.valueOf(fileStatisticsDto.getLateNum()));
+                rowPut.put("7",String.valueOf(fileStatisticsDto.getFileSize()));
+                rowPut.put("8",String.valueOf(fileStatisticsDto.getRealFileSize() ));
+                if(null==fileStatisticsDto.getErrorReason()){
+                    fileStatisticsDto.setErrorReason("");
+                }
+                if(null==fileStatisticsDto.getRemark()){
+                    fileStatisticsDto.setRemark("");
+                }
+                rowPut.put("9",String.valueOf(fileStatisticsDto.getErrorReason() ));
+                rowPut.put("10",String.valueOf(fileStatisticsDto.getRemark()));
+                exportData1.add(rowPut);
+            }
+
+            wb = this.createCSVUtil("文件报表",wb,tilte,tilte1, headers, exportData,headers1,exportData1);
+            filename = filename.replaceAll(".xlsx",".pdf");
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.addHeader("Access-Control-Expose-Headers", "content-disposition");
+            response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+            out = response.getOutputStream();
+            ExcelToPdf.excel2pdf(wb, out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (wb != null) {
+                try {
+                    wb.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+
+    }
+
 }
 

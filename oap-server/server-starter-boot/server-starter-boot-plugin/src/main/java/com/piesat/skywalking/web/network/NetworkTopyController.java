@@ -49,6 +49,7 @@ public class NetworkTopyController {
                 node.put("comboId", String.valueOf(hostConfig.getArea()));
                 node.put("cluster", String.valueOf(hostConfig.getArea()));
             }
+            node.put("currentStatus", hostConfig.getCurrentStatus());
             node.put("mediaType", hostConfig.getMediaType());
             node.put("area", hostConfig.getArea());
             nodeList.add(node);

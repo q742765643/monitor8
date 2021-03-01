@@ -49,5 +49,9 @@ public class ProcessReportDto {
 
     @ApiModelProperty(name = "进程名称")
     private String processName;
+    @ApiModelProperty(name = "平均内存大小")
+    private float avgMemorySize;
+    @ApiModelProperty(name = "最大内存大小")
+    private float maxMemorySize;
 }
 

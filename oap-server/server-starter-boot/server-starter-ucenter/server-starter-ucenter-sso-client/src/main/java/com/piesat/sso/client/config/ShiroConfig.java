@@ -69,8 +69,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/doc.html", "anon");
         filterChainDefinitionMap.put("/api/**", "anon");
         filterChainDefinitionMap.put("/upload/**", "anon");
-        filterChainDefinitionMap.put("/**", "anon");
-        //filterChainDefinitionMap.put("/**", "authc");
+        //filterChainDefinitionMap.put("/**", "anon");
+        filterChainDefinitionMap.put("/**", "authc");
         LinkedHashMap<String, Filter> filtsMap = new LinkedHashMap<>();
         // 这里使用自定义的filter
         filtsMap.put("authc", new HtAuthenticationFilter());

@@ -11,6 +11,7 @@ import com.piesat.skywalking.dto.model.JobContext;
 import com.piesat.skywalking.schedule.service.alarm.base.AlarmBaseService;
 import com.piesat.skywalking.util.IdUtils;
 import com.piesat.sso.client.util.RedisUtil;
+import com.piesat.util.JsonParseUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
 import com.piesat.util.StringUtil;
@@ -96,16 +97,18 @@ public class AlarmProcessService extends AlarmBaseService {
         String endTime=format.format(date);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.add(Calendar.MINUTE, -10);
+        calendar.add(Calendar.MINUTE, -60*2);
         String beginTime=format.format(calendar.getTime());
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolBuilder1 = QueryBuilders.boolQuery();
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.process");
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
         WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
         WildcardQueryBuilder processSe = QueryBuilders.wildcardQuery("process.name", "*"+processConfigDto.getProcessName()+"*");
-        boolBuilder.should(wild);
-        boolBuilder.should(processSe);
+        boolBuilder1.should(wild);
+        boolBuilder1.should(processSe);
+        boolBuilder.must(boolBuilder1);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
 
@@ -124,22 +127,24 @@ public class AlarmProcessService extends AlarmBaseService {
             SearchHit[] searchHits = hits.getHits();
             boolean flag=false;
             if(searchHits.length>0){
-                Set<String> stringSet=new HashSet<>();
+                Set<String> stringSetCpu=new HashSet<>();
+                Set<String> stringSetMemory=new HashSet<>();
+
                 for (SearchHit hit : searchHits) {
-                    Map<String, Object> map = hit.getSourceAsMap();
-                    Map<String, Object> pro = (Map<String, Object>) map.get("process");
-                    Map<String, Object> system = (Map<String, Object>) map.get("system");
-                    Map<String, Object> process = (Map<String, Object>) system.get("process");
-                    Map<String, Object> cpu = (Map<String, Object>) process.get("cpu");
-                    Map<String, Object> total = (Map<String, Object>) cpu.get("total");
-                    stringSet.add(String.valueOf(total.get("value")));
+                    Map<String, Object> mapJson = new HashMap<>();
+                    JsonParseUtil.parseJSON2Map(mapJson,hit.getSourceAsString(),null);
+                    stringSetCpu.add(String.valueOf(mapJson.get("system.process.cpu.total.value")));
+                    stringSetMemory.add(String.valueOf(mapJson.get("system.process.memory.rss.bytes")));
                     if(!flag){
-                        processConfigDto.setPid(Integer.parseInt(String.valueOf(pro.get("pid"))));
-                        processConfigDto.setCmdline(String.valueOf(process.get("cmdline")));
+                        processConfigDto.setPid(Integer.parseInt(String.valueOf(mapJson.get("process.pid"))));
+                        processConfigDto.setCmdline(String.valueOf(mapJson.get("system.process.cmdline")));
                     }
                     flag=true;
                 }
-                usage=(new BigDecimal(stringSet.size()).divide(new BigDecimal(searchHits.length),4,BigDecimal.ROUND_HALF_UP)).floatValue()*100;
+                float usageCpu=(new BigDecimal(stringSetCpu.size()).divide(new BigDecimal(searchHits.length),4,BigDecimal.ROUND_HALF_UP)).floatValue()*100;
+                float usageMemory=(new BigDecimal(stringSetMemory.size()).divide(new BigDecimal(searchHits.length),4,BigDecimal.ROUND_HALF_UP)).floatValue()*100;
+                usage=(usageCpu+usageMemory)/2;
+
             }
         } catch (IOException e) {
             e.printStackTrace();

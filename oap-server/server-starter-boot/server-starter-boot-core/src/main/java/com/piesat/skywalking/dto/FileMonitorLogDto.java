@@ -58,5 +58,7 @@ public class FileMonitorLogDto extends BaseDto {
     private String allExpression;
     @ApiModelProperty(value = "资料时间")
     private Date ddataTime;
+    private String errorReason;
+    private String remark;
 }
 

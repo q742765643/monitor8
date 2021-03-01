@@ -90,6 +90,8 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                 processReportDto.setDownTime((Float) map.get("sum_down_time"));
                 processReportDto.setExeptionNum((Long) map.get("sum_exeption_count"));
                 processReportDto.setExeptionTime((Float) map.get("sum_exeption_time"));
+                processReportDto.setMaxMemorySize((Float) map.get("max_memory_size"));
+                processReportDto.setAvgMemorySize((Float) map.get("avg_memory_size"));
             }
             processReportDtos.add(processReportDto);
 
@@ -109,6 +111,8 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
         SumAggregationBuilder sumDownCount = AggregationBuilders.sum("sum_down_count").field("down.num");
         SumAggregationBuilder sumExeptionTime = AggregationBuilders.sum("sum_exeption_time").field("exeption.time");
         SumAggregationBuilder sumExeptionCount = AggregationBuilders.sum("sum_exeption_count").field("exeption.num");
+        AvgAggregationBuilder avgMemorySize = AggregationBuilders.avg("avg_memory_size").field("avg.memory.size").format("0.0000");
+        MaxAggregationBuilder maxMemorySize = AggregationBuilders.max("max_memory_size").field("max.memory.size").format("0.0000");
         TermsAggregationBuilder groupById = AggregationBuilders.terms("group_related_id").field("related_id").size(10000);
         groupById.subAggregation(avgCpuPct);
         groupById.subAggregation(maxCpuPct);
@@ -120,6 +124,8 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
         groupById.subAggregation(sumAlarmCount);
         groupById.subAggregation(sumDownTime);
         groupById.subAggregation(sumDownCount);
+        groupById.subAggregation(avgMemorySize);
+        groupById.subAggregation(maxMemorySize);
         search.aggregation(groupById);
         search.size(0);
         try {
@@ -143,6 +149,8 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                 ParsedSum parsedSumDownCount = bucket.getAggregations().get("sum_down_count");
                 ParsedSum parsedSumExeptionTime = bucket.getAggregations().get("sum_exeption_time");
                 ParsedSum parsedSumExeptionCount = bucket.getAggregations().get("sum_exeption_count");
+                ParsedAvg parsedMemoryAvgSize = bucket.getAggregations().get("avg_memory_size");
+                ParsedMax parsedMemoryMaxSize= bucket.getAggregations().get("max_memory_size");
                 Map<String, Object> map = new HashMap<>();
                 map.put("avg_cpu_pct", new BigDecimal(parsedCpuAvg.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
                 map.put("max_cpu_pct", new BigDecimal(parsedCpuMax.getValueAsString()).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
@@ -155,6 +163,8 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                 map.put("max_uptime", hours);
                 map.put("sum_exeption_time", new BigDecimal(parsedSumExeptionTime.getValueAsString()).divide(new BigDecimal(1000 * 60 * 60), 2, BigDecimal.ROUND_HALF_UP).floatValue());
                 map.put("sum_exeption_count", new BigDecimal(parsedSumExeptionCount.getValueAsString()).longValue());
+                map.put("avg_memory_size", new BigDecimal(parsedMemoryAvgSize.getValueAsString()).divide(new BigDecimal(1024),0,BigDecimal.ROUND_HALF_UP).floatValue());
+                map.put("max_memory_size", new BigDecimal(parsedMemoryMaxSize.getValueAsString()).divide(new BigDecimal(1024),0,BigDecimal.ROUND_HALF_UP).floatValue());
                 idMap.put(id, map);
 
             }
@@ -230,7 +240,8 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
             systemQueryDto.setEndTime(((String) processConfigEntity.getParamt().get("endTime")));
         }
         SearchSourceBuilder search = this.buildWhere(systemQueryDto,query, "process");
-        AvgAggregationBuilder avgMemory = AggregationBuilders.avg("avg_memory_pct").field("system.process.memory.rss.pct").format("0.0000");
+        AvgAggregationBuilder avgMemory = AggregationBuilders.avg("avg_memory_size").field("system.process.memory.rss.bytes").format("0.0000");
+        //AvgAggregationBuilder avgMemory = AggregationBuilders.avg("avg_memory_pct").field("system.process.memory.rss.pct").format("0.0000");
         //MaxAggregationBuilder maxMemory = AggregationBuilders.max("max_memory_pct").field("system.process.memory.rss.pct").format("0.0000");
         AvgAggregationBuilder avgCpu = AggregationBuilders.avg("avg_cpu_pct").field("system.process.cpu.total.norm.pct").format("0.0000");
         //MaxAggregationBuilder maxCpu = AggregationBuilders.max("max_cpu_pct").field("system.process.cpu.total.norm.pct").format("0.0000");
@@ -259,10 +270,10 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                     Histogram.Bucket bucket = buckets.get(i);
                     ZonedDateTime date = (ZonedDateTime) bucket.getKey();
                     timeSet.add(formatter.format(date));
-                    ParsedAvg parsedAvgMemory = bucket.getAggregations().get("avg_memory_pct");
+                    ParsedAvg parsedAvgMemory = bucket.getAggregations().get("avg_memory_size");
                     if (parsedAvgMemory != null&&!"Infinity".equals(parsedAvgMemory.getValueAsString())) {
                         try {
-                            map.put("memory",new BigDecimal(parsedAvgMemory.getValueAsString()).divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_UP).floatValue());
+                            map.put("memory",new BigDecimal(parsedAvgMemory.getValueAsString()).divide(new BigDecimal(1024)).setScale(0,BigDecimal.ROUND_UP).floatValue());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -270,7 +281,7 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
                     ParsedAvg parsedAvgCpu = bucket.getAggregations().get("avg_cpu_pct");
                     if (parsedAvgCpu != null&&!"Infinity".equals(parsedAvgCpu.getValueAsString())) {
                         try {
-                            map.put("cpu",new BigDecimal(parsedAvgCpu.getValueAsString()).divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_UP).floatValue());
+                            map.put("cpu",new BigDecimal(parsedAvgCpu.getValueAsString()).setScale(4,BigDecimal.ROUND_UP).multiply(new BigDecimal(100)).floatValue());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -319,12 +330,15 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
     public SearchSourceBuilder buildWhere(SystemQueryDto systemQueryDto,ProcessConfigDto processConfigDto, String type) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolBuilder1 = QueryBuilders.boolQuery();
+
         MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system." + type);
         MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
         WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
         WildcardQueryBuilder process = QueryBuilders.wildcardQuery("process.name", "*"+processConfigDto.getProcessName()+"*");
-        boolBuilder.should(wild);
-        boolBuilder.should(process);
+        boolBuilder1.should(wild);
+        boolBuilder1.should(process);
+        boolBuilder.must(boolBuilder1);
         boolBuilder.must(matchEvent);
         boolBuilder.must(matchIp);
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
