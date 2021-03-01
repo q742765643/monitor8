@@ -93,7 +93,7 @@ function initEventHandle(setSocketData) {
             notifications[key].close();
             delete notifications[key];
           }
-        }, 3000);
+        }, 300);
       }
       let notificationItem = window.wsonmessage.$notify.error({
         customClass: 'wsErrorNotification',

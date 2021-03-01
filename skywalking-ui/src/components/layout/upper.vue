@@ -334,7 +334,7 @@ export default {
     text-align: center;
     position: relative;
     h4 {
-      width: 84%;
+      width: 100%;
       margin: auto;
       color: #125df1;
       font-size: 36px;

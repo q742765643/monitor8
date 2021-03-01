@@ -179,9 +179,9 @@ export default {
         'circle-running',
         {
           afterDraw(cfg, group) {
-            if(2==cfg.currentStatus){
+            if (2 == cfg.currentStatus) {
               edgeCircleColorArr = 'red';
-            }else {
+            } else {
               edgeCircleColorArr = '#2bb9f7';
             }
             const shape = group.get('children')[0];
@@ -275,7 +275,7 @@ export default {
           selected: {
             fill: 'rgba(0,255,255,0.5)',
           },
-           selectedError: {
+          selectedError: {
             fill: 'rgba(230,0,18,0.5)',
           },
         },

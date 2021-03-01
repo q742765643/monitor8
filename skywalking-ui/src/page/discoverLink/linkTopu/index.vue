@@ -101,8 +101,7 @@
                 <i></i>
               </span>
               <span>
-                              <a-button type="primary" @click="handleEdit(infoData.id,infoData.ip)" > 设置链路 </a-button>
-
+                <a-button type="primary" @click="handleEdit(infoData.id, infoData.ip)"> 设置链路 </a-button>
               </span>
             </div>
           </div>
@@ -110,33 +109,33 @@
       </div>
     </div>
     <a-modal
-            v-model="visibleModel"
-            :title="dialogTitle"
-            @ok="handleOk"
-            okText="确定"
-            cancelText="取消"
-            width="45%"
-            :maskClosable="false"
-            :centered="true"
-            class="dialogBox fileMonitoringdialogBox"
+      v-model="visibleModel"
+      :title="dialogTitle"
+      @ok="handleOk"
+      okText="确定"
+      cancelText="取消"
+      width="45%"
+      :maskClosable="false"
+      :centered="true"
+      class="dialogBox fileMonitoringdialogBox"
     >
       <a-form-model
-              v-if="visibleModel"
-              :label-col="{ span: 5 }"
-              :wrapperCol="{ span: 18 }"
-              :model="formDialog"
-              ref="formModel"
+        v-if="visibleModel"
+        :label-col="{ span: 5 }"
+        :wrapperCol="{ span: 18 }"
+        :model="formDialog"
+        ref="formModel"
       >
         <a-row>
           <a-col :span="24">
-            <a-form-model-item label="源主机"  prop="source">
-              <a-input v-model="formDialog.ip" > </a-input>
+            <a-form-model-item label="源主机" prop="source">
+              <a-input v-model="formDialog.ip"> </a-input>
             </a-form-model-item>
           </a-col>
         </a-row>
         <a-row>
           <a-col :span="24">
-            <a-form-model-item label="目标主机"  prop="target">
+            <a-form-model-item label="目标主机" prop="target">
               <a-select mode="multiple" v-model="formDialog.target" placeholder="目标主机">
                 <a-select-option v-for="host in targetLists" :key="host.id">
                   {{ host.ip }}
@@ -147,7 +146,6 @@
         </a-row>
       </a-form-model>
     </a-modal>
-
   </div>
 </template>
 
@@ -179,10 +177,10 @@ export default {
       hostLists: [],
       targetLists: [],
       visibleModel: false, //弹出框
-      dialogTitle:'',
+      dialogTitle: '',
       formDialog: {
-        target:[]
-      }
+        target: [],
+      },
     };
   },
   components: { /* toupuChart ,*/ topuTree, planeTitle },
@@ -221,29 +219,28 @@ export default {
         this.hostLists = response.data;
       });
     },
-    handleEdit(id,ip) {
-
+    handleEdit(id, ip) {
       /* 新增 */
       this.dialogTitle = '设置链路';
-      this.formDialog.ip=ip;
-      this.formDialog.source=id;
-      this.targetLists=[];
+      this.formDialog.ip = ip;
+      this.formDialog.source = id;
+      this.targetLists = [];
       this.hostLists.forEach((item) => {
-        if(id!=item.id){
+        if (id != item.id) {
           this.targetLists.push(item);
         }
       });
       request({
         url: '/networkTopy/selectBySource',
         method: 'get',
-        params: {"source":id},
+        params: { source: id },
       }).then((response) => {
         this.formDialog.target = response.data;
         this.visibleModel = true;
       });
     },
     handleOk() {
-      console.log(this.formDialog)
+      console.log(this.formDialog);
       request({
         url: '/networkTopy/saveSource',
         method: 'post',

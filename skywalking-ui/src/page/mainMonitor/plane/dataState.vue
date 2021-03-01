@@ -69,6 +69,7 @@ export default {
                 thatIndex = ei;
               }
             });
+            console.log(this.tipsList[thatIndex]);
             //thatIndex = 0;
             //应到，实到 ，晚到 ，准时率，时次
             let html =
@@ -85,9 +86,11 @@ export default {
               '</br>' +
               '应到:' +
               this.tipsList[thatIndex][0] +
+              '实到:' +
+              (this.tipsList[thatIndex][1] + this.tipsList[thatIndex][2]) +
               '    准时到:' +
               this.tipsList[thatIndex][1] +
-              '    晚到:' +
+              '    迟到:' +
               this.tipsList[thatIndex][2] +
               '</br>' +
               '    资料时间:' +
@@ -97,6 +100,12 @@ export default {
           },
         },
         xAxis: {
+          name: '时次',
+          nameLocation: 'start',
+          nameTextStyle: {
+            padding: [25, -12, 0, 0],
+            color: '#999',
+          },
           type: 'category',
           data: hours,
           splitArea: {
@@ -160,13 +169,13 @@ export default {
         },
         visualMap: {
           show: false,
-          min: 0,
-          max: 10,
-          calculable: true,
           orient: 'horizontal',
-          left: 'center',
-          bottom: '15%',
-          color: ['#0064c8', '#00c9fd'],
+          type: 'piecewise',
+          pieces: [
+            { min: 100, color: '#0cb218' },
+            { lt: 100, color: '#fcff13' },
+            { value: 0, color: 'red' },
+          ],
         },
         series: [
           {
