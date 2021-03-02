@@ -122,7 +122,7 @@ export default {
       dateRange: [],
       // 查询参数
       queryParams: {
-        beginTime: '',
+        startTime: '',
         endTime: '',
         taskIds:[],
       },
@@ -197,8 +197,8 @@ export default {
     exportEventXls() {
       request({
         url: '/fileQReport/exportFileReport',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
+        method: 'post',
+        data: this.addDateRange(this.queryParams, this.dateRange),
         responseType: 'arraybuffer',
       }).then((res) => {
         this.downloadfileCommon(res);
@@ -208,7 +208,7 @@ export default {
       request({
         url: '/fileQReport/exportFileReportPdf',
         method: 'post',
-        params: this.addDateRange(this.queryParams, this.dateRange),
+        data: this.addDateRange(this.queryParams, this.dateRange),
         responseType: 'arraybuffer',
       }).then((res) => {
         this.downloadfileCommon(res);
@@ -229,8 +229,8 @@ export default {
     selectPageListDetail(){
       request({
         url: '/fileQReport/selectPageListDetail',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
+        method: 'post',
+        data: this.addDateRange(this.queryParams, this.dateRange)
       }).then((data) => {
         this.tableDataDetail = data.data.tableData;
       });
@@ -238,8 +238,8 @@ export default {
     fetch() {
       request({
         url: '/fileQReport/findFileReport',
-        method: 'get',
-        params: this.addDateRange(this.queryParams, this.dateRange),
+        method: 'post',
+        data: this.addDateRange(this.queryParams, this.dateRange)
       }).then((data) => {
         this.mergeCells = data.data.mergeCells;
         this.tableData = data.data.tableData;

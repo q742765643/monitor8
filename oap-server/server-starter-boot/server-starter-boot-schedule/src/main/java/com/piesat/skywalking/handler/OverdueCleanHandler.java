@@ -44,7 +44,9 @@ public class OverdueCleanHandler implements BaseHandler {
     public void execute(JobContext jobContext, ResultT<String> resultT) {
         this.deleteMysqlRecord("t_mt_file_monitor_log",3);
         this.deleteEsRecordString(IndexNameConstant.T_MT_ALARM_LOG,"@timestamp",30);
+        this.deleteEsRecordString(IndexNameConstant.T_MT_FILE_MONITOR,"@timestamp",30);
         this.deleteEsIndex(IndexNameConstant.METRICBEAT,7);
+        elasticSearch7Client.forceMerge();
 
     }
     public void deleteMysqlRecord(String table, int ttl){

@@ -91,4 +91,22 @@ public class HostConfigController {
         resultT.setData(list);
         return resultT;
     }
+    @ApiOperation(value = "查询所有主机IP", notes = "查询所有主机IP")
+    @GetMapping("/findAllHostIp")
+    public ResultT<List<HostConfigDto>> findAllHostIp() {
+        ResultT<List<HostConfigDto>> resultT = new ResultT<>();
+        List<HostConfigDto> list = hostConfigService.findAllHostIp();
+        resultT.setData(list);
+        return resultT;
+    }
+
+    @ApiOperation(value = "查询所有链路IP", notes = "查询所有链路IP")
+    @GetMapping("/findAllLinkIp")
+    public ResultT<List<HostConfigDto>> findAllLinkIp() {
+        ResultT<List<HostConfigDto>> resultT = new ResultT<>();
+        List<HostConfigDto> list = hostConfigService.findAllLinkIp();
+        resultT.setData(list);
+        return resultT;
+    }
+
 }

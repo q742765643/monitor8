@@ -13,4 +13,5 @@ public class SystemQueryDto {
     private String endTime;
     @ApiModelProperty(value = "设备类型 11 未知 0 服务器 1网络设备 2进程 3文件")
     private Integer deviceType;
+    private String[] taskIds;
 }

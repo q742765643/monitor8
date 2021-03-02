@@ -166,7 +166,7 @@ public class FileSmaService extends FileBaseService {
             long finalEndTime = endTime;
             SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             resultT.setSuccessMessage("资料时间范围>{}<={}",format1.format(finalBeginTime),format1.format(finalEndTime));
-            fileMonitorLogDto.setErrorReason(resultT.getMsg());
+            fileMonitorLogDto.setErrorReason(resultT.getProcessMsg().toString());
             fileFilter = new SmbFileFilter() {
                 @Override
                 public boolean accept(SmbFile smbFile) throws SmbException {

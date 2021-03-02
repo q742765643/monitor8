@@ -4,4 +4,7 @@
     <delete id="deleteRecord">
       delete from ${table} where create_time &lt;= #{endTime}
     </delete>
+    <delete id="optimizeTable">
+      optimize table ${table}
+    </delete>
 </mapper>

@@ -43,4 +43,8 @@ public interface HostConfigService {
     public void getUpdateTime(HostConfigDto hostConfigDto);
 
     public void getPacketLoss(HostConfigDto hostConfigDto);
+
+    public List<HostConfigDto> findAllLinkIp();
+
+    public List<HostConfigDto> findAllHostIp();
 }

@@ -41,6 +41,8 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequest;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeResponse;
 import org.elasticsearch.action.admin.indices.template.delete.DeleteIndexTemplateRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -58,11 +60,7 @@ import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.IndexTemplatesExistRequest;
-import org.elasticsearch.client.indices.PutIndexTemplateRequest;
+import org.elasticsearch.client.indices.*;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -315,5 +313,26 @@ public class ElasticSearch7Client extends ElasticSearchClient {
     public void deleteByQueryRequest(DeleteByQueryRequest request) throws IOException {
         BulkByScrollResponse resp = client.deleteByQuery(request, RequestOptions.DEFAULT);
         System.out.println(resp.getStatus().getUpdated());
+    }
+    public void forceMerge(){
+        ForceMergeRequest requestAll = new ForceMergeRequest();
+        requestAll.maxNumSegments(1);
+        requestAll.onlyExpungeDeletes(true);
+        try {
+            ForceMergeResponse forceMergeResponse = client.indices().forcemerge(requestAll, RequestOptions.DEFAULT);
+            log.info(forceMergeResponse.getStatus().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateMapping(String index,Map<String , Object> source){
+        PutMappingRequest request=new PutMappingRequest(index);
+        request.source(source);
+        try {
+            AcknowledgedResponse acknowledged = client.indices().putMapping(request, RequestOptions.DEFAULT);
+            log.info(String.valueOf(acknowledged.isAcknowledged()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

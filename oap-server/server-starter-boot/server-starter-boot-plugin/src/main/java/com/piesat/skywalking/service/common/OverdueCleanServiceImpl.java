@@ -17,7 +17,9 @@ public class OverdueCleanServiceImpl implements OverdueCleanService {
     private OverdueCleanMapper overdueCleanMapper;
 
     public int deleteRecord(String table,String endTime){
-        return overdueCleanMapper.deleteRecord(table,endTime);
+         overdueCleanMapper.deleteRecord(table,endTime);
+         overdueCleanMapper.optimizeTable(table);
+        return 1;
     }
 }
 

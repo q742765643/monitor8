@@ -70,7 +70,7 @@
 #    listOfServers: 127.0.0.1:12800
 
 server:
-  port: 8080
+  port: 12800
 spring:
   application:
     name: gateway_server
@@ -123,7 +123,7 @@ hystrix:
 collector:
   ribbon:
     # Point to all backend's restHost:restPort, split by ,
-    listOfServers: 10.1.100.35:12801
+    listOfServers: 127.0.0.1:12801
 
 log:
   path: ../src/sod_server/logs

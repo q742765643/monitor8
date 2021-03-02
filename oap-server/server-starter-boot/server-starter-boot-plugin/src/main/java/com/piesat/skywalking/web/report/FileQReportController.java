@@ -37,25 +37,25 @@ public class FileQReportController {
     }
 
     @ApiOperation(value = "文件报表", notes = "文件报表")
-    @GetMapping("/findFileReport")
-    public ResultT<Map<String, Object>> findFileReport(SystemQueryDto systemQueryDto,@RequestParam(value = "taskIds[]",required = false) String taskIds[]) {
+    @PostMapping("/findFileReport")
+    public ResultT<Map<String, Object>> findFileReport(@RequestBody SystemQueryDto systemQueryDto) {
         ResultT<Map<String, Object>> resultT = new ResultT<>();
         List<String> task=new ArrayList<>();
-        if(null!=taskIds){
-            task=Arrays.asList(taskIds);
+        if(null!=systemQueryDto.getTaskIds()){
+            task=Arrays.asList(systemQueryDto.getTaskIds());
         }
         Map<String,Object> list = fileQReportService.findFileReport(systemQueryDto,task);
         resultT.setData(list);
         return resultT;
     }
     @ApiOperation(value = "查询缺报", notes = "查询缺报")
-    @GetMapping("/selectPageListDetail")
-    public ResultT<Map<String, Object>> selectPageListDetail(SystemQueryDto systemQueryDto,@RequestParam(value = "taskIds[]",required = false) String taskIds[]) {
+    @PostMapping("/selectPageListDetail")
+    public ResultT<Map<String, Object>> selectPageListDetail(@RequestBody SystemQueryDto systemQueryDto) {
 
         ResultT<Map<String, Object>> resultT = new ResultT<>();
         List<String> task=new ArrayList<>();
-        if(null!=taskIds){
-            task=Arrays.asList(taskIds);
+        if(null!=systemQueryDto.getTaskIds()){
+            task=Arrays.asList(systemQueryDto.getTaskIds());
         }
         Map<String,Object> list = fileQReportService.selectPageListDetail(systemQueryDto,task);
         resultT.setData(list);
@@ -71,11 +71,11 @@ public class FileQReportController {
         return resultT;
     }
     @ApiOperation(value = "导出文件报表", notes = "导出文件报表")
-    @GetMapping("/exportFileReport")
-    public void exportFileReport(SystemQueryDto systemQueryDto,@RequestParam(value = "taskIds[]",required = false) String taskIds[]){
+    @PostMapping("/exportFileReport")
+    public void exportFileReport(@RequestBody SystemQueryDto systemQueryDto){
         List<String> task=new ArrayList<>();
-        if(null!=taskIds){
-            task=Arrays.asList(taskIds);
+        if(null!=systemQueryDto.getTaskIds()){
+            task=Arrays.asList(systemQueryDto.getTaskIds());
         }
         fileQReportService.exportFileReport(systemQueryDto,task);
     }
@@ -91,10 +91,10 @@ public class FileQReportController {
 
     @ApiOperation(value = "导出文件报表pdf", notes = "导出文件报表pdf")
     @PostMapping("/exportFileReportPdf")
-    public void exportFileReportPdf(SystemQueryDto systemQueryDto,@RequestParam(value = "taskIds[]",required = false) String taskIds[]){
+    public void exportFileReportPdf(@RequestBody SystemQueryDto systemQueryDto){
         List<String> task=new ArrayList<>();
-        if(null!=taskIds){
-            task=Arrays.asList(taskIds);
+        if(null!=systemQueryDto.getTaskIds()){
+            task=Arrays.asList(systemQueryDto.getTaskIds());
         }
         fileQReportService.exportFileReportPdf(systemQueryDto,task);
     }

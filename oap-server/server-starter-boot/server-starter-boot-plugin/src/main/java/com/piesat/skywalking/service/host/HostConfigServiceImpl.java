@@ -15,6 +15,7 @@ import com.piesat.skywalking.mapper.HostConfigMapper;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
 import com.piesat.util.JsonParseUtil;
+import com.piesat.util.NullUtil;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 import lombok.SneakyThrows;
@@ -37,10 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class HostConfigServiceImpl extends BaseService<HostConfigEntity> implements HostConfigService {
@@ -65,11 +63,14 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
     public PageBean selectPageList(PageForm<HostConfigDto> pageForm) {
         HostConfigEntity host = hostConfigMapstruct.toEntity(pageForm.getT());
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
+        if(null!=pageForm.getT().getIps()&&pageForm.getT().getIps().length>0){
+            specificationBuilder.add("ip", SpecificationOperator.Operator.inn.name(), Arrays.asList(pageForm.getT().getIps()));
+        }
         if (StringUtils.isNotNullString(host.getIp())) {
-            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), host.getIp());
+            specificationBuilder.add("ip", SpecificationOperator.Operator.likeAll.name(), host.getIp());
         }
         if (StringUtils.isNotNullString(host.getTaskName())) {
-            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), host.getTaskName());
+            specificationBuilder.add("taskName", SpecificationOperator.Operator.likeAll.name(), host.getTaskName());
         }
         if (StringUtils.isNotNullString((String) host.getParamt().get("beginTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) host.getParamt().get("beginTime"));
@@ -104,10 +105,10 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigdto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(hostConfig.getIp())) {
-            specificationBuilder.addOr("ip", SpecificationOperator.Operator.likeAll.name(), hostConfig.getIp());
+            specificationBuilder.add("ip", SpecificationOperator.Operator.likeAll.name(), hostConfig.getIp());
         }
         if (StringUtils.isNotNullString(hostConfig.getTaskName())) {
-            specificationBuilder.addOr("taskName", SpecificationOperator.Operator.likeAll.name(), hostConfig.getTaskName());
+            specificationBuilder.add("taskName", SpecificationOperator.Operator.likeAll.name(), hostConfig.getTaskName());
         }
         if (StringUtils.isNotNullString((String) hostConfig.getParamt().get("beginTime"))) {
             specificationBuilder.add("createTime", SpecificationOperator.Operator.ges.name(), (String) hostConfig.getParamt().get("beginTime"));
@@ -350,5 +351,19 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
             e.printStackTrace();
         }
 
+    }
+    public List<HostConfigDto> findAllLinkIp(){
+        HostConfigDto hostConfigdto=new HostConfigDto();
+        NullUtil.changeToNull(hostConfigdto);
+        hostConfigdto.setDeviceType(1);
+        List<HostConfigDto> hostConfigDtos=this.selectBySpecification(hostConfigdto);
+        return hostConfigDtos;
+    }
+    public List<HostConfigDto> findAllHostIp(){
+        HostConfigDto hostConfigdto=new HostConfigDto();
+        NullUtil.changeToNull(hostConfigdto);
+        hostConfigdto.setDeviceType(0);
+        List<HostConfigDto> hostConfigDtos=this.selectBySpecification(hostConfigdto);
+        return hostConfigDtos;
     }
 }

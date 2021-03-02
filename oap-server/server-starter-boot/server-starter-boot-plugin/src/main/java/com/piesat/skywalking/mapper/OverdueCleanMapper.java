@@ -7,4 +7,6 @@ public interface OverdueCleanMapper {
 
     public int deleteRecord(@Param("table") String table, @Param("endTime") String endTime);
 
+    public void optimizeTable(@Param("table") String table);
+
 }

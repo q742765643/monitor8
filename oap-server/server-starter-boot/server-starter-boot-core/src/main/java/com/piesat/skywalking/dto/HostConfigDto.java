@@ -84,4 +84,7 @@ public class HostConfigDto extends HtJobInfoDto {
      */
     @ApiModelProperty(value = "备注")
     private String remark;
+
+    @ApiModelProperty(value = "ip列表")
+    private String[] ips;
 }

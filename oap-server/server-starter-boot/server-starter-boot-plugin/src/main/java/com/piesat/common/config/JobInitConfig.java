@@ -81,7 +81,6 @@ public class JobInitConfig implements ApplicationRunner {
         Map<String, Object> settings = createSetting();
         Map<String, Object> mapping = createMapping(c);
         try {
-            if (!elasticSearch7Client.isExistsIndex(indexName)){
                 if(indexName.indexOf("metricbeat")>-1){
                     InputStream inputStream = ResourceUtils.readToStream("metricbeat.json");
                     String json = new BufferedReader(new InputStreamReader(inputStream))
@@ -90,12 +89,20 @@ public class JobInitConfig implements ApplicationRunner {
                     mapping=gson.fromJson(json,Map.class);
                     settings.put("index.mapping.total_fields.limit",30000);
                     SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-                    boolean isAcknowledged = elasticSearch7Client.createTemplate(indexName, settings, mapping);
+                    if (!elasticSearch7Client.isExistsIndex(indexName)) {
+                        boolean isAcknowledged = elasticSearch7Client.createTemplate(indexName, settings, mapping);
+                    }else {
+                        elasticSearch7Client.updateMapping(indexName,mapping);
+                    }
                 }else{
-                    elasticSearch7Client.createIndex(indexName,settings,mapping);
+                    if (!elasticSearch7Client.isExistsIndex(indexName)) {
+                        elasticSearch7Client.createIndex(indexName,settings,mapping);
+                    }else {
+                        elasticSearch7Client.updateMapping(indexName,mapping);
+                    }
 
                 }
-            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
