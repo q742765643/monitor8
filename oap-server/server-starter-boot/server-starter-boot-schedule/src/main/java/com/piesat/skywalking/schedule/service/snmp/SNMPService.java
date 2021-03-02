@@ -387,7 +387,7 @@ public class SNMPService {
 
     @SneakyThrows
     public void diskMap(SNMPSessionUtil snmp, Map<String, Object> basicInfo, List<Map<String, Object>> esList) {
-        String[] sysDisk = {//"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
+        String[] sysDisk = {"1.3.6.1.2.1.25.2.3.1.2",  //type 存储单元类型
                 "1.3.6.1.2.1.25.2.3.1.3",  //descr
                 "1.3.6.1.2.1.25.2.3.1.4",  //unit 存储单元大小
                 "1.3.6.1.2.1.25.2.3.1.5",  //size 总存储单元数
@@ -400,19 +400,19 @@ public class SNMPService {
         for (TableEvent event : tableEvents) {
             Map<String, Object> source = this.metricbeatMap("filesystem", basicInfo);
             VariableBinding[] values = event.getColumns();
-            if (values == null)
+            if (values == null || !DISK_OID.equals(values[0].getVariable().toString()))
                 continue;
-            String diskName = values[0].getVariable().toString();
+            String diskName = values[1].getVariable().toString();
             //先注释掉
-          /*  if(diskName.indexOf("kubernetes")!=-1||diskName.indexOf("docker")!=-1){
+            if(diskName.indexOf("kubernetes")!=-1||diskName.indexOf("docker")!=-1){
                 continue;
-            }*/
-            BigDecimal unit = new BigDecimal(values[1].getVariable().toString());//unit 存储单元大小
-            BigDecimal totalSize = new BigDecimal(values[2].getVariable().toString()).multiply(unit);//size 总存储单元数
+            }
+            BigDecimal unit = new BigDecimal(values[2].getVariable().toString());//unit 存储单元大小
+            BigDecimal totalSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//size 总存储单元数
             if(totalSize.longValue()<=0){
                 totalSize = totalSize.multiply(new BigDecimal(2)).abs();
             }
-            BigDecimal usedSize = new BigDecimal(values[3].getVariable().toString()).multiply(unit);//use
+            BigDecimal usedSize = new BigDecimal(values[4].getVariable().toString()).multiply(unit);//use
             BigDecimal usePct = usedSize.divide(totalSize, 4, BigDecimal.ROUND_HALF_UP);
             fsstatUse += usedSize.longValue();
             fsstatTotal += totalSize.longValue();

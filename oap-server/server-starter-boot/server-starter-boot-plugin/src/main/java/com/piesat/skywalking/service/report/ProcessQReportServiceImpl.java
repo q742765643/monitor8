@@ -292,7 +292,7 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String[] titles=new String[]{"平均cpu使用率","平均内存使用率"};
+        String[] titles=new String[]{"平均cpu使用率","最大内存(K)"};
         List<Map<String,Object>> dataList=new ArrayList<>();
         for(int i=0;i<titles.length;i++){
             Map<String,Object> map=new HashMap<>();
@@ -324,6 +324,7 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
         result.put("title",titles);
         result.put("time",timeSet);
         result.put("data",dataList);
+        result.put("currentStatus",query.getCurrentStatus());
         return result;
     }
 

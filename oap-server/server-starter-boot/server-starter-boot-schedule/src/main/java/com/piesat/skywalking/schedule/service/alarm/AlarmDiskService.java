@@ -142,7 +142,7 @@ public class AlarmDiskService extends AlarmBaseService {
                 //boolFileBuilder.mustNot(wildKubernetes);
                 SearchSourceBuilder fileSearch = new SearchSourceBuilder();
                 fileSearch.query(boolFileBuilder);
-                String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct"};
+                String[] fields = new String[]{"system.filesystem.mount_point", "system.filesystem.free", "system.filesystem.used.pct","system.filesystem.used.bytes"};
                 fileSearch.fetchSource(fields, null);
                 fileSearch.size(1000);
                 SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", fileSearch);
@@ -155,6 +155,9 @@ public class AlarmDiskService extends AlarmBaseService {
                     Map<String, Object> filesystem = (Map<String, Object>) system.get("filesystem");
                     Map<String, Object> used = (Map<String, Object>) filesystem.get("used");
                     fileSystemVo.setDiskName((String) filesystem.get("mount_point"));
+                    if(fileSystemVo.getDiskName().indexOf("/root")!=-1){
+                        continue;
+                    }
                     fileSystemVo.setFree(new BigDecimal(String.valueOf(filesystem.get("free"))).divide(new BigDecimal(1024 * 1024 * 1024), 4, BigDecimal.ROUND_HALF_UP));
                     fileSystemVo.setUsage((new BigDecimal(String.valueOf(used.get("pct"))).multiply(new BigDecimal(100)).setScale(4,BigDecimal.ROUND_HALF_UP)));
                     fileSystemVos.add(fileSystemVo);
