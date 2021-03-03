@@ -2,12 +2,12 @@
   <div id="dataState">
     <div>
       <planeTitle titleName="数据状态">
-        <!-- <div slot="right" class="lengend">
-          <div class="item" v-for="(item, index) in states" :key="index">
+        <div slot="right" class="lengend">
+          <div class="item" v-for="(item, index) in distList" :key="index">
             <span class="color" :style="{ background: item.color }"></span>
-            <span class="text">{{ item.label }}</span>
+            <span class="text">{{ item.name }}</span>
           </div>
-        </div> -->
+        </div>
       </planeTitle>
     </div>
     <div id="data_contnet"></div>
@@ -26,19 +26,17 @@ export default {
   components: { planeTitle },
   data() {
     return {
+      distList: [
+        { color: '#efefef', name: '无采集' },
+        { color: '#fcff13', name: '一般' },
+        { color: 'red', name: '严重' },
+        { color: '#0cb218', name: '正常' },
+      ],
       charts: '',
       hoursList: [],
       dataList: [],
       daysList: [],
       tipsList: [],
-      states: [
-        { label: '一般', value: 0, color: '#FCAB13' },
-        { label: '严重', value: 1, color: '#FD651A' },
-        { label: '故障', value: 2, color: '#9C82ED' },
-        { label: '正常', value: 3, color: '#2BB9F7' },
-        { label: '未执行', value: 4, color: '#FF0000' },
-        { label: '未启动', value: 5, color: '#0CB218' },
-      ],
     };
   },
   methods: {

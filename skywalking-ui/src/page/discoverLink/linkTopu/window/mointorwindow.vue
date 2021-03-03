@@ -38,12 +38,16 @@
                   <span>{{ parseTime(scope.row.updateTime) }}</span>
                 </template>
               </vxe-table-column>
-              <vxe-table-column
-                field="currentStatus"
-                title="进程状态"
-                :formatter="formatAlarmLevel"
-                show-overflow
-              ></vxe-table-column>
+              <vxe-table-column field="currentStatus" title="进程状态" show-overflow>
+                <template slot-scope="scope">
+                  <span
+                    v-if="selectDictLabel(alarmLevelOptions, scope.row.currentStatus) == '危险'"
+                    style="color: red"
+                    >{{ selectDictLabel(alarmLevelOptions, scope.row.currentStatus) }}</span
+                  >
+                  <span v-else>{{ selectDictLabel(alarmLevelOptions, scope.row.currentStatus) }}</span>
+                </template>
+              </vxe-table-column>
             </vxe-table>
           </div>
         </div>
@@ -454,7 +458,21 @@ export default {
             show: true,
 
             formatter: function (data) {
-              return XAxisData[data.dataIndex] + '<br>' + '已用空间:' + data.data + 'GB';
+              return (
+                XAxisData[data.dataIndex] +
+                '<br>' +
+                '总量:' +
+                (Number(data.data) + Number(result[data.dataIndex]['free'])).toFixed(2) +
+                'GB' +
+                '<br>' +
+                '可用:' +
+                result[data.dataIndex]['free'] +
+                'GB' +
+                '<br>' +
+                '已用空间:' +
+                data.data +
+                'GB'
+              );
             },
           },
           xAxis: {
