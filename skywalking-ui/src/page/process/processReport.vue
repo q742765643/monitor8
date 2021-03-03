@@ -62,7 +62,7 @@ export default {
       charts: [],
       colors: ['#428AFF', '#6c50f3', '#00ca95'],
       chartType: ['bar', 'line', 'line'],
-      name: ['离线时长', '最大cpu使用率', '最大内存使用率'],
+      name: ['离线时长', '最大cpu使用率', '最大内存(K)'],
       tableheight: null,
       tableData: [],
       dateRange: [],

@@ -54,17 +54,20 @@ service.interceptors.response.use(
       return response;
     }
     const code = response.data.code;
-    if (code !== 200) {
+    if (code !== 200 && code !== 401) {
       notification.open({
         message: '错误',
         description: response.data.msg,
         onClick: () => { },
       });
-      if (code == 401) {
-        router.push("/login");
-      }
+      // if (code == 401) {
+      //   router.push("/login");
+      // }
       return Promise.reject(new Error(response.data.msg));
-    } else {
+    } else if (code == 401) {
+      router.push("/login");
+    }
+    else {
       let res = response.data;
       return res;
     }
