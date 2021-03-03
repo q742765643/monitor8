@@ -412,7 +412,7 @@ export default {
         area: '',
         location: '',
         currentStatus: '',
-        deviceType: '1'
+        deviceType: 1
       };
       this.visibleModel = true;
     },

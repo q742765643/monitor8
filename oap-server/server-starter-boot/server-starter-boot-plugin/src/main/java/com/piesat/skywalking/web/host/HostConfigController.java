@@ -12,7 +12,9 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,6 +108,26 @@ public class HostConfigController {
         ResultT<List<HostConfigDto>> resultT = new ResultT<>();
         List<HostConfigDto> list = hostConfigService.findAllLinkIp();
         resultT.setData(list);
+        return resultT;
+    }
+
+    @ApiOperation(value = "模板导出", notes = "模板导出")
+    @PostMapping("/exportExcel")
+    public void exportExcel(){
+        hostConfigService.exportExcel();
+    }
+
+    @ApiOperation(value = "文件上传", notes = "文件上传")
+    @PostMapping(value = "/upload")
+    @ResponseBody
+    public ResultT<String> uploadExcel(@RequestParam("files")  MultipartFile[] files) throws Exception {
+        ResultT<String> resultT=new ResultT<>();
+        for (MultipartFile multipartFile:files) {
+            InputStream inputStream = multipartFile.getInputStream();
+            hostConfigService.uploadExcel(inputStream);
+            inputStream.close();
+        }
+
         return resultT;
     }
 

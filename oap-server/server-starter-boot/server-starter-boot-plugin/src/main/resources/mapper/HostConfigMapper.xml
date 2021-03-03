@@ -5,5 +5,8 @@
         select current_status as name,count(*) as value
          from t_mt_host_config  group by current_status
     </select>
+    <update id="updateStatus">
+        update t_mt_host_config set current_status= #{currentStatus} where id=#{id}
+    </update>
 
 </mapper>

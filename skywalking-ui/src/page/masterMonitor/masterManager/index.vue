@@ -26,6 +26,12 @@
         <a-col :span="1.5">
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="exportExcel"> 导入模板导出 </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="openUpload"> 批量导入 </a-button>
+        </a-col>
       </a-row>
       <div id="toolbar">
         <vxe-toolbar custom>
@@ -227,6 +233,30 @@
         <a-row> </a-row>
       </a-form-model>
     </a-modal>
+    <a-modal
+            v-model="uploadModel"
+            :title="文件上传"
+            width="40%"
+            :maskClosable="false"
+            :centered="true"
+            :footer="null"
+    >
+      <div class="clearfix">
+        <a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
+          <a-button> <a-icon type="upload" />选择文件 </a-button>
+        </a-upload>
+        <a-button
+                type="primary"
+                :disabled="fileList.length === 0"
+                :loading="uploading"
+                style="margin-top: 16px"
+                @click="handleUpload"
+        >
+          {{ uploading ? '上传中' : '开始上传' }}
+        </a-button>
+      </div>
+
+    </a-modal>
   </div>
 </template>
 <style lang="scss" scoped></style>
@@ -288,6 +318,9 @@ export default {
       rules: {
         jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
       }, //规则
+      fileList: [],
+      uploading: false,
+      uploadModel:false,
     };
   },
   created() {
@@ -484,7 +517,7 @@ export default {
           }
         });
       } else {
-        this.form.deviceType='1'
+        this.form.deviceType=0
         request({
           url: '/hostConfig',
           method: 'post',
@@ -537,6 +570,52 @@ export default {
       }).then((response) => {
         this.$message.success('停止成功');
         this.handleQuery();
+      });
+    },
+    exportExcel() {
+      request({
+        url: '/hostConfig/exportExcel',
+        method: 'post',
+        responseType: 'arraybuffer',
+      }).then((res) => {
+        this.downloadfileCommon(res);
+      });
+    },
+    handleRemove(file) {
+      const index = this.fileList.indexOf(file);
+      const newFileList = this.fileList.slice();
+      newFileList.splice(index, 1);
+      this.fileList = newFileList;
+    },
+    beforeUpload(file) {
+      this.fileList = [...this.fileList, file];
+      return false;
+    },
+    openUpload(){
+      this.uploadModel=true;
+      this.fileList=[];
+    },
+    handleUpload() {
+      const {fileList} = this;
+      const formData = new FormData();
+      fileList.forEach(file => {
+        formData.append('files', file);
+      });
+      request({
+        url: '/hostConfig/upload',
+        method: 'post',
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: formData}).then((response) => {
+        this.fileList = [];
+        this.uploading = false;
+        if (response.code === 200) {
+          this.$message.success('上传成功');
+          this.handleQuery();
+        }else {
+          this.$message.error('上传失败');
+        }
       });
     },
   },

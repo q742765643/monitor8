@@ -111,7 +111,7 @@ pagehelper:
   support-methods-arguments: true
   params: count=countSql
 fileUpload:
-  savaPath: /root/sod/java/sod/file/upload
+  savaPath: D:/gitcangku
   httpPath: /upload
 serverfile:
   dbfile: /root/sod/java/sod/file/upload/dbfile

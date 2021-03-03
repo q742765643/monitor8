@@ -113,7 +113,6 @@ public class Ping {
     public static List<String> GetPingSuccess(List<String> ips) throws Exception {
         ArrayList<String> list = new ArrayList<>();
         for (String ip : ips) {
-            System.out.println("正在ping：" + ip);
             if (Ping.ping(ip)) {
                 list.add(ip);
             }

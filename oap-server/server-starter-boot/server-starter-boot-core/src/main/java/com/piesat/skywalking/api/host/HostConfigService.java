@@ -7,6 +7,7 @@ import com.piesat.util.constant.GrpcConstant;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -49,4 +50,8 @@ public interface HostConfigService {
     public List<HostConfigDto> findAllHostIp();
 
     public void upateStatus(HostConfigDto hostConfigDto);
+
+    public void exportExcel();
+
+    public void uploadExcel(InputStream inputStream);
 }

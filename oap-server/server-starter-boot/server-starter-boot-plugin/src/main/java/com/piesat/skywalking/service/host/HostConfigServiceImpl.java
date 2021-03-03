@@ -5,12 +5,15 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
+import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.constant.IndexNameConstant;
 import com.piesat.skywalking.api.alarm.AlarmEsLogService;
 import com.piesat.skywalking.api.host.HostConfigService;
 import com.piesat.skywalking.dao.HostConfigDao;
 import com.piesat.skywalking.dto.HostConfigDto;
+import com.piesat.skywalking.entity.FileMonitorEntity;
 import com.piesat.skywalking.entity.HostConfigEntity;
+import com.piesat.skywalking.excel.HostTempVo;
 import com.piesat.skywalking.mapper.HostConfigMapper;
 import com.piesat.skywalking.mapstruct.HostConfigMapstruct;
 import com.piesat.skywalking.service.quartz.timing.HostConfigQuartzService;
@@ -30,6 +33,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -164,7 +169,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         newHost.setId(hostConfigDto.getId());
         newHost.setCurrentStatus(hostConfigDto.getCurrentStatus());
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(newHost);
-        super.saveNotNull(hostConfig);
+        hostConfigMapper.updateStatus(hostConfig);
     }
     public HostConfigDto updateHost(HostConfigDto hostConfigDto) {
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
@@ -374,5 +379,40 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         hostConfigdto.setDeviceType(0);
         List<HostConfigDto> hostConfigDtos=this.selectBySpecification(hostConfigdto);
         return hostConfigDtos;
+    }
+    public void exportExcel(){
+        ExcelUtil<HostTempVo> util = new ExcelUtil(HostTempVo.class);
+        List<HostTempVo> hostTempVos=new ArrayList<>();
+        HostTempVo hostTempVo=new HostTempVo();
+        hostTempVo.setTaskName("样例");
+        hostTempVo.setHostName("localhost");
+        hostTempVo.setMediaType(0);
+        hostTempVo.setIp("127.0.0.1");
+        hostTempVo.setMonitoringMethods(3);
+        hostTempVo.setMac("00:00:00:00");
+        hostTempVo.setGateway("255.255.255.0");
+        hostTempVo.setArea(0);
+        hostTempVo.setLocation("第一排");
+        hostTempVos.add(hostTempVo);
+        util.exportExcel(hostTempVos, "主机-批量导入模板");
+    }
+
+    public void uploadExcel(InputStream inputStream){
+        ExcelUtil<HostTempVo> util = new ExcelUtil(HostTempVo.class);
+        try {
+            List<HostTempVo> hostTempVos = util.importExcel(inputStream);
+            for(int i=0;i<hostTempVos.size();i++){
+                HostConfigDto hostConfigDto=new HostConfigDto();
+                BeanUtils.copyProperties(hostTempVos.get(i),hostConfigDto);
+                hostConfigDto.setCurrentStatus(11);
+                hostConfigDto.setTriggerStatus(1);
+                hostConfigDto.setDeviceType(0);
+                hostConfigDto.setJobCron(new Random().nextInt(29)+"/30 * * * * ?");
+                this.save(hostConfigDto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

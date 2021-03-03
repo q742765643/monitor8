@@ -236,7 +236,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         fileMonitorEntity.setRangeTime(0);
         fileMonitorEntity.setRangeUnit("M");
         fileMonitorEntities.add(fileMonitorEntity);
-        util.exportExcel(fileMonitorEntities, "批量导入模板");
+        util.exportExcel(fileMonitorEntities, "文件配置-批量导入模板");
     }
     public void uploadExcel(InputStream inputStream){
         ExcelUtil<FileMonitorEntity> util = new ExcelUtil(FileMonitorEntity.class);
@@ -244,6 +244,7 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
             List<FileMonitorEntity> fileMonitorEntities = util.importExcel(inputStream);
             for(int i=0;i<fileMonitorEntities.size();i++){
                 fileMonitorEntities.get(i).setScanType(1);
+                fileMonitorEntities.get(i).setTriggerStatus(0);
             }
             super.save(fileMonitorEntities);
         } catch (Exception e) {

@@ -248,7 +248,7 @@
                 style="margin-top: 16px"
                 @click="handleUpload"
         >
-          {{ uploading ? 'Uploading' : '开始上传' }}
+          {{ uploading ? '上传中' : '开始上传' }}
         </a-button>
       </div>
 
@@ -564,25 +564,22 @@ export default {
       fileList.forEach(file => {
         formData.append('files', file);
       });
-      this.uploading = true;
       request({
         url: '/fileMonitor/upload',
         method: 'post',
         headers: {
           'Content-Type': 'multipart/form-data'
         },
-        data: formData,
-        success: () => {
+        data: formData}).then((response) => {
           this.fileList = [];
           this.uploading = false;
-          this.$message.success('上传成功');
-        },
-        error: () => {
-          this.uploading = false;
-          this.$message.error('上传失败');
-        },
-
-      })
+          if (response.code === 200) {
+              this.$message.success('上传成功');
+              this.handleQuery();
+          }else {
+              this.$message.error('上传失败');
+          }
+       });
     },
   },
 };

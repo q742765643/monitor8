@@ -364,7 +364,10 @@ public class FileQReportServiceImpl implements FileQReportService {
         stringBuilder.append(atime).append("至").append(btime).append(" ");
         stringBuilder.append("平均到报率为").append(hjoQuoteRateC).append("%,");
         stringBuilder.append("其中,").append(fate).append("天到报率为100%,").append(list.size()-fate).append("天存在缺报");
-        stringBuilder.append(zlBl).append("到报率为100%");
+        if(zlBl.length()<1){
+            zlBl.append("无资料");
+        }
+        stringBuilder.append(","+zlBl).append("到报率为100%");
         mapHjR.put("hjC",hjoQuoteRateC);
         mapHjR.put("timestamp","(日期)平均");
         list.add(mapHjR);

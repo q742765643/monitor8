@@ -118,6 +118,10 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                 String[] ipStr=autoDiscoveryDto.getIpRange().split(",");
                 ips=Arrays.asList(ipStr);
                 //ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange(), 24);
+            } else if(autoDiscoveryDto.getIpRange().indexOf("，") != -1){
+                String[] ipStr=autoDiscoveryDto.getIpRange().split("，");
+                ips=Arrays.asList(ipStr);
+                //ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange(), 24);
             }
         } catch (Exception e) {
             e.printStackTrace();
