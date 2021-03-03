@@ -495,7 +495,7 @@ export default {
 
           yAxis: {
             type: 'category',
-            data: ['750', '750', '750', '750', '750', '750', '750'],
+            //data: ['750', '750', '750', '750', '750', '750', '750'],
             splitLine: {
               show: false,
             },
@@ -514,7 +514,7 @@ export default {
           },
           series: [
             {
-              barWidth: 20,
+              barWidth: 10,
               name: '前',
               type: 'bar',
               barGap: 0,
@@ -531,15 +531,18 @@ export default {
               label: {
                 show: true,
                 position: 'insideleft',
-                offset: [10, 5],
+                offset: [10, 0],
                 formatter: function (data) {
                   return XAxisData[data.dataIndex];
+                },
+                textStyle: {
+                  fontSize: '12px',
                 },
               },
               data: YAxisData,
             },
             {
-              barWidth: 20,
+              barWidth: 10,
               name: '背景',
               type: 'bar',
               color: 'RGBA(25,25,25,0.3)',

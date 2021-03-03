@@ -1,6 +1,6 @@
 <template>
   <div id="distributAlarm">
-    <div><planeTitle titleName="告警分布"></planeTitle></div>
+    <div><planeTitle titleName="监控总览"></planeTitle></div>
     <div id="alarmChart" style="height: calc(100% - 56px)"></div>
   </div>
 </template>
@@ -60,7 +60,7 @@ export default {
       let option = {
         title: [
           {
-            text: '监控总览',
+            text: '监控对象分布',
             left: '25%',
             textAlign: 'center',
             textStyle: {
