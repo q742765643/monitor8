@@ -165,7 +165,7 @@ export default {
           fontFamily: 'Alibaba-PuHuiTi-Regular',
         },
         title: {
-          text: '全网链路运行情况表',
+          text: '(' + this.dateRange[0] + '至' + this.dateRange[1] + ')' + '链路运行情况报表',
           left: 'center',
           top: '10px',
           textStyle: {

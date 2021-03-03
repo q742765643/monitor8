@@ -33,7 +33,7 @@
         </vxe-toolbar>
       </div>
       <vxe-table :data="tableData" align="center" highlight-hover-row ref="tablevxe">
-        <vxe-table-column type="checkbox"></vxe-table-column>
+        <vxe-table-column type="checkbox" width="50"></vxe-table-column>
         <vxe-table-column field="taskName" title="网段名称"></vxe-table-column>
         <vxe-table-column field="jobCron" title="cron策略" show-overflow></vxe-table-column>
         <vxe-table-column field="ipRange" title="ip范围" show-overflow></vxe-table-column>

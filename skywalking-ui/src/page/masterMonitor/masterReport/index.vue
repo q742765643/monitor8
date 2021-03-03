@@ -13,7 +13,7 @@
     </div>
 
     <div class="tableDateBox">
-      <p id="title">服务器监视情况</p>
+      <p id="title">({{ this.dateRange[0] }}至{{ this.dateRange[1] }})服务器运行情况报表</p>
       <div id="dataPlane">
         <div id="report_chartdiv">
           <div id="alarmChart"></div>
