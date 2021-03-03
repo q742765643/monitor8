@@ -15,6 +15,7 @@ import com.piesat.skywalking.util.Ping;
 import com.piesat.util.JsonParseUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
+import com.piesat.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.elasticsearch.action.search.SearchResponse;
@@ -86,7 +87,8 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
                         hostConfig.setJobCron(new Random().nextInt(29)+"/30 * * * * ?");
                         //hostConfig.setId(ip);
                         hostConfig.setTriggerStatus(1);
-                        hostConfigService.save(hostConfig);
+                        //hostConfigService.save(hostConfig);
+                        this.findHost(hostConfig);
                     } else {
                         hostConfig.setJobCron(new Random().nextInt(29)+"/30 * * * * ?");
                         //hostConfig.setId(ip);
@@ -112,8 +114,10 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         try {
             if (autoDiscoveryDto.getIpRange().indexOf("-") != -1) {
                 ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange());
-            } else {
-                ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange(), 24);
+            } else if(autoDiscoveryDto.getIpRange().indexOf(",") != -1){
+                String[] ipStr=autoDiscoveryDto.getIpRange().split(",");
+                ips=Arrays.asList(ipStr);
+                //ips = GetRangeIpUtil.GetIpListWithMask(autoDiscoveryDto.getIpRange(), 24);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,14 +281,22 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
 
     }
     public void findHost(HostConfigDto hostConfig){
-        if(3==hostConfig.getMonitoringMethods()){
-            HostConfigDto qh=new HostConfigDto();
-            NullUtil.changeToNull(qh);
-            qh.setIp(hostConfig.getIp());
-            List<HostConfigDto>  hostConfigDtos=hostConfigService.selectBySpecification(qh);
-            if(null!=hostConfigDtos&&hostConfigDtos.size()>0){
+        HostConfigDto qh=new HostConfigDto();
+        NullUtil.changeToNull(qh);
+        qh.setIp(hostConfig.getIp());
+        List<HostConfigDto>  hostConfigDtos=hostConfigService.selectBySpecification(qh);
+        if(null!=hostConfigDtos&&hostConfigDtos.size()>0){
+            HostConfigDto old=hostConfigDtos.get(0);
+            if(3==hostConfig.getMonitoringMethods()){
                 return;
             }
+            if(3!=old.getMonitoringMethods()){
+                return;
+            }
+            if(StringUtil.isEmpty(old.getHostName())){
+                hostConfig.setHostName(old.getHostName());
+            }
+
         }
         hostConfigService.save(hostConfig);
     }

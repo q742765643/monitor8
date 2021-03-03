@@ -5,6 +5,7 @@ import com.piesat.common.jpa.BaseService;
 import com.piesat.common.jpa.specification.SimpleSpecificationBuilder;
 import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
+import com.piesat.common.utils.poi.ExcelUtil;
 import com.piesat.skywalking.api.alarm.AlarmEsLogService;
 import com.piesat.skywalking.api.folder.FileMonitorService;
 import com.piesat.skywalking.dao.FileMonitorDao;
@@ -21,6 +22,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -216,5 +219,35 @@ public class FileMonitorServiceImpl extends BaseService<FileMonitorEntity> imple
         }
         fileMonitorDto.setDelayTime(fileMonitorDto.getDelayTime()+time);
     }
-
+    public void exportExcel(){
+        ExcelUtil<FileMonitorEntity> util = new ExcelUtil(FileMonitorEntity.class);
+        List<FileMonitorEntity> fileMonitorEntities=new ArrayList<>();
+        FileMonitorEntity fileMonitorEntity=new FileMonitorEntity();
+        fileMonitorEntity.setTaskName("样列");
+        fileMonitorEntity.setFolderRegular("/sharedata/grapes");
+        fileMonitorEntity.setFilenameRegular("Z_NAFP_C_BABJ_${yyyyMMddHH,-8H}0000_P_[\\w\\W]*");
+        fileMonitorEntity.setFileSample("/sharedata/grapes/Z_NAFP_C_BABJ_20210203030000_P_NWPC-GRAPES-3KM-ORIG-02600.grb2");
+        fileMonitorEntity.setFileNum(10);
+        fileMonitorEntity.setFileSize(10);
+        fileMonitorEntity.setIsUt(0);
+        fileMonitorEntity.setJobCron("0 0 15,3 * * ?");
+        fileMonitorEntity.setDelayStart(1);
+        fileMonitorEntity.setDelayStartUnit("H");
+        fileMonitorEntity.setRangeTime(0);
+        fileMonitorEntity.setRangeUnit("M");
+        fileMonitorEntities.add(fileMonitorEntity);
+        util.exportExcel(fileMonitorEntities, "批量导入模板");
+    }
+    public void uploadExcel(InputStream inputStream){
+        ExcelUtil<FileMonitorEntity> util = new ExcelUtil(FileMonitorEntity.class);
+        try {
+            List<FileMonitorEntity> fileMonitorEntities = util.importExcel(inputStream);
+            for(int i=0;i<fileMonitorEntities.size();i++){
+                fileMonitorEntities.get(i).setScanType(1);
+            }
+            super.save(fileMonitorEntities);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

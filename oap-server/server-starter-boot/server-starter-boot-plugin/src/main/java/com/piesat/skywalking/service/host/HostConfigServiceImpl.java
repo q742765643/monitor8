@@ -105,7 +105,7 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigdto);
         SimpleSpecificationBuilder specificationBuilder = new SimpleSpecificationBuilder();
         if (StringUtils.isNotNullString(hostConfig.getIp())) {
-            specificationBuilder.add("ip", SpecificationOperator.Operator.likeAll.name(), hostConfig.getIp());
+            specificationBuilder.add("ip", SpecificationOperator.Operator.eq.name(), hostConfig.getIp());
         }
         if (StringUtils.isNotNullString(hostConfig.getTaskName())) {
             specificationBuilder.add("taskName", SpecificationOperator.Operator.likeAll.name(), hostConfig.getTaskName());
@@ -156,6 +156,15 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
             hostConfigQuartzService.handleJob(hostConfigMapstruct.toDto(hostConfigNew));
         }
         return hostConfigMapstruct.toDto(hostConfig);
+    }
+
+    public void upateStatus(HostConfigDto hostConfigDto){
+        HostConfigDto newHost=new HostConfigDto();
+        NullUtil.changeToNull(newHost);
+        newHost.setId(hostConfigDto.getId());
+        newHost.setCurrentStatus(hostConfigDto.getCurrentStatus());
+        HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(newHost);
+        super.saveNotNull(hostConfig);
     }
     public HostConfigDto updateHost(HostConfigDto hostConfigDto) {
         HostConfigEntity hostConfig = hostConfigMapstruct.toEntity(hostConfigDto);
