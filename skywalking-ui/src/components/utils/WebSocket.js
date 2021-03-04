@@ -87,19 +87,33 @@ function initEventHandle(setSocketData) {
       } else if (msgInfo.level == 2) {
         level = '故障';
       }
-      for (let key in notifications) {
+      window.wsonmessage.$notify.error({
+        customClass: 'wsErrorNotification',
+        title: '警告',
+        dangerouslyUseHTMLString: true,
+        message:
+          '<p>时间：' +
+          parseTime(msgInfo.timestamp) +
+          '</p>' +
+          '<p>告警级别：' +
+          level +
+          '</p>' +
+          '<p>告警信息：' +
+          msgInfo.message +
+          '</p>',
+      })
+     /*  for (let key in notifications) {
         setTimeout(() => {
           if (notifications[key]) {
             notifications[key].close();
             delete notifications[key];
           }
-        }, 300);
+        }, 3000);
       }
       let notificationItem = window.wsonmessage.$notify.error({
         customClass: 'wsErrorNotification',
         title: '警告',
         dangerouslyUseHTMLString: true,
-        duration: 0,
         message:
           '<p>时间：' +
           parseTime(msgInfo.timestamp) +
@@ -111,7 +125,7 @@ function initEventHandle(setSocketData) {
           msgInfo.message +
           '</p>',
       });
-      notifications.push(notificationItem);
+      notifications.push(notificationItem); */
     }
   };
 }
