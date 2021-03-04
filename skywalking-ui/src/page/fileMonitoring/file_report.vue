@@ -4,7 +4,7 @@
   <div class="managerTemplate">
     <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="资料">
-        <a-select mode="multiple" style="width:1000px" v-model="queryParams.taskIds" placeholder="目标主机">
+        <a-select mode="multiple" style="width:1000px" v-model="queryParams.taskIds" placeholder="资料任务">
           <a-select-option v-for="host in taskIds" :key="host.taskId">
             {{ host.title }}
           </a-select-option>
@@ -21,6 +21,7 @@
         </div>
       </div>
     <div class="tableDateBox">
+      <div class="fileTitleClass">{{fileTitle}}</div>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center"  :merge-cells="mergeCells"
       >
         <vxe-table-column field="timestamp" title="时间" >
@@ -44,6 +45,7 @@
 
 
     <div class="tableDateBox">
+      <div class="fileTitleClass">{{infoTitle}}</div>
       <vxe-table border ref="xTable" :data="tableDataDetail" stripe align="center"
       >
         <vxe-table-column field="taskName" title="资料名称"></vxe-table-column>
@@ -137,7 +139,9 @@ export default {
         "id":'',
         "errorReason":'',
         "remark":'',
-      }
+      },
+      fileTitle: "",
+      infoTitle: '',
     };
   },
   created() {
@@ -173,6 +177,12 @@ export default {
 
       this.fetch();
       this.selectPageListDetail();
+      let start = this.queryParams.startTime.slice(0,10)
+      let end = this.queryParams.endTime.slice(0,10)
+      start = start.replace(/-/g, '/');
+      end = end.replace(/-/g, '/');
+      this.fileTitle = '('+ start + '至' + end + ")" +' 资料监视文件到报率报告';
+      this.infoTitle = '('+ start + '至' + end + ")" +' 资料缺报详情报告';
     },
     handleEdit(row) {
       this.formDialog.id=row.id
@@ -250,4 +260,10 @@ export default {
   },
 };
 </script>
-<style scoped></style>
+<style scoped>
+.fileTitleClass {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+</style>
