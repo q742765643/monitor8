@@ -502,7 +502,7 @@ export default {
         data: data,
       }).then((response) => {
         this.$message.success('设置成功');
-        this.handleQuery();
+        this.queryTable();
       });
     },
     startJob(row) {

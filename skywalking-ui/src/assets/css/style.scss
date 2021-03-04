@@ -327,6 +327,11 @@ body {
         margin-bottom: 0;
         padding-bottom: 30px;
     }
+
+    .hasFlexbox {
+        display: flex;
+        align-items: center;
+    }
 }
 
 .timerSelect {

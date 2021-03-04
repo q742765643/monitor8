@@ -41,7 +41,12 @@ export default {
   async created() {
     await this.getDicts('media_area').then((response) => {
       this.legendList = response.data;
+      this.legendList.push({
+        remark: 'red',
+        dictLabel: '告警',
+      });
     });
+
     await request({
       url: '/networkTopy/getTopy',
       method: 'get',
@@ -99,7 +104,6 @@ export default {
         {
           drawShape: function drawShape(cfg, group) {
             var firstFill = '';
-
             let img = computerIcon;
             if (cfg.mediaType == 1 || cfg.mediaType == 0) {
               img = serveiceIcon;
@@ -113,18 +117,27 @@ export default {
 
             let color = '#6666ff';
             if (cfg.area == 0) {
-              color = '#f109b4';
+              color = '#f109b4'; //办公区
             }
             if (cfg.area == 1) {
-              color = '#2dd246';
+              color = '#2dd246'; //值班区
             }
             if (cfg.area == 2) {
-              color = '#ff9700';
+              color = '#ff9700'; //机房区
             }
-            if (cfg.area == 3) {
-              color = '#a183a3';
+            if (cfg.area == 3 || !cfg.area) {
+              color = '#a183a3'; //其他区
+            }
+            if (cfg.currentStatus == 2) {
+              color = 'red';
             }
             const r = 2;
+            let taskName = '';
+            if (cfg.taskName) {
+              taskName = cfg.taskName;
+            } else {
+              taskName = '未命名';
+            }
 
             group.addShape('image', {
               attrs: {
@@ -143,7 +156,7 @@ export default {
                 y: 45,
                 x: 15,
                 lineHeight: 20,
-                text: cfg.ip,
+                text: taskName + '\n' + cfg.ip,
                 fill: 'rgba(0,0,0, 0.4)',
                 textAlign: 'center',
                 fontSize: 10,

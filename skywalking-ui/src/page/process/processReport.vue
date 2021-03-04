@@ -30,12 +30,11 @@
         <vxe-table-column field="alarmNum" title="告警次数"></vxe-table-column>
         <vxe-table-column field="maxCpuPct" title="最大cpu使用率"></vxe-table-column>
         <vxe-table-column field="avgCpuPct" title="平均cpu使用率"></vxe-table-column>
-<!--
+        <!--
         <vxe-table-column field="maxMemoryPct" title="最大内存使用率"></vxe-table-column>
 -->
         <vxe-table-column field="maxMemorySize" title="最大内存(K)"></vxe-table-column>
         <vxe-table-column field="avgMemorySize" title="平均内存(K)"></vxe-table-column>
-
       </vxe-table>
     </div>
   </div>
@@ -136,7 +135,7 @@ export default {
           fontFamily: 'Alibaba-PuHuiTi-Regular',
         },
         title: {
-          text: '进程运行情况表',
+          text: '(' + this.dateRange[0] + '至' + this.dateRange[1] + ')' + '软件运行情况报表',
           left: 'center',
           textStyle: {
             fontSize: remFontSize(14 / 64),
