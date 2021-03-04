@@ -101,6 +101,7 @@
                 <i></i>
               </span>
               <span>
+                <a-button type="primary" style="margin-right: 10px" @click="setAttribute(infoData.id, infoData.ip)"> 设置属性 </a-button>
                 <a-button type="primary" @click="handleEdit(infoData.id, infoData.ip)"> 设置链路 </a-button>
               </span>
             </div>
@@ -146,6 +147,8 @@
         </a-row>
       </a-form-model>
     </a-modal>
+    <!-- 设置属性 -->
+    <Attribute :attributeId="attributeId"  @sendVisible="sendVisible($event)"  v-if="attributevisible"></Attribute>
   </div>
 </template>
 
@@ -154,6 +157,7 @@ import echarts from 'echarts';
 /* import toupuChart from './toupuchart/toupuchart'; */
 import topuTree from './toupuchart/toputree1';
 import planeTitle from '@/components/titile/planeTitle.vue';
+import Attribute from '@/page/discoverLink/linkTopu/attribute.vue'
 import { remFontSize } from '@/components/utils/fontSize.js';
 import request from '@/utils/request';
 import hongtuConfig from '@/utils/services';
@@ -181,9 +185,11 @@ export default {
       formDialog: {
         target: [],
       },
+      attributeId: "",
+      attributevisible: false,
     };
   },
-  components: { /* toupuChart ,*/ topuTree, planeTitle },
+  components: { /* toupuChart ,*/ topuTree, planeTitle, Attribute },
   methods: {
     /* 字典格式化 */
     statusFormat(list, text) {
@@ -219,6 +225,31 @@ export default {
         this.hostLists = response.data;
       });
     },
+    setAttribute(id,ip) {
+      // 设置属性
+      this.attributeId = id;
+      this.attributevisible = true;
+    },
+    sendVisible() {
+      debugger
+      this.attributevisible = false;
+    },
+    // attributrHandleOk() {
+    //   this.$refs.formAttributeModel.validate((valid) => {
+    //     if (valid) {
+    //       hongtuConfig.hostConfigPost(this.formAttributeDialog).then((response) => {
+    //         if (response.code == 200) {
+    //           this.$message.success(this.dialogTitle + '成功');
+    //           this.setAttributeModel = false;
+    //           // this.queryTable();
+    //         }
+    //       });
+    //     } else {
+    //       console.log('error submit!!');
+    //       return false;
+    //     }
+    //   });
+    // },
     handleEdit(id, ip) {
       /* 新增 */
       this.dialogTitle = '设置链路';

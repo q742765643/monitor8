@@ -7,7 +7,6 @@
         <a-button type="primary" @click="exportEventPdf" style="margin-right: 10px"> 导出pdf </a-button>
       </div>
 
-
     </div>
     <div class="tableDateBox">
       <div id="barlineChart"></div>

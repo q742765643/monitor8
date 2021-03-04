@@ -1,9 +1,10 @@
 <template>
 
+
   <div class="managerTemplate">
-    <a-form-model :model="queryParams" class="queryForm">
+    <a-form-model layout="inline" :model="queryParams" class="queryForm">
       <a-form-model-item label="资料">
-        <a-select mode="multiple" v-model="queryParams.taskIds" placeholder="目标主机">
+        <a-select mode="multiple" style="width:1000px" v-model="queryParams.taskIds" placeholder="目标主机">
           <a-select-option v-for="host in taskIds" :key="host.taskId">
             {{ host.title }}
           </a-select-option>
@@ -13,7 +14,7 @@
       <div class="hasHandleExportBox">
         <selectDate @changeDate="onTimeChange" :handleDiffRange="7"></selectDate>
         <div>
-          <a-button type="primary" html-type="submit" @click="handleQuery"> 搜索 </a-button>
+          <a-button type="primary" html-type="submit" style="margin-right: 10px" @click="handleQuery"> 搜索 </a-button>
           <a-button type="primary" @click="exportEventXls" style="margin-right: 10px"> 导出excel </a-button>
           <a-button type="primary" @click="exportEventPdf" style="margin-right: 10px"> 导出pdf </a-button>
 
@@ -41,6 +42,7 @@
       </vxe-table>
     </div>
 
+
     <div class="tableDateBox">
       <vxe-table border ref="xTable" :data="tableDataDetail" stripe align="center"
       >
@@ -63,7 +65,7 @@
         <vxe-table-column field="realFileSize" title="实到大小(KB)" width="80"></vxe-table-column>
         <vxe-table-column field="errorReason" title="原因" width="80"></vxe-table-column>
         <vxe-table-column field="remark" title="值班员备注" width="80"></vxe-table-column>
-        <vxe-table-column width="80" field="date" title="操作">
+        <vxe-table-column width="120" field="date" title="操作">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
           </template>

@@ -76,7 +76,7 @@
             <a-button type="primary" icon="edit" @click="updateAsHost(row)"> 设为主机 </a-button>
             <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
             <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
-            <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
+            <a-button type="primary" icon="edit" @click="handleEdit(row.id)"> 编辑 </a-button>
             <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
           </template>
         </vxe-table-column>
@@ -228,15 +228,18 @@
         </a-row>
       </a-form-model>
     </a-modal>
+    <Attribute :attributeId="attributeId"  @sendVisible="sendVisible($event)"  v-if="attributevisible"></Attribute>
   </div>
 </template>
 
 <script>
 import echarts from 'echarts';
+import Attribute from '@/page/discoverLink/linkTopu/attribute.vue'
 // 接口地址
 import hongtuConfig from '@/utils/services';
 import request from '@/utils/request';
 export default {
+  components: { Attribute },
   data() {
     //校验是否为cron表达式
     var handleCronValidate = async (rule, value, callback) => {
@@ -298,6 +301,8 @@ export default {
       }, //规则
       cronExpression: '',
       cronPopover: false,
+      attributevisible: false,
+      attributeId: "",
     };
   },
   created() {
@@ -415,7 +420,16 @@ export default {
       };
       this.visibleModel = true;
     },
-    /* 编辑 */
+    // 编辑
+    handleEdit(id) {
+      this.attributeId = id;
+      this.attributevisible = true;
+    },
+    sendVisible() {
+      debugger
+      this.attributevisible = false;
+    },
+    /* 编辑 
     handleEdit(row) {
       this.cronPopover = false;
       hongtuConfig.hostConfigDetail(row.id).then((response) => {
@@ -425,7 +439,7 @@ export default {
           this.dialogTitle = '编辑';
         }
       });
-    },
+    },*/
     /* 确认 */
     handleOk() {
       this.$refs.formModel.validate((valid) => {

@@ -48,12 +48,13 @@ export default {
         let dataAll = data.data;
         this.chartlegend = dataAll.title;
         this.timeList = dataAll.time;
+        debugger
         dataAll.data.forEach((element) => {
           if (element.name == '平均cpu使用率') {
             element.data.forEach((item) => {
               this.cpuList.push(item);
             });
-          } else if (element.name == '平均内存使用率') {
+          } else if (element.name == '最大内存(K)') {
             element.data.forEach((item) => {
               this.memoryList.push(item);
             });
@@ -130,7 +131,7 @@ export default {
           },
           {
             type: 'value',
-            name: '(%)',
+            name: '(K)',
             min: 0,
             position: 'left',
             axisTick: {
@@ -147,7 +148,7 @@ export default {
               show: false,
             },
             axisLabel: {
-              formatter: '{value}%',
+              formatter: '{value}',
               fontSize: remFontSize(12 / 64),
             },
           },
@@ -165,7 +166,7 @@ export default {
             },
           },
           {
-            name: '平均内存使用率',
+            name: '最大内存(K)',
             type: 'line',
             yAxisIndex: 1,
             data: this.memoryList,
