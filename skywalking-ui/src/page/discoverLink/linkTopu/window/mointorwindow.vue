@@ -18,6 +18,10 @@
           <planeTitle titleName="网络流量"></planeTitle>
           <div class="chart" id="netChart">暂无数据</div>
         </div>
+        <div id="Temperature" class="plane">
+          <planeTitle titleName="温度"></planeTitle>
+          <div class="chart" id="temperatureChart">暂无数据</div>
+        </div>
       </div>
       <div class="cell2">
         <div id="Ram" class="plane">
@@ -82,6 +86,7 @@ export default {
       chart3: '',
       chart4: '',
       chart5: '',
+      chart6: '',
       ip: '',
       parentPageName: '',
     };
@@ -115,6 +120,8 @@ export default {
     this.drawChart2('netChart');
     this.drawChart3('ramChart');
     this.drawChart4('pakChart');
+    this.drawChart6('temperatureChart');
+
     this.setTableHeight();
 
     window.addEventListener('resize', () => {
@@ -645,6 +652,102 @@ export default {
         this.tableData = data.data;
       });
     },
+    drawChart6(id) {
+      let params = {
+        ip: this.ip,
+        startTime: this.parseTime(new Date().getTime() - 10 * 1000 * 60),
+        endTime: this.parseTime(new Date().getTime()),
+      };
+      let XAxisData = [];
+      let YAxisData = [];
+      request({
+        url: '/system/getTemperature',
+        method: 'get',
+        params: params,
+      }).then((data) => {
+        let result = data.data;
+        if (result.length == 0) {
+          return;
+        }
+        this.chart6 = echarts.init(document.getElementById(id));
+        result.forEach((item) => {
+          XAxisData.push(item.timestamp);
+          YAxisData.push(item.usage);
+        });
+        let option = {
+          textStyle: {
+            fontFamily: 'Alibaba-PuHuiTi-Regular',
+          },
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            boundaryGap: false,
+            type: 'category',
+            data: XAxisData,
+            axisTick: { show: false },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+            },
+          },
+          grid: { left: '15%', top: '10%', right: '5%', bottom: '15%' },
+          color: '#15E125',
+
+          yAxis: {
+            type: 'value',
+            // boundaryGap: [0, '60%'],
+            axisTick: { show: false },
+
+            splitLine: {
+              lineStyle: {
+                color: 'rgba(65,65,65,0.35)',
+                width: 0.5,
+              },
+            },
+            axisLabel: {
+              fontSize: remFontSize(12 / 64),
+              formatter: function (value) {
+                return value + '°C';
+              },
+            },
+          },
+          series: [
+            {
+              data: YAxisData,
+              type: 'line',
+              color: '#7c80f4',
+              lineStyle: { width: 1 },
+              areaStyle: {
+                //区域填充样式
+                normal: {
+                  color: new echarts.graphic.LinearGradient(
+                          0,
+                          0,
+                          0,
+                          1,
+                          [
+                            {
+                              offset: 0,
+                              color: 'rgba(124, 128, 244,.5)',
+                            },
+                            {
+                              offset: 1,
+                              color: 'rgba(124, 128, 244, 0.1)',
+                            },
+                          ],
+                          false,
+                  ),
+                  shadowColor: 'rgba(53,142,215, 0.9)',
+                  shadowBlur: 20,
+                },
+              },
+            },
+          ],
+        };
+        this.chart6.setOption(option);
+      });
+    },
+
   },
 };
 </script>
@@ -702,6 +805,9 @@ export default {
         }
       }
       div:nth-child(2) {
+        margin: 0 10px;
+      }
+      div:nth-child(3) {
         margin: 0 10px;
       }
     }

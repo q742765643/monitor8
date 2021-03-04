@@ -553,4 +553,64 @@ public class SystemService {
         }
         return cpuVos;
     }
+
+    public List<CpuVo> getTemperature(SystemQueryDto systemQueryDto) {
+        List<CpuVo> cpuVos = new ArrayList<>();
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.temperature");
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", systemQueryDto.getIp());
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(systemQueryDto.getStartTime());
+        rangeQueryBuilder.lte(systemQueryDto.getEndTime());
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        searchSourceBuilder.query(boolBuilder);
+
+        DateHistogramAggregationBuilder dateHis = AggregationBuilders.dateHistogram("@timestamp");
+        dateHis.field("@timestamp");
+        dateHis.dateHistogramInterval(DateHistogramInterval.minutes(3));
+
+        AvgAggregationBuilder avgCpu = AggregationBuilders.avg("usage");
+        avgCpu.field("temperature");
+        avgCpu.format("0.0000");
+
+        Script selectCpu = new Script("params.usage>=0");
+        Map<String, String> selectCpuMap = new HashMap<>();
+        selectCpuMap.put("usage", "usage");
+        BucketSelectorPipelineAggregationBuilder bucketSelector = PipelineAggregatorBuilders.bucketSelector("selectCpu", selectCpuMap, selectCpu);
+
+        dateHis.subAggregation(avgCpu);
+        dateHis.subAggregation(bucketSelector);
+        searchSourceBuilder.aggregation(dateHis);
+        searchSourceBuilder.size(0);
+        try {
+            SearchResponse searchResponse = elasticSearch7Client.search(IndexNameConstant.METRICBEAT + "-*", searchSourceBuilder);
+
+            Aggregations aggregations = searchResponse.getAggregations();
+            ParsedDateHistogram parsedDateHistogram = aggregations.get("@timestamp");
+            List<? extends Histogram.Bucket> buckets = parsedDateHistogram.getBuckets();
+            if (buckets.size() > 0) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Shanghai"));
+                for (int i = 0; i < buckets.size(); i++) {
+                    CpuVo cpuVo = new CpuVo();
+                    Histogram.Bucket bucket = buckets.get(i);
+                    ZonedDateTime date = (ZonedDateTime) bucket.getKey();
+                    cpuVo.setTimestamp(formatter.format(date));
+                    ParsedAvg parsedAvg = bucket.getAggregations().get("usage");
+                    if (parsedAvg != null) {
+                        cpuVo.setUsage(new BigDecimal(parsedAvg.getValueAsString()).setScale(2,BigDecimal.ROUND_HALF_UP));
+                    }
+                    cpuVos.add(cpuVo);
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cpuVos;
+    }
 }

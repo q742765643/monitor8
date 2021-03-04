@@ -9,6 +9,7 @@ import com.piesat.skywalking.om.protocol.snmp.SNMPSessionUtil;
 import com.piesat.ucenter.rpc.api.system.DictDataService;
 import com.piesat.ucenter.rpc.dto.system.DictDataDto;
 import com.piesat.util.ResultT;
+import com.piesat.util.StringUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,12 @@ public class NetworkTopyController {
             node.put("currentStatus", hostConfig.getCurrentStatus());
             node.put("mediaType", hostConfig.getMediaType());
             node.put("area", hostConfig.getArea());
+            if(StringUtil.isEmpty(hostConfig.getTaskName())){
+                node.put("taskName", "未命名");
+            }else {
+                node.put("taskName", hostConfig.getTaskName());
+            }
+
             nodeList.add(node);
         }
         map.put("nodes", nodeList);

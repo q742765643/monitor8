@@ -28,6 +28,12 @@
         <a-col :span="1.5">
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="exportExcel"> 导入模板导出 </a-button>
+        </a-col>
+        <a-col :span="1.5">
+          <a-button type="primary" icon="plus" @click="openUpload"> 批量导入 </a-button>
+        </a-col>
       </a-row>
       <div id="toolbar">
         <vxe-toolbar custom>
@@ -223,6 +229,31 @@
         </a-row>
       </a-form-model>
     </a-modal>
+    <a-modal
+            v-model="uploadModel"
+            :title="文件上传"
+            width="40%"
+            :maskClosable="false"
+            :centered="true"
+            :footer="null"
+    >
+      <div class="clearfix">
+        <a-upload :file-list="fileList" :remove="handleRemove" :before-upload="beforeUpload">
+          <a-button> <a-icon type="upload" />选择文件 </a-button>
+        </a-upload>
+        <a-button
+                type="primary"
+                :disabled="fileList.length === 0"
+                :loading="uploading"
+                style="margin-top: 16px"
+                @click="handleUpload"
+        >
+          {{ uploading ? 'Uploading' : '开始上传' }}
+        </a-button>
+      </div>
+
+    </a-modal>
+
   </div>
 </template>
 
@@ -289,6 +320,9 @@ export default {
       cronExpression: '',
       cronPopover: false,
       dateRange: [],
+      fileList: [],
+      uploading: false,
+      uploadModel:false,
     };
   },
   components: { selectDate },
@@ -500,6 +534,55 @@ export default {
         this.$message.success('停止成功');
         this.queryTable();
       });
+    },
+    exportExcel() {
+      request({
+        url: '/fileMonitor/exportExcel',
+        method: 'post',
+        responseType: 'arraybuffer',
+      }).then((res) => {
+        this.downloadfileCommon(res);
+      });
+    },
+    handleRemove(file) {
+      const index = this.fileList.indexOf(file);
+      const newFileList = this.fileList.slice();
+      newFileList.splice(index, 1);
+      this.fileList = newFileList;
+    },
+    beforeUpload(file) {
+      this.fileList = [...this.fileList, file];
+      return false;
+    },
+    openUpload(){
+      this.uploadModel=true;
+      this.fileList=[];
+    },
+    handleUpload() {
+      const {fileList} = this;
+      const formData = new FormData();
+      fileList.forEach(file => {
+        formData.append('files', file);
+      });
+      this.uploading = true;
+      request({
+        url: '/fileMonitor/upload',
+        method: 'post',
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: formData,
+        success: () => {
+          this.fileList = [];
+          this.uploading = false;
+          this.$message.success('上传成功');
+        },
+        error: () => {
+          this.uploading = false;
+          this.$message.error('上传失败');
+        },
+
+      })
     },
   },
 };

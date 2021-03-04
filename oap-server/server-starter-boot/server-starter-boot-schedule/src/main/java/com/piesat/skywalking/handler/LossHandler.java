@@ -86,7 +86,7 @@ public class LossHandler implements BaseHandler {
             this.outageStatistics(hostConfigDto,flag);
             long level=this.findLevel(hostConfigDto.getId());
             hostConfigDto.setCurrentStatus((int) level);
-            hostConfigService.save(hostConfigDto);
+            hostConfigService.updateHost(hostConfigDto);
         } catch (Exception e) {
             e.printStackTrace();
         }

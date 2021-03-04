@@ -8,6 +8,7 @@ import com.piesat.util.constant.GrpcConstant;
 import com.piesat.util.page.PageBean;
 import com.piesat.util.page.PageForm;
 
+import java.io.InputStream;
 import java.util.List;
 
 @GrpcHthtService(server = GrpcConstant.SCHEDULE_SERVER, serialization = SerializeType.PROTOSTUFF)
@@ -31,5 +32,9 @@ public interface FileMonitorService {
     public void trigger(String id);
 
     public List<FileMonitorDto> selectAll();
+
+    public void exportExcel();
+
+    public void uploadExcel(InputStream inputStream);
 
 }

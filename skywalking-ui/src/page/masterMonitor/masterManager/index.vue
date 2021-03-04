@@ -484,6 +484,7 @@ export default {
           }
         });
       } else {
+        this.form.deviceType='1'
         request({
           url: '/hostConfig',
           method: 'post',

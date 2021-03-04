@@ -47,4 +47,6 @@ public interface HostConfigService {
     public List<HostConfigDto> findAllLinkIp();
 
     public List<HostConfigDto> findAllHostIp();
+
+    public void upateStatus(HostConfigDto hostConfigDto);
 }

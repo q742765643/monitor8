@@ -83,4 +83,13 @@ public class SystemController {
         resultT.setData(list);
         return resultT;
     }
+
+    @ApiOperation(value = "查询温度", notes = "查询温度")
+    @GetMapping("/getTemperature")
+    public ResultT<List<CpuVo>> getTemperature(SystemQueryDto systemQueryDto){
+        ResultT<List<CpuVo>> resultT = new ResultT<>();
+        List<CpuVo> list = systemService.getTemperature(systemQueryDto);
+        resultT.setData(list);
+        return resultT;
+    }
 }

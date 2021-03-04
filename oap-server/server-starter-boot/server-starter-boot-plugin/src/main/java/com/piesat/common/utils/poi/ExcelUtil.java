@@ -1,3 +1,4 @@
+/*
 package com.piesat.common.utils.poi;
 
 import com.piesat.common.annotation.Excel;
@@ -35,50 +36,70 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
+*/
 /**
  * @program: sod
  * @description:
  * @author: zzj
  * @create: 2020-03-09 12:13
- **/
+ **//*
+
 @Slf4j
 public class ExcelUtil<T> {
 
-    /**
+    */
+/**
      * Excel sheet最大行数，默认65536
-     */
+     *//*
+
     public static final int sheetSize = 65536;
-    /**
+    */
+/**
      * 实体对象
-     */
+     *//*
+
     public Class<T> clazz;
-    /**
+    */
+/**
      * 工作表名称
-     */
+     *//*
+
     private String sheetName;
-    /**
+    */
+/**
      * 导出类型（EXPORT:导出数据；IMPORT：导入模板）
-     */
+     *//*
+
     private Excel.Type type;
-    /**
+    */
+/**
      * 工作薄对象
-     */
+     *//*
+
     private Workbook wb;
-    /**
+    */
+/**
      * 工作表对象
-     */
+     *//*
+
     private Sheet sheet;
-    /**
+    */
+/**
      * 样式列表
-     */
+     *//*
+
     private Map<String, CellStyle> styles;
-    /**
+    */
+/**
      * 导入导出数据列表
-     */
+     *//*
+
     private List<T> list;
-    /**
+    */
+/**
      * 注解列表
-     */
+     *//*
+
     private List<Object[]> fields;
     private boolean isHb = false;
 
@@ -91,14 +112,16 @@ public class ExcelUtil<T> {
         this.clazz = clazz;
     }
 
-    /**
+    */
+/**
      * 解析导出值 0=男,1=女,2=未知
      *
      * @param propertyValue 参数值
      * @param converterExp  翻译注解
      * @return 解析后值
      * @throws Exception
-     */
+     *//*
+
     public static String convertByExp(String propertyValue, String converterExp) throws Exception {
         try {
             String[] convertSource = converterExp.split(",");
@@ -114,14 +137,16 @@ public class ExcelUtil<T> {
         return propertyValue;
     }
 
-    /**
+    */
+/**
      * 反向解析值 男=0,女=1,未知=2
      *
      * @param propertyValue 参数值
      * @param converterExp  翻译注解
      * @return 解析后值
      * @throws Exception
-     */
+     *//*
+
     public static String reverseByExp(String propertyValue, String converterExp) throws Exception {
         try {
             String[] convertSource = converterExp.split(",");
@@ -148,23 +173,27 @@ public class ExcelUtil<T> {
         createWorkbook();
     }
 
-    /**
+    */
+/**
      * 对excel表单默认第一个索引名转换成list
      *
      * @param is 输入流
      * @return 转换后集合
-     */
+     *//*
+
     public List<T> importExcel(InputStream is) throws Exception {
         return importExcel(StringUtils.EMPTY, is);
     }
 
-    /**
+    */
+/**
      * 对excel表单指定表格索引名转换成list
      *
      * @param sheetName 表格索引名
      * @param is        输入流
      * @return 转换后集合
-     */
+     *//*
+
     public List<T> importExcel(String sheetName, InputStream is) throws Exception {
         this.type = Excel.Type.IMPORT;
         this.wb = WorkbookFactory.create(is);
@@ -266,34 +295,40 @@ public class ExcelUtil<T> {
         return list;
     }
 
-    /**
+    */
+/**
      * 对list数据源将其里面的数据导入到excel表单
      *
      * @param list      导出数据集合
      * @param sheetName 工作表的名称
      * @return 结果
-     */
+     *//*
+
     public void exportExcel(List<T> list, String sheetName) {
         this.init(list, sheetName, Excel.Type.EXPORT);
         exportExcel();
     }
 
-    /**
+    */
+/**
      * 对list数据源将其里面的数据导入到excel表单
      *
      * @param sheetName 工作表的名称
      * @return 结果
-     */
+     *//*
+
     public void importTemplateExcel(String sheetName) {
         this.init(null, sheetName, Excel.Type.IMPORT);
         exportExcel();
     }
 
-    /**
+    */
+/**
      * 对list数据源将其里面的数据导入到excel表单
      *
      * @return 结果
-     */
+     *//*
+
     public void exportExcel() {
         HttpServletResponse response = ServletUtils.getResponse();
         OutputStream out = null;
@@ -346,12 +381,14 @@ public class ExcelUtil<T> {
         }
     }
 
-    /**
+    */
+/**
      * 填充excel数据
      *
      * @param index 序号
      * @param row   单元格行
-     */
+     *//*
+
     public void fillExcelData(int index,int st, Row row) {
         int startNo = index * sheetSize;
         int endNo = Math.min(startNo + sheetSize, list.size());
@@ -420,7 +457,8 @@ public class ExcelUtil<T> {
                         }
 
 
-                      /*  if(column>0&&!String.valueOf(oldv).equals(String.valueOf(oldn))){
+                      */
+/*  if(column>0&&!String.valueOf(oldv).equals(String.valueOf(oldn))){
                             int num=poi.get(column);
                             if(num<oldPoi.get(0)){
                                 num=oldPoi.get(0);
@@ -434,8 +472,10 @@ public class ExcelUtil<T> {
                         if(column>0&&String.valueOf(oldv).equals(String.valueOf(oldn))){
                             int num=poi.get(column);
 
-                        }*/
-                        /*if(column>0&&!String.valueOf(oldv).equals(String.valueOf(oldn))){
+                        }*//*
+
+                        */
+/*if(column>0&&!String.valueOf(oldv).equals(String.valueOf(oldn))){
                             if(indexT-1!=poi.get(column)){
                                 CellRangeAddress cra=new CellRangeAddress(poi.get(column),indexT-1,column,column);
                                 sheet.addMergedRegion(cra);
@@ -456,7 +496,8 @@ public class ExcelUtil<T> {
                                 poi.put(column,indexT);
 
                             }
-                        }*/
+                        }*//*
+
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -473,12 +514,14 @@ public class ExcelUtil<T> {
 
     }
 
-    /**
+    */
+/**
      * 创建表格样式
      *
      * @param wb 工作薄对象
      * @return 样式列表
-     */
+     *//*
+
     private Map<String, CellStyle> createStyles(Workbook wb) {
         // 写入各条记录,每条记录对应excel表中的一行
         // 写入各条记录,每条记录对应excel表中的一行
@@ -526,9 +569,11 @@ public class ExcelUtil<T> {
         return styles;
     }
 
-    /**
+    */
+/**
      * 创建单元格
-     */
+     *//*
+
     public Cell createCell(Excel attr, Row row, int column) {
         // 创建列
         Cell cell = row.createCell(column);
@@ -539,13 +584,15 @@ public class ExcelUtil<T> {
         return cell;
     }
 
-    /**
+    */
+/**
      * 设置单元格信息
      *
      * @param value 单元格值
      * @param attr  注解相关
      * @param cell  单元格信息
-     */
+     *//*
+
     public void setCellVo(Object value, Excel attr, Cell cell) {
         if (Excel.ColumnType.STRING == attr.cellType()) {
             cell.setCellType(CellType.NUMERIC);
@@ -556,9 +603,11 @@ public class ExcelUtil<T> {
         }
     }
 
-    /**
+    */
+/**
      * 创建表格样式
-     */
+     *//*
+
     public void setDataValidation(Excel attr, Row row, int column) {
         if (attr.name().indexOf("注：") >= 0) {
             sheet.setColumnWidth(column, 6000);
@@ -580,9 +629,11 @@ public class ExcelUtil<T> {
         }
     }
 
-    /**
+    */
+/**
      * 添加单元格
-     */
+     *//*
+
     public Cell addCell(Excel attr, Row row, T vo, Field field, int column) {
         Cell cell = null;
         try {
@@ -612,7 +663,8 @@ public class ExcelUtil<T> {
         return cell;
     }
 
-    /**
+    */
+/**
      * 设置 POI XSSFSheet 单元格提示
      *
      * @param sheet         表单
@@ -622,7 +674,8 @@ public class ExcelUtil<T> {
      * @param endRow        结束行
      * @param firstCol      开始列
      * @param endCol        结束列
-     */
+     *//*
+
     public void setXSSFPrompt(Sheet sheet, String promptTitle, String promptContent, int firstRow, int endRow,
                               int firstCol, int endCol) {
         DataValidationHelper helper = sheet.getDataValidationHelper();
@@ -634,7 +687,8 @@ public class ExcelUtil<T> {
         sheet.addValidationData(dataValidation);
     }
 
-    /**
+    */
+/**
      * 设置某些列的值只能输入预制的数据,显示下拉框.
      *
      * @param sheet    要设置的sheet.
@@ -644,7 +698,8 @@ public class ExcelUtil<T> {
      * @param firstCol 开始列
      * @param endCol   结束列
      * @return 设置好的sheet.
-     */
+     *//*
+
     public void setXSSFValidation(Sheet sheet, String[] textlist, int firstRow, int endRow, int firstCol, int endCol) {
         DataValidationHelper helper = sheet.getDataValidationHelper();
         // 加载下拉列表内容
@@ -664,16 +719,19 @@ public class ExcelUtil<T> {
         sheet.addValidationData(dataValidation);
     }
 
-    /**
+    */
+/**
      * 编码文件名
-     */
+     *//*
+
     public String encodingFilename(String filename) {
         filename = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_" + filename + ".xlsx";
         return filename;
     }
 
 
-    /**
+    */
+/**
      * 获取bean中的属性值
      *
      * @param vo    实体对象
@@ -681,7 +739,8 @@ public class ExcelUtil<T> {
      * @param excel 注解
      * @return 最终的属性值
      * @throws Exception
-     */
+     *//*
+
     private Object getTargetValue(T vo, Field field, Excel excel) throws Exception {
         Object o = field.get(vo);
         if (StringUtils.isNotEmpty(excel.targetAttr())) {
@@ -698,14 +757,16 @@ public class ExcelUtil<T> {
         return o;
     }
 
-    /**
+    */
+/**
      * 以类的属性的get方法方法形式获取值
      *
      * @param o
      * @param name
      * @return value
      * @throws Exception
-     */
+     *//*
+
     private Object getValue(Object o, String name) throws Exception {
         if (StringUtils.isNotEmpty(name)) {
             Class<?> clazz = o.getClass();
@@ -716,9 +777,11 @@ public class ExcelUtil<T> {
         return o;
     }
 
-    /**
+    */
+/**
      * 得到所有定义字段
-     */
+     *//*
+
     private void createExcelField() {
         this.fields = new ArrayList<Object[]>();
         List<Field> tempFields = new ArrayList<>();
@@ -741,29 +804,35 @@ public class ExcelUtil<T> {
         }
     }
 
-    /**
+    */
+/**
      * 放到字段集合中
-     */
+     *//*
+
     private void putToField(Field field, Excel attr) {
         if (attr != null && (attr.type() == Excel.Type.ALL || attr.type() == type)) {
             this.fields.add(new Object[]{field, attr});
         }
     }
 
-    /**
+    */
+/**
      * 创建一个工作簿
-     */
+     *//*
+
     public void createWorkbook() {
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory", "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
         this.wb = new SXSSFWorkbook(500);
     }
 
-    /**
+    */
+/**
      * 创建工作表
      *
      * @param sheetNo sheet数量
      * @param index   序号
-     */
+     *//*
+
     public void createSheet(double sheetNo, int index) {
         this.sheet = wb.createSheet();
         this.styles = createStyles(wb);
@@ -775,13 +844,15 @@ public class ExcelUtil<T> {
         }
     }
 
-    /**
+    */
+/**
      * 获取单元格值
      *
      * @param row    获取的行
      * @param column 获取单元格列号
      * @return 单元格值
-     */
+     *//*
+
     public Object getCellValue(Row row, int column) {
         if (row == null) {
             return row;
@@ -1136,3 +1207,4 @@ public class ExcelUtil<T> {
     }
 }
 
+*/

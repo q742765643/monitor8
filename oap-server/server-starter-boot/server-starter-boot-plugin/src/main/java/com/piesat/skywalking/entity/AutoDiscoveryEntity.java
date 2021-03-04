@@ -16,7 +16,7 @@ import javax.persistence.Table;
 public class AutoDiscoveryEntity extends HtJobInfo {
 
     @Excel(name = "ip范围")
-    @Column(name = "ip_range", length = 100)
+    @Column(name = "ip_range", columnDefinition = "TEXT")
     private String ipRange;
 
     @Excel(name = "更新间隔")
