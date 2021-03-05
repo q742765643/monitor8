@@ -130,5 +130,18 @@ public class HostConfigController {
 
         return resultT;
     }
+    @ApiOperation(value = "文件上传", notes = "文件上传")
+    @PostMapping(value = "/uploadExcelLink")
+    @ResponseBody
+    public ResultT<String> uploadExcelLink(@RequestParam("files")  MultipartFile[] files) throws Exception {
+        ResultT<String> resultT=new ResultT<>();
+        for (MultipartFile multipartFile:files) {
+            InputStream inputStream = multipartFile.getInputStream();
+            hostConfigService.uploadExcelLink(inputStream);
+            inputStream.close();
+        }
+
+        return resultT;
+    }
 
 }

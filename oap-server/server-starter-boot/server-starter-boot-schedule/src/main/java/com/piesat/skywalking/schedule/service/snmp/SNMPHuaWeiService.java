@@ -231,12 +231,16 @@ public class SNMPHuaWeiService extends SNMPService {
     }
     @SneakyThrows
     public void temperatureMap(SNMPSessionUtil snmp, Map<String, Object> basicInfo, List<Map<String, Object>> esList) {
-        Map<String, Object> source = this.metricbeatMap("temperature", basicInfo);
-        String[] oid = {
-                ".1.3.6.1.4.1.2011.5.25.31.1.1.1.1.11.67108873", //name
-        };
-        ArrayList<Long> list = snmp.getSnmpGetV(PDU.GET, oid);
-        source.put("temperature", list.get(0));
-        esList.add(source);
+        try {
+            Map<String, Object> source = this.metricbeatMap("temperature", basicInfo);
+            String[] oid = {
+                    ".1.3.6.1.4.1.2011.5.25.31.1.1.1.1.11.67108873", //name
+            };
+            ArrayList<String> list = snmp.getSnmpGet(PDU.GET, oid);
+            source.put("temperature", new BigDecimal(String.valueOf(list.get(0))).longValue());
+            esList.add(source);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

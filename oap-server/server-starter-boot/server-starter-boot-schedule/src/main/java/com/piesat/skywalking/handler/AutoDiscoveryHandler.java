@@ -291,6 +291,7 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
         List<HostConfigDto>  hostConfigDtos=hostConfigService.selectBySpecification(qh);
         if(null!=hostConfigDtos&&hostConfigDtos.size()>0){
             HostConfigDto old=hostConfigDtos.get(0);
+            hostConfig.setId(old.getId());
             if(3==hostConfig.getMonitoringMethods()){
                 return;
             }

@@ -54,4 +54,6 @@ public interface HostConfigService {
     public void exportExcel();
 
     public void uploadExcel(InputStream inputStream);
+
+    public void uploadExcelLink(InputStream inputStream);
 }

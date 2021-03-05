@@ -415,4 +415,22 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
             e.printStackTrace();
         }
     }
+    public void uploadExcelLink(InputStream inputStream){
+        ExcelUtil<HostTempVo> util = new ExcelUtil(HostTempVo.class);
+        try {
+            List<HostTempVo> hostTempVos = util.importExcel(inputStream);
+            for(int i=0;i<hostTempVos.size();i++){
+                HostConfigDto hostConfigDto=new HostConfigDto();
+                BeanUtils.copyProperties(hostTempVos.get(i),hostConfigDto);
+                hostConfigDto.setCurrentStatus(11);
+                hostConfigDto.setTriggerStatus(1);
+                hostConfigDto.setDeviceType(1);
+                hostConfigDto.setJobCron(new Random().nextInt(29)+"/30 * * * * ?");
+                this.save(hostConfigDto);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
