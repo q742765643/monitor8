@@ -37,6 +37,7 @@ public class SNMPH3cService extends SNMPService {
         List<Map<String, Object>> esList = new ArrayList<Map<String, Object>>();
         this.cpuMap(snmp, basicInfo, esList);
         this.memoryMap(snmp, basicInfo, esList);
+        this.temperatureMap(snmp,basicInfo,esList);
         String indexName = IndexNameUtil.getIndexName(IndexNameConstant.METRICBEAT, date);
         for (Map<String, Object> source : esList) {
             IndexRequest indexRequest = new ElasticSearch7InsertRequest(indexName, IdUtils.fastUUID()).source(source);
