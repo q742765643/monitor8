@@ -31,10 +31,10 @@ export default {
       dataList: [],
       longhoursList: [],
       types: [
-        { name: '未监控', color: '#efefef', color1: '#efefef' },
-        { name: '可能异常', color: '#fcff13', color1: '#fcff13' },
         { name: '不在线', color: 'red', color1: 'red' },
+        { name: '可能异常', color: '#ff8040', color1: '#ff8040' },
         { name: '在线', color: '#0cb218', color1: '#0cb218' },
+        { name: '未监控', color: '#efefef', color1: '#efefef' },
       ],
       categories: [],
     };

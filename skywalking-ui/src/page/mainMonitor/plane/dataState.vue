@@ -28,7 +28,7 @@ export default {
     return {
       distList: [
         { color: '#efefef', name: '无采集' },
-        { color: '#fcff13', name: '一般' },
+        { color: '#ff8040', name: '一般' },
         { color: 'red', name: '严重' },
         { color: '#0cb218', name: '正常' },
       ],
@@ -85,7 +85,7 @@ export default {
               '应到:' +
               this.tipsList[thatIndex][0] +
               '实到:' +
-              (this.tipsList[thatIndex][1] + this.tipsList[thatIndex][2]) +
+              (Number(this.tipsList[thatIndex][1]) + Number(this.tipsList[thatIndex][2])) +
               '    准时到:' +
               this.tipsList[thatIndex][1] +
               '    迟到:' +
@@ -170,7 +170,7 @@ export default {
           orient: 'horizontal',
           type: 'piecewise',
           pieces: [
-            { min: 100, color: '#0cb218' },
+            { gte: 100, color: '#0cb218' },
             { lt: 100, color: '#fcff13' },
             { value: 0, color: 'red' },
           ],

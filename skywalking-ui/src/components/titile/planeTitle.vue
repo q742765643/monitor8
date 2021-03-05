@@ -1,26 +1,49 @@
 <template>
   <div id="palne_titile">
-    <span id="name">{{ titleName }}</span>
+    <span id="name"
+      >{{ titleName }}
+      <span v-if="currentStatus">
+        <span v-if="currentStatus == 0" style="color: #fcff13">
+          {{ statusFormat(currentStatusOptions, currentStatus) }}</span
+        >
+        <span v-if="currentStatus == 1" style="color: #fcab13">
+          {{ statusFormat(currentStatusOptions, currentStatus) }}</span
+        >
+        <span v-if="currentStatus == 2" style="color: red">
+          {{ statusFormat(currentStatusOptions, currentStatus) }}</span
+        >
+        <span v-if="currentStatus == 3" style="color: #0cb218">
+          {{ statusFormat(currentStatusOptions, currentStatus) }}</span
+        >
+        <span v-if="currentStatus == 11" style="color: #efefef">
+          {{ statusFormat(currentStatusOptions, currentStatus) }}</span
+        >
+      </span>
+    </span>
     <div id="right"><slot name="right"></slot></div>
   </div>
 </template>
 
 
 <script>
+import hongtuConfig from '@/utils/services';
 export default {
-  props: ['titleName'],
+  props: ['titleName', 'currentStatus'],
   data() {
     return {
-      // currentStatusName: ''
-    }
+      currentStatusOptions: [],
+    };
   },
   created() {
-    // this.getDicts('current_status').then((response) => {
-    //   this.currentStatusOptions = response.data;
-    // });
-    // this.getLabel();
+    this.getDicts('current_status').then((response) => {
+      this.currentStatusOptions = response.data;
+    });
   },
   methods: {
+    /* 字典格式化 */
+    statusFormat(list, text) {
+      return hongtuConfig.formatterselectDictLabel(list, text);
+    },
   },
 };
 </script>

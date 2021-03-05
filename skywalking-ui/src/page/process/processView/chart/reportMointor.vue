@@ -48,7 +48,6 @@ export default {
         let dataAll = data.data;
         this.chartlegend = dataAll.title;
         this.timeList = dataAll.time;
-        debugger
         dataAll.data.forEach((element) => {
           if (element.name == '平均cpu使用率') {
             element.data.forEach((item) => {

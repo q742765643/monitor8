@@ -6,6 +6,7 @@
           :is="comList[comIndex].comName"
           :chartID="chartID"
           :titleName="changeName"
+          :currentStatus="currentStatus"
           v-bind="$attrs"
           v-if="isReloadData"
         >
@@ -44,6 +45,7 @@ export default {
       comIndex: 0,
       changeName: '',
       isReloadData: true,
+      currentStatus: '',
     };
   },
   components: {
@@ -61,6 +63,8 @@ export default {
       if (item.chartID == this.chartID) {
         this.comIndex = index;
         this.changeName = this.comList[index].titleName;
+        this.currentStatus = this.comList[index].currentStatus;
+        console.log(this.comList[index]);
       }
       item.url = url;
     });

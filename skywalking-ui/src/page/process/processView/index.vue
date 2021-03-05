@@ -10,7 +10,7 @@
         <component
           :is="item.comName"
           :titleName="item.titleName"
-          :currentStatusName="item.currentStatusName"
+          :currentStatus="item.currentStatus"
           :showFullType="showFullType"
           :chartID="item.chartID"
           :titleID="item.chartID"
@@ -21,7 +21,7 @@
     <div v-else class="dataview_content">
       <fullChart
         :titleName="titleName"
-        :currentStatusName="item.currentStatusName"
+        :currentStatus="currentStatus"
         :fullChartID="titleID"
         :titleID="titleID"
         :showFullType="showFullType"
@@ -59,16 +59,10 @@ export default {
       showFullType: false,
       titleID: '',
       titleName: '',
-      currentStatusName: '',
-      currentStatusOptions: []
+      currentStatus: '',
     };
   },
-  created() {
-    this.getDicts('current_status').then((response) => {
-      this.currentStatusOptions = response.data;
-      console.log(this.currentStatusOptions);
-    });
-  },
+  created() {},
   components: {
     dataMointor,
     reportMointor,
@@ -81,11 +75,11 @@ export default {
     setTimeout(() => {
       let that = this;
       this.findHeader();
-      eventBus.$on('fullChart', (fullChartType, name, titleID,currentStatusName) => {
+      eventBus.$on('fullChart', (fullChartType, name, titleID, currentStatus) => {
         that.showFullType = fullChartType;
         that.titleName = name;
         that.titleID = titleID;
-        that.currentStatusName = currentStatusName;
+        that.currentStatus = currentStatus;
       });
     }, 500);
     // 拖拽后触发的事件
@@ -101,20 +95,14 @@ export default {
       }).then((data) => {
         let list = data.data;
         this.comList = [];
-        debugger;
         list.forEach((item, index) => {
           let com = {
             comName: 'reportMointor',
             titleName: item.processName,
             chartID: item.id,
             url: chartImg2,
-            currentStatusName: this.currentStatusName
+            currentStatus: item.currentStatus,
           };
-          this.currentStatusOptions.forEach(obj => {
-            if(item.currentStatus == obj.dictSort) {
-              this.currentStatusName = obj.dictLabel
-            }
-          })
           //currentStatusLabel
           if (index == 2) {
             com = {
@@ -122,12 +110,12 @@ export default {
               titleName: item.processName,
               chartID: item.id,
               url: chartImg1,
-              currentStatusName: this.currentStatusName
+              currentStatus: item.currentStatus,
             };
           }
           this.comList.push(com);
-          console.log(this.comList);
         });
+        console.log(this.comList);
       });
     },
     //树查询

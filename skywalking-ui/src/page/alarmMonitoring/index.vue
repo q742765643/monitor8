@@ -118,7 +118,9 @@
           </a-col>
           <a-col :span="12">
             <a-form-model-item label="cron策略" prop="jobCron">
-              <el-popover v-model.trim="cronPopover">
+              <a-input v-model="formDialog.jobCron" placeholder="请输入cron策略" @click="cronDialogVisible = true">
+              </a-input>
+              <!-- <el-popover v-model.trim="cronPopover">
                 <vueCron @change="changeCron" @close="closeCronPopover" i18n="cn"></vueCron>
                 <el-input
                   class="jobCronEl"
@@ -131,17 +133,8 @@
                   v-model.trim="formDialog.jobCron"
                   placeholder="请输入cron策略"
                 >
-                  <!-- <template slot="append">
-                    <el-link
-                      target="_blank"
-                      :href="'http://localhost:8180/web/vue/excel/城镇预报.xlsx'"
-                      :underline="false"
-                    >
-                      帮助
-                    </el-link>
-                  </template> -->
                 </el-input>
-              </el-popover>
+              </el-popover> -->
             </a-form-model-item>
           </a-col>
           <a-col :span="24" v-for="(itemp, indexp) in formDialog.generals" :key="'0-' + indexp">
@@ -285,16 +278,20 @@
         </a-row>
       </a-form-model>
     </a-modal>
+    <!-- cron表达式 -->
+    <cron :cronDialogVisible="cronDialogVisible" v-model="oldCron" @closeCron="closeCron" @setCron="setCron"></cron>
   </div>
 </template>
 
 <script>
-import echarts from 'echarts';
 // 接口地址
 import hongtuConfig from '@/utils/services';
 import moment from 'moment';
 import request from '@/utils/request';
 import selectDate from '@/components/date/select.vue';
+//cron表达式组件
+import Cron from '@/components/cron/Cron';
+
 export default {
   data() {
     //校验是否为cron表达式
@@ -320,6 +317,8 @@ export default {
       }
     };
     return {
+      cronDialogVisible: false,
+      oldCron: '', //修改前的cron表达式
       cronPopover: false,
       queryParams: {
         pageNum: 1,
@@ -348,7 +347,7 @@ export default {
       dateRange: [],
     };
   },
-  components: { selectDate },
+  components: { selectDate, Cron },
   created() {
     hongtuConfig.getDicts('alarm_operator').then((res) => {
       if (res.code == 200) {
@@ -375,6 +374,16 @@ export default {
   },
   mounted() {},
   methods: {
+    //设置cron表达式
+    setCron(cronExpression) {
+      this.formDialog.jobCron = cronExpression;
+      this.cronDialogVisible = false;
+    },
+    // 关闭cron表达式
+    closeCron() {
+      this.formDialog.jobCron = this.oldCron;
+      this.cronDialogVisible = false;
+    },
     changeDate(data) {
       this.dateRange = data;
     },

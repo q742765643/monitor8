@@ -62,6 +62,18 @@ export default {
         }
         nodes.push(item);
       });
+      this.TopyData.edges.forEach((item, index) => {
+        if (item.currentStatus == 2) {
+          item.style = {
+            stroke: 'red', //节点之间连线的样式
+          };
+        } else {
+          item.style = {
+            stroke: '#2bb9f7', //节点之间连线的样式
+          };
+        }
+      });
+
       this.TopyData.nodes = nodes;
       this.drawRectTree();
       // 通过ID查询节点实例
@@ -186,7 +198,6 @@ export default {
       );
       //registerEdge函数会遍历每一个节点
       //下面这两个参数是为了设置连线上圆圈的不同颜色
-      let edgeCircleColorIndex = 0;
       let edgeCircleColorArr = '#2bb9f7';
       G6.registerEdge(
         'circle-running',
@@ -264,24 +275,12 @@ export default {
         defaultNode: {
           type: 'card-node',
         },
-
-        /*   defaultEdge: {
-          size: 1,
-          type: 'line-arrow',
-          style: {
-            stroke: '#F6BD16',
-            endArrow: {
-              path: 'M 0,0 L 12,4 L 6,0 L 12,-4 Z',
-              fill: '#F6BD16',
-            },
-          },
-        }, */
         defaultEdge: {
           type: 'circle-running', //节点之间连线类型
           style: {
             //节点之间连线的样式
             lineWidth: 2,
-            stroke: '#bae7ff',
+            stroke: '#2bb9f7',
           },
         },
         nodeStateStyles: {
