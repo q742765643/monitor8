@@ -109,6 +109,9 @@ public class FileStatisticsTemplate extends ManagementData {
     @Column(columnName = "remark")
     private String remark;
 
+    @Column(columnName = "ip")
+    private String ip;
+
     @Override
     public String id() {
         return "";
