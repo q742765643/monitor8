@@ -136,8 +136,9 @@ public class HostConfigServiceImpl extends BaseService<HostConfigEntity> impleme
         if (null != hostConfig.getCurrentStatus()) {
             specificationBuilder.add("currentStatus", SpecificationOperator.Operator.eq.name(), hostConfig.getCurrentStatus());
         }
+        Sort sort = Sort.by(Sort.Direction.ASC, "ip");
         Specification specification = specificationBuilder.generateSpecification();
-        List<HostConfigEntity> hostConfigEntities = this.getAll(specification);
+        List<HostConfigEntity> hostConfigEntities = this.getAll(specification,sort);
         return hostConfigMapstruct.toDto(hostConfigEntities);
     }
 

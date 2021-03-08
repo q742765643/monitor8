@@ -45,6 +45,7 @@ public class AlarmFileService extends AlarmBaseService {
         alarmLogDto.setDeviceType(3);
         float usage=new BigDecimal(fileMonitorLogDto.getRealFileNum() + fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()), 4, BigDecimal.ROUND_HALF_UP).floatValue();
         alarmLogDto.setUsage(usage*100);
+        alarmLogDto.setIp(fileMonitorLogDto.getIp());
         this.fitAlarmLog(alarmConfigDto, alarmLogDto);
         this.judgeAlarm(alarmLogDto);
         fileMonitorLogDto.setStatus(3);

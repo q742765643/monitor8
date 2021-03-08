@@ -70,5 +70,6 @@ public class FileStatisticsDto {
 
     private String errorReason;
     private String remark;
+    private String ip;
 
 }

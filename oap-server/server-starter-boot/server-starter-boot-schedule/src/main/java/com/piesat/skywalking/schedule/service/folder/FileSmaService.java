@@ -58,6 +58,7 @@ public class FileSmaService extends FileBaseService {
             NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(null, directoryAccountDto.getUser(), directoryAccountDto.getPass());
             String remotePath = "smb://" + directoryAccountDto.getIp() + folderRegular + "/" + filenameRegular;
             fileMonitorLogDto.setRemotePath(remotePath);
+            fileMonitorLogDto.setIp(directoryAccountDto.getIp());
             try {
                 SmbFile file = new SmbFile(remotePath, auth);
                 if (file.exists() && file.isFile() && file.length() > 0) {
@@ -70,7 +71,7 @@ public class FileSmaService extends FileBaseService {
             }
             if(fileList.size()==0){
                 resultT.setSuccessMessage("检索到文件失败:"+remotePath+"进行目录扫描匹配");
-                fileMonitorLogDto.setErrorReason("扫描文件夹:"+remotePath+"未扫描到文件");
+                fileMonitorLogDto.setErrorReason(fileMonitorLogDto.getFolderRegular()+"未扫描到文件");
             }
 
         }
@@ -114,7 +115,9 @@ public class FileSmaService extends FileBaseService {
         String remotePath="";
         try {
             remotePath = "smb://" + directoryAccountDto.getIp() + fileMonitorLogDto.getFolderRegular() + "/";
+            //fileMonitorLogDto.setRemotePath(remotePath);
             fileMonitorLogDto.setRemotePath(remotePath);
+            fileMonitorLogDto.setIp(directoryAccountDto.getIp());
             SmbFileFilter smbFileFilter = this.filterFile(monitor,fileMonitorLogDto, fileList, resultT);
             if (!resultT.isSuccess()) {
                 return;
@@ -127,7 +130,7 @@ public class FileSmaService extends FileBaseService {
         }finally {
             if(fileList.size()==0){
                 resultT.setErrorMessage("扫描文件夹:"+remotePath+"未扫描到文件" );
-                fileMonitorLogDto.setErrorReason("扫描文件夹:"+remotePath+"未扫描到文件");
+                fileMonitorLogDto.setErrorReason(fileMonitorLogDto.getFolderRegular()+"未扫描到文件");
             }else {
                 resultT.setSuccessMessage("扫描文件夹:"+remotePath+"检索到文件" );
                 for(int i=0;i<fileList.size();i++){

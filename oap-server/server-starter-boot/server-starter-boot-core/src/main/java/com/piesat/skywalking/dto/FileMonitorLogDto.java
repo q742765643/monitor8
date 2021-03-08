@@ -60,5 +60,6 @@ public class FileMonitorLogDto extends BaseDto {
     private Date ddataTime;
     private String errorReason;
     private String remark;
+    private String ip;
 }
 

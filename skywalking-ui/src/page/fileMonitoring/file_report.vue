@@ -65,6 +65,7 @@
         <vxe-table-column field="lateNum" title="迟到(个)" width="80"></vxe-table-column>
         <vxe-table-column field="fileSize" title="应到大小(KB)" width="80"></vxe-table-column>
         <vxe-table-column field="realFileSize" title="实到大小(KB)" width="80"></vxe-table-column>
+        <vxe-table-column field="ip" title="ip" width="80" show-overflow></vxe-table-column>
         <vxe-table-column field="errorReason" title="原因" width="80" show-overflow></vxe-table-column>
         <vxe-table-column field="remark" title="值班员备注" width="80" show-overflow></vxe-table-column>
         <vxe-table-column width="120" field="date" title="操作">
@@ -258,7 +259,7 @@ export default {
       });
     },
     /* colspanMethod({ _rowIndex, _columnIndex }) {
-     
+
     }, */
   },
 };

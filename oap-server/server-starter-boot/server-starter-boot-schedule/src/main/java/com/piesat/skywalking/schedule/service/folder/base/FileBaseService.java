@@ -176,6 +176,7 @@ public abstract class FileBaseService {
             fileStatisticsDto.setPerFileNum(new BigDecimal(fileMonitorLogDto.getRealFileNum() + fileMonitorLogDto.getLateNum()).divide(new BigDecimal(fileMonitorLogDto.getFileNum()), 4, BigDecimal.ROUND_HALF_UP).floatValue());
             fileStatisticsDto.setDdataTime(fileMonitorLogDto.getDdataTime());
             fileStatisticsDto.setErrorReason(fileMonitorLogDto.getErrorReason());
+            fileStatisticsDto.setIp(fileMonitorLogDto.getIp());
             Map<String, Object> source = new HashMap<>();
             source.put("task_id", fileStatisticsDto.getTaskId());
             source.put("task_name", fileStatisticsDto.getTaskName());
@@ -192,6 +193,7 @@ public abstract class FileBaseService {
             source.put("timeliness_rate", fileStatisticsDto.getTimelinessRate());
             source.put("status", fileStatisticsDto.getStatus());
             source.put("error_reason", fileStatisticsDto.getErrorReason());
+            source.put("ip", fileStatisticsDto.getIp());
             if(null==fileStatisticsDto.getStatus()){
                 log.info("状态为null");
             }
