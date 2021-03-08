@@ -93,17 +93,12 @@
         <p><span> &nbsp;</span></p>
         </div>
         <div>
-          <p><a href="http://10.1.100.35:12801/upload/1.软件需求规格说明书.pdf
-"><span>1.《软件需求规格说明书》</span></a></p>
-          <p><a href="http://10.1.100.35:12801/upload/2.项目实施方案.pdf"><span>2.《项目实施方案》</span></a></p>
-          <p><a href="http://10.1.100.35:12801/upload/3.软件概要设计说明书.pdf
-"  ><span>3.《软件概要设计说明书》</span></a></p>
-          <p><a href="http://10.1.100.35:12801/upload/4.软件测试报告.pdf
-" ><span>4.《软件测试报告》</span></a></p>
-          <p><a href="http://10.1.100.35:12801/upload/5.项目总结报告.pdf
-" ><span>5.《项目总结报告》</span></a></p>
-          <p><a href="http://10.1.100.35:12801/upload/6.用户操作手册.pdf
-" ><span>6.《用户操作手册》</span></a></p>
+          <p><a :href="domianIp1" target="_blank"><span>1.《软件需求规格说明书》</span></a></p>
+          <p><a :href="domianIp2" target="_blank"><span>2.《项目实施方案》</span></a></p>
+          <p><a :href="domianIp3" target="_blank" ><span>3.《软件概要设计说明书》</span></a></p>
+          <p><a :href="domianIp4" target="_blank"><span>4.《软件测试报告》</span></a></p>
+          <p><a :href="domianIp5" target="_blank"><span>5.《项目总结报告》</span></a></p>
+          <p><a :href="domianIp6" target="_blank"><span>6.《用户操作手册》</span></a></p>
         </div>
         <h5 style="text-align:center">CopyRight@2021 气象海洋大队 、航天宏图信息技术股份有限公司 版权共同所有</h5>
         <div class="ant-modal-footer" style="padding-bottom: 0">
@@ -182,6 +177,12 @@ export default {
         ],
         newPassword2: [{ required: true, validator: passwordValidate2, trigger: 'blur' }],
       }, //规则
+      domianIp1: '',
+      domianIp2: '',
+      domianIp3: '',
+      domianIp4: '',
+      domianIp5: '',
+      domianIp6: '',
     };
   },
   created() {
@@ -199,6 +200,13 @@ export default {
       this.warnNum = data.data.length;
     });
     var domain = window.location.host;
+    console.log(domain);
+    this.domianIp1 = 'http://' +  domain + '/upload/1.软件需求规格说明书.pdf';
+    this.domianIp2 = 'http://' +  domain + '/upload/2.项目实施方案.pdf';
+    this.domianIp3 = 'http://' +  domain + '/upload/3.软件概要设计说明书.pdf';
+    this.domianIp4 = 'http://' +  domain + '/upload/4.软件测试报告.pdf';
+    this.domianIp5 = 'http://' +  domain + '/upload/5.项目总结报告.pdf';
+    this.domianIp6 = 'http://' +  domain + '/upload/6.用户操作手册.pdf';
     createWebSocket('ws://' + domain + '/ws/webSocket/12345', '');
  /*   var domain = '10.1.100.35:12801';
     createWebSocket('ws://' + domain + '/webSocket/12345', '');*/
