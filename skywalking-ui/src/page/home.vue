@@ -62,7 +62,7 @@ export default {
     #center {
       width: 100%;
       height: calc(100% - 110px);
-      margin-top: 110px;
+      margin-top: 89px;
       padding-bottom: 20px;
       .centerScroll {
         height: 100%;

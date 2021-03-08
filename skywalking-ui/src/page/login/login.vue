@@ -14,7 +14,7 @@
             </a-input>
           </a-form-model-item>
           <a-form-model-item>
-            <a-input v-model.trim="loginForm.password" placeholder="密码"
+            <a-input v-model.trim="loginForm.password" type="password" placeholder="密码"
              @keyup.enter.native="handleLogin"
               ><a-icon slot="prefix" type="lock" />
             </a-input>
@@ -37,7 +37,7 @@
       </a-col>
     </a-row>
     <div class="el-login-footer">
-      <p>xxxxxxxx</p>
+      <p>气象海洋大队 @2021</p>
     </div>
   </div>
 </template>

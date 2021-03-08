@@ -76,7 +76,7 @@
       v-model="visibleModelAbout"
       title="关于"
       @ok="visibleModelAbout = false"
-      width="520px"
+      width="620px"
       :maskClosable="false"
       class="dialogBox aboutDialog"
       :footer="null"
@@ -84,10 +84,28 @@
       <div v-if="visibleModelAbout" class="aboutBox">
         <h4 style="margin-bottom: 0">气象海洋空间天气信息</h4>
         <h4>系统综合监控平台</h4>
-        <p><span>版本：</span> V1.0.1</p>
-        <p><span>XX：</span>XXXXXX</p>
-        <p><span>XX：</span>XXXXXX</p>
-        <h5>CopyRight@2021 xxxxx 、航天宏图 版权共同所有</h5>
+        <div style="float:left;margin-right:80px">
+        <p><span>版本：V1.0.0</span> </p>
+        <p><span>项目经理：时继云  电话：15801222692</span><span></span></p>
+        <p><span>技术经理：曾召进  电话：18182167666</span></p>
+        <p><span>UI负责人：余露露  电话：17600325182</span></p>
+        <p><span></span></p>
+        <p><span> &nbsp;</span></p>
+        </div>
+        <div>
+          <p><a href="http://10.1.100.35:12801/upload/1.软件需求规格说明书.pdf
+"><span>1.《软件需求规格说明书》</span></a></p>
+          <p><a href="http://10.1.100.35:12801/upload/2.项目实施方案.pdf"><span>2.《项目实施方案》</span></a></p>
+          <p><a href="http://10.1.100.35:12801/upload/3.软件概要设计说明书.pdf
+"  ><span>3.《软件概要设计说明书》</span></a></p>
+          <p><a href="http://10.1.100.35:12801/upload/4.软件测试报告.pdf
+" ><span>4.《软件测试报告》</span></a></p>
+          <p><a href="http://10.1.100.35:12801/upload/5.项目总结报告.pdf
+" ><span>5.《项目总结报告》</span></a></p>
+          <p><a href="http://10.1.100.35:12801/upload/6.用户操作手册.pdf
+" ><span>6.《用户操作手册》</span></a></p>
+        </div>
+        <h5 style="text-align:center">CopyRight@2021 气象海洋大队 、航天宏图信息技术股份有限公司 版权共同所有</h5>
         <div class="ant-modal-footer" style="padding-bottom: 0">
           <a-button type="primary" @click="visibleModelAbout = false">关闭</a-button>
         </div>
@@ -331,7 +349,7 @@ export default {
 }
 .aboutDialog {
   .aboutBox {
-    text-align: center;
+    // text-align: center;
     position: relative;
     h4 {
       width: 100%;
@@ -341,16 +359,19 @@ export default {
       margin-bottom: 40px;
       font-family: loginFont;
     }
+    h4,h5{
+      text-align: center;
+    }
     p {
       margin-bottom: 10px;
     }
     span {
       display: inline-block;
-      width: 70px;
+      // width: 100px;
       text-align: right;
     }
     h5 {
-      margin-top: 60px;
+      margin-top: 30px;
       font-size: 14px;
     }
     .iconBox {

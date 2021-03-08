@@ -69,7 +69,7 @@ export default {
           };
         } else {
           item.style = {
-            stroke: '#2bb9f7', //节点之间连线的样式
+            stroke: '#2dd246', //节点之间连线的样式
           };
         }
       });
@@ -206,7 +206,7 @@ export default {
             if (2 == cfg.currentStatus) {
               edgeCircleColorArr = 'red';
             } else {
-              edgeCircleColorArr = '#2bb9f7';
+              edgeCircleColorArr = '#2dd246';
             }
             const shape = group.get('children')[0];
             const startPoint = shape.getPoint(0);

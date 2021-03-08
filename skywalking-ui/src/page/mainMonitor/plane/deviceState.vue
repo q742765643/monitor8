@@ -84,13 +84,14 @@ export default {
         {
           status: '一般',
           value: 0,
-          color: '#fcff13',
+          color: '#fcab13',
+          // color: '#fcff13',
           check: true,
         },
         {
           status: '危险',
           value: 0,
-          color: '#fcab13',
+          color: '#DAA520',
           check: true,
         },
         {
