@@ -70,6 +70,7 @@ public class FileSmaService extends FileBaseService {
             }
             if(fileList.size()==0){
                 resultT.setSuccessMessage("检索到文件失败:"+remotePath+"进行目录扫描匹配");
+                fileMonitorLogDto.setErrorReason("扫描文件夹:"+remotePath+"未扫描到文件");
             }
 
         }
@@ -126,6 +127,7 @@ public class FileSmaService extends FileBaseService {
         }finally {
             if(fileList.size()==0){
                 resultT.setErrorMessage("扫描文件夹:"+remotePath+"未扫描到文件" );
+                fileMonitorLogDto.setErrorReason("扫描文件夹:"+remotePath+"未扫描到文件");
             }else {
                 resultT.setSuccessMessage("扫描文件夹:"+remotePath+"检索到文件" );
                 for(int i=0;i<fileList.size();i++){
@@ -166,7 +168,6 @@ public class FileSmaService extends FileBaseService {
             long finalEndTime = endTime;
             SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             resultT.setSuccessMessage("资料时间范围>{}<={}",format1.format(finalBeginTime),format1.format(finalEndTime));
-            fileMonitorLogDto.setErrorReason(resultT.getProcessMsg().toString());
             fileFilter = new SmbFileFilter() {
                 @Override
                 public boolean accept(SmbFile smbFile) throws SmbException {

@@ -10,7 +10,9 @@ import com.piesat.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7InsertRequest;
+import org.elasticsearch.ElasticsearchParseException;
 import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -212,6 +214,19 @@ public abstract class FileBaseService {
             } catch (IOException e) {
                 e.printStackTrace();
             }*/
+            try {
+                GetResponse getResponse=elasticSearch7Client.get(statisticsIndexName,fileStatisticsDto.getId());
+                Map<String,Object> map=getResponse.getSourceAsMap();
+                if(null!=map.get("error_reason")){
+                    source.put("error_reason", map.get("error_reason"));
+                }
+                if(null!=map.get("remark")) {
+                    source.put("remark", map.get("remark"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             elasticSearch7Client.forceInsert(statisticsIndexName, fileStatisticsDto.getId(), source);
         } catch (Exception e) {
             resultT.setErrorMessage(OwnException.get(e));
