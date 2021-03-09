@@ -317,6 +317,7 @@ public class ProcessQReportServiceImpl implements ProcessQReportService {
         result.put("time",timeSet);
         result.put("data",dataList);
         result.put("currentStatus",query.getCurrentStatus());
+        result.put("ip",query.getIp());
         return result;
     }
 
