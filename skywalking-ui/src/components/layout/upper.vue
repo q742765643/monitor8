@@ -199,7 +199,7 @@ export default {
     }).then((data) => {
       this.warnNum = data.data.length;
     });
-    var domain = window.location.host;
+    var domain = window.location.host+"/monitor";
     console.log(domain);
     this.domianIp1 = 'http://' +  domain + '/upload/1.软件需求规格说明书.pdf';
     this.domianIp2 = 'http://' +  domain + '/upload/2.项目实施方案.pdf';
