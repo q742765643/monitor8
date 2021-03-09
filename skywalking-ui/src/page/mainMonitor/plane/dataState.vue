@@ -170,8 +170,8 @@ export default {
           orient: 'horizontal',
           type: 'piecewise',
           pieces: [
+            { min: 0, max: 99, color: '#ff8040' },
             { gte: 100, color: '#0cb218' },
-            { lt: 100, color: '#fcff13' },
             { value: 0, color: 'red' },
           ],
         },
