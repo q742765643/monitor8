@@ -15,6 +15,7 @@ import com.piesat.util.JsonParseUtil;
 import com.piesat.util.NullUtil;
 import com.piesat.util.ResultT;
 import com.piesat.util.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
@@ -41,6 +42,7 @@ import java.util.*;
  * @Author : zzj
  * @Date: 2020-11-02 11:09
  */
+@Slf4j
 @Service
 public class AlarmProcessService extends AlarmBaseService {
     @GrpcHthtClient
@@ -58,7 +60,14 @@ public class AlarmProcessService extends AlarmBaseService {
         for (int i = 0; i < processConfigDtos.size(); i++) {
             AlarmLogDto alarmLogDto = new AlarmLogDto();
             ProcessConfigDto processConfigDto=processConfigDtos.get(i);
-            alarmLogDto.setUsage(this.findProcess(processConfigDto));
+            float usage=this.findProcessIs(processConfigDto);
+            if(-1==usage){
+                alarmLogDto.setUsage(usage);
+                log.info("{}未采集到进程",processConfigDto.getProcessName());
+            }else {
+                alarmLogDto.setUsage(this.findProcess(processConfigDto));
+                log.info("{}采集到进程",processConfigDto.getProcessName());
+            }
             this.toAlarm(alarmLogDto, alarmConfigDto, processConfigDto);
 
         }
@@ -90,6 +99,49 @@ public class AlarmProcessService extends AlarmBaseService {
         processConfigService.save(processConfigDto);
     }
 
+    public float findProcessIs(ProcessConfigDto processConfigDto){
+        SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String endTime=format.format(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, -5);
+        String beginTime=format.format(calendar.getTime());
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        BoolQueryBuilder boolBuilder1 = QueryBuilders.boolQuery();
+        MatchQueryBuilder matchEvent = QueryBuilders.matchQuery("event.dataset", "system.process");
+        MatchQueryBuilder matchIp = QueryBuilders.matchQuery("host.name", processConfigDto.getIp());
+        WildcardQueryBuilder wild = QueryBuilders.wildcardQuery("system.process.cmdline", "*"+processConfigDto.getProcessName()+"*");
+        WildcardQueryBuilder processSe = QueryBuilders.wildcardQuery("process.name", "*"+processConfigDto.getProcessName()+"*");
+        boolBuilder1.should(wild);
+        boolBuilder1.should(processSe);
+        boolBuilder.must(boolBuilder1);
+        boolBuilder.must(matchEvent);
+        boolBuilder.must(matchIp);
+
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("@timestamp");
+        rangeQueryBuilder.gte(beginTime);
+        rangeQueryBuilder.lte(endTime);
+        rangeQueryBuilder.timeZone("+08:00");
+        rangeQueryBuilder.format("yyyy-MM-dd HH:mm:ss");
+        boolBuilder.filter(rangeQueryBuilder);
+        searchSourceBuilder.query(boolBuilder);
+        searchSourceBuilder.size(1000);
+        float usage=-1;
+        try {
+            SearchResponse response = elasticSearch7Client.search(IndexNameConstant.METRICBEAT+"-*", searchSourceBuilder);
+            SearchHits hits = response.getHits();
+            SearchHit[] searchHits = hits.getHits();
+            if(searchHits.length>0){
+               usage=0;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return usage;
+
+    }
 
     public float findProcess(ProcessConfigDto processConfigDto){
         SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
