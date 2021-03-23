@@ -245,6 +245,7 @@ public class MainService {
 
         FileMonitorDto fileMonitorDto=new FileMonitorDto();
         NullUtil.changeToNull(fileMonitorDto);
+        fileMonitorDto.setTriggerStatus(1);
         List<FileMonitorDto> fileMonitorList=fileMonitorService.selectBySpecification(fileMonitorDto);
         List<String> daysList=new ArrayList<>();
         Map<String,String> daysMap=new HashMap<>();

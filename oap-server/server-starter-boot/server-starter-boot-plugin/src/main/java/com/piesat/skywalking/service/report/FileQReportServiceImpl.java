@@ -1049,7 +1049,7 @@ public class FileQReportServiceImpl implements FileQReportService {
             // 设置数据
             List<String> headers = new ArrayList<String>();//总占用3行
             List<String> headers1 = new ArrayList<String>();//总占用3行
-            String[] hheader=new String[]{"资料名称","资料时间","采集时间","应到(个)","实到(个)","迟到(个)","应到大小(KB)","实到大小(KB)","ip","原因","值班员备注"};
+            String[] hheader=new String[]{"资料名称","资料时间","采集时间","应到(个)","实到(个)","迟到(个)","应到大小(KB)","实到大小(KB)","到报率","ip","原因","值班员备注"};
             headers1= Arrays.asList(hheader);
             headers.add("时间");
             for(int i=0;i<taskLists.size();i++){
@@ -1098,9 +1098,10 @@ public class FileQReportServiceImpl implements FileQReportService {
                 if(null==fileStatisticsDto.getIp()){
                     fileStatisticsDto.setIp("");
                 }
-                rowPut.put("9",String.valueOf(fileStatisticsDto.getIp() ));
-                rowPut.put("10",String.valueOf(fileStatisticsDto.getErrorReason() ));
-                rowPut.put("11",String.valueOf(fileStatisticsDto.getRemark()));
+                rowPut.put("9",String.valueOf(fileStatisticsDto.getPerFileNum() ));
+                rowPut.put("10",String.valueOf(fileStatisticsDto.getIp() ));
+                rowPut.put("11",String.valueOf(fileStatisticsDto.getErrorReason() ));
+                rowPut.put("12",String.valueOf(fileStatisticsDto.getRemark()));
                 exportData1.add(rowPut);
             }
 
@@ -1258,7 +1259,7 @@ public class FileQReportServiceImpl implements FileQReportService {
             // 设置数据
             List<String> headers = new ArrayList<String>();//总占用3行
             List<String> headers1 = new ArrayList<String>();//总占用3行
-            String[] hheader=new String[]{"资料名称","资料时间","采集时间","应到(个)","实到(个)","迟到(个)","应到大小(KB)","实到大小(KB)","ip","原因","值班员备注"};
+            String[] hheader=new String[]{"资料名称","资料时间","采集时间","应到(个)","实到(个)","迟到(个)","应到大小(KB)","实到大小(KB)","到报率","ip","原因","值班员备注"};
             headers1= Arrays.asList(hheader);
             headers.add("时间");
             for(int i=0;i<taskLists.size();i++){
@@ -1307,9 +1308,10 @@ public class FileQReportServiceImpl implements FileQReportService {
                 if(null==fileStatisticsDto.getIp()){
                     fileStatisticsDto.setIp("");
                 }
-                rowPut.put("9",String.valueOf(fileStatisticsDto.getIp() ));
-                rowPut.put("10",String.valueOf(fileStatisticsDto.getErrorReason() ));
-                rowPut.put("11",String.valueOf(fileStatisticsDto.getRemark()));
+                rowPut.put("9",String.valueOf(fileStatisticsDto.getPerFileNum() ));
+                rowPut.put("10",String.valueOf(fileStatisticsDto.getIp() ));
+                rowPut.put("11",String.valueOf(fileStatisticsDto.getErrorReason() ));
+                rowPut.put("12",String.valueOf(fileStatisticsDto.getRemark()));
                 exportData1.add(rowPut);
             }
 
