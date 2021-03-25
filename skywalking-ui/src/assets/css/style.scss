@@ -76,28 +76,23 @@ body {
 .ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-title {
     span {
         color: #5d76ae;
-
         .iconfont {
             color: #5d76ae;
         }
     }
-
     background:#e5ecf4 !important;
     box-shadow: none;
 }
 
 .ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-selected .ant-menu-submenu-title {
-
     span,
     a {
         color: #fff !important;
     }
-
     background: linear-gradient(90deg, #428dff, #397dff) !important;
 }
 
 .ant-menu-submenu-selected .ant-menu-inline .ant-menu-submenu-selected .ant-menu-submenu-title:hover {
-
     span,
     a {
         color: #fff !important;
@@ -128,11 +123,9 @@ body {
 .vxe-table {
     font-family: NotoSansHans-Medium, MicrosoftYaHei;
     margin-top: 20px;
-
     th {
         font-size: 16px;
     }
-
     td {
         font-size: 14px;
     }
@@ -202,7 +195,6 @@ body {
 
 .ant-calendar-picker {
     width: 400px;
-
     .ant-input {
         width: 400px;
     }
@@ -258,6 +250,11 @@ body {
     padding: 30px;
     background: #fff;
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
+    .ipNameClass {
+        font-size: 18px;
+        font-weight: 500;
+        color: black;
+    }
 }
 
 .vxe-table.size--mini .vxe-body--column:not(.col--ellipsis),
@@ -302,7 +299,6 @@ body {
     padding: 20px 10px;
     background: #FFFFFF;
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
-
     .ant-input {
         width: 220px !important;
     }
@@ -316,7 +312,6 @@ body {
     .ant-input {
         width: 100%;
     }
-
     .ant-col-17 {
         width: 74.8%;
     }
@@ -332,42 +327,34 @@ body {
     margin-bottom: 20px;
     background: #FFFFFF;
     box-shadow: 0px 5px 30px 0px rgba(22, 115, 255, 0.1);
-
     .queryForm {
         box-shadow: none;
         margin-bottom: 0;
         padding-bottom: 30px;
     }
-
     .hasFlexbox {
         display: flex;
         align-items: center;
-
         >.queryForm {
             padding-right: 0;
         }
-
         .ant-form-inline .ant-form-item {
             margin-bottom: 0;
         }
     }
-
     .flexColClass {
         display: flex;
         align-items: center;
         justify-content: flex-start;
         margin-top: 12px;
         padding-left: 12px;
-
         .spanLabel {
             display: inline-block;
             width: 80px;
         }
-
         .queryForm {
             padding: 0;
         }
-
         &:last-child {
             margin-bottom: 12px;
         }
@@ -393,16 +380,13 @@ body {
         .timeBox {
             color: #fff;
         }
-
         .leftMenuScroll {
             #menuNav {
                 color: #bfcbd9;
-
                 .ant-menu-item>a,
                 .ant-menu-item span {
                     color: #bfcbd9;
                 }
-
                 .ant-menu-item-selected>a,
                 .ant-menu-item-selected>a:hover {
                     color: #1890ff;
@@ -410,7 +394,6 @@ body {
             }
         }
     }
-
     .ant-menu-submenu-inline>.ant-menu-submenu-title .ant-menu-submenu-arrow::before,
     .ant-menu-submenu-vertical>.ant-menu-submenu-title .ant-menu-submenu-arrow::after,
     .ant-menu-submenu-selected>.ant-menu-submenu-title:hover .ant-menu-submenu-arrow::before,
@@ -418,7 +401,6 @@ body {
     .ant-menu-submenu-inline>.ant-menu-submenu-title .ant-menu-submenu-arrow::after {
         background-image: linear-gradient(to right, rgba(191, 203, 217, 0.65), rgba(191, 203, 217, 0.65));
     }
-
     .ant-menu-submenu>.ant-menu {
         background: none;
     }
@@ -434,10 +416,8 @@ body {
             box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .5);
         }
     }
-
     #slider .leftMenuScroll #menuNav .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
         background: none;
-
         &:before {
             border: none;
         }
@@ -455,15 +435,12 @@ body {
             background-size: 100% 100%;
         }
     }
-
     #slider {
         .timeBox {
             color: #fff;
         }
-
         .leftMenuScroll {
             #menuNav {
-
                 .ant-menu-item>a:hover,
                 .ant-menu-item span:hover,
                 .ant-menu-item:hover .iconfont,
@@ -478,7 +455,6 @@ body {
 
 // cron表达式
 #changeContab {
-
     .el-input-number--small .el-input-number__decrease,
     .el-input-number--small .el-input-number__increase {
         height: 92%;
@@ -486,7 +462,6 @@ body {
         align-items: center;
         justify-content: center;
     }
-
     .bottom {
         .el-button--primary {
             padding: 0 15px;
@@ -494,7 +469,6 @@ body {
             height: 32px;
         }
     }
-
     #tab-5 {
         display: none;
     }
@@ -503,12 +477,10 @@ body {
 .jobCronEl {
     height: 32px;
     line-height: 32px;
-
     .el-input__inner {
         height: 32px;
         line-height: 32px;
     }
-
     .el-input-group__append {
         height: 28px;
         line-height: 28px;

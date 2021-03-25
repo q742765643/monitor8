@@ -288,7 +288,7 @@ export default {
 #softwareState {
   width: 100%;
   height: calc(34% - 30px);
-  margin-top: 20px;
+  margin-top: 10px;
   box-shadow: $plane_shadow;
   #software_contnet {
     width: 100%;

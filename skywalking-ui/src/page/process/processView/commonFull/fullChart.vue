@@ -5,6 +5,7 @@
         <component
           :is="comList[comIndex].comName"
           :chartID="chartID"
+          :ip="comList[comIndex].ip"
           :titleName="changeName"
           :currentStatus="currentStatus"
           v-bind="$attrs"

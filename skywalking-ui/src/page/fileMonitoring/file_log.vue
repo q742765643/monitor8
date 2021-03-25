@@ -35,6 +35,7 @@
         </vxe-toolbar>
       </div>
       <vxe-table border ref="xTable" :data="tableData" stripe align="center" @checkbox-change="rowSelection">
+        <!-- <vxe-table-column type="checkbox" width="80"></vxe-table-column> -->
         <vxe-table-column field="taskName" title="名称"></vxe-table-column>
         <vxe-table-column field="fileNum" title="应到"> </vxe-table-column>
         <vxe-table-column field="realFileNum" title="准时到"> </vxe-table-column>

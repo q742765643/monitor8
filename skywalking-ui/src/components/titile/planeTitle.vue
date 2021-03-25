@@ -1,7 +1,9 @@
 <template>
   <div id="palne_titile">
     <span id="name"
-      >{{ titleName }}
+      >
+      <span id="ipClass">{{ip}}</span>
+      {{ titleName }}
       <span v-if="currentStatus">
         <span v-if="currentStatus == 0" style="color: #fcff13">
           {{ statusFormat(currentStatusOptions, currentStatus) }}</span
@@ -25,10 +27,11 @@
 </template>
 
 
+
 <script>
 import hongtuConfig from '@/utils/services';
 export default {
-  props: ['titleName', 'currentStatus'],
+  props: ['titleName', 'currentStatus', 'ip'],
   data() {
     return {
       currentStatusOptions: [],
@@ -57,6 +60,9 @@ export default {
   height: 56px;
   line-height: 56px;
   padding-left: 18px;
+  #ipClass {
+    margin-right: 10px;
+  }
   #right {
     .lengend {
       margin: 0;

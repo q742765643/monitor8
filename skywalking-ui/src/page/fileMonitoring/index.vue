@@ -231,7 +231,7 @@
     </a-modal>
     <a-modal
             v-model="uploadModel"
-            :title="文件上传"
+            title="文件上传"
             width="40%"
             :maskClosable="false"
             :centered="true"

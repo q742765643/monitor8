@@ -210,8 +210,8 @@ export default {
     justify-content: space-between;
   }
   #com {
-    width: calc(50% - 5px);
-    height: 50%;
+    width: calc(33% - 5px);
+    height: 33%;
     margin-bottom: 10px;
   }
 }
