@@ -73,7 +73,7 @@ export default {
 #untreatAlarm {
   width: 100%;
   height: calc(34% - 30px);
-  margin-top: 20px;
+  margin-top: 10px;
   box-shadow: $plane_shadow;
 
   #alarmContnet {

@@ -1,7 +1,7 @@
 <template>
   <div id="title">
     <div id="name">
-      <planeTitle :titleName="$attrs.titleName" :currentStatus="$attrs.currentStatus">
+      <planeTitle :titleName="$attrs.titleName" :currentStatus="$attrs.currentStatus" :ip="$attrs.ip">
         <div slot="right">
           <div id="tool">
             <!--  <span class="iconfont iconyidong"></span>
@@ -11,13 +11,13 @@
             <span
               v-if="!$attrs.showFullType"
               class="iconfont iconfangda"
-              @click="fullChart(true, $attrs.titleName, $attrs.titleID, $attrs.currentStatus)"
+              @click="fullChart(true, $attrs.titleName, $attrs.titleID, $attrs.currentStatus, $attrs.ip )"
             ></span>
 
             <span
               v-if="$attrs.showFullType"
               class="iconfont iconsuoxiao"
-              @click="fullChart(false, $attrs.titleName, $attrs.titleID, $attrs.currentStatus)"
+              @click="fullChart(false, $attrs.titleName, $attrs.titleID, $attrs.currentStatus, $attrs.ip)"
             ></span>
           </div>
         </div>
@@ -40,9 +40,9 @@ export default {
   },
 
   methods: {
-    fullChart(type, titleName, titleID = '', currentStatus) {
+    fullChart(type, titleName, titleID = '', currentStatus, ip) {
       console.log(currentStatus);
-      eventBus.$emit('fullChart', type, titleName, titleID, currentStatus);
+      eventBus.$emit('fullChart', type, titleName, titleID, currentStatus, ip);
     },
   },
 };

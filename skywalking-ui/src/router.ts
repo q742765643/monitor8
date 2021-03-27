@@ -93,6 +93,11 @@ const router = new Router({
           component: () => import('@/page/discoverLink/linkReport/index.vue'),
         },
         {
+          path: '/discoverLink/linkIP',
+          name: 'linkReport',
+          component: () => import('@/page/discoverLink/linkIP/index.vue'),
+        },
+        {
           path: '/masterMonitor/resourceView',
           name: 'resourceView',
           component: () => import('@/page/masterMonitor/resourceView/index.vue'),

@@ -151,6 +151,7 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
                 fileStatisticsDto.setFileNum(new BigDecimal(String.valueOf(map.get("file_num"))).longValue());
                 fileStatisticsDto.setRealFileNum(new BigDecimal(String.valueOf(map.get("real_file_num"))).longValue()+new BigDecimal(String.valueOf(map.get("late_num"))).longValue());
                 fileStatisticsDto.setLateNum(new BigDecimal(String.valueOf(map.get("late_num"))).longValue());
+                fileStatisticsDto.setIp(String.valueOf(map.get("ip")));
                 if(null!=map.get("timeliness_rate")){
                     fileStatisticsDto.setTimelinessRate(new BigDecimal(String.valueOf(map.get("timeliness_rate"))).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue()*100);
                 }

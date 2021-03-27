@@ -10,6 +10,7 @@
         <component
           :is="item.comName"
           :titleName="item.titleName"
+          :ip="item.ip"
           :currentStatus="item.currentStatus"
           :showFullType="showFullType"
           :chartID="item.chartID"
@@ -82,6 +83,7 @@ export default {
         that.currentStatus = currentStatus;
       });
     }, 500);
+
     // 拖拽后触发的事件
     this.$dragging.$on('dragged', (res) => {
       console.log(res);
@@ -102,6 +104,7 @@ export default {
             chartID: item.id,
             url: chartImg2,
             currentStatus: item.currentStatus,
+            ip: item.ip,
           };
           //currentStatusLabel
           if (index == 2) {
@@ -111,6 +114,7 @@ export default {
               chartID: item.id,
               url: chartImg1,
               currentStatus: item.currentStatus,
+              ip: item.ip,
             };
           }
           this.comList.push(com);
@@ -183,8 +187,8 @@ export default {
     justify-content: space-between;
   }
   #com {
-    width: calc(50% - 5px);
-    height: 50%;
+    width: calc(33% - 5px);
+    height: 33%;
     margin-bottom: 10px;
   }
 }
