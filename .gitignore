@@ -36,3 +36,4 @@ oap-server/server-starter-boot/server-starter-common/src/main/resources/lib/aspo
 oap-server/server-starter-boot/server-starter-common/src/main/resources/font/simsun.ttc
 skywalking-ui/skywalking-ui.rar
 skywalking-ui/vue.config.js
+skywalking-ui/node/

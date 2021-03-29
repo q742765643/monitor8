@@ -231,289 +231,289 @@
 </template>
 
 <script>
-import echarts from 'echarts';
-// 接口地址
-import hongtuConfig from '@/utils/services';
-import request from '@/utils/request';
-export default {
-  data() {
-    //校验是否为cron表达式
-    var handleCronValidate = async (rule, value, callback) => {
-      if (value == '') {
-        callback(new Error('请输入cron策略!'));
-      } else {
-        let flag = true;
-        await hongtuConfig
-          .getNextTime({
-            cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
-          })
-          .then((res) => {
-            if (res.code == 200) {
-              flag = false;
-            }
-          });
-        if (flag) {
-          callback(new Error('cron策略表达式错误!'));
+  import echarts from 'echarts';
+  // 接口地址
+  import hongtuConfig from '@/utils/services';
+  import request from '@/utils/request';
+  export default {
+    data() {
+      //校验是否为cron表达式
+      var handleCronValidate = async (rule, value, callback) => {
+        if (value == '') {
+          callback(new Error('请输入cron策略!'));
         } else {
-          callback();
+          let flag = true;
+          await hongtuConfig
+            .getNextTime({
+              cronExpression: this.formDialog.jobCron.split(' ?')[0] + ' ?',
+            })
+            .then((res) => {
+              if (res.code == 200) {
+                flag = false;
+              }
+            });
+          if (flag) {
+            callback(new Error('cron策略表达式错误!'));
+          } else {
+            callback();
+          }
         }
-      }
-    };
-    return {
-      queryParams: {
-        pageNum: 1,
-        pageSize: 10,
-        taskName: '',
-        triggerStatus: '',
-      },
-      triggerStatusOptions: [], //运行状态
-      tableData: [], //表格
-      paginationTotal: 0,
-      visibleModel: false, //弹出框
-      dialogTitle: '',
-      formDialog: {
-        taskName: '',
-        ipRange: '',
-        jobCron: '',
-        triggerStatus: '',
-        jobDesc: '',
-      },
-      rules: {
-        taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
-        jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
-      }, //规则
-      ipRules: {
-        ip: [{ required: true, message: '请输入ip', trigger: 'blur' }],
-        currentStatus: [{ required: true, message: '请输入运行状态', trigger: 'blur' }],
-      },
-      cronExpression: '',
-      cronPopover: false,
-      hostLists: [],
-      visibleIPModel: false,
-      IPFormDialog: {
-        ip: '',
-        currentStatus: '',
-        address: '',
-        jobDesc: '',
-      },
-      IPParams: {
-        pageNum: 1,
-        pageSize: 10,
-        ip: '',
-        triggerStatus: '',
-        deviceType: undefined,
-      },
-      ipPaginationTotal: 0,
-    };
-  },
-  created() {
-    hongtuConfig.getDicts('job_trigger_status').then((res) => {
-      if (res.code == 200) {
-        this.triggerStatusOptions = res.data;
-      }
-    });
-    this.queryTable();
-    this.findAllHost();
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.setTableHeight();
-    });
-    window.addEventListener('resize', () => {
-      this.setTableHeight();
-    });
-  },
-  methods: {
-      handleIPOk() {
-          this.$refs.IPFormModel.validate((valid) => {
-        if (valid) {
-          hongtuConfig.hostConfigPost(this.IPFormDialog).then((response) => {
-            if (response.code == 200) {
-              this.$message.success('编辑成功');
-              this.findAllHost();
-              this.visibleIPModel = false;
-            }
-          });
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-      },
-    handleIPEdit(row) {
-        hongtuConfig.hostConfigDetail(row.id).then((response) => {
-        if (response.code == 200) {
-          this.IPFormDialog = response.data;
-          this.visibleIPModel = true;
-        }
-      });
-    },
-    handleIPDelete(row) {
-        this.$confirm({
-        title: '是否确认删除ip为"' + row.ip + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
-          hongtuConfig.hostConfigDelete(row.id).then((response) => {
-            if (response.code == 200) {
-              this.$message.success('删除成功');
-              this.findAllHost();
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-    changeCron(val) {
-      this.cronExpression = val;
-      if (val.substring(0, 5) == '* * *') {
-        this.msgError('小时,分钟,秒必填');
-      } else {
-        this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
-        console.log(this.formDialog.jobCron);
-      }
-    },
-    closeCronPopover() {
-      if (this.cronExpression.substring(0, 5) == '* * *') {
-        return;
-      }
-      hongtuConfig
-        .getNextTime({
-          cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
-        })
-        .then((res) => {
-          let times = res.data;
-          let html = '';
-          times.forEach((element) => {
-            html += '<p>' + element + '</p>';
-          });
-          this.$alert(html, '前5次执行时间', {
-            dangerouslyUseHTMLString: true,
-          }).then(() => {
-            this.cronPopover = false;
-          });
-        });
-    },
-    /* 查询 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.queryTable();
-    },
-    /* 重置 */
-    resetQuery() {
-      this.queryParams = {
-        pageNum: 1,
-        pageSize: 10,
-        ip: '',
-        triggerStatus: '',
       };
-      this.queryTable();
+      return {
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          taskName: '',
+          triggerStatus: '',
+        },
+        triggerStatusOptions: [], //运行状态
+        tableData: [], //表格
+        paginationTotal: 0,
+        visibleModel: false, //弹出框
+        dialogTitle: '',
+        formDialog: {
+          taskName: '',
+          ipRange: '',
+          jobCron: '',
+          triggerStatus: '',
+          jobDesc: '',
+        },
+        rules: {
+          taskName: [{ required: true, message: '请输入设备别名', trigger: 'blur' }],
+          jobCron: [{ required: true, validator: handleCronValidate, trigger: 'blur' }],
+        }, //规则
+        ipRules: {
+          ip: [{ required: true, message: '请输入ip', trigger: 'blur' }],
+          currentStatus: [{ required: true, message: '请输入运行状态', trigger: 'blur' }],
+        },
+        cronExpression: '',
+        cronPopover: false,
+        hostLists: [],
+        visibleIPModel: false,
+        IPFormDialog: {
+          ip: '',
+          currentStatus: '',
+          address: '',
+          jobDesc: '',
+        },
+        IPParams: {
+          pageNum: 1,
+          pageSize: 10,
+          ip: '',
+          triggerStatus: '',
+          deviceType: undefined,
+        },
+        ipPaginationTotal: 0,
+      };
     },
-    /* 翻页 */
-    handlePageChange({ currentPage, pageSize }) {
-      this.queryParams.pageNum = currentPage;
-      this.queryParams.pageSize = pageSize;
+    created() {
+      hongtuConfig.getDicts('job_trigger_status').then((res) => {
+        if (res.code == 200) {
+          this.triggerStatusOptions = res.data;
+        }
+      });
       this.queryTable();
-    },
-    handleIPPageChange({ currentPage, pageSize }) {
-      this.IPParams.pageNum = currentPage;
-      this.IPParams.pageSize = pageSize;
       this.findAllHost();
     },
-    /* table方法 */
-    queryTable() {
-      hongtuConfig.autoDiscoveryList(this.queryParams).then((response) => {
-        this.tableData = response.data.pageData;
-        this.paginationTotal = response.data.totalCount;
+    mounted() {
+      this.$nextTick(() => {
+        this.setTableHeight();
+      });
+      window.addEventListener('resize', () => {
+        this.setTableHeight();
       });
     },
-
-    /* 字典格式化 */
-    statusFormat(list, text) {
-      return hongtuConfig.formatterselectDictLabel(list, text);
-    },
-    handleAdd() {
-      this.cronPopover = false;
-      /* 新增 */
-      this.dialogTitle = '新增';
-      this.formDialog = {
-        taskName: '',
-        ipRange: '',
-        jobCron: '',
-        triggerStatus: '',
-        jobDesc: '',
-      };
-      this.visibleModel = true;
-    },
-    /* 编辑 */
-    handleEdit(row) {
-      this.cronPopover = false;
-      hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
-        if (response.code == 200) {
-          response.data.triggerStatus = response.data.triggerStatus + '';
-          this.formDialog = response.data;
-          this.visibleModel = true;
-          this.dialogTitle = '编辑';
+    methods: {
+      handleIPOk() {
+        this.$refs.IPFormModel.validate((valid) => {
+          if (valid) {
+            hongtuConfig.hostConfigPost(this.IPFormDialog).then((response) => {
+              if (response.code == 200) {
+                this.$message.success('编辑成功');
+                this.findAllHost();
+                this.visibleIPModel = false;
+              }
+            });
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      handleIPEdit(row) {
+        hongtuConfig.hostConfigDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            this.IPFormDialog = response.data;
+            this.visibleIPModel = true;
+          }
+        });
+      },
+      handleIPDelete(row) {
+        this.$confirm({
+          title: '是否确认删除ip为"' + row.ip + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            hongtuConfig.hostConfigDelete(row.id).then((response) => {
+              if (response.code == 200) {
+                this.$message.success('删除成功');
+                this.findAllHost();
+              }
+            });
+          },
+          onCancel() {},
+        });
+      },
+      changeCron(val) {
+        this.cronExpression = val;
+        if (val.substring(0, 5) == '* * *') {
+          this.msgError('小时,分钟,秒必填');
+        } else {
+          this.formDialog.jobCron = val.split(' ?')[0] + ' ?';
+          console.log(this.formDialog.jobCron);
         }
-      });
-    },
-    /* 确认 */
-    handleOk() {
-      this.$refs.formModel.validate((valid) => {
-        if (valid) {
-          hongtuConfig.autoDiscoveryPost(this.formDialog).then((response) => {
-            if (response.code == 200) {
-              this.$message.success(this.dialogTitle + '成功');
-              this.visibleModel = false;
-              this.queryTable();
-            }
+      },
+      closeCronPopover() {
+        if (this.cronExpression.substring(0, 5) == '* * *') {
+          return;
+        }
+        hongtuConfig
+          .getNextTime({
+            cronExpression: this.cronExpression.split(' ?')[0] + ' ?',
+          })
+          .then((res) => {
+            let times = res.data;
+            let html = '';
+            times.forEach((element) => {
+              html += '<p>' + element + '</p>';
+            });
+            this.$alert(html, '前5次执行时间', {
+              dangerouslyUseHTMLString: true,
+            }).then(() => {
+              this.cronPopover = false;
+            });
+          });
+      },
+      /* 查询 */
+      handleQuery() {
+        this.queryParams.pageNum = 1;
+        this.queryTable();
+      },
+      /* 重置 */
+      resetQuery() {
+        this.queryParams = {
+          pageNum: 1,
+          pageSize: 10,
+          ip: '',
+          triggerStatus: '',
+        };
+        this.queryTable();
+      },
+      /* 翻页 */
+      handlePageChange({ currentPage, pageSize }) {
+        this.queryParams.pageNum = currentPage;
+        this.queryParams.pageSize = pageSize;
+        this.queryTable();
+      },
+      handleIPPageChange({ currentPage, pageSize }) {
+        this.IPParams.pageNum = currentPage;
+        this.IPParams.pageSize = pageSize;
+        this.findAllHost();
+      },
+      /* table方法 */
+      queryTable() {
+        hongtuConfig.netDiscoveryList(this.queryParams).then((response) => {
+          this.tableData = response.data.pageData;
+          this.paginationTotal = response.data.totalCount;
+        });
+      },
+
+      /* 字典格式化 */
+      statusFormat(list, text) {
+        return hongtuConfig.formatterselectDictLabel(list, text);
+      },
+      handleAdd() {
+        this.cronPopover = false;
+        /* 新增 */
+        this.dialogTitle = '新增';
+        this.formDialog = {
+          taskName: '',
+          ipRange: '',
+          jobCron: '',
+          triggerStatus: '',
+          jobDesc: '',
+        };
+        this.visibleModel = true;
+      },
+      /* 编辑 */
+      handleEdit(row) {
+        this.cronPopover = false;
+        hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
+          if (response.code == 200) {
+            response.data.triggerStatus = response.data.triggerStatus + '';
+            this.formDialog = response.data;
+            this.visibleModel = true;
+            this.dialogTitle = '编辑';
+          }
+        });
+      },
+      /* 确认 */
+      handleOk() {
+        this.$refs.formModel.validate((valid) => {
+          if (valid) {
+            hongtuConfig.autoDiscoveryPost(this.formDialog).then((response) => {
+              if (response.code == 200) {
+                this.$message.success(this.dialogTitle + '成功');
+                this.visibleModel = false;
+                this.queryTable();
+              }
+            });
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      /* 删除 */
+      handleDelete(row) {
+        let ids = [];
+        let taskNames = [];
+        if (!row.id) {
+          let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
+          cellsChecked.forEach((element) => {
+            ids.push(element.id);
+            taskNames.push(element.taskName);
           });
         } else {
-          console.log('error submit!!');
-          return false;
+          ids.push(row.id);
+          taskNames.push(row.taskName);
         }
-      });
-    },
-    /* 删除 */
-    handleDelete(row) {
-      let ids = [];
-      let taskNames = [];
-      if (!row.id) {
-        let cellsChecked = this.$refs.tablevxe.getCheckboxRecords();
-        cellsChecked.forEach((element) => {
-          ids.push(element.id);
-          taskNames.push(element.taskName);
+        this.$confirm({
+          title: '是否确认删除ip为"' + taskNames.join(',') + '"的数据项?',
+          content: '',
+          okText: '是',
+          okType: 'danger',
+          cancelText: '否',
+          onOk: () => {
+            hongtuConfig.autoDiscoveryDelete(ids.join(',')).then((response) => {
+              if (response.code == 200) {
+                this.$message.success('删除成功');
+                this.resetQuery();
+              }
+            });
+          },
+          onCancel() {},
         });
-      } else {
-        ids.push(row.id);
-        taskNames.push(row.taskName);
-      }
-      this.$confirm({
-        title: '是否确认删除ip为"' + taskNames.join(',') + '"的数据项?',
-        content: '',
-        okText: '是',
-        okType: 'danger',
-        cancelText: '否',
-        onOk: () => {
-          hongtuConfig.autoDiscoveryDelete(ids.join(',')).then((response) => {
-            if (response.code == 200) {
-              this.$message.success('删除成功');
-              this.resetQuery();
-            }
-          });
-        },
-        onCancel() {},
-      });
-    },
-    findAllHost() {
-      hongtuConfig.hostConfigLIst(this.IPParams).then((response) => {
-        this.hostLists = response.data.pageData;
-        this.ipPaginationTotal = response.data.totalCount;
-      });
-    },
-    /* setTableHeight() {
+      },
+      findAllHost() {
+        hongtuConfig.hostConfigLIst(this.IPParams).then((response) => {
+          this.hostLists = response.data.pageData;
+          this.ipPaginationTotal = response.data.totalCount;
+        });
+      },
+      /* setTableHeight() {
       let h = document.getElementById('tablediv').offsetHeight;
       let padding = getComputedStyle(document.getElementById('linkManger_content'), false)['paddingTop'];
       let h_page = document.getElementById('page_table').offsetHeight;
@@ -521,41 +521,41 @@ export default {
       // let chartHeight = document.getElementById("chartdiv").clientHeight;
       this.tableheight = h + parseInt(padding) * 2 - h_page - 1;
     }, */
-    startJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
-      request({
-        url: '/autoDiscovery/updateAutoDiscovery',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('启动成功');
-        this.handleQuery();
-      });
+      startJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 1, jobCron: row.jobCron };
+        request({
+          url: '/autoDiscovery/updateAutoDiscovery',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('启动成功');
+          this.handleQuery();
+        });
+      },
+      endJob(row) {
+        const id = row.id;
+        let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+        request({
+          url: '/autoDiscovery/updateAutoDiscovery',
+          method: 'post',
+          data: data,
+        }).then((response) => {
+          this.$message.success('停止成功');
+          this.handleQuery();
+        });
+      },
     },
-    endJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
-      request({
-        url: '/autoDiscovery/updateAutoDiscovery',
-        method: 'post',
-        data: data,
-      }).then((response) => {
-        this.$message.success('停止成功');
-        this.handleQuery();
-      });
-    },
-  },
-};
+  };
 </script>
 
 <style lang="scss" scoped>
-.linkIPTemplate {
-  .tableDateBox {
-    padding-top: 10px;
+  .linkIPTemplate {
+    .tableDateBox {
+      padding-top: 10px;
+    }
+    .vxe-table {
+      margin-top: 0;
+    }
   }
-  .vxe-table {
-    margin-top: 0;
-  }
-}
 </style>

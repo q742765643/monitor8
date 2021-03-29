@@ -18,39 +18,42 @@
 var webpack = require('webpack');
 
 module.exports = {
-    configureWebpack: {
-        plugins: [
-            new webpack.ProvidePlugin({
-                $: 'jquery',
-                jQuery: 'jquery',
-                'windows.jQuery': 'jquery',
-                Popper: ['popper.js', 'default'],
-            }),
-        ],
-    },
-    publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
-    lintOnSave: false,
-    devServer: {
-        proxy: {
-            '/graphql': {
-                target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
-                changeOrigin: true,
-            },
-           /*  '/monitor': {
+  configureWebpack: {
+    plugins: [
+      new webpack.ProvidePlugin({
+        $: 'jquery',
+        jQuery: 'jquery',
+        'windows.jQuery': 'jquery',
+        Popper: ['popper.js', 'default'],
+      }),
+    ],
+  },
+  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
+  lintOnSave: false,
+  devServer: {
+    proxy: {
+      '/graphql': {
+        target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
+        changeOrigin: true,
+      },
+      /*  '/monitor': {
                 target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12801'}`,
                 changeOrigin: true,
                 pathRewrite: {
                     ["^/monitor"]: ""
                 }
             }, */
-            '/': {
-                    target: `${process.env.SW_PROXY_TARGET || 'http://1.119.169.74:10002'}`,
-                    changeOrigin: true,
-                },
+      '/monitor': {
+        target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
+        changeOrigin: true,
+        pathRewrite: {
+          ['^/monitor']: '',
         },
+      },
     },
-    chainWebpack: (config) => {
-        /* const svgRule = config.module.rule('svg');
+  },
+  chainWebpack: (config) => {
+    /* const svgRule = config.module.rule('svg');
                                                                 svgRule.uses.clear();
                                                                 svgRule
                                                                     .use('svg-sprite-loader')
@@ -58,26 +61,26 @@ module.exports = {
                                                                     .options({
                                                                         symbolId: '[name]',
                                                                     }); */
-        /*  const CssRule = config.module.rule('css');
+    /*  const CssRule = config.module.rule('css');
                                                                  CssRule.uses.clear();
                                                                  CssRule.loader('css-loader')
                                                                  CssRule.loader('style-loader') */
-        config.module
-            .rule('css')
-            .test(/\.css$/)
-            .oneOf('vue')
-            .resourceQuery(/\?vue/)
-            .use('px2rem')
-            .loader('px2rem-loader')
-            .options({
-                remUnit: 192,
-            });
+    config.module
+      .rule('css')
+      .test(/\.css$/)
+      .oneOf('vue')
+      .resourceQuery(/\?vue/)
+      .use('px2rem')
+      .loader('px2rem-loader')
+      .options({
+        remUnit: 192,
+      });
+  },
+  css: {
+    loaderOptions: {
+      sass: {
+        data: `@import "./src/assets/css/global.scss";`,
+      },
     },
-    css: {
-        loaderOptions: {
-            sass: {
-                data: `@import "./src/assets/css/global.scss";`,
-            },
-        },
-    },
+  },
 };

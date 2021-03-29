@@ -281,12 +281,12 @@ const dataService = {
     });
   },
 
-  // 文件报表折线图-到报率查询 
+  // 文件报表折线图-到报率查询
   fileReportLineChart(params: String) {
     return new Promise((resolve, reject) => {
       instance
         .get('/fileQReport/findFileReportLineChart', {
-          params: params
+          params: params,
         })
         .then((res) => {
           resolve(res);
@@ -302,7 +302,7 @@ const dataService = {
     return new Promise((resolve, reject) => {
       instance
         .get('/fileMonitorLog/selectPageListDetail', {
-          params: params
+          params: params,
         })
         .then((res) => {
           resolve(res);
@@ -1011,12 +1011,12 @@ const dataService = {
       instance
         .get('/getRouters')
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
   // 重置密码 resetUserPwd
   updatePwd(newPassword: String, OldPassword: String) {
@@ -1024,12 +1024,12 @@ const dataService = {
       instance
         .put('/system/user/profile/updatePwd?newPassword=' + newPassword + '&oldPassword=' + OldPassword)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
 
   // 修改主题
@@ -1038,12 +1038,12 @@ const dataService = {
       instance
         .put('/system/user/profile/updateTheme?theme=' + newPassword)
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
   // 查看主题
   getTheme() {
@@ -1051,18 +1051,33 @@ const dataService = {
       instance
         .get('/system/user/profile/getTheme')
         .then((res) => {
-          resolve(res)
+          resolve(res);
         })
         .catch((err) => {
-          reject(err)
-        })
-    })
+          reject(err);
+        });
+    });
   },
   // 近五次执行时间
   getNextTime(params: Object) {
     return new Promise((resolve, reject) => {
       instance
         .get('/jobInfo/getNextTime', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+  // 自动发现配置-表格
+  netDiscoveryList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/netDiscovery/list', {
           params: params,
         })
         .then((res) => {
