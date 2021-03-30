@@ -127,8 +127,12 @@ public class AutoDiscoveryHandler implements BaseShardHandler {
             e.printStackTrace();
         }
         List<String> exists = hostConfigService.selectOnine();
-        if (null != exists) {
-            ips.removeAll(exists);
+        try {
+            if (null != exists) {
+                ips.removeAll(exists);
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
         }
         return ips;
     }

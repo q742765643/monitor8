@@ -15,44 +15,42 @@
  * limitations under the License.
  */
 
-let fs = require('fs')
-let path = require('path')
+let fs = require('fs');
+let path = require('path');
 
-let src1 = '../node_modules/element-ui/types/message.d.ts'
-annotation(src1, '$message: ElMessage')
-let src2 = '../node_modules/element-ui/types/message-box.d.ts'
-annotation(src2, '$confirm: ElMessageBoxShortcutMethod')
-let src3 = '../node_modules/@antv/g6/lib/algorithm/structs/stack/index.d.ts'
-annotation(src3, 'get length(): number;')
-
+let src1 = '../node_modules/element-ui/types/message.d.ts';
+annotation(src1, '$message: ElMessage');
+let src2 = '../node_modules/element-ui/types/message-box.d.ts';
+annotation(src2, '$confirm: ElMessageBoxShortcutMethod');
+let src3 = '../node_modules/@antv/g6/lib/algorithm/structs/stack/index.d.ts';
+annotation(src3, 'get length(): number;');
+let src4 = '../node_modules/element-ui/types/cascader.d.ts';
+annotation(src4, 'export type CascaderOption = CascaderOption');
+let src5 = '../node_modules/element-ui/types/cascader.d.ts';
+annotation(src5, 'export type CascaderProps<V, D> = CascaderProps<V, D>');
+let src6 = '../node_modules/element-ui/types/cascader.d.ts';
+annotation(src6, 'export type CascaderNode<V, D> = CascaderNode<V, D>');
 function annotation(src, params) {
   fs.readFile(path.resolve(__dirname, src), 'utf8', function(err, files) {
     if (!err && files !== '') {
-      let val = params
-      let has = `// ${params}`
-      let start = files.indexOf(val)
-      let start2 = files.indexOf(has)
+      let val = params;
+      let has = `// ${params}`;
+      let start = files.indexOf(val);
+      let start2 = files.indexOf(has);
       if (start > -1 && start2 === -1) {
-        var result = files.replace(val, has)
-        fs.writeFile(
-            path.resolve(__dirname, src),
-            result,
-            'utf8',
-            function(err) {
-              if (err) {
-                console.log(err)
-              }
-            }
-        )
+        var result = files.replace(val, has);
+        fs.writeFile(path.resolve(__dirname, src), result, 'utf8', function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
 
-        console.log(params + ' 注释成功！')
+        console.log(params + ' 注释成功！');
       } else {
-        console.log('没有需要注释对或者已经注释了！')
+        console.log('没有需要注释对或者已经注释了！');
       }
     } else {
-      console.log(
-          params + ' 没有需要注释对或者已经注释了或者注释文件失败！'
-      )
+      console.log(params + ' 没有需要注释对或者已经注释了或者注释文件失败！');
     }
-  })
+  });
 }
