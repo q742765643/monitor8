@@ -1073,6 +1073,94 @@ const dataService = {
         });
     });
   },
+  // 分页查询全网ip自动发现
+  ipList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/netDiscovery/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 全网ip
+  allIPList(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/netIp/list', {
+          params: params,
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 全网ip 查询
+  searchIPById(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .get('/netDiscovery/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 全网ip 编辑/新增
+  editIP(params: Object) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/netDiscovery', params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 全网ip 停止
+  stopOrStartIP(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .post('/netDiscovery/updateAutoDiscovery', params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
+  // 告警管理-删除
+  deleteIP(params: String) {
+    return new Promise((resolve, reject) => {
+      instance
+        .delete('/netDiscovery/' + params)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  },
+
 };
 
 export default dataService;

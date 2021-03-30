@@ -49,10 +49,11 @@
             <span> {{ parseTime(row.createTime) }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column width="260" field="date" title="操作">
+        <vxe-table-column width="360" field="date" title="操作">
           <template v-slot="{ row }">
-            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 0" @click="startJob(row)"> 启动 </a-button>
-            <a-button type="primary" icon="edit" v-if="row.triggerStatus == 1" @click="endJob(row)"> 停止 </a-button>
+            <a-button type="primary" icon="check" v-if="row.triggerStatus == 0" @click="startOrEndJob(row)"> 启动 </a-button>
+            <a-button type="primary" icon="stop" v-if="row.triggerStatus == 1" @click="startOrEndJob(row)"> 停止 </a-button>
+            <a-button type="primary" icon="plus" @click="handleAdd(row)"> 新增 </a-button>
             <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
             <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
           </template>
@@ -87,7 +88,7 @@
           <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
         </vxe-toolbar>
       </div>
-      <vxe-table :data="hostLists" align="center" highlight-hover-row border ref="tablevxe">
+      <vxe-table :data="hostLists" align="center" highlight-hover-row border ref="hostVxe">
         <vxe-table-column type="index" title="序号" width="80"></vxe-table-column>
         <vxe-table-column field="ip" title="ip地址"></vxe-table-column>
         <vxe-table-column field="currentStatus" title="在线状态" show-overflow>
@@ -96,14 +97,14 @@
             <span v-else> 在线</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="address" title="地址" show-overflow></vxe-table-column>
+        <!-- <vxe-table-column field="address" title="地址" show-overflow></vxe-table-column>
         <vxe-table-column field="jobDesc" title="备注" show-overflow> </vxe-table-column>
         <vxe-table-column width="260" field="date" title="操作">
           <template v-slot="{ row }">
             <a-button type="primary" icon="edit" @click="handleIPEdit(row)"> 编辑 </a-button>
             <a-button type="danger" icon="delete" @click="handleIPDelete(row)"> 删除 </a-button>
           </template>
-        </vxe-table-column>
+        </vxe-table-column> -->
       </vxe-table>
 
       <vxe-pager
@@ -300,8 +301,8 @@ export default {
         pageNum: 1,
         pageSize: 10,
         ip: '',
-        triggerStatus: '',
-        deviceType: undefined,
+        currentStatus: '',
+        discoveryId: undefined,
       },
       ipPaginationTotal: 0,
     };
@@ -424,7 +425,7 @@ export default {
     },
     /* table方法 */
     queryTable() {
-      hongtuConfig.autoDiscoveryList(this.queryParams).then((response) => {
+      hongtuConfig.ipList(this.queryParams).then((response) => {
         this.tableData = response.data.pageData;
         this.paginationTotal = response.data.totalCount;
       });
@@ -442,7 +443,7 @@ export default {
         taskName: '',
         ipRange: '',
         jobCron: '',
-        triggerStatus: '',
+        triggerStatus: '1',
         jobDesc: '',
       };
       this.visibleModel = true;
@@ -450,7 +451,7 @@ export default {
     /* 编辑 */
     handleEdit(row) {
       this.cronPopover = false;
-      hongtuConfig.autoDiscoveryDetail(row.id).then((response) => {
+      hongtuConfig.searchIPById(row.id).then((response) => {
         if (response.code == 200) {
           response.data.triggerStatus = response.data.triggerStatus + '';
           this.formDialog = response.data;
@@ -463,7 +464,7 @@ export default {
     handleOk() {
       this.$refs.formModel.validate((valid) => {
         if (valid) {
-          hongtuConfig.autoDiscoveryPost(this.formDialog).then((response) => {
+          hongtuConfig.editIP(this.formDialog).then((response) => {
             if (response.code == 200) {
               this.$message.success(this.dialogTitle + '成功');
               this.visibleModel = false;
@@ -497,7 +498,7 @@ export default {
         okType: 'danger',
         cancelText: '否',
         onOk: () => {
-          hongtuConfig.autoDiscoveryDelete(ids.join(',')).then((response) => {
+          hongtuConfig.deleteIP(ids.join(',')).then((response) => {
             if (response.code == 200) {
               this.$message.success('删除成功');
               this.resetQuery();
@@ -508,7 +509,7 @@ export default {
       });
     },
     findAllHost() {
-      hongtuConfig.hostConfigLIst(this.IPParams).then((response) => {
+      hongtuConfig.allIPList(this.IPParams).then((response) => {
         this.hostLists = response.data.pageData;
         this.ipPaginationTotal = response.data.totalCount;
       });
@@ -533,15 +534,21 @@ export default {
         this.handleQuery();
       });
     },
-    endJob(row) {
-      const id = row.id;
-      let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+    startOrEndJob(row) {
+      // const id = row.id;
+      // let data = { id: id, triggerStatus: 0, jobCron: row.jobCron };
+      let data = row;
+      data.triggerStatus = data.triggerStatus == 1 ? 0 : 1;
       request({
-        url: '/autoDiscovery/updateAutoDiscovery',
+        url: '/netDiscovery/updateAutoDiscovery',
         method: 'post',
         data: data,
       }).then((response) => {
-        this.$message.success('停止成功');
+        if(data.triggerStatus == 1){
+          this.$message.success('启动成功');
+        } else {
+          this.$message.success('停止成功');
+        }
         this.handleQuery();
       });
     },

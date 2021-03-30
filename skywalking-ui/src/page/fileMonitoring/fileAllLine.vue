@@ -55,6 +55,7 @@
         </vxe-table-column>
         <vxe-table-column field="folderRegular" title="目的路径"></vxe-table-column>
         <vxe-table-column field="ip" title="服务器IP"></vxe-table-column>
+        <vxe-table-column field="remark" title="值班员备注"></vxe-table-column>
         <vxe-table-column field="startTimeA" title="最新采集时间">
           <template slot-scope="scope" >
             <span v-if="null!=scope.row.startTimeA">{{ parseTime(scope.row.startTimeA) }}</span>
