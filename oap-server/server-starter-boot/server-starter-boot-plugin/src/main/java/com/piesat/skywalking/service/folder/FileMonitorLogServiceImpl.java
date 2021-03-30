@@ -158,6 +158,9 @@ public class FileMonitorLogServiceImpl extends BaseService<FileMonitorLogEntity>
                 if(null!=map.get("per_file_num")){
                     fileStatisticsDto.setPerFileNum(new BigDecimal(String.valueOf(map.get("per_file_num"))).setScale(2,BigDecimal.ROUND_HALF_UP).floatValue()*100);
                 }
+				if(null!=map.get("remark")){
+                    fileStatisticsDto.setRemark(String.valueOf(map.get("remark")));
+                }
                 fileStatisticsDtos.add(fileStatisticsDto);
             }
             pageBean.setPageData(fileStatisticsDtos);
