@@ -26,8 +26,8 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/../dist-material/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <directory>${project.parent.basedir}/dist-material/bin</directory>
+            <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
                 <include>*.bat</include>
@@ -35,7 +35,7 @@
             <fileMode>0755</fileMode>
         </fileSet>
    <!--     <fileSet>
-            <directory>${project.basedir}/../dist-material</directory>
+            <directory>${project.parent.basedir}/dist-material</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>log4j2.xml</include>
@@ -44,7 +44,7 @@
             </includes>
         </fileSet>-->
      <!--   <fileSet>
-            <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
+            <directory>${project.parent.basedir}/oap-server/server-bootstrap/src/main/resources</directory>
             <includes>
 
                 <include>application.yml</include>
@@ -64,66 +64,61 @@
             <outputDirectory>/config</outputDirectory>
         </fileSet>-->
        <!-- <fileSet>
-            <directory>${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap</directory>
+            <directory>${project.parent.basedir}/oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap</directory>
             <outputDirectory>/oap-libs</outputDirectory>
         </fileSet>-->
 
         <!-- Agent repackage into the dist -->
      <!--   <fileSet>
-            <directory>${project.basedir}/../skywalking-agent</directory>
+            <directory>${project.parent.basedir}/skywalking-agent</directory>
             <outputDirectory>/agent</outputDirectory>
         </fileSet>-->
 
         <!-- Profile exporter tools -->
     <!--    <fileSet>
-            <directory>${project.basedir}/../tools/profile-exporter</directory>
+            <directory>${project.parent.basedir}/tools/profile-exporter</directory>
             <outputDirectory>/tools/profile-exporter</outputDirectory>
         </fileSet>-->
 
         <!-- Release docs and licenses -->
         <fileSet>
-            <directory>${project.basedir}/../</directory>
-            <outputDirectory>/</outputDirectory>
+            <directory>${project.parent.basedir}/</directory>
+            <outputDirectory></outputDirectory>
             <includes>
                 <include>DISCLAIMER</include>
                 <include>CHANGES</include>
             </includes>
         </fileSet>
-
-        <fileSet>
-            <directory>${project.basedir}/../dist-material/release-docs</directory>
-            <outputDirectory>/</outputDirectory>
-        </fileSet>
     </fileSets>
     <files>
         <file>
-            <source>${project.basedir}/../apm-webapp/target/skywalking-webapp.jar</source>
-            <outputDirectory>/webapp</outputDirectory>
+            <source>${project.parent.basedir}/apm-webapp/target/skywalking-webapp.jar</source>
+            <outputDirectory>webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
-            <outputDirectory>/webapp</outputDirectory>
+            <source>${project.parent.basedir}/apm-webapp/src/main/assembly/webapp.yml</source>
+            <outputDirectory>webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-plugin/target/skywalking-oap.jar</source>
-            <outputDirectory>/oap-libs</outputDirectory>
+            <source>${project.parent.basedir}/oap-server/server-starter-boot/server-starter-boot-plugin/target/skywalking-oap.jar</source>
+            <outputDirectory>oap-libs</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-plugin/src/main/resources/application.yml</source>
-            <outputDirectory>/oap-libs</outputDirectory>
+            <source>${project.parent.basedir}/oap-server/server-starter-boot/server-starter-boot-plugin/src/main/resources/application.yml</source>
+            <outputDirectory>oap-libs</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-schedule/target/skywalking-client.jar</source>
-            <outputDirectory>/client</outputDirectory>
+            <source>${project.parent.basedir}/oap-server/server-starter-boot/server-starter-boot-schedule/target/skywalking-client.jar</source>
+            <outputDirectory>client</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../oap-server/server-starter-boot/server-starter-boot-schedule/src/main/resources/application.yml</source>
-            <outputDirectory>/client</outputDirectory>
+            <source>${project.parent.basedir}/oap-server/server-starter-boot/server-starter-boot-schedule/src/main/resources/application.yml</source>
+            <outputDirectory>client</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
     </files>
