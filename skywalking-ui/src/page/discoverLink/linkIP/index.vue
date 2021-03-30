@@ -20,14 +20,14 @@
 
     <div id="tablediv" class="tableDateBox">
       <div class="ipNameClass">全网IP自动发现</div>
-      <!-- <a-row type="flex" class="rowToolbar" :gutter="10">
+      <a-row type="flex" class="rowToolbar" :gutter="10">
         <a-col :span="1.5">
           <a-button type="primary" icon="plus" @click="handleAdd"> 新增 </a-button>
         </a-col>
         <a-col :span="1.5">
           <a-button type="danger" icon="delete" @click="handleDelete"> 删除 </a-button>
         </a-col>
-      </a-row> -->
+      </a-row>
       <div id="toolbar">
         <vxe-toolbar custom>
           <template v-slot:buttons> <p style="text-align: right; margin-bottom: 0">列选择</p> </template>
@@ -53,7 +53,7 @@
           <template v-slot="{ row }">
             <a-button type="primary" icon="check" v-if="row.triggerStatus == 0" @click="startOrEndJob(row)"> 启动 </a-button>
             <a-button type="primary" icon="stop" v-if="row.triggerStatus == 1" @click="startOrEndJob(row)"> 停止 </a-button>
-            <a-button type="primary" icon="plus" @click="handleAdd(row)"> 新增 </a-button>
+            <!-- <a-button type="primary" icon="plus" @click="handleAdd(row)"> 新增 </a-button> -->
             <a-button type="primary" icon="edit" @click="handleEdit(row)"> 编辑 </a-button>
             <a-button type="danger" icon="delete" @click="handleDelete(row)"> 删除 </a-button>
           </template>
