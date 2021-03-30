@@ -37,19 +37,19 @@ module.exports = {
                 changeOrigin: true,
             },
             '/monitor': {
-                target: `${process.env.SW_PROXY_TARGET || 'http://127.0.0.1:12801'}`,
+                target: `${process.env.SW_PROXY_TARGET || 'http://10.1.100.35:12801'}`,
                 changeOrigin: true,
                 pathRewrite: {
                     ["^/monitor"]: ""
                 }
             },
-           /*  '/': {
-                                target: `${process.env.SW_PROXY_TARGET || 'http://1.119.169.74:10002'}`,
-                                changeOrigin: true,
-                                pathRewrite: {
-                                    ["^/"]: ""
-                                }
-                            }, */
+            /*  '/': {
+                                 target: `${process.env.SW_PROXY_TARGET || 'http://1.119.169.74:10002'}`,
+                                 changeOrigin: true,
+                                 pathRewrite: {
+                                     ["^/"]: ""
+                                 }
+                             }, */
         },
     },
     chainWebpack: (config) => {
