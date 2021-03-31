@@ -7,6 +7,7 @@ import com.piesat.common.jpa.specification.SpecificationOperator;
 import com.piesat.common.utils.StringUtils;
 import com.piesat.skywalking.api.discover.AutoDiscoveryService;
 import com.piesat.skywalking.api.discover.NetDiscoveryService;
+import com.piesat.skywalking.api.discover.NetIpService;
 import com.piesat.skywalking.dao.AutoDiscoveryDao;
 import com.piesat.skywalking.dao.NetDiscoveryDao;
 import com.piesat.skywalking.dto.NetDiscoveryDto;
@@ -32,6 +33,8 @@ public class NetDiscoveryServiceImpl extends BaseService<NetDiscoveryEntity> imp
     private NetDiscoveryQuartzService netDiscoveryQuartzService;
     @Autowired
     private NetDiscoveryMapstruct netDiscoveryMapstruct;
+    @Autowired
+    private NetIpService netIpService;
 
     @Override
     public BaseDao<NetDiscoveryEntity> getBaseDao() {
@@ -117,6 +120,13 @@ public class NetDiscoveryServiceImpl extends BaseService<NetDiscoveryEntity> imp
     public void deleteByIds(List<String> ids) {
         super.deleteByIds(ids);
         netDiscoveryQuartzService.deleteJob(ids);
+        try {
+            for(String id:ids){
+                netIpService.deleteByWhere(id);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void trigger(String id){
